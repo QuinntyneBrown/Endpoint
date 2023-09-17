@@ -1,3 +1,0 @@
-﻿<ng-container *ngIf="vm$ | ngrxPush as vm">
-    <h1>{{ messageBinding }}</h1>
-</ng-container>
