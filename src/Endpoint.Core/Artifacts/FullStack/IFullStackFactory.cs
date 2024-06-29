@@ -5,5 +5,5 @@ namespace Endpoint.Core.Artifacts.FullStack;
 
 public interface IFullStackFactory
 {
-    Task<FullStackModel> CreateAsync();
+    Task<FullStackModel> CreateAsync(FullStackCreateOptions options);
 }

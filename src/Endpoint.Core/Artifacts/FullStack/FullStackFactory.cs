@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Core.Artifacts.FullStack;
 
-public class FullStackFactory: IFullStackFactory
+public class FullStackFactory : IFullStackFactory
 {
     private readonly ILogger<FullStackFactory> _logger;
 
@@ -16,7 +16,7 @@ public class FullStackFactory: IFullStackFactory
         _logger = logger;
     }
 
-    public Task<FullStackModel> CreateAsync()
+    public Task<FullStackModel> CreateAsync(FullStackCreateOptions options)
     {
         throw new NotImplementedException();
     }
