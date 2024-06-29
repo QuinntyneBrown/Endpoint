@@ -2,7 +2,7 @@
   "profiles": {
     "default": {
       "commandName": "Project",
-      "commandLineArgs": "git-create -n MessageBroker -d C:\\projects\\MessageBroker\\",
+      "commandLineArgs": "git-create -n Eventing -d C:\\projects\\Eventing\\",
       "environmentVariables": {
         "Endpoint:DefaultCommand": ""
       }
