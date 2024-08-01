@@ -44,7 +44,7 @@ public class ProjectGenerationStrategy : GenericArtifactGenerationStrategy<Proje
 
         fileSystem.Directory.CreateDirectory(model.Directory);
 
-        commandService.Start($"dotnet new {templateType} --framework net7.0", model.Directory);
+        commandService.Start($"dotnet new {templateType} --framework net8.0", model.Directory);
 
         foreach (var path in fileSystem.Directory.GetFiles(model.Directory, "*1.cs", SearchOption.AllDirectories))
         {
