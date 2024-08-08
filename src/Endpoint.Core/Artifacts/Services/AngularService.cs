@@ -10,7 +10,7 @@ using Endpoint.Core.Artifacts.Files;
 using Endpoint.Core.Artifacts.Files.Factories;
 using Endpoint.Core.Artifacts.Workspaces;
 using Endpoint.Core.Extensions;
-using Endpoint.Core.Internals;
+using Endpoint.Core.Internal;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax.Angular;
 using Endpoint.Core.Syntax.Classes;

@@ -8,7 +8,7 @@ using Endpoint.Core.Artifacts.Folders;
 using Endpoint.Core.Artifacts.Projects.Enums;
 using Endpoint.Core.Artifacts.Projects.Factories;
 using Endpoint.Core.Artifacts.Units;
-using Endpoint.Core.Internals;
+using Endpoint.Core.Internal;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax.Classes;
 using Endpoint.Core.Syntax.Classes.Services;

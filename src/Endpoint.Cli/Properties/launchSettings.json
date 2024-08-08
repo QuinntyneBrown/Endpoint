@@ -16,7 +16,7 @@
     },
     "signalr-app-create": {
       "commandName": "Project",
-      "commandLineArgs": "signalr-app-create -n HotlineBling -d C:\\projects",
+      "commandLineArgs": "signalr-app-create -n HotlineBling -d C:\\projects -l 4",
       "environmentVariables": {
         "Endpoint:DefaultCommand": ""
       }

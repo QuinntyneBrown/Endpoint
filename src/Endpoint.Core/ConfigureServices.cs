@@ -19,6 +19,7 @@ using Endpoint.Core.Artifacts.Solutions.Factories;
 using Endpoint.Core.Artifacts.Solutions.Services;
 using Endpoint.Core.Artifacts.SpecFlow;
 using Endpoint.Core.Artifacts.Units;
+using Endpoint.Core.Events;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax.Classes.Factories;
 using Endpoint.Core.Syntax.Classes.Services;
@@ -42,6 +43,7 @@ public static class ConfigureServices
 {
     public static void AddCoreServices(this IServiceCollection services)
     {
+        services.AddSingleton<IEndpointEventContainer,EndpointEventContainer>();
         services.AddSingleton<IFullStackFactory,FullStackFactory>();
         services.AddSingleton<ISystemContextFactory, SystemContextFactory>();
         services.AddSingleton<ISystemContext, SystemContext>();
@@ -148,4 +150,5 @@ public static class ConfigureServices
         AddCoreServices(services);
     }
 }
+
 
