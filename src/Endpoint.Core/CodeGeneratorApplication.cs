@@ -17,13 +17,11 @@ public class CodeGeneratorApplication
 
     public CodeGeneratorApplication(IMediator mediator, ILogger<CodeGeneratorApplication> logger, Observable<INotification> notificationObservable)
     {
+        ArgumentNullException.ThrowIfNull(mediator);
+        ArgumentNullException.ThrowIfNull(logger);
+
         this.mediator = mediator;
         this.logger = logger;
-
-        _ = notificationObservable.Subscribe(async x =>
-        {
-            await mediator.Publish(x);
-        });
     }
 
     public static CodeGeneratorApplicationBuilder CreateBuilder()

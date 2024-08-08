@@ -53,11 +53,15 @@ public class ProjectGenerationStrategy : GenericArtifactGenerationStrategy<Proje
 
         if (templateType == "webapi")
         {
-            fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Controllers{Path.DirectorySeparatorChar}WeatherForecastController.cs");
+            try
+            {
+                fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Controllers{Path.DirectorySeparatorChar}WeatherForecastController.cs");
 
-            fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}WeatherForecast.cs");
+                fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}WeatherForecast.cs");
 
-            fileSystem.Directory.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Controllers");
+                fileSystem.Directory.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Controllers");
+            }
+            catch { }
         }
 
         foreach (var folder in model.Folders)
