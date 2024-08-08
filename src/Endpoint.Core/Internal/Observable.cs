@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Endpoint.Core.Internals;
+namespace Endpoint.Core.Internal;
 
 public class Observable<T> : IObservable<T>
 {

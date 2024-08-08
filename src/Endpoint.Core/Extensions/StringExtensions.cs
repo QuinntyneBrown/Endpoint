@@ -5,7 +5,9 @@ using Endpoint.Core.Services;
 using Endpoint.Core.Syntax.Properties;
 using Endpoint.Core.Syntax.Types;
 using Endpoint.Core.Syntax.Units;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Formatting;
 using static System.Linq.Enumerable;
 
 namespace System;
@@ -13,6 +15,15 @@ namespace System;
 public static class StringExtensions
 {
     private static INamingConventionConverter converter = new NamingConventionConverter();
+
+    public static string FormatCSharp(this string csharpCode)
+    {
+        var tree = CSharpSyntaxTree.ParseText(csharpCode);
+
+        var syntaxNode = tree.GetRoot();
+
+        return Formatter.Format(syntaxNode, new AdhocWorkspace()).ToFullString();
+    }
 
     public static string ToPascalCase(this string value)
     {

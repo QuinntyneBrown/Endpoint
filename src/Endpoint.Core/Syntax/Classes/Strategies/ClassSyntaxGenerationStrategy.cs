@@ -6,6 +6,10 @@ using System.Text;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax.Methods;
 using Endpoint.Core.Syntax.Properties;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Options;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Core.Syntax.Classes.Strategies;
@@ -62,7 +66,7 @@ public class ClassSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<Cla
         {
             builder.Append(" { }");
 
-            return builder.ToString();
+            return builder.ToString().FormatCSharp();
         }
 
         builder.AppendLine($"");
@@ -95,6 +99,6 @@ public class ClassSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<Cla
 
         builder.AppendLine("}");
 
-        return builder.ToString();
+        return builder.ToString().FormatCSharp();
     }
 }
