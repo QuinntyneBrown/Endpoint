@@ -56,7 +56,9 @@ public class ConstructorSyntaxGenerationStrategy : GenericSyntaxGenerationStrate
 
                 var paramName = namingConventionConverter.Convert(NamingConvention.CamelCase, param.Name);
 
-                builder.AppendLine($"{fieldName} = {paramName} ?? throw new ArgumentNullException(nameof({paramName}));".Indent(1));
+                builder.AppendLine($"ArgumentNullException.ThrowIfNull({paramName});".Indent(1));
+
+                builder.AppendLine($"{fieldName} = {paramName};".Indent(1));
             }
         }
 
