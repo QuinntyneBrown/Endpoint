@@ -16,7 +16,7 @@
     },
     "signalr-app-create": {
       "commandName": "Project",
-      "commandLineArgs": "signalr-app-create -n HotlineBling -d C:\\projects -l 4",
+      "commandLineArgs": "signalr-app-create -n HotlineBling3 -d C:\\projects -l 4",
       "environmentVariables": {
         "Endpoint:DefaultCommand": ""
       }
@@ -24,6 +24,13 @@
     "class-create": {
       "commandName": "Project",
       "commandLineArgs": "class-create -n HotlineBling -d C:\\projects -l 4",
+      "environmentVariables": {
+        "Endpoint:DefaultCommand": ""
+      }
+    },
+    "enum-create": {
+      "commandName": "Project",
+      "commandLineArgs": "enum-create -n HotlineBling -d C:\\projects\\Endpoint\\src\\Endpoint.Cli\\ -l 4 -e Foo",
       "environmentVariables": {
         "Endpoint:DefaultCommand": ""
       }

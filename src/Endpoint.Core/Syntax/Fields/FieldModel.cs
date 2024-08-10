@@ -27,6 +27,8 @@ public class FieldModel : SyntaxModel
 
     public string DefaultValue { get; set; }
 
+    public bool Static { get; set; } = false;
+
     public AccessModifier AccessModifier { get; set; }
 
     public static FieldModel LoggerOf(string name)

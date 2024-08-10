@@ -13,10 +13,12 @@ public class CommandService : ICommandService
 
     public CommandService(ILogger<CommandService> logger)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        ArgumentNullException.ThrowIfNull(logger);
+
+        this.logger = logger;
     }
 
-    public void Start(string arguments, string workingDirectory = null, bool waitForExit = true)
+    public int Start(string arguments, string workingDirectory = null, bool waitForExit = true)
     {
         workingDirectory ??= Environment.CurrentDirectory;
 
@@ -29,7 +31,11 @@ public class CommandService : ICommandService
         if (waitForExit)
         {
             process.WaitForExit();
+
+            return process.ExitCode;
         }
+
+        return 1;
     }
 
     private bool IsUnix() => RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
@@ -55,6 +61,8 @@ public class CommandService : ICommandService
                 FileName = "cmd.exe",
                 Arguments = $"/C {arguments}",
                 WorkingDirectory = workingDirectory,
+                UseShellExecute = false,
+                RedirectStandardInput = true,
             },
         };
 }

@@ -3,6 +3,7 @@
 
 using System.Linq;
 using System.Text;
+using Endpoint.Core.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Core.Syntax.Methods.Strategies;
@@ -45,7 +46,18 @@ public class MethodSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<Me
             builder.Append(" static");
         }
 
-        builder.Append($" {await syntaxGenerator.GenerateAsync(model.ReturnType)}");
+        if (model.ImplicitOperator)
+        {
+            builder.Append(" implicit operator");
+        }
+        else if (model.ExplicitOperator)
+        {
+            builder.Append(" explicit operator");
+        }
+        else
+        {
+            builder.Append($" {await syntaxGenerator.GenerateAsync(model.ReturnType)}");
+        }
 
         builder.Append($" {model.Name}");
 

@@ -39,4 +39,8 @@ public class MethodModel : SyntaxModel
     public bool Async { get; set; }
 
     public bool Static { get; set; }
+
+    public bool ImplicitOperator { get; set; } = false;
+
+    public bool ExplicitOperator { get; set; } = false;
 }

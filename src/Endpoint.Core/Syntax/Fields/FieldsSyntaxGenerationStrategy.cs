@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EnvDTE;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Core.Syntax.Fields;
@@ -45,6 +46,11 @@ public class FieldsSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<Li
         var builder = new StringBuilder();
 
         builder.Append(await syntaxGenerator.GenerateAsync(model.AccessModifier));
+
+        if(model.Static)
+        {
+            builder.Append(" static");
+        }
 
         if (model.ReadOnly)
         {
