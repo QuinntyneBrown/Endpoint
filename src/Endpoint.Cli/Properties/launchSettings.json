@@ -13,6 +13,13 @@
       "environmentVariables": {
         "Endpoint:DefaultCommand": ""
       }
+    },
+    "enum-create": {
+      "commandName": "Project",
+      "commandLineArgs": "enum-create -n HotlineBling -d C:\\projects -e Drake:6 -l 4 -t int",
+      "environmentVariables": {
+        "Endpoint:DefaultCommand": ""
+      }
     }
   }
 }
