@@ -222,7 +222,7 @@ public class AngularService : IAngularService
 
     public async Task AddProject(AngularProjectModel model)
     {
-        var stringBuilder = new StringBuilder().Append($"ng generate {model.ProjectType} {model.Name} --prefix {model.Prefix}");
+        var stringBuilder = new StringBuilder().Append($"ng generate {model.ProjectType} {model.Name} --prefix {model.Prefix} --defaults=true");
 
         if (model.ProjectType == "application")
         {

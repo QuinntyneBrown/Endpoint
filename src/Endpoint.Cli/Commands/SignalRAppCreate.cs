@@ -134,13 +134,13 @@ public class SignalRAppCreateRequestHandler : IRequestHandler<SignalRAppCreateRe
 
         var solutionModel = await solutionFactory.Create(request.Name, $"{request.Name}.Api", "webapi", string.Empty, request.Directory);
 
-        var messageModel = classFactory.CreateMessageModel();
-
         var hubClassModel = classFactory.CreateHubModel(request.Name);
 
         var interfaceModel = classFactory.CreateHubInterfaceModel(request.Name);
 
         var projectModel = solutionModel.DefaultProject;
+
+        var messageModel = classFactory.CreateMessageModel();
 
         var workerModel = await classFactory.CreateMessageProducerWorkerAsync(request.Name, projectModel.Directory);
 

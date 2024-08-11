@@ -211,11 +211,11 @@ public class ProjectFactory : IProjectFactory
                         .Build()));
 
                     model.Packages.Add(new ("Microsoft.AspNetCore.Mvc.Versioning", "5.0.0"));
-                    model.Packages.Add(new () { Name = "Microsoft.AspNetCore.OpenApi", Version = "7.0.2" });
+                    model.Packages.Add(new () { Name = "Microsoft.AspNetCore.OpenApi", Version = "8.0.7" });
                     model.Packages.Add(new ("Serilog", "2.12.0"));
                     model.Packages.Add(new ("SerilogTimings", "3.0.1"));
                     model.Packages.Add(new ("Serilog.AspNetCore", "6.0.1"));
-                    model.Packages.Add(new ("Swashbuckle.AspNetCore", "6.5.0"));
+                    model.Packages.Add(new ("Swashbuckle.AspNetCore", "6.7.0"));
                     model.Packages.Add(new ("Swashbuckle.AspNetCore.Annotations", "6.5.0"));
                     model.Packages.Add(new ("Swashbuckle.AspNetCore.Newtonsoft", "6.5.0"));
                     model.Packages.Add(new ("Swashbuckle.AspNetCore.Swagger", "6.5.0"));
@@ -433,9 +433,9 @@ public class ProjectFactory : IProjectFactory
 
             model.Files.Add(fileFactory.CreateTemplate("DefaultConfigureServices", "ConfigureServices", model.Directory, tokens: tokens));
 
-            model.Packages.Add(new () { Name = "Microsoft.AspNetCore.OpenApi", Version = "7.0.2" });
+            model.Packages.Add(new () { Name = "Microsoft.AspNetCore.OpenApi", Version = "8.0.7" });
 
-            model.Packages.Add(new () { Name = "Swashbuckle.AspNetCore", Version = "6.4.0" });
+            model.Packages.Add(new () { Name = "Swashbuckle.AspNetCore", Version = "6.7.0" });
         }
 
         return model;

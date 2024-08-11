@@ -26,7 +26,7 @@ public class AngularWorkspaceGenerationStrategy : GenericArtifactGenerationStrat
 
         commandService.Start($"npm install --registry=https://registry.npmjs.org/ @angular/cli@{model.Version} -g", model.RootDirectory);
 
-        commandService.Start($"ng new {model.Name} --no-create-application", model.RootDirectory);
+        commandService.Start($"ng new {model.Name} --no-create-application --defaults=true", model.RootDirectory);
 
         commandService.Start($"npm install --registry=https://registry.npmjs.org/ @ngrx/component-store --force", Path.Combine(model.RootDirectory, model.Name));
 

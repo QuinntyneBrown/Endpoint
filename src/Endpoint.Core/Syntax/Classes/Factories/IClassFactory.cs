@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Endpoint.Core.Syntax.Entities;
 using Endpoint.Core.Syntax.Interfaces;
 using Endpoint.Core.Syntax.Properties;
-using Endpoint.Core.Syntax.Units;
 
 namespace Endpoint.Core.Syntax.Classes.Factories;
 
@@ -13,7 +12,7 @@ public interface IClassFactory
 {
     Task<ClassModel> CreateControllerAsync(string controllerName, string directory);
 
-    Task<ClassModel> CreateEntityAsync(string name, string properties);
+    Task<ClassModel> CreateEntityAsync(string name, List<KeyValuePair<string,string>> keyValuePairs);
 
     ClassModel CreateController(EntityModel model, string directory);
 
@@ -44,4 +43,8 @@ public interface IClassFactory
     Task<ClassModel> CreateResponseAsync(string responseName, List<PropertyModel> properties);
 
     Task<ClassModel> CreateWorkerAsync(string name);
+
+    Task<ClassModel> CreateUserDefinedEnumAsync(string name, string type, List<KeyValuePair<string,string>> keyValuePairs);
+
+    Task<ClassModel> CreateUserDefinedTypeAsync(string name, string type);
 }

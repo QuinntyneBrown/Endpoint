@@ -38,7 +38,7 @@ public class ClassService : IClassService
         nameSpaceProvider = namespaceProvider ?? throw new ArgumentNullException(nameof(namespaceProvider));
     }
 
-    public async Task CreateAsync(string name, string properties, string directory)
+    public async Task CreateAsync(string name, List<KeyValuePair<string,string>> keyValuePairs, string directory)
     {
         logger.LogInformation("Create Class {name}", name);
 
@@ -46,16 +46,9 @@ public class ClassService : IClassService
 
         @class.Usings.Add(new ("System"));
 
-        if (!string.IsNullOrEmpty(properties))
+        foreach (var keyValue in keyValuePairs)
         {
-            foreach (var property in properties.Split(','))
-            {
-                var parts = property.Split(':');
-                var propertyName = parts[0];
-                var propertyType = parts[1];
-
-                @class.Properties.Add(new PropertyModel(@class, AccessModifier.Public, new TypeModel() { Name = propertyType }, propertyName, new List<PropertyAccessorModel>()));
-            }
+            @class.Properties.Add(new PropertyModel(@class, AccessModifier.Public, new TypeModel() { Name = keyValue.Value }, keyValue.Key, new List<PropertyAccessorModel>()));
         }
 
         var classFile = new CodeFileModel<ClassModel>(

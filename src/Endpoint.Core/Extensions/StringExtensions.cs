@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax.Properties;
 using Endpoint.Core.Syntax.Types;
@@ -23,6 +24,24 @@ public static class StringExtensions
         var syntaxNode = tree.GetRoot();
 
         return Formatter.Format(syntaxNode, new AdhocWorkspace()).ToFullString();
+    }
+
+    public static List<KeyValuePair<string,string>> ToKeyValuePairList(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return [];
+        }
+
+        return input.Split(',').Select(x =>
+        {
+            var parts = x.Split(":");
+
+            var keyValuePair = new KeyValuePair<string, string>(parts[0], parts.Length > 1 ? parts[1] : string.Empty);
+
+            return keyValuePair;
+        })
+            .ToList();
     }
 
     public static string ToPascalCase(this string value)

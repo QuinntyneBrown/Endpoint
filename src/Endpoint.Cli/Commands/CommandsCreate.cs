@@ -57,7 +57,7 @@ public class CommandsCreateRequestHandler : IRequestHandler<CommandsCreateReques
             RootNamespace = request.RootNamespace,
         });
 
-        var aggregate = await classFactory.CreateEntityAsync(request.Aggregate, request.Properties);
+        var aggregate = await classFactory.CreateEntityAsync(request.Aggregate, request.Properties.ToKeyValuePairList());
 
         var model = await folderFactory.CreateAggregateCommandsAsync(aggregate, request.Directory);
 

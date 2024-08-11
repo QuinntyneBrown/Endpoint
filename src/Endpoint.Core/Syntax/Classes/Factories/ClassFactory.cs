@@ -1,11 +1,11 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Endpoint.Core.Extensions;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax.Attributes;
 using Endpoint.Core.Syntax.Constructors;
@@ -18,8 +18,6 @@ using Endpoint.Core.Syntax.Params;
 using Endpoint.Core.Syntax.Properties;
 using Endpoint.Core.Syntax.Properties.Factories;
 using Endpoint.Core.Syntax.Types;
-using Endpoint.Core.Extensions;
-using Microsoft.Extensions.Primitives;
 
 namespace Endpoint.Core.Syntax.Classes.Factories;
 
@@ -42,6 +40,94 @@ public class ClassFactory : IClassFactory
         this.codeAnalysisService = codeAnalysisService ?? throw new ArgumentNullException(nameof(codeAnalysisService));
     }
 
+    public async Task<ClassModel> CreateUserDefinedEnumAsync(string name, string type, List<KeyValuePair<string, string>> keyValuePairs)
+    {
+        var model = await CreateUserDefinedTypeAsync(name, type);
+
+        int numberOfEnums = 0;
+
+        foreach (var keyValuePair in keyValuePairs)
+        {
+            model.Fields.Add(new()
+            {
+                Name = keyValuePair.Key,
+                Static = true,
+                AccessModifier = AccessModifier.Public,
+                Type = new(name),
+                DefaultValue = string.IsNullOrEmpty(keyValuePair.Value)
+                ? type == "int" ? $"new (1 << {numberOfEnums})" : $"new (nameof({keyValuePair.Key}))"
+                : type == "int" ? $"new ({keyValuePair.Value})" : $"new (\"{keyValuePair.Value}\")",
+            });
+
+            numberOfEnums++;
+        }
+
+        return model;
+    }
+
+    public async Task<ClassModel> CreateUserDefinedTypeAsync(string name, string type)
+    {
+        var model = new ClassModel(name);
+
+        model.Usings.Add(new("System"));
+
+        ConstructorModel constructor = new(model, model.Name)
+        {
+            Params =
+            [
+                new()
+                {
+                    Name = "value",
+                    Type = new(type),
+                },
+            ],
+        };
+
+        model.Fields.Add(new()
+        {
+            Name = "_value",
+            AccessModifier = AccessModifier.Private,
+            ReadOnly = true,
+            Type = new(type),
+        });
+
+        model.Methods.Add(new()
+        {
+            ImplicitOperator = true,
+            Name = type,
+            Static = true,
+            Params =
+            [
+                new()
+                {
+                    Name = name.ToCamelCase(),
+                    Type = new(name),
+                },
+            ],
+            Body = new($"return {name.ToCamelCase()}._value;"),
+        });
+
+        model.Methods.Add(new()
+        {
+            ExplicitOperator = true,
+            Name = name,
+            Static = true,
+            Params =
+            [
+                new()
+                {
+                    Name = "value",
+                    Type = new(type),
+                },
+            ],
+            Body = new($"return new {name}(value);"),
+        });
+
+        model.Constructors.Add(constructor);
+
+        return model;
+    }
+    
     public async Task<ClassModel> DtoExtensionsCreateAsync(ClassModel aggregate)
     {
         var model = new ClassModel($"{aggregate.Name}Extensions")
@@ -167,32 +253,32 @@ public class ClassFactory : IClassFactory
         return classModel;
     }
 
-    public async Task<ClassModel> CreateEntityAsync(string name, string properties = null)
+    public async Task<ClassModel> CreateEntityAsync(string name, List<KeyValuePair<string,string>> keyValuePairs)
     {
         var classModel = new ClassModel(name);
 
         var hasId = false;
 
-        if (!string.IsNullOrEmpty(properties))
+        var properties = new List<PropertyModel>();
+
+        foreach (var keyValuePair in keyValuePairs)
         {
-            foreach (var property in properties.Split(','))
+            properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel(keyValuePair.Value), keyValuePair.Key, PropertyAccessorModel.GetSet));
+
+            if (keyValuePair.Key == $"{name}Id")
             {
-                var parts = property.Split(':');
-                var propName = parts[0];
-                var propType = parts[1];
-
-                if (propName == $"{name}Id")
-                {
-                    hasId = true;
-                }
-
-                classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel(propType), propName, PropertyAccessorModel.GetSet));
+                hasId = true;
             }
         }
 
         if (!hasId)
         {
             classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new ("Guid"), $"{name}Id", PropertyAccessorModel.GetSet));
+        }
+
+        foreach (var property in properties)
+        {
+            classModel.Properties.Add(property);
         }
 
         return classModel;
