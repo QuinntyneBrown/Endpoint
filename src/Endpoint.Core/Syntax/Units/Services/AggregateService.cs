@@ -73,7 +73,7 @@ public class AggregateService : IAggregateService
 
         if (classModel == null)
         {
-            classModel = await classFactory.CreateEntityAsync(name, properties);
+            classModel = await classFactory.CreateEntityAsync(name, properties.ToKeyValuePairList());
         }
 
         var model = await syntaxUnitFactory.CreateAsync(name, classModel.Properties);
@@ -96,7 +96,7 @@ public class AggregateService : IAggregateService
 
         if (classModel == null)
         {
-            classModel = await classFactory.CreateEntityAsync(aggregate, properties);
+            classModel = await classFactory.CreateEntityAsync(aggregate, properties.ToKeyValuePairList());
         }
 
         var commandModel = new CommandModel(); // (serviceName, classModel, _namingConventionConverter, name: name, routeType: routeType switch

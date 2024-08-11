@@ -64,6 +64,15 @@ public class ProjectGenerationStrategy : GenericArtifactGenerationStrategy<Proje
             catch { }
         }
 
+        if (templateType == "worker")
+        {
+            try
+            {
+                fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Worker.cs");
+            }
+            catch { }
+        }
+
         foreach (var folder in model.Folders)
         {
             fileSystem.Directory.CreateDirectory(folder.Directory);

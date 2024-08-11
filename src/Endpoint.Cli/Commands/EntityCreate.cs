@@ -6,10 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Core.Artifacts;
-using Endpoint.Core.Artifacts.Files;
 using Endpoint.Core.Artifacts.Files.Services;
 using Endpoint.Core.Services;
-using Endpoint.Core.Syntax.Classes;
 using Endpoint.Core.Syntax.Classes.Factories;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -53,11 +51,11 @@ public class EntityAddRequestHandler : IRequestHandler<EntityCreateRequest>
 
     public async Task Handle(EntityCreateRequest request, CancellationToken cancellationToken)
     {
-        var model = await classFactory.CreateEntityAsync(request.Name, request.Properties);
+        var model = await classFactory.CreateEntityAsync(request.Name, request.Properties.ToKeyValuePairList());
 
-        await classService.CreateAsync(request.Name, request.Properties, request.Directory);
+        await classService.CreateAsync(request.Name, request.Properties.ToKeyValuePairList(), request.Directory);
 
-        await classService.CreateAsync($"{request.Name}Dto", request.Properties, request.Directory);
+        await classService.CreateAsync($"{request.Name}Dto", request.Properties.ToKeyValuePairList(), request.Directory);
 
         // var dtoExtensions = new DtoExtensionsModel(_namingConventionConverter, $"{model.Name}Extensions", model);
 

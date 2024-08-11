@@ -106,11 +106,11 @@ public class MicroserviceAddRequestHandler : IRequestHandler<MicroserviceAddRequ
                     microservice.Packages.AddRange(new PackageModel[]
                     {
                         new ("Microsoft.AspNetCore.Mvc.Versioning", "5.0.0"),
-                        new ("Microsoft.AspNetCore.OpenApi", "7.0.2"),
+                        new ("Microsoft.AspNetCore.OpenApi", "8.0.7"),
                         new ("Serilog", "2.12.0"),
                         new ("Serilog.AspNetCore", "6.0.1"),
                         new ("SerilogTimings", "3.0.1"),
-                        new ("Swashbuckle.AspNetCore", "6.5.0"),
+                        new ("Swashbuckle.AspNetCore", "6.7.0"),
                         new ("Swashbuckle.AspNetCore.Annotations", "6.5.0"),
                         new ("Swashbuckle.AspNetCore.Swagger", "6.5.0"),
                         new ("Swashbuckle.AspNetCore.Newtonsoft", "6.5.0"),

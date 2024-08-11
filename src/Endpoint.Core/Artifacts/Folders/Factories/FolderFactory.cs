@@ -119,7 +119,7 @@ public class FolderFactory : IFolderFactory
 
     public async Task<FolderModel> CreateAggregateAsync(string aggregateName, string properties)
     {
-        var aggregate = await classFactory.CreateEntityAsync(aggregateName, properties);
+        var aggregate = await classFactory.CreateEntityAsync(aggregateName, properties.ToKeyValuePairList());
 
         var model = new FolderModel($"{aggregateName}Aggregate", string.Empty);
 
@@ -142,7 +142,7 @@ public class FolderFactory : IFolderFactory
 
     public async Task<FolderModel> CreateAggregateAsync(string aggregateName, string properties, string directory)
     {
-        var aggregate = await classFactory.CreateEntityAsync(aggregateName, properties);
+        var aggregate = await classFactory.CreateEntityAsync(aggregateName, properties.ToKeyValuePairList());
 
         var model = new FolderModel($"{aggregateName}Aggregate", directory);
 
