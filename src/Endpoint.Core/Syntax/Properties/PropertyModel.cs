@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Endpoint.Core.Syntax.Attributes;
 using Endpoint.Core.Syntax.Classes;
 using Endpoint.Core.Syntax.Interfaces;
 using Endpoint.Core.Syntax.Types;
@@ -35,7 +36,9 @@ public class PropertyModel : SyntaxModel
 
     public TypeModel Type { get; private set; }
 
-    public List<PropertyAccessorModel> Accessors { get; private set; } = new ();
+    public List<PropertyAccessorModel> Accessors { get; private set; } = [];
+
+    public List<AttributeModel> Attributes { get; set; } = [];
 
     public string Name { get; private set; }
 

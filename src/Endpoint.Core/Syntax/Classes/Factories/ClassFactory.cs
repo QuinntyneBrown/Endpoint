@@ -18,6 +18,7 @@ using Endpoint.Core.Syntax.Params;
 using Endpoint.Core.Syntax.Properties;
 using Endpoint.Core.Syntax.Properties.Factories;
 using Endpoint.Core.Syntax.Types;
+using Endpoint.Core.SystemModels;
 
 namespace Endpoint.Core.Syntax.Classes.Factories;
 
@@ -949,6 +950,37 @@ public class ClassFactory : IClassFactory
         });
 
         model.Properties = properties;
+
+        return model;
+    }
+
+    public async Task<ClassModel> CreateMessagePackMessageAsync(string name, List<KeyValuePair<string, string>> keyValuePairs)
+    {
+        var model = new ClassModel(name);
+
+        model.Usings.Add(new ("System"));
+
+        model.Usings.Add(new ("MessagePack"));
+
+        model.Attributes.Add(new AttributeModel()
+        {
+            Name = "MessagePackObject",
+        });
+
+        int propertyIndex = 0;
+
+        foreach (var keyValue in keyValuePairs)
+        {
+            model.Properties.Add(new PropertyModel(model, AccessModifier.Public, new TypeModel() { Name = keyValue.Value }, keyValue.Key, [])
+            {
+                Attributes =
+                [
+                    new () { Name = $"Key({propertyIndex})" },
+                ],
+            });
+
+            propertyIndex++;
+        }
 
         return model;
     }
