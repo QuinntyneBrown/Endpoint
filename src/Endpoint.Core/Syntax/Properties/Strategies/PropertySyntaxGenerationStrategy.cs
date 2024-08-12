@@ -22,6 +22,13 @@ public class PropertySyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<
 
         var builder = new StringBuilder();
 
+        foreach (var attribute in model.Attributes)
+        {
+            string attributeSyntax = await syntaxGenerator.GenerateAsync(attribute);
+
+            builder.AppendLine(attributeSyntax);
+        }
+
         if (model.IsClassProperty)
         {
             builder.Append(await syntaxGenerator.GenerateAsync(model.AccessModifier));
