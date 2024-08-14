@@ -8,6 +8,8 @@ using System.Xml.Linq;
 using Endpoint.Core.Artifacts.Files;
 using Endpoint.Core.Artifacts.Files.Factories;
 using Endpoint.Core.Services;
+using Endpoint.Core.Syntax.Classes;
+using Endpoint.Core.Syntax.Classes.Factories;
 using Microsoft.CodeAnalysis;
 
 namespace Endpoint.Core.Artifacts.Projects.Services;
@@ -28,11 +30,17 @@ public class ProjectService : IProjectService
         IFileSystem fileSystem,
         IFileFactory fileFactory)
     {
-        this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
-        this.fileProvider = fileProvider ?? throw new ArgumentNullException(nameof(fileProvider));
-        this.artifactGenerator = artifactGenerator ?? throw new ArgumentNullException(nameof(artifactGenerator));
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        this.fileFactory = fileFactory ?? throw new ArgumentNullException(nameof(fileFactory));
+        ArgumentNullException.ThrowIfNull(commandService);
+        ArgumentNullException.ThrowIfNull(fileProvider);
+        ArgumentNullException.ThrowIfNull(fileSystem);
+        ArgumentNullException.ThrowIfNull(fileFactory);
+        ArgumentNullException.ThrowIfNull(artifactGenerator);
+
+        this.commandService = commandService;
+        this.fileProvider = fileProvider;
+        this.artifactGenerator = artifactGenerator;
+        this.fileSystem = fileSystem;
+        this.fileFactory = fileFactory;
     }
 
     public async Task AddProjectAsync(ProjectModel model)
@@ -156,5 +164,36 @@ public class ProjectService : IProjectService
         element.SetAttributeValue("AfterTargets", "Build");
 
         return element;
+    }
+
+    public async Task UdpServiceBusProjectAddAsync(string name, string directory)
+    {
+        var model = new ProjectModel("classlib", name, directory);
+
+        model.Packages.Add(new ("Microsoft.Extensions.Logging.Abstractions", "8.0.0"));
+
+        model.Packages.Add(new ("Microsoft.Extensions.Hosting.Abstractions", "8.0.0"));
+
+        // var udpClientFactoryInterface = await fileFactory.CreateUdpClientFactoryInterfaceAsync(directory);
+
+        // var udpServiceBusConfigureServices = await classFactory.CreateUdpMessageSender();
+
+        // var udpServiceBusHostExtensions = await classFactory.CreateUdpMessageSender();
+
+        // var udpServiceBusMessage = await classFactory.CreateUdpMessageSender();
+
+        // var messageSender = await classFactory.CreateUdpMessageSender();
+
+        // var messageSenderInterface = await classFactory.CreateUdpMessageSenderInterface();
+
+        // var messageReceiver = await classFactory.CreateUdpMessageReceiver();
+
+        // var messageReceiverInterface = await classFactory.CreateUdpMessageReceiverInterface();
+
+        // var udpClientFactoryInterface = await classFactory.CreateUdpClientFactoryInterface();
+
+        // model.Files.Add(new CodeFileModel<ClassModel>() { });
+
+        await AddProjectAsync(model);
     }
 }

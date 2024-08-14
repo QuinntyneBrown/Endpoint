@@ -49,12 +49,12 @@ public class MethodPlantUmlParsingStrategy : BaseSyntaxParsingStrategy<MethodMod
             });
         }
 
-        var isInterface = context.Get<MethodModel>().IsInterface;
+        var isInterface = context.Get<MethodModel>().Interface;
 
         return new MethodModel()
         {
             AccessModifier = AccessModifier.Public,
-            IsInterface = isInterface,
+            Interface = isInterface,
             ReturnType = returnType,
             Name = name,
             Params = @params,

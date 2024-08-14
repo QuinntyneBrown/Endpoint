@@ -16,17 +16,16 @@ public class InterfaceModel : TypeDeclarationModel
     public InterfaceModel(string name)
         : base(name)
     {
-        Implements = new List<TypeModel>();
-        Methods = new List<MethodModel>();
+
     }
 
-    public List<TypeModel> Implements { get; set; }
+    public List<TypeModel> Implements { get; set; } = [];
 
-    public List<MethodModel> Methods { get; set; }
+    public List<MethodModel> Methods { get; set; } = [];
 
     public virtual void AddMethod(MethodModel method)
     {
-        method.IsInterface = true;
+        method.Interface = true;
         Methods.Add(method);
     }
 }

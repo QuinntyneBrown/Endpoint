@@ -29,7 +29,7 @@ public class ParseAsyncShould
 
         var context = serviceProvider.GetService<IContext>();
 
-        context.Set(new MethodModel() { IsInterface = true });
+        context.Set(new MethodModel() { Interface = true });
 
         var sut = ActivatorUtilities.CreateInstance<MethodPlantUmlParsingStrategy>(serviceProvider);
 

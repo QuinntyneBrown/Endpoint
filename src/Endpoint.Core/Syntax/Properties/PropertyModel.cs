@@ -32,6 +32,8 @@ public class PropertyModel : SyntaxModel
         Interface = true;
     }
 
+    public bool ForceAccessModifier { get; set; }
+
     public AccessModifier AccessModifier { get; private set; }
 
     public TypeModel Type { get; private set; }
