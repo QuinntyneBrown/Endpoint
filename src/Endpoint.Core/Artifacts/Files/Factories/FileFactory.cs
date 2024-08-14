@@ -204,8 +204,12 @@ public class FileFactory : IFileFactory
     {
         var @interface = new InterfaceModel()
         {
-            Name = "IUdpClientFactoryInterfaceAsync",
+            Name = "IUdpClientFactory",
         };
+
+        @interface.Usings.Add(new("System.Net"));
+
+        @interface.Usings.Add(new("System.Net.Sockets"));
 
         @interface.Properties.Add(new (
             @interface,
