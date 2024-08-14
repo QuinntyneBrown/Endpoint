@@ -55,7 +55,7 @@ public class InterfaceSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy
 
         if (model.Methods.Count > 0)
         {
-            context.Set(new MethodModel() { IsInterface = true });
+            context.Set(new MethodModel() { Interface = true });
 
             builder.AppendLine((await syntaxGenerator.GenerateAsync(model.Methods)).Indent(1));
         }

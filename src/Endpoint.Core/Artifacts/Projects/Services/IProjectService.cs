@@ -18,4 +18,6 @@ public interface IProjectService
     Task CorePackagesAdd(string directory);
 
     Task CorePackagesAndFiles(string directory);
+
+    Task UdpServiceBusProjectAddAsync(string name, string directory);
 }

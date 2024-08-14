@@ -34,7 +34,9 @@ public class MethodModel : SyntaxModel
 
     public ExpressionModel Body { get; set; }
 
-    public bool IsInterface { get; set; }
+    public bool Interface { get; set; }
+
+    public bool DefaultMethod { get; set; }
 
     public bool Async { get; set; }
 

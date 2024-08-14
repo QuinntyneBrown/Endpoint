@@ -29,7 +29,7 @@ public class PropertySyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<
             builder.AppendLine(attributeSyntax);
         }
 
-        if (model.IsClassProperty)
+        if (model.IsClassProperty || model.ForceAccessModifier)
         {
             builder.Append(await syntaxGenerator.GenerateAsync(model.AccessModifier));
 

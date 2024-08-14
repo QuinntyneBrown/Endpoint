@@ -366,7 +366,7 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
         {
             var @interface = new InterfaceModel($"I{name}");
 
-            @interface.Methods = methods.Select(x => new MethodModel() { Name = x.Name, ReturnType = x.ReturnType, Async = x.Async, IsInterface = true }).ToList();
+            @interface.Methods = methods.Select(x => new MethodModel() { Name = x.Name, ReturnType = x.ReturnType, Async = x.Async, Interface = true }).ToList();
 
             @interface.Usings.AddRange(usings);
 

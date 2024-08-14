@@ -15,6 +15,7 @@ using Endpoint.Core.Syntax.Params;
 using Endpoint.Core.Syntax.Properties;
 using Endpoint.Core.Syntax.RouteHandlers;
 using Endpoint.Core.Syntax.Types;
+using static Endpoint.Core.Constants.FileExtensions;
 
 namespace Endpoint.Core.Artifacts.Files.Factories;
 
@@ -197,5 +198,57 @@ public class FileFactory : IFileFactory
         }.ToInterface();
 
         return new CodeFileModel<InterfaceModel>(interfaceModel, interfaceModel.Usings, interfaceModel.Name, projectDirectory, ".cs");
+    }
+
+    public async Task<FileModel> CreateUdpClientFactoryInterfaceAsync(string directory)
+    {
+        var @interface = new InterfaceModel()
+        {
+            Name = "IUdpClientFactoryInterfaceAsync",
+        };
+
+        @interface.Properties.Add(new (
+            @interface,
+            AccessModifier.Internal,
+            new ("string"),
+            "MulticastUrl",
+            PropertyAccessorModel.GetSet)
+        {
+            ForceAccessModifier = true,
+        });
+
+        @interface.Methods.Add(new ()
+        {
+            ParentType = @interface,
+            AccessModifier = AccessModifier.Internal,
+            ReturnType = new TypeModel("UdpClient"),
+            Name = "Create",
+            DefaultMethod = true,
+            Body = new ("""
+UdpClient udpClient = null!;
+
+int i = 1;
+
+while (udpClient?.Client?.IsBound == null || udpClient.Client.IsBound == false)
+{
+    try
+    {
+        udpClient = new UdpClient();
+
+        udpClient.Client.Bind(IPEndPoint.Parse($"127.0.0.{i}:{MulticastUrl.Split(':')[1]}"));
+
+        udpClient.JoinMulticastGroup(IPAddress.Parse(MulticastUrl.Split(':')[0]), IPAddress.Parse($"127.0.0.{i}"));
+    }
+    catch (SocketException)
+    {
+        i++;
+    }
+}
+
+return udpClient;
+"""),
+        });
+
+        return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharpFile);
     }
 }

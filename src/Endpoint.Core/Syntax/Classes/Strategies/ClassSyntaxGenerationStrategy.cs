@@ -92,7 +92,7 @@ public class ClassSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<Cla
 
         if (model.Methods.Count > 0)
         {
-            context.Set(new MethodModel() { IsInterface = false });
+            context.Set(new MethodModel() { Interface = false });
 
             builder.AppendLine(((string)await syntaxGenerator.GenerateAsync(model.Methods)).Indent(1));
         }

@@ -28,7 +28,7 @@ public class InterfaceMethodSyntaxGenerationStrategy : GenericSyntaxGenerationSt
 
     public override async Task<string> GenerateAsync(ISyntaxGenerator generator, object target)
     {
-        if (context.Get<MethodModel>().IsInterface && target is MethodModel)
+        if (context.Get<MethodModel>().Interface && target is MethodModel && ((MethodModel)target).DefaultMethod == false)
         {
             return await GenerateAsync(generator, target as MethodModel);
         }
