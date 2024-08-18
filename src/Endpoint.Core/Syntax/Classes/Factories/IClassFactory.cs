@@ -10,7 +10,7 @@ namespace Endpoint.Core.Syntax.Classes.Factories;
 
 public interface IClassFactory
 {
-    Task<ClassModel> CreateMessagePackMessageAsync(string name, List<KeyValuePair<string, string>> keyValuePairs);
+    Task<ClassModel> CreateMessagePackMessageAsync(string name, List<KeyValuePair<string, string>> keyValuePairs, List<string> implements);
 
     Task<ClassModel> CreateControllerAsync(string controllerName, string directory);
 

@@ -302,7 +302,7 @@ return udpClient;
 
         var @class = await classFactory.CreateMessagePackMessageAsync(
             "ServiceBusMessage",
-            keyValuePairs: keyValuePairs);
+            keyValuePairs: keyValuePairs, []);
 
         @class.Attributes.Add(new Syntax.Attributes.AttributeModel()
         {
