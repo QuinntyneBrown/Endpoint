@@ -26,6 +26,8 @@ public class MethodModel : SyntaxModel
 
     public AccessModifier AccessModifier { get; set; }
 
+    public List<string> GenericConstraints { get; set; } = [];
+
     public string Name { get; set; }
 
     public bool Override { get; set; }

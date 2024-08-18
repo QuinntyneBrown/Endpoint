@@ -20,6 +20,9 @@ public class InterfaceCreateRequest : IRequest
     [Option('n', "name")]
     public string Name { get; set; }
 
+    [Option('i', "implements")]
+    public string Implements { get; set; }
+
     [Option('d', Required = false)]
     public string Directory { get; set; } = System.Environment.CurrentDirectory;
 }
@@ -41,7 +44,7 @@ public class InterfaceCreateRequestHandler : IRequestHandler<InterfaceCreateRequ
     {
         logger.LogInformation("Creating interface. {name}", request.Name);
 
-        foreach (var name in request.Name.Split(','))
+        foreach (var name in request.Name.FromCsv())
         {
             var model = new InterfaceModel(name);
 
@@ -51,6 +54,11 @@ public class InterfaceCreateRequestHandler : IRequestHandler<InterfaceCreateRequ
                 Name = "Foo",
                 Body = new (string.Empty),
             });
+
+            foreach (var typeName in request.Implements.FromCsv())
+            {
+                model.Implements.Add(new (typeName));
+            }
 
             await artifactGenerator.GenerateAsync(new CodeFileModel<InterfaceModel>(model, model.Usings, name, request.Directory, CSharpFile));
         }

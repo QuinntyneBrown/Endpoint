@@ -26,6 +26,16 @@ public static class StringExtensions
         return Formatter.Format(syntaxNode, new AdhocWorkspace()).ToFullString();
     }
 
+    public static List<string> FromCsv(this string commaSeparatedString)
+    {
+        if (string.IsNullOrEmpty(commaSeparatedString))
+        {
+            return [];
+        }
+
+        return commaSeparatedString.Split(',').ToList();
+    }
+
     public static List<KeyValuePair<string,string>> ToKeyValuePairList(this string input)
     {
         if (string.IsNullOrEmpty(input))
