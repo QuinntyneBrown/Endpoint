@@ -32,36 +32,17 @@ public interface IFileFactory
 
     Task<FileModel> CreateUdpClientFactoryInterfaceAsync(string directory);
 
-/*    Task<FileModel> CreateUdpServiceBusConfigureServicesAsync(string directory);
+    Task<FileModel> CreateUdpMessageSenderInterfaceAsync(string directory);
+
+    Task<FileModel> CreateUdpMessageReceiverInterfaceAsync(string directory);
+
+    Task<FileModel> CreateUdpMessageSenderAsync(string directory);
+
+    Task<FileModel> CreateUdpMessageReceiverAsync(string directory);
+
+    Task<FileModel> CreateUdpServiceBusConfigureServicesAsync(string directory);
 
     Task<FileModel> CreateUdpServiceBusHostExtensionsAsync(string directory);
 
-    Task<FileModel> CreateUdpClientFactoryInterfaceAsync(string directory);
-
-    Task<FileModel> CreateUdpClientFactoryInterfaceAsync(string directory);
-
-    Task<FileModel> CreateUdpClientFactoryInterfaceAsync(string directory);
-
-    Task<FileModel> CreateUdpClientFactoryInterfaceAsync(string directory);
-
-    Task<FileModel> CreateUdpClientFactoryInterfaceAsync(string directory);
-
-    Task<FileModel> CreateUdpClientFactoryInterfaceAsync(string directory);*/
-    //var udpClientFactoryInterface = await fileFactory.CreateUdpClientFactoryInterfaceAsync(directory);
-
-    // var udpServiceBusConfigureServices = await classFactory.CreateUdpMessageSender();
-
-    // var udpServiceBusHostExtensions = await classFactory.CreateUdpMessageSender();
-
-    // var udpServiceBusMessage = await classFactory.CreateUdpMessageSender();
-
-    // var messageSender = await classFactory.CreateUdpMessageSender();
-
-    // var messageSenderInterface = await classFactory.CreateUdpMessageSenderInterface();
-
-    // var messageReceiver = await classFactory.CreateUdpMessageReceiver();
-
-    // var messageReceiverInterface = await classFactory.CreateUdpMessageReceiverInterface();
-
-    // var udpClientFactoryInterface = await classFactory.CreateUdpClientFactoryInterface();
+    Task<FileModel> CreateUdpServiceBusMessageAsync(string directory);
 }

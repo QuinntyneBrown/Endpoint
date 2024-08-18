@@ -38,7 +38,7 @@ public class ClassService : IClassService
         nameSpaceProvider = namespaceProvider ?? throw new ArgumentNullException(nameof(namespaceProvider));
     }
 
-    public async Task CreateAsync(string name, List<KeyValuePair<string,string>> keyValuePairs, string directory)
+    public async Task CreateAsync(string name, List<KeyValuePair<string,string>> keyValuePairs, List<string> implements, string directory)
     {
         logger.LogInformation("Create Class {name}", name);
 
@@ -49,6 +49,11 @@ public class ClassService : IClassService
         foreach (var keyValue in keyValuePairs)
         {
             @class.Properties.Add(new PropertyModel(@class, AccessModifier.Public, new TypeModel() { Name = keyValue.Value }, keyValue.Key, new List<PropertyAccessorModel>()));
+        }
+
+        foreach ( var typeName in implements)
+        {
+            @class.Implements.Add(new (typeName));
         }
 
         var classFile = new CodeFileModel<ClassModel>(

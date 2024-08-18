@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax.Classes;
+using Endpoint.Core.Syntax.Classes.Factories;
 using Endpoint.Core.Syntax.Constructors;
 using Endpoint.Core.Syntax.Entities;
 using Endpoint.Core.Syntax.Interfaces;
@@ -15,6 +16,7 @@ using Endpoint.Core.Syntax.Params;
 using Endpoint.Core.Syntax.Properties;
 using Endpoint.Core.Syntax.RouteHandlers;
 using Endpoint.Core.Syntax.Types;
+using Endpoint.Core.SystemModels;
 using static Endpoint.Core.Constants.FileExtensions;
 
 namespace Endpoint.Core.Artifacts.Files.Factories;
@@ -27,6 +29,7 @@ public class FileFactory : IFileFactory
     private readonly dynamic aggregateRootFactory;
     private readonly IFileProvider fileProvider;
     private readonly INamespaceProvider namespaceProvider;
+    private readonly IClassFactory classFactory;
 
     public FileFactory(
         IRouteHandlerFactory routeHandlerFactory,
@@ -254,5 +257,132 @@ return udpClient;
         });
 
         return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharpFile);
+    }
+
+    public async Task<FileModel> CreateUdpMessageSenderInterfaceAsync(string directory)
+    {
+        var @interface = new InterfaceModel("IMessageSender");
+
+        @interface.Implements.Add(new ("IUdpFactory"));
+
+        @interface.Methods.Add(new MethodModel()
+        {
+            ParentType = @interface,
+            Name = "SendAsync<T>",
+            ReturnType = TypeModel.Task,
+            Params =
+            [
+                new ParamModel ()
+                {
+                    Type = new TypeModel("T"),
+                    Name = "message",
+                },
+            ],
+        });
+
+        return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharpFile);
+    }
+
+    public async Task<FileModel> CreateUdpMessageReceiverInterfaceAsync(string directory)
+    {
+        var @interface = new InterfaceModel("IMessageReceiver");
+
+        @interface.Implements.Add(new ("IUdpFactory"));
+
+        return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharpFile);
+    }
+
+    public async Task<FileModel> CreateUdpServiceBusMessageAsync(string directory)
+    {
+
+        List<KeyValuePair<string, string>> keyValuePairs = [
+            new ("PayloadType", "Type"),
+            new ("Payload", "byte[]")
+        ];
+
+        var @class = await classFactory.CreateMessagePackMessageAsync(
+            "ServiceBusMessage",
+            keyValuePairs: keyValuePairs);
+
+        @class.Attributes.Add(new Syntax.Attributes.AttributeModel()
+        {
+            Name = "MessagePackObject",
+        });
+
+        @class.Constructors.Add(new ConstructorModel(@class, "ServiceBusMessage")
+        {
+            Params = [
+                new () { Type = new TypeModel("Type"), Name = "message", },
+                new () { Type = new TypeModel("byte[]"), Name = "payload" },
+            ],
+            Body = new ("""
+                PayloadType = payloadType;
+                Payload = payload;
+                """),
+        });
+
+        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharpFile);
+    }
+
+    public async Task<FileModel> CreateUdpMessageSenderAsync(string directory)
+    {
+        var @class = new ClassModel("MessageSender");
+
+        @class.Implements.Add(new ("IMessageSender"));
+
+        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharpFile);
+    }
+
+    public async Task<FileModel> CreateUdpMessageReceiverAsync(string directory)
+    {
+        var @class = new ClassModel("MessageReceiver");
+
+        @class.Implements.Add(new ("IMessageReceiver"));
+
+        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharpFile);
+    }
+
+    public async Task<FileModel> CreateUdpServiceBusConfigureServicesAsync(string directory)
+    {
+        var @class = new ClassModel("ConfigureServices");
+
+        @class.Static = true;
+
+        @class.Methods.Add(new MethodModel()
+        {
+            Static = true,
+            Name = "UseServiceBus",
+            Params =
+            [
+                new ()
+                {
+                    ExtensionMethodParam = true,
+                },
+            ],
+        });
+
+        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharpFile);
+    }
+
+    public async Task<FileModel> CreateUdpServiceBusHostExtensionsAsync(string directory)
+    {
+        var @class = new ClassModel("HostExtensions");
+
+        @class.Static = true;
+
+        @class.Methods.Add(new MethodModel()
+        {
+            Static = true,
+            Name = "AddServiceBusServices",
+            Params =
+            [
+                new ()
+                {
+                    ExtensionMethodParam = true,
+                },
+            ],
+        });
+
+        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharpFile);
     }
 }

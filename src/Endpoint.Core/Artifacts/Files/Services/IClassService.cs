@@ -7,7 +7,7 @@ namespace Endpoint.Core.Artifacts.Files.Services;
 
 public interface IClassService
 {
-    Task CreateAsync(string name, List<KeyValuePair<string, string>> keyValuePairs, string directory);
+    Task CreateAsync(string name, List<KeyValuePair<string, string>> keyValuePairs, List<string> implements, string directory);
 
     Task UnitTestCreateAsync(string name, string methods, string directory);
 }

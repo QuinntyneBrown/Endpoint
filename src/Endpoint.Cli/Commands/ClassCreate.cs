@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -19,6 +20,9 @@ public class ClassCreateRequest : IRequest
     [Option('p')]
     public string Properties { get; set; }
 
+    [Option('i')]
+    public string Implements { get; set; }
+
     [Option('d')]
     public string Directory { get; set; } = System.Environment.CurrentDirectory;
 }
@@ -34,6 +38,6 @@ public class ClassCreateRequestHandler : IRequestHandler<ClassCreateRequest>
 
     public async Task Handle(ClassCreateRequest request, CancellationToken cancellationToken)
     {
-        await classService.CreateAsync(request.Name, request.Properties.ToKeyValuePairList(), request.Directory);
+        await classService.CreateAsync(request.Name, request.Properties.ToKeyValuePairList(), request.Implements.FromCsv(), request.Directory);
     }
 }
