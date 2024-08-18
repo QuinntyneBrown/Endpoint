@@ -25,6 +25,9 @@ public class MessagePackMessageCreateRequest : IRequest
     [Option('p', "properties")]
     public string Properties { get; set; }
 
+    [Option('i', "implements")]
+    public string Implements { get; set; }
+
     [Option('d', Required = false)]
     public string Directory { get; set; } = System.Environment.CurrentDirectory;
 }
@@ -53,7 +56,7 @@ public class MessagePackMessageCreateRequestHandler : IRequestHandler<MessagePac
     {
         _logger.LogInformation("Handled: {0}", nameof(MessagePackMessageCreateRequestHandler));
 
-        var @class = await _classFactory.CreateMessagePackMessageAsync(request.Name, request.Properties.ToKeyValuePairList());
+        var @class = await _classFactory.CreateMessagePackMessageAsync(request.Name, request.Properties.ToKeyValuePairList(), request.Implements.FromCsv());
 
         var model = new CodeFileModel<ClassModel>(
             @class,

@@ -954,7 +954,7 @@ public class ClassFactory : IClassFactory
         return model;
     }
 
-    public async Task<ClassModel> CreateMessagePackMessageAsync(string name, List<KeyValuePair<string, string>> keyValuePairs)
+    public async Task<ClassModel> CreateMessagePackMessageAsync(string name, List<KeyValuePair<string, string>> keyValuePairs, List<string> implements)
     {
         var model = new ClassModel(name);
 
@@ -966,6 +966,11 @@ public class ClassFactory : IClassFactory
         {
             Name = "MessagePackObject",
         });
+
+        foreach (var typeName in implements)
+        {
+            model.Implements.Add(new (typeName));
+        }
 
         int propertyIndex = 0;
 
