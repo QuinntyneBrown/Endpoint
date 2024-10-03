@@ -989,4 +989,9 @@ public class ClassFactory : IClassFactory
 
         return model;
     }
+
+    public async Task<ClassModel> CreateHandlerAsync(RouteType routeType, Aggregate aggregate)
+    {
+        throw new NotImplementedException();
+    }
 }

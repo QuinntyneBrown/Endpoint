@@ -30,4 +30,8 @@
     <ProjectReference Include="..\..\src\Endpoint.Core\Endpoint.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="FolderFactory\" />
+  </ItemGroup>
+
 </Project>

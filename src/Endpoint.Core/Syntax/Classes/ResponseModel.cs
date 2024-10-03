@@ -4,10 +4,7 @@
 using System.Collections.Generic;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax.Properties;
-using Endpoint.Core.Syntax.Properties;
 using Endpoint.Core.Syntax.Types;
-using Octokit;
-using Octokit.Internal;
 
 namespace Endpoint.Core.Syntax.Classes;
 

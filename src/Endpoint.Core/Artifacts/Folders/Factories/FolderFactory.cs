@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Data;
 using System.Text;
 using Endpoint.Core.Artifacts.Files;
 using Endpoint.Core.Artifacts.Files.Factories;
@@ -61,15 +62,15 @@ public class FolderFactory : IFolderFactory
         return model;
     }
 
-    public async Task<FolderModel> CreateAggregateQueriesAsync(ClassModel aggregate)
+    public async Task<FolderModel> CreateAggregateQueriesAsync(ClassModel aggregate, string directory)
     {
-        var model = new FolderModel("Queries", string.Empty);
+        var model = new FolderModel("Queries", directory);
 
         foreach (var routeType in new RouteType[] { RouteType.GetById, RouteType.Get, RouteType.Page })
         {
-            var query = new QueryModel(); // (microserviceName, _namingConventionConverter, aggregate, routeType);
+            var query = await documentFactory.CreateQueryAsync(aggregate, routeType);
 
-            model.Files.Add(new CodeFileModel<QueryModel>((QueryModel)query, (System.Collections.Generic.List<UsingModel>)query.UsingDirectives, (string)query.Name, model.Directory, CSharpFile));
+            model.Files.Add(new CodeFileModel<DocumentModel>(query, query.Name, model.Directory, CSharpFile));
         }
 
         return model;
@@ -125,7 +126,7 @@ public class FolderFactory : IFolderFactory
 
         model.SubFolders.Add(await CreateAggregateCommandsAsync(aggregate, model.Directory));
 
-        model.SubFolders.Add(await CreateAggregateQueriesAsync(aggregate));
+        model.SubFolders.Add(await CreateAggregateQueriesAsync(aggregate, model.Directory));
 
         var aggregateDto = aggregate.CreateDto();
 
@@ -148,7 +149,7 @@ public class FolderFactory : IFolderFactory
 
         model.SubFolders.Add(await CreateAggregateCommandsAsync(aggregate, model.Directory));
 
-        model.SubFolders.Add(await CreateAggregateQueriesAsync(aggregate));
+        model.SubFolders.Add(await CreateAggregateQueriesAsync(aggregate, model.Directory));
 
         var aggregateDto = aggregate.CreateDto();
 

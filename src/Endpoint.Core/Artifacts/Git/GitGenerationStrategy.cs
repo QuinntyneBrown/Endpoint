@@ -29,7 +29,7 @@ public class GitGenerationStrategy : GenericArtifactGenerationStrategy<GitModel>
 
         var client = new GitHubClient(new ProductHeaderValue(model.Username))
         {
-            Credentials = new Credentials(Environment.GetEnvironmentVariable("GithubPersonalAccessToken")),
+            Credentials = new Credentials(Environment.GetEnvironmentVariable("GithubPersonalAccessToken", EnvironmentVariableTarget.Machine)),
         };
 
         client.Repository.Create(new NewRepository(model.RepositoryName)).GetAwaiter().GetResult();

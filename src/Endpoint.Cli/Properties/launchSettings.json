@@ -1,36 +1,8 @@
 {
   "profiles": {
-    "default": {
+    "git-create": {
       "commandName": "Project",
-      "commandLineArgs": "git-create -n Eventing -d C:\\projects\\Eventing\\",
-      "environmentVariables": {
-        "Endpoint:DefaultCommand": ""
-      }
-    },
-    "ddd-app-create": {
-      "commandName": "Project",
-      "commandLineArgs": "ddd-app-create -n FlightMessages -m FlightMessages -d C:\\projects",
-      "environmentVariables": {
-        "Endpoint:DefaultCommand": ""
-      }
-    },
-    "signalr-app-create": {
-      "commandName": "Project",
-      "commandLineArgs": "signalr-app-create -n HotlineBling9 -d C:\\projects -l 4",
-      "environmentVariables": {
-        "Endpoint:DefaultCommand": ""
-      }
-    },
-    "class-create": {
-      "commandName": "Project",
-      "commandLineArgs": "class-create -n HotlineBling -d C:\\projects -l 4",
-      "environmentVariables": {
-        "Endpoint:DefaultCommand": ""
-      }
-    },
-    "enum-create": {
-      "commandName": "Project",
-      "commandLineArgs": "enum-create -n HotlineBling -d C:\\projects -e Drake:6 -l 4 -t int",
+      "commandLineArgs": "aggregate-create -d C:\\projects\\HairPop\\src\\HairPop.Core\\AggregateModel\\ -n HairStylist -p Name:string",
       "environmentVariables": {
         "Endpoint:DefaultCommand": ""
       }

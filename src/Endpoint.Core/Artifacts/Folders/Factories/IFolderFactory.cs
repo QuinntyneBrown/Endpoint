@@ -9,7 +9,7 @@ public interface IFolderFactory
 {
     Task<FolderModel> CreateAggregateCommandsAsync(ClassModel aggregate, string directory);
 
-    Task<FolderModel> CreateAggregateQueriesAsync(ClassModel aggregate);
+    Task<FolderModel> CreateAggregateQueriesAsync(ClassModel aggregate, string directory);
 
     Task<FolderModel> CreateAngularDomainModelAsync(string modelName, string properties);
 
