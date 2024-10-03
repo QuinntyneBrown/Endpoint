@@ -9,4 +9,6 @@ namespace Endpoint.Core.Syntax.Units.Factories;
 public interface IDocumentFactory
 {
     Task<DocumentModel> CreateCommandAsync(ClassModel aggregate, RouteType routeType);
+
+    Task<DocumentModel> CreateQueryAsync(ClassModel aggregate, RouteType routeType);
 }

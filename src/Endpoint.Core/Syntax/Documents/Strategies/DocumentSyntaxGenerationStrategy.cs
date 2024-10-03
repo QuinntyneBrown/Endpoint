@@ -20,28 +20,28 @@ public class DocumentGenerationStrategy : GenericSyntaxGenerationStrategy<Docume
     {
         logger.LogInformation("Generating syntax. {name}", model.Name);
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder stringBuilder = new ();
 
-        foreach (var @using in model.GetDescendants().SelectMany(x => x.Usings).ToList())
+        foreach (var @using in model.GetDescendants().SelectMany(x => x.Usings.Select(x => x.Name)).Distinct())
         {
-            sb.AppendLine($"using {@using.Name};");
+            stringBuilder.AppendLine($"using {@using};");
         }
 
-        sb.AppendLine();
+        stringBuilder.AppendLine();
 
-        sb.AppendLine($"namespace {model.RootNamespace}.{model.Namespace};");
+        stringBuilder.AppendLine($"namespace {model.RootNamespace}.{model.Namespace};");
 
-        sb.AppendLine();
+        stringBuilder.AppendLine();
 
         foreach (var item in model.Code)
         {
             string result = await generator.GenerateAsync(item);
 
-            sb.AppendLine(result);
+            stringBuilder.AppendLine(result);
 
-            sb.AppendLine();
+            stringBuilder.AppendLine();
         }
 
-        return sb.ToString();
+        return stringBuilder.ToString();
     }
 }

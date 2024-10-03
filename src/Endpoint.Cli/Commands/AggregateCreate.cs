@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Core.Artifacts;
 using Endpoint.Core.Artifacts.Folders.Factories;
+using Endpoint.Core.DataModel;
+using Endpoint.Core.Services;
+using Endpoint.Core.Syntax.Documents;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -30,20 +33,43 @@ public class AggregateCreateRequestHandler : IRequestHandler<AggregateCreateRequ
     private readonly ILogger<AggregateCreateRequestHandler> logger;
     private readonly IFolderFactory folderFactory;
     private readonly IArtifactGenerator artifactGenerator;
+    private readonly IContext _context;
 
     public AggregateCreateRequestHandler(
         ILogger<AggregateCreateRequestHandler> logger,
         IFolderFactory folderFactory,
-        IArtifactGenerator artifactGenerator)
+        IArtifactGenerator artifactGenerator,
+        IContext context)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.folderFactory = folderFactory ?? throw new ArgumentNullException(nameof(folderFactory));
         this.artifactGenerator = artifactGenerator ?? throw new ArgumentNullException(nameof(artifactGenerator));
+        _context = context;
     }
 
     public async Task Handle(AggregateCreateRequest request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Creating Aggregate. {name}", request.Name);
+
+        var dataContextProvider = new DataModelContextProvider<DataModelContext>() { };
+
+        dataContextProvider.Configure(x =>
+        {
+            x.ServiceModels.Add(new ServiceModel()
+            {
+                Namespace = "HairPop.Core",
+                Aggregates = [
+                    new AggregateModel()
+                    {
+                        Properties = [
+
+                        ],
+                    },
+                ],
+            });
+        });
+
+        _context.Set<IDataModelContextProvider<DataModelContext>>(dataContextProvider);
 
         var model = await folderFactory.CreateAggregateAsync(request.Name, request.Properties, request.Directory);
 

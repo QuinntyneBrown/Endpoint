@@ -1,14 +1,15 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
+using Endpoint.Core.DataModel;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax.Classes;
 using Endpoint.Core.Syntax.Classes.Factories;
 using Endpoint.Core.Syntax.Documents;
-using Endpoint.Core.Syntax.Properties;
+using Humanizer;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Endpoint.Core.Syntax.Units.Factories;
 
@@ -29,11 +30,13 @@ public class DocumentFactory : IDocumentFactory
     {
         logger.LogInformation("Creating Command Document. {aggregateName}", aggregate.Name);
 
-        var context = this.context.Get<DocumentModel>();
+        var contextProvider = this.context.Get<IDataModelContextProvider<DataModelContext>>();
+
+        var context = await contextProvider.GetAsync();
 
         var model = new DocumentModel()
         {
-            RootNamespace = context.RootNamespace,
+            RootNamespace = context.ServiceModels.Single().Namespace,
         };
 
         model.Namespace = $"AggregatesModel.{aggregate.Name}Aggregate.Commands";
@@ -49,15 +52,17 @@ public class DocumentFactory : IDocumentFactory
 
                 model.Code.Add(new ClassModel($"{model.Name}Validator")
                 {
-                    Usings = new List<UsingModel>()
-                    {
-                        new UsingModel("FluentValidation"),
-                    },
+                    Usings =
+                    [
+                        new ("FluentValidation"),
+                    ],
                 });
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", []));
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", []));
+
+                model.Code.Add(await classFactory.CreateHandlerAsync(routeType, default));
 
                 break;
 
@@ -74,9 +79,9 @@ public class DocumentFactory : IDocumentFactory
 
                 model.Code.Add(await classFactory.CreateRequestAsync($"{model.Name}Request", $"{model.Name}Request", aggregate.Properties.Where(x => x.Name == $"{aggregate.Name}Id").ToList()));
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", []));
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", []));
 
                 break;
 
@@ -93,9 +98,9 @@ public class DocumentFactory : IDocumentFactory
 
                 model.Code.Add(await classFactory.CreateRequestAsync($"{model.Name}Request", $"{model.Name}Request", aggregate.Properties));
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", []));
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", []));
 
                 break;
         }
@@ -107,11 +112,13 @@ public class DocumentFactory : IDocumentFactory
     {
         logger.LogInformation("Creating Query Document. {aggregateName}", aggregate.Name);
 
-        var context = this.context.Get<DocumentModel>();
+        var contextProvider = this.context.Get<IDataModelContextProvider<DataModelContext>>();
+
+        var context = await contextProvider.GetAsync();
 
         var model = new DocumentModel()
         {
-            RootNamespace = context.RootNamespace,
+            RootNamespace = context.ServiceModels.Single().Namespace,
         };
 
         model.Namespace = $"AggregatesModel.{aggregate.Name}Aggregate.Commands";
@@ -119,37 +126,38 @@ public class DocumentFactory : IDocumentFactory
         switch (routeType)
         {
             case RouteType.Get:
-                model.Name = $"Create{aggregate.Name}";
+                model.Name = $"Get{aggregate.Name.Pluralize()}";
 
                 var requestModel = await classFactory.CreateRequestAsync($"{model.Name}Request", $"{model.Name}Request", aggregate.Properties.Where(x => x.Name != $"{aggregate.Name}Id").ToList());
 
                 model.Code.Add(requestModel);
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", []));
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", []));
 
                 break;
 
             case RouteType.GetById:
-                model.Name = $"Delete{aggregate.Name}";
+                model.Name = $"Get{aggregate.Name}ById";
 
                 model.Code.Add(await classFactory.CreateRequestAsync($"{model.Name}Request", $"{model.Name}Request", aggregate.Properties.Where(x => x.Name == $"{aggregate.Name}Id").ToList()));
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", []));
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", []));
 
                 break;
 
             case RouteType.Page:
-                model.Name = $"Update{aggregate.Name}";
+
+                model.Name = $"Get{aggregate.Name.Pluralize()}Page";
 
                 model.Code.Add(await classFactory.CreateRequestAsync($"{model.Name}Request", $"{model.Name}Request", aggregate.Properties));
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Response", []));
 
-                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", new List<PropertyModel>()));
+                model.Code.Add(await classFactory.CreateResponseAsync($"{model.Name}Handler", []));
 
                 break;
         }
