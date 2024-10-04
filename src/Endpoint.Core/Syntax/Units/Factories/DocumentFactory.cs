@@ -34,12 +34,11 @@ public class DocumentFactory : IDocumentFactory
 
         var context = await contextProvider.GetAsync();
 
-        var model = new DocumentModel()
+        DocumentModel model = new ()
         {
             RootNamespace = context.ServiceModels.Single().Namespace,
+            Namespace = $"AggregatesModel.{aggregate.Name}Aggregate.Commands",
         };
-
-        model.Namespace = $"AggregatesModel.{aggregate.Name}Aggregate.Commands";
 
         switch (routeType)
         {
