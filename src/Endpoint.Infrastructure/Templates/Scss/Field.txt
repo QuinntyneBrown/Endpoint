@@ -1,3 +1,0 @@
-.{{ prefix }}-field {
-    width: 100%;
-}
