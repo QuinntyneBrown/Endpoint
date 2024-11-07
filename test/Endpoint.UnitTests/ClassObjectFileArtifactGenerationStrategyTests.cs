@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Endpoint.DotNet;
-using Endpoint.Core.Artifacts;
+using Endpoint.DotNet.Artifacts;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Classes;
