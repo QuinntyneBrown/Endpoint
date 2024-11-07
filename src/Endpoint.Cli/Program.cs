@@ -4,8 +4,6 @@
 using CommandLine;
 using Endpoint.Core;
 using Endpoint.Core.Services;
-using Endpoint.Infrastructure;
-using LibGit2Sharp;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
@@ -33,7 +31,7 @@ var app = CodeGeneratorApplication.CreateBuilder()
     .ConfigureServices(services =>
     {
         services.AddLogging(x => x.AddSerilog(Log.Logger));
-        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<Marker>>();
+        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
     })
     .Build();
 

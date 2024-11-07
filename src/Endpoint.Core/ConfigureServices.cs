@@ -122,6 +122,8 @@ public static class ConfigureServices
         services.AddSingleton(typeof(IGenericArtifactGenerationStrategy<>), typeof(Constants).Assembly);
         services.AddSingleton(typeof(ISyntaxParsingStrategy<>), typeof(Constants).Assembly);
         services.AddSingleton(typeof(IArtifactParsingStrategy<>), typeof(Constants).Assembly);
+
+        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
     }
 
     public static void AddSingleton(this IServiceCollection services, Type @interface, Assembly assembly)

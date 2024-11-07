@@ -48,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Endpoint.Infrastructure\Endpoint.Infrastructure.csproj" />
+    <ProjectReference Include="..\Endpoint.Core\Endpoint.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

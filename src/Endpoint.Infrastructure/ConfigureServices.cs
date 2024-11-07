@@ -10,6 +10,6 @@ public static class ConfigureServices
 {
     public static void AddInfrastructureServices(this IServiceCollection services)
     {
-        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<Marker>>();
+        
     }
 }

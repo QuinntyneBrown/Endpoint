@@ -3,11 +3,11 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Endpoint.Core;
 using Endpoint.Core.Artifacts;
 using Endpoint.Core.Artifacts.Files;
 using Endpoint.Core.Syntax;
 using Endpoint.Core.Syntax.Classes;
-using Endpoint.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -26,7 +26,7 @@ public class ClassObjectFileArtifactGenerationStrategyTests
 
         services.AddLogging();
 
-        services.AddCoreServices<Marker>();
+        services.AddCoreServices<CodeGeneratorApplication>();
 
         var container = services.BuildServiceProvider();
 
