@@ -108,7 +108,7 @@ public class ServiceBusClientCreateRequestHandler : IRequestHandler<ServiceBusCl
         configureServicesMethodBodyBuilder.AppendLine("services.AddMessagingUdpServices();")
             .AppendLine("services.AddHostedService<ServiceBusMessageConsumer>();");
 
-        configureServicesClassModel.Methods.First().Body = new Core.Syntax.Expressions.ExpressionModel(configureServicesMethodBodyBuilder.ToString());
+        configureServicesClassModel.Methods.First().Body = new DotNet.Syntax.Expressions.ExpressionModel(configureServicesMethodBodyBuilder.ToString());
 
         var configureServicesFileModel = new CodeFileModel<ClassModel>(configureServicesClassModel, new ()
         {
