@@ -1,0 +1,27 @@
+﻿using {{ serviceNamePascalCase }}.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
+
+namespace Microsoft.Extensions.DependencyInjection;
+
+public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<{{ serviceNamePascalCase }}DbContext>
+{
+    public {{ serviceNamePascalCase }}DbContext CreateDbContext(string[] args)
+    {
+        var builder = new DbContextOptionsBuilder<{{ serviceNamePascalCase }}DbContext>();
+
+        var basePath = Path.GetFullPath("../{{ serviceNamePascalCase }}.Api");
+
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(basePath)
+            .AddJsonFile("appsettings.json", false)
+            .Build();
+
+        var connectionString = configuration.GetConnectionString("DefualtConnection");
+
+        builder.UseSqlServer(connectionString);
+
+        return new {{ serviceNamePascalCase }}DbContext(builder.Options);
+    }
+}
