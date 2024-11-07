@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts;
-using Endpoint.Core.Artifacts.Files;
-using Endpoint.Core.Syntax.Classes;
-using Endpoint.Core.Syntax.Classes.Factories;
-using Endpoint.Core.Syntax.Interfaces;
-using Endpoint.Core.Syntax.Types;
+using Endpoint.DotNet.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Classes.Factories;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Types;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

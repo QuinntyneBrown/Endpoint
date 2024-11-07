@@ -6,12 +6,12 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Syntax;
+using Endpoint.DotNet.Syntax;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace Endpoint.Core.Commands;
+namespace Endpoint.DotNet.Commands;
 
 [Verb("default")]
 public class DefaultRequest : IRequest

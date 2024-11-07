@@ -2,16 +2,16 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using Endpoint.Core.Services;
-using Endpoint.Core.Syntax;
-using Endpoint.Core.Syntax.Classes;
-using Endpoint.Core.Syntax.Methods;
+using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Methods;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Endpoint.UnitTests.MethodPlantUmlParsingStrategy;
 
-using MethodPlantUmlParsingStrategy = Endpoint.Core.Syntax.Methods.Strategies.MethodPlantUmlParsingStrategy;
+using MethodPlantUmlParsingStrategy = Endpoint.DotNet.Syntax.Methods.Strategies.MethodPlantUmlParsingStrategy;
 
 public class ParseAsyncShould
 {

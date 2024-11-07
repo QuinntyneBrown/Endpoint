@@ -1,12 +1,12 @@
 /*// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Endpoint.Core.Artifacts.Files;
-using Endpoint.Core.Artifacts.Solutions;
-using Endpoint.Core.Syntax.Classes;
-using Endpoint.Core.Syntax.Fields;
-using Endpoint.Core.Syntax.Methods;
-using Endpoint.Core.Syntax.Properties;
+using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.DotNet.Artifacts.Solutions;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

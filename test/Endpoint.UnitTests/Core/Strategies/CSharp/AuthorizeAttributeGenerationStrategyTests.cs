@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Endpoint.Core.Syntax.Attributes;
-using Endpoint.Core.Syntax.Attributes.Strategies;
+using Endpoint.DotNet.Syntax.Attributes;
+using Endpoint.DotNet.Syntax.Attributes.Strategies;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;

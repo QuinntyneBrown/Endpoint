@@ -3,11 +3,11 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Endpoint.Core;
-using Endpoint.Core.Artifacts;
-using Endpoint.Core.Artifacts.Files;
-using Endpoint.Core.Syntax;
-using Endpoint.Core.Syntax.Classes;
+using Endpoint.DotNet;
+using Endpoint.DotNet.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

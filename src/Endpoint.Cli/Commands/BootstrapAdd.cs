@@ -5,8 +5,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts.AngularProjects;
-using Endpoint.Core.Artifacts.Services;
+using Endpoint.DotNet.Artifacts.AngularProjects;
+using Endpoint.DotNet.Artifacts.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

@@ -7,10 +7,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts.Units;
-using Endpoint.Core.Syntax;
-using Endpoint.Core.Syntax.Properties;
-using Endpoint.Core.Syntax.Types;
+using Endpoint.DotNet.Artifacts.Units;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Properties;
+using Endpoint.DotNet.Syntax.Types;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

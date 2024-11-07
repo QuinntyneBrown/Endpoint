@@ -2,9 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts;
-using Endpoint.Core.Artifacts.Projects;
-using Endpoint.Core.Artifacts.Projects.Enums;
+using Endpoint.DotNet.Artifacts;
+using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Artifacts.Projects.Enums;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

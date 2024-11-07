@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts.SpecFlow;
+using Endpoint.DotNet.Artifacts.SpecFlow;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

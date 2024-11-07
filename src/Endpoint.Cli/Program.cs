@@ -2,8 +2,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using CommandLine;
-using Endpoint.Core;
-using Endpoint.Core.Services;
+using Endpoint.DotNet;
+using Endpoint.DotNet.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
