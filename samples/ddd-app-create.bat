@@ -1,1 +1,0 @@
-endpoint ddd-app-create -n DddAppCreate -d ../samples
