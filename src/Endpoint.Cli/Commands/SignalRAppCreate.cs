@@ -7,7 +7,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.DotNet.Artifacts;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Artifacts.Projects;
@@ -64,17 +63,17 @@ public class SignalRAppCreateRequestHandler : IRequestHandler<SignalRAppCreateRe
         IFileSystem fileSystem,
         IFileFactory fileFactory)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.angularService = angularService ?? throw new ArgumentNullException(nameof(angularService));
-        this.solutionService = solutionService ?? throw new ArgumentNullException(nameof(solutionService));
+        this.logger = logger;
+        this.angularService = angularService;
+        this.solutionService = solutionService;
         this.solutionFactory = solutionFactory;
-        this.artifactGenerator = artifactGenerator ?? throw new ArgumentNullException(nameof(artifactGenerator));
-        this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
-        this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
-        this.classFactory = classFactory ?? throw new ArgumentNullException(nameof(classFactory));
-        this.fileProvider = fileProvider ?? throw new ArgumentNullException(nameof(fileProvider));
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        this.fileFactory = fileFactory ?? throw new ArgumentNullException(nameof(fileFactory));
+        this.artifactGenerator = artifactGenerator;
+        this.namingConventionConverter = namingConventionConverter;
+        this.commandService = commandService;
+        this.classFactory = classFactory;
+        this.fileProvider = fileProvider;
+        this.fileSystem = fileSystem;
+        this.fileFactory = fileFactory;
     }
 
     public void HubAdd(ProjectModel projectModel, string name)
