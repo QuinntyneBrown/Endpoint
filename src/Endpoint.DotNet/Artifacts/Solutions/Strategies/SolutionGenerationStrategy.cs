@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Endpoint.Core.Artifacts;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Folders;
 using Endpoint.DotNet.Artifacts.Projects.Services;
@@ -43,6 +44,13 @@ public class SolutionGenerationStrategy : GenericArtifactGenerationStrategy<Solu
         await generator.GenerateAsync(new ContentFileModel($"# {model.Name}", "README", model.SolutionDirectory, ".md"));
 
         await CreateProjectsAndAddToSln(generator, model, model.Folders);
+
+        foreach (var project in model.Projects)
+        {
+            await generator.GenerateAsync(project);
+
+            await projectService.AddToSolution(project);
+        }
 
         foreach (var dependOn in model.DependOns)
         {

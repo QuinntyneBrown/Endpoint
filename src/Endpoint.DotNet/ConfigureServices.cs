@@ -42,7 +42,7 @@ using Type = System.Type;
 
 public static class ConfigureServices
 {
-    public static void AddCoreServices(this IServiceCollection services)
+    public static void AddDotNetServices(this IServiceCollection services)
     {
         services.AddSingleton<IDataModelContextProvider<DataModelContext>,DataModelContextProvider<DataModelContext>>();
         services.AddSingleton<IDataModelContext,DataModelContext>();
@@ -152,7 +152,7 @@ public static class ConfigureServices
         where T : class
     {
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<T>>();
-        AddCoreServices(services);
+        AddDotNetServices(services);
     }
 }
 

@@ -1,13 +1,12 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using CommandLine;
 using Endpoint.DotNet;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using Serilog.Events;
-using System;
 
 var parser = new Parser(with =>
 {
@@ -32,13 +31,8 @@ var app = CodeGeneratorApplication.CreateBuilder()
     {
         services.AddLogging(x => x.AddSerilog(Log.Logger));
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
+        services.AddModernWebAppPatternCoreServices();
     })
     .Build();
 
 await app.RunAsync();
-
-public class EndpointOptions
-{
-    [Option('l', "log-level")]
-    public LogEventLevel LogEventLevel { get; set; } = LogEventLevel.Debug;
-}

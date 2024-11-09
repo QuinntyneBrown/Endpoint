@@ -20,7 +20,7 @@ public class Aggregate
 
     public List<Entity> Entities { get; set; } = [];
 
-    public BoundedContext BoundedContext { get; set; }
+    public BoundedContext? BoundedContext { get; set; }
 
 
 }

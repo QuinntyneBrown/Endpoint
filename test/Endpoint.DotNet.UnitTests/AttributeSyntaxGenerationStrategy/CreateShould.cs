@@ -16,7 +16,7 @@ public class CreateShould
         // ARRANGE
         var services = new ServiceCollection();
 
-        services.AddCoreServices();
+        services.AddDotNetServices();
 
         services.AddLogging();
 

@@ -2,24 +2,21 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.DomainDrivenDesign.Core.Models;
-using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DomainDrivenDesign.Core;
 
 public class DataContext : IDataContext
 {
-    private readonly ILogger<DataContext> _logger;
-
-    public DataContext(ILogger<DataContext> logger)
+    public DataContext()
     {
-        ArgumentNullException.ThrowIfNull(logger);
-    
-        _logger = logger;
+        
     }
 
     public string ProductName { get; set; } = string.Empty;
 
     public List<BoundedContext> BoundedContexts { get; set; } = [];
+
+    public List<Message> Messages { get; set; } = [];
 
 }
 

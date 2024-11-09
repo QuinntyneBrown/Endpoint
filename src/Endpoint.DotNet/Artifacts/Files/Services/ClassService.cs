@@ -4,9 +4,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Endpoint.DotNet.Services;
-using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Attributes;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Methods;
@@ -18,11 +16,11 @@ namespace Endpoint.DotNet.Artifacts.Files.Services;
 
 public class ClassService : IClassService
 {
-    private readonly ILogger<ClassService> logger;
-    private readonly IFileSystem fileSystem;
-    private readonly IFileProvider fileProvider;
-    private readonly IArtifactGenerator artifactGenerator;
-    private readonly INamespaceProvider nameSpaceProvider;
+    private readonly ILogger<ClassService> _logger;
+    private readonly IFileSystem _fileSystem;
+    private readonly IFileProvider _fileProvider;
+    private readonly IArtifactGenerator _artifactGenerator;
+    private readonly INamespaceProvider _namespaceProvider;
 
     public ClassService(
         ILogger<ClassService> logger,
@@ -31,16 +29,22 @@ public class ClassService : IClassService
         IFileSystem fileSystem,
         INamespaceProvider namespaceProvider)
     {
-        this.artifactGenerator = artifactGenerator;
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        this.fileProvider = fileProvider ?? throw new ArgumentNullException(nameof(fileProvider));
-        nameSpaceProvider = namespaceProvider ?? throw new ArgumentNullException(nameof(namespaceProvider));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(artifactGenerator);
+        ArgumentNullException.ThrowIfNull(fileProvider);
+        ArgumentNullException.ThrowIfNull(fileSystem);
+        ArgumentNullException.ThrowIfNull(namespaceProvider);
+
+        _artifactGenerator = artifactGenerator;
+        _logger = logger;
+        _fileSystem = fileSystem;
+        _fileProvider = fileProvider;
+        _namespaceProvider = namespaceProvider;
     }
 
     public async Task CreateAsync(string name, List<KeyValuePair<string,string>> keyValuePairs, List<string> implements, string directory)
     {
-        logger.LogInformation("Create Class {name}", name);
+        _logger.LogInformation("Create Class {name}", name);
 
         var @class = new ClassModel(name);
 
@@ -63,16 +67,16 @@ public class ClassService : IClassService
             directory,
             ".cs");
 
-        await artifactGenerator.GenerateAsync(classFile);
+        await _artifactGenerator.GenerateAsync(classFile);
     }
 
     public async Task UnitTestCreateAsync(string name, string methods, string directory)
     {
-        logger.LogInformation("Create Unit Test for {name}", name);
+        _logger.LogInformation("Create Unit Test for {name}", name);
 
-        var projectDirectory = Path.GetDirectoryName(fileProvider.Get("*.csproj", directory));
+        var projectDirectory = Path.GetDirectoryName(_fileProvider.Get("*.csproj", directory));
 
-        var slnDirectory = Path.GetDirectoryName(fileProvider.Get("*.sln", directory));
+        var slnDirectory = Path.GetDirectoryName(_fileProvider.Get("*.sln", directory));
 
         var classPath = Directory.GetFiles(slnDirectory, $"{name}.cs", SearchOption.AllDirectories).FirstOrDefault();
 
@@ -89,7 +93,7 @@ public class ClassService : IClassService
 
                 foreach (var supportedDeclaration in supportedDeclarations)
                 {
-                    if (fileSystem.File.ReadAllText(path).Contains(supportedDeclaration))
+                    if (_fileSystem.File.ReadAllText(path).Contains(supportedDeclaration))
                     {
                         classPath = path;
                         break;
@@ -112,7 +116,7 @@ public class ClassService : IClassService
 
                 foreach (var supportedDeclaration in supportedDeclarations)
                 {
-                    if (fileSystem.File.ReadAllText(path).Contains(supportedDeclaration))
+                    if (_fileSystem.File.ReadAllText(path).Contains(supportedDeclaration))
                     {
                         classPath = path;
                         break;
@@ -121,7 +125,7 @@ public class ClassService : IClassService
             }
         }
 
-        fileSystem.Directory.CreateDirectory($"{projectDirectory}{Path.DirectorySeparatorChar}{name}");
+        _fileSystem.Directory.CreateDirectory($"{projectDirectory}{Path.DirectorySeparatorChar}{name}");
 
         foreach (var methodModel in Parse(name, classPath))
         {
@@ -159,11 +163,11 @@ public class ClassService : IClassService
 
             classModel.Usings.Add(new ("Xunit"));
 
-            classModel.Usings.Add(new (nameSpaceProvider.Get(Path.GetDirectoryName(classPath))));
+            classModel.Usings.Add(new (_namespaceProvider.Get(Path.GetDirectoryName(classPath))));
 
-            classModel.UsingAs.Add(new UsingAsModel($"{nameSpaceProvider.Get(Path.GetDirectoryName(classPath))}.{name}", name));
+            classModel.UsingAs.Add(new UsingAsModel($"{_namespaceProvider.Get(Path.GetDirectoryName(classPath))}.{name}", name));
 
-            await artifactGenerator.GenerateAsync(new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, $"{projectDirectory}{Path.DirectorySeparatorChar}{name}", ".cs"));
+            await _artifactGenerator.GenerateAsync(new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, $"{projectDirectory}{Path.DirectorySeparatorChar}{name}", ".cs"));
         }
     }
 
@@ -173,7 +177,7 @@ public class ClassService : IClassService
 
         var insideClass = false;
 
-        foreach (var line in fileSystem.File.ReadAllLines(path))
+        foreach (var line in _fileSystem.File.ReadAllLines(path))
         {
             if (insideClass)
             {

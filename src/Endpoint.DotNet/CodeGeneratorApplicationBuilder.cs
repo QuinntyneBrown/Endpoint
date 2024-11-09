@@ -1,10 +1,10 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Reflection;
 using Endpoint.DotNet.Internal;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Endpoint.DotNet;
 
@@ -22,7 +22,7 @@ public class CodeGeneratorApplicationBuilder
     public CodeGeneratorApplication Build()
     {
         var entryAssembly = Assembly.GetEntryAssembly();
-        services.AddCoreServices();
+        services.AddDotNetServices();
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(entryAssembly));
         services.AddSingleton(new Observable<INotification>());
 

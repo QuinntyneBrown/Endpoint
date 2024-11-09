@@ -3,6 +3,13 @@
 
 namespace Endpoint.DomainDrivenDesign.Core.Models;
 
-public class BuildingBlock
+public class Message
 {
+    public Message(string name)
+    {
+        Name = name;
+    }
+
+    public string Name { get; set; }
+    public List<Property> Properties { get; set; } = [];
 }

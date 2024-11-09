@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -29,15 +28,17 @@ public class ClassCreateRequest : IRequest
 
 public class ClassCreateRequestHandler : IRequestHandler<ClassCreateRequest>
 {
-    private readonly IClassService classService;
+    private readonly IClassService _classService;
 
     public ClassCreateRequestHandler(IClassService classService)
     {
-        this.classService = classService;
+        ArgumentNullException.ThrowIfNull(classService);
+
+        _classService = classService;
     }
 
     public async Task Handle(ClassCreateRequest request, CancellationToken cancellationToken)
     {
-        await classService.CreateAsync(request.Name, request.Properties.ToKeyValuePairList(), request.Implements.FromCsv(), request.Directory);
+        await _classService.CreateAsync(request.Name, request.Properties.ToKeyValuePairList(), request.Implements.FromCsv(), request.Directory);
     }
 }

@@ -13,4 +13,5 @@ public class Product
 
     public string Name { get; set; }
     public List<BoundedContext> BoundedContexts { get; set; } = [];
+
 }

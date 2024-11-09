@@ -23,7 +23,7 @@ public class AuthorizeAttributeGenerationStrategyTests
 
         services.AddLogging();
 
-        services.AddCoreServices();
+        services.AddDotNetServices();
 
         var mockLogger = new Mock<ILogger<AttributeSyntaxGenerationStrategy>>().Object;
 
