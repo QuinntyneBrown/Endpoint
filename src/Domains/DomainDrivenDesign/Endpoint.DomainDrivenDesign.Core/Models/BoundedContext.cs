@@ -4,7 +4,7 @@
 namespace Endpoint.DomainDrivenDesign.Core.Models;
 
 /// <summary>
-/// Microservice.
+/// BoundedContext.
 /// </summary>
 public class BoundedContext
 {
@@ -13,8 +13,10 @@ public class BoundedContext
         Name = name;
     }
 
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     public List<Aggregate> Aggregates { get; set; } = [];
+
+    public List<Message> Handles { get; set; } = [];
 
 }

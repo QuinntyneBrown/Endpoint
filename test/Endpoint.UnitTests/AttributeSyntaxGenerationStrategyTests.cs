@@ -18,7 +18,7 @@ public class AttributeSyntaxGenerationStrategyTests
 
         services.AddLogging();
 
-        services.AddCoreServices();
+        services.AddDotNetServices();
 
         var container = services.BuildServiceProvider();
 
@@ -34,7 +34,7 @@ public class AttributeSyntaxGenerationStrategyTests
 
         services.AddLogging();
 
-        services.AddCoreServices();
+        services.AddDotNetServices();
 
         var container = services.BuildServiceProvider();
 

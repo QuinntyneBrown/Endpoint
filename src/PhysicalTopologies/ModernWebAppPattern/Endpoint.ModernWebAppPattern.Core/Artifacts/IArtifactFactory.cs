@@ -3,11 +3,11 @@
 
 using Endpoint.DotNet.Artifacts.Solutions;
 
-namespace Endpoint.ModernWebAppPattern.Core;
+namespace Endpoint.ModernWebAppPattern.Core.Artifacts;
 
 public interface IArtifactFactory
 {
-    Task<SolutionModel> SolutionCreateAsync(string name, string directory, CancellationToken cancellationToken);
+    Task<SolutionModel> SolutionCreateAsync(string path, string name, string directory, CancellationToken cancellationToken);
 
 }
 

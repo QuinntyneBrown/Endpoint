@@ -1,8 +1,6 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
-
 namespace Endpoint.ModernWebAppPattern.Core.Models;
 
 public class Microservice {
@@ -16,7 +14,5 @@ public class Microservice {
 
     public string Name { get; set; }
     public string BoundedContextName { get; set; }
-
     public MicroseviceKind Kind { get; set; } = MicroseviceKind.Api;
-
 }

@@ -1,17 +1,16 @@
-// Copyright (c) Quinntyne Brown. All Rights Reserved.
+﻿// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
-
-using System;
 
 namespace Endpoint.DomainDrivenDesign.Core.Models;
 
-public class Type
-{
-    public string Name { get; set; }
-}
-
-
 public class Property
 {
+    public Property(string name, PropertyKind type)
+    {
+        Name = name;
+        Type = type;
+    }
+
     public string Name { get; set; }
+    public PropertyKind Type { get; set; }
 }
