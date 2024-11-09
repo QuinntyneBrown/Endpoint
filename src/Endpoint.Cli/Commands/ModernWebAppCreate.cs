@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -14,13 +15,13 @@ namespace Endpoint.Cli.Commands;
 public class ModernWebAppCreateRequest : IRequest
 {
     [Option('n', "name")]
-    public string Name { get; set; } = "HairPop";
+    public string Name { get; set; } = Environment.GetEnvironmentVariable("MWA_NAME", EnvironmentVariableTarget.Machine) !;
 
     [Option('p', "path")]
-    public string Path { get; set; } = @"C:\PhysicalTopologies\hairpop.json";
+    public string Path { get; set; } = Environment.GetEnvironmentVariable("MWA_PATH", EnvironmentVariableTarget.Machine) !;
 
     [Option('d', Required = false)]
-    public string Directory { get; set; } = @"C:\prototypes";
+    public string Directory { get; set; } = Environment.GetEnvironmentVariable("MWA_DIRECTORY", EnvironmentVariableTarget.Machine) !;
 }
 
 public class ModernWebAppCreateRequestHandler : IRequestHandler<ModernWebAppCreateRequest>
