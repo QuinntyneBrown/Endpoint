@@ -5,3 +5,4 @@ global using System;
 global using System.IO.Abstractions;
 global using System.Threading.Tasks;
 global using Endpoint.DotNet.Syntax;
+global using Endpoint.Core.Artifacts;
