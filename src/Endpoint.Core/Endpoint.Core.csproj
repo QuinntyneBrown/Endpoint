@@ -2,20 +2,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <Authors>Quinntyne Brown</Authors>
-    <Company>Allagi Consulting</Company>
-    <PackageTags>clean-architecture;source-generator;application-code;scaffolding</PackageTags>
-    <RepositoryUrl>https://github.com/QuinntyneBrown/Endpoint</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <AssemblyVersion>1.0.12</AssemblyVersion>
-    <FileVersion>1.0.12</FileVersion>
-    <Version>1.0.12</Version>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageId>Quinntyne.Endpoint.Core</PackageId>
-    <Title>Endpoint Core</Title>
-    <NoWarn>1998;4014,SA1101,SA1600,SA1200,SA1633,SA1309</NoWarn>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>1998,4014,,SA1101,SA1600,,SA1200,SA1633,1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -54,9 +43,5 @@
     <PackageReference Include="System.Reactive.Linq" Version="5.0.0" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
     <PackageReference Include="TinyMapper" Version="3.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Endpoint.Core\Endpoint.Core.csproj" />
-  </ItemGroup>
+  </ItemGroup>  
 </Project>
