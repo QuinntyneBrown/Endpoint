@@ -5,8 +5,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Services;
-using Endpoint.Core.Syntax;
+using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax;
 using MediatR;
 
 namespace Endpoint.Cli.Commands;

@@ -5,8 +5,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts.Solutions.Services;
-using Endpoint.Core.Services;
+using Endpoint.DotNet.Artifacts.Solutions.Services;
+using Endpoint.DotNet.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

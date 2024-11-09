@@ -5,11 +5,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts;
-using Endpoint.Core.Artifacts.Folders.Factories;
-using Endpoint.Core.DataModel;
-using Endpoint.Core.Services;
-using Endpoint.Core.Syntax.Documents;
+using Endpoint.DotNet.Artifacts;
+using Endpoint.DotNet.Artifacts.Folders.Factories;
+using Endpoint.DotNet.DataModel;
+using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax.Documents;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

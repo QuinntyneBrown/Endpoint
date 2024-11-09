@@ -8,13 +8,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts.Files;
-using Endpoint.Core.Artifacts.Projects.Factories;
-using Endpoint.Core.Artifacts.Solutions.Factories;
-using Endpoint.Core.Artifacts.Solutions.Services;
-using Endpoint.Core.Services;
-using Endpoint.Core.Syntax.Classes;
-using Endpoint.Core.Syntax.Classes.Factories;
+using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.DotNet.Artifacts.Projects.Factories;
+using Endpoint.DotNet.Artifacts.Solutions.Factories;
+using Endpoint.DotNet.Artifacts.Solutions.Services;
+using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Classes.Factories;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -108,7 +108,7 @@ public class ServiceBusSolutionCreateRequestHandler : IRequestHandler<ServiceBus
             .AppendLine("services.AddMessagingUdpServices();")
             .AppendLine("services.AddHostedService<ServiceBusMessageConsumer>();");
 
-        configureServicesClassModel.Methods.First().Body = new Core.Syntax.Expressions.ExpressionModel(configureServicesMethodBodyBuilder.ToString());
+        configureServicesClassModel.Methods.First().Body = new DotNet.Syntax.Expressions.ExpressionModel(configureServicesMethodBodyBuilder.ToString());
 
         var configureServicesFileModel = new CodeFileModel<ClassModel>(configureServicesClassModel, new ()
         {

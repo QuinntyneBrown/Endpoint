@@ -5,10 +5,10 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts;
-using Endpoint.Core.Artifacts.Files;
-using Endpoint.Core.Services;
-using Endpoint.Core.Syntax.Namespaces;
+using Endpoint.DotNet.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax.Namespaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

@@ -7,12 +7,12 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts.Files.Factories;
-using Endpoint.Core.Artifacts.Projects;
-using Endpoint.Core.Artifacts.Projects.Enums;
-using Endpoint.Core.Artifacts.Projects.Factories;
-using Endpoint.Core.Artifacts.Projects.Services;
-using Endpoint.Core.Services;
+using Endpoint.DotNet.Artifacts.Files.Factories;
+using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Artifacts.Projects.Enums;
+using Endpoint.DotNet.Artifacts.Projects.Factories;
+using Endpoint.DotNet.Artifacts.Projects.Services;
+using Endpoint.DotNet.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

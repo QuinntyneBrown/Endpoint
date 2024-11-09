@@ -2,8 +2,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using CommandLine;
-using Endpoint.Core.Services;
-using Endpoint.Core.Syntax;
+using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax;
 using MediatR;
 using System.IO;
 using System.Threading;
@@ -36,7 +36,7 @@ public class PageRequestHandler : IRequestHandler<PageRequest>
     {
         var settings = _settingsProvder.Get(request.Directory);
 
-        new GetPageBuilder(new Endpoint.Core.Services.Context(), _fileSystem)
+        new GetPageBuilder(new Endpoint.DotNet.Services.Context(), _fileSystem)
             .WithDirectory($"{settings.ApplicationDirectory}{Path.DirectorySeparatorChar}Features{Path.DirectorySeparatorChar}{((SyntaxToken)request.Entity).PascalCasePlural}")
             .WithDbContext(settings.DbContextName)
             .WithNamespace($"{settings.ApplicationNamespace}.Features")

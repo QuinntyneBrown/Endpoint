@@ -7,12 +7,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core;
-using Endpoint.Core.Artifacts;
-using Endpoint.Core.Artifacts.Projects;
-using Endpoint.Core.Artifacts.Projects.Factories;
-using Endpoint.Core.Artifacts.Projects.Services;
-using Endpoint.Core.Services;
+using Endpoint.DotNet;
+using Endpoint.DotNet.Artifacts;
+using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Artifacts.Projects.Factories;
+using Endpoint.DotNet.Artifacts.Projects.Services;
+using Endpoint.DotNet.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

@@ -4,10 +4,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts;
-using Endpoint.Core.Artifacts.Files.Factories;
-using Endpoint.Core.Services;
-using Endpoint.Core.Syntax;
+using Endpoint.DotNet.Artifacts;
+using Endpoint.DotNet.Artifacts.Files.Factories;
+using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

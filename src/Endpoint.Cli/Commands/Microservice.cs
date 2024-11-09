@@ -2,11 +2,11 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using CommandLine;
-using Endpoint.Core.Abstractions;
-using Endpoint.Core.Artifacts.Git;
-using Endpoint.Core.Artifacts.Solutions;
-using Endpoint.Core.Options;
-using Endpoint.Core.Services;
+using Endpoint.DotNet.Abstractions;
+using Endpoint.DotNet.Artifacts.Git;
+using Endpoint.DotNet.Artifacts.Solutions;
+using Endpoint.DotNet.Options;
+using Endpoint.DotNet.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Nelibur.ObjectMapper;
@@ -14,7 +14,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using static Endpoint.Core.Constants.SolutionTemplates;
+using static Endpoint.DotNet.Constants.SolutionTemplates;
 
 namespace Endpoint.Cli.Commands;
 

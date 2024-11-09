@@ -5,9 +5,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts;
-using Endpoint.Core.Syntax.Classes.Factories;
-using Endpoint.Core.Syntax.Namespaces.Factories;
+using Endpoint.DotNet.Artifacts;
+using Endpoint.DotNet.Syntax.Classes.Factories;
+using Endpoint.DotNet.Syntax.Namespaces.Factories;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

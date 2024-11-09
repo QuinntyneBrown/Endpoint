@@ -9,14 +9,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using CommandLine;
-using Endpoint.Core.Artifacts;
-using Endpoint.Core.Artifacts.Files;
-using Endpoint.Core.Services;
-using Endpoint.Core.Syntax;
-using Endpoint.Core.Syntax.Classes;
-using Endpoint.Core.Syntax.Methods;
-using Endpoint.Core.Syntax.Properties;
-using Endpoint.Core.Syntax.Types;
+using Endpoint.DotNet.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Properties;
+using Endpoint.DotNet.Syntax.Types;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using SimpleNLG.Extensions;
@@ -80,7 +80,7 @@ public class ValueObjectCreateRequestHandler : IRequestHandler<ValueObjectCreate
             ReturnType = new TypeModel("IEnumerable<object>"),
             Override = true,
             AccessModifier = AccessModifier.Protected,
-            Body = new Core.Syntax.Expressions.ExpressionModel("throw new NotImplementedException();"),
+            Body = new DotNet.Syntax.Expressions.ExpressionModel("throw new NotImplementedException();"),
         };
 
         @class.Methods.Add(equalityMethod);

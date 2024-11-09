@@ -3,14 +3,14 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Endpoint.Core.Syntax;
-using Endpoint.Core.Syntax.Classes;
-using Endpoint.Core.Syntax.Classes.Strategies;
-using Endpoint.Core.Syntax.Constructors;
-using Endpoint.Core.Syntax.Fields;
-using Endpoint.Core.Syntax.Methods;
-using Endpoint.Core.Syntax.Params;
-using Endpoint.Core.Syntax.Types;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Classes.Strategies;
+using Endpoint.DotNet.Syntax.Constructors;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
+using Endpoint.DotNet.Syntax.Types;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

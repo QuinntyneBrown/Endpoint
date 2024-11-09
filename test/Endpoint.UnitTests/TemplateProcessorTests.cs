@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Endpoint.Core.Services;
-using Endpoint.Core.Syntax;
-using Endpoint.Core.Syntax.Entities;
-using Endpoint.Core.Syntax.Properties;
-using Endpoint.Core.Syntax.Types;
+using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Entities;
+using Endpoint.DotNet.Syntax.Properties;
+using Endpoint.DotNet.Syntax.Types;
 using Xunit;
 
 namespace Endpoint.UnitTests;

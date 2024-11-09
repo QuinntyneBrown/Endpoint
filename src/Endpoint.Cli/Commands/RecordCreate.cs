@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts;
-using Endpoint.Core.Artifacts.Files;
-using Endpoint.Core.Syntax.Records;
+using Endpoint.DotNet.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.DotNet.Syntax.Records;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -40,7 +40,7 @@ public class RecordCreateRequestHandler : IRequestHandler<RecordCreateRequest>
 
         var file = new CodeFileModel<RecordModel>(
             model,
-            new List<Core.Syntax.UsingModel>(),
+            new List<DotNet.Syntax.UsingModel>(),
             model.Name,
             request.Directory,
             ".cs");
