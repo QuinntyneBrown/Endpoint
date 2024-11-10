@@ -1,0 +1,61 @@
+// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using System.Linq;
+using System.Text;
+using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax.Classes;
+using Microsoft.Extensions.Logging;
+
+namespace Endpoint.DotNet.Syntax.Expressions;
+
+public class ConstructorExpressionGenerationStrategy : GenericSyntaxGenerationStrategy<ConstructorExpressionModel>
+{
+    private readonly ILogger<ConstructorExpressionGenerationStrategy> _logger;
+    private readonly INamingConventionConverter _namingConventionConverter;
+
+    public ConstructorExpressionGenerationStrategy(ILogger<ConstructorExpressionGenerationStrategy> logger, INamingConventionConverter namingConventionConverter)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(namingConventionConverter);
+
+        _logger = logger;
+        _namingConventionConverter = namingConventionConverter;
+    }
+
+    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, ConstructorExpressionModel model)
+    {
+        _logger.LogInformation("Generating Constructor Expression Body.");
+
+        var stringBuilder = new StringBuilder();
+
+        foreach (var param in model.Constructor.Params)
+        {
+            var field = model.Class.Fields.SingleOrDefault(x => x.Type.Name == param.Type.Name);
+
+            if (field != null)
+            {
+                stringBuilder.AppendLine($"ArgumentNullException.ThrowIfNull({param.Name});");
+            }
+        }
+
+        stringBuilder.AppendLine();
+
+        foreach (var param in model.Constructor.Params)
+        {
+            var field = model.Class.Fields.SingleOrDefault(x => x.Type.Name == param.Type.Name);
+
+            if (field != null)
+            {
+                var fieldName = _namingConventionConverter.Convert(NamingConvention.CamelCase, field.Name);
+
+                var paramName = _namingConventionConverter.Convert(NamingConvention.CamelCase, param.Name);
+
+                stringBuilder.AppendLine($"{fieldName} = {paramName};".Indent(1));
+            }
+        }
+
+
+        return stringBuilder.ToString();
+    }
+}

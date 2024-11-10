@@ -28,7 +28,11 @@ public class SolutionGenerationStrategy : GenericArtifactGenerationStrategy<Solu
     {
         if (fileSystem.Directory.Exists(model.SolutionDirectory))
         {
-            fileSystem.Directory.Delete(model.SolutionDirectory, true);
+            try
+            {
+                fileSystem.Directory.Delete(model.SolutionDirectory, true);
+            }
+            catch { }
         }
 
         fileSystem.Directory.CreateDirectory(model.SolutionDirectory);

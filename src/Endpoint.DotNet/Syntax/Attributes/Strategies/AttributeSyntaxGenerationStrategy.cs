@@ -9,18 +9,18 @@ namespace Endpoint.DotNet.Syntax.Attributes.Strategies;
 
 public class AttributeSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<AttributeModel>
 {
-    private readonly ILogger<AttributeSyntaxGenerationStrategy> logger;
+    private readonly ILogger<AttributeSyntaxGenerationStrategy> _logger;
 
-    public AttributeSyntaxGenerationStrategy(
-
-        ILogger<AttributeSyntaxGenerationStrategy> logger)
+    public AttributeSyntaxGenerationStrategy(ILogger<AttributeSyntaxGenerationStrategy> logger)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        ArgumentNullException.ThrowIfNull(logger);
+
+        _logger = logger;
     }
 
     public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, AttributeModel model)
     {
-        logger.LogInformation("Generating syntax for {0}.", model);
+        _logger.LogInformation("Generating syntax for {0}.", model);
 
         var builder = new StringBuilder();
 

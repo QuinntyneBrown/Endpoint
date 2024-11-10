@@ -3,12 +3,7 @@
 
 namespace Endpoint.DomainDrivenDesign.Core.Models;
 
-public class Query
+public class Query : Request
 {
-    public Query(string name)
-    {
-        Name = name;
-    }
-
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 }
