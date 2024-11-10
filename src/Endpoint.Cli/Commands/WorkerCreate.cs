@@ -47,7 +47,7 @@ public class WorkerCreateRequestHandler : IRequestHandler<WorkerCreateRequest>
 
         var model = await classFactory.CreateWorkerAsync(request.Name);
 
-        var fileModel = new CodeFileModel<ClassModel>(model, model.Name, request.Directory, CSharpFile);
+        var fileModel = new CodeFileModel<ClassModel>(model, model.Name, request.Directory, CSharp);
 
         await artifactGenerator.GenerateAsync(fileModel);
     }

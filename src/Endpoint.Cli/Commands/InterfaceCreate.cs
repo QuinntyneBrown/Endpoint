@@ -60,7 +60,7 @@ public class InterfaceCreateRequestHandler : IRequestHandler<InterfaceCreateRequ
                 model.Implements.Add(new (typeName));
             }
 
-            await artifactGenerator.GenerateAsync(new CodeFileModel<InterfaceModel>(model, model.Usings, name, request.Directory, CSharpFile));
+            await artifactGenerator.GenerateAsync(new CodeFileModel<InterfaceModel>(model, model.Usings, name, request.Directory, CSharp));
         }
     }
 }

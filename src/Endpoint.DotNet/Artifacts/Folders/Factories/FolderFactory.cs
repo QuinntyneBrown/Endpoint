@@ -56,7 +56,7 @@ public class FolderFactory : IFolderFactory
         {
             var command = await documentFactory.CreateCommandAsync(aggregate, routeType);
 
-            model.Files.Add(new CodeFileModel<DocumentModel>(command, command.Name, model.Directory, CSharpFile));
+            model.Files.Add(new CodeFileModel<DocumentModel>(command, command.Name, model.Directory, CSharp));
         }
 
         return model;
@@ -70,7 +70,7 @@ public class FolderFactory : IFolderFactory
         {
             var query = await documentFactory.CreateQueryAsync(aggregate, routeType);
 
-            model.Files.Add(new CodeFileModel<DocumentModel>(query, query.Name, model.Directory, CSharpFile));
+            model.Files.Add(new CodeFileModel<DocumentModel>(query, query.Name, model.Directory, CSharp));
         }
 
         return model;
@@ -132,11 +132,11 @@ public class FolderFactory : IFolderFactory
 
         var extensions = await classFactory.DtoExtensionsCreateAsync(aggregate);
 
-        model.Files.Add(new CodeFileModel<ClassModel>(aggregate, aggregate.Usings, aggregate.Name, model.Directory, CSharpFile));
+        model.Files.Add(new CodeFileModel<ClassModel>(aggregate, aggregate.Usings, aggregate.Name, model.Directory, CSharp));
 
-        model.Files.Add(new CodeFileModel<ClassModel>(aggregateDto, aggregateDto.Usings, aggregateDto.Name, model.Directory, CSharpFile));
+        model.Files.Add(new CodeFileModel<ClassModel>(aggregateDto, aggregateDto.Usings, aggregateDto.Name, model.Directory, CSharp));
 
-        model.Files.Add(new CodeFileModel<ClassModel>(extensions, extensions.Usings, extensions.Name, model.Directory, CSharpFile));
+        model.Files.Add(new CodeFileModel<ClassModel>(extensions, extensions.Usings, extensions.Name, model.Directory, CSharp));
 
         return model;
     }
@@ -155,11 +155,11 @@ public class FolderFactory : IFolderFactory
 
         var extensions = await classFactory.DtoExtensionsCreateAsync(aggregate);
 
-        model.Files.Add(new CodeFileModel<ClassModel>(aggregate, aggregate.Usings, aggregate.Name, model.Directory, CSharpFile));
+        model.Files.Add(new CodeFileModel<ClassModel>(aggregate, aggregate.Usings, aggregate.Name, model.Directory, CSharp));
 
-        model.Files.Add(new CodeFileModel<ClassModel>(aggregateDto, aggregateDto.Usings, aggregateDto.Name, model.Directory, CSharpFile));
+        model.Files.Add(new CodeFileModel<ClassModel>(aggregateDto, aggregateDto.Usings, aggregateDto.Name, model.Directory, CSharp));
 
-        model.Files.Add(new CodeFileModel<ClassModel>(extensions, extensions.Usings, extensions.Name, model.Directory, CSharpFile));
+        model.Files.Add(new CodeFileModel<ClassModel>(extensions, extensions.Usings, extensions.Name, model.Directory, CSharp));
 
         return model;
     }

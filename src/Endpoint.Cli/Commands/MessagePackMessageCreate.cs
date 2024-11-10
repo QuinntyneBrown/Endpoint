@@ -63,7 +63,7 @@ public class MessagePackMessageCreateRequestHandler : IRequestHandler<MessagePac
             @class.Usings,
             @class.Name,
             request.Directory,
-            CSharpFile);
+            CSharp);
 
         await _artifactGenerator.GenerateAsync(model);
     }

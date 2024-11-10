@@ -76,7 +76,7 @@ public class DependencyInjectionService : IDependencyInjectionService
 
         classModel.Methods.Add(method);
 
-        var classFileModel = new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, directory, Endpoint.DotNet.Constants.FileExtensions.CSharpFile)
+        var classFileModel = new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, directory, Endpoint.DotNet.Constants.FileExtensions.CSharp)
         {
             Namespace = "Microsoft.Extensions.DependencyInjection",
         };

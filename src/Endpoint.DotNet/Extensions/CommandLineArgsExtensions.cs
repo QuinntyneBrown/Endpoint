@@ -1,8 +1,8 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using CommandLine;
 using System.Linq;
+using CommandLine;
 
 namespace Endpoint.DotNet.Extensions;
 
@@ -15,6 +15,12 @@ public static class CommandLineArgsExtensions {
         if (lastArg.EndsWith("dll"))
         {
             args = args.Skip(1).ToArray();
+        }
+
+        if (args.Length == 0)
+        {
+            args =
+                [Environment.GetEnvironmentVariable("ENDPOINT_DEFAULT", EnvironmentVariableTarget.Machine) !];
         }
 
         var parser = new Parser(with =>

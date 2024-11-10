@@ -111,9 +111,9 @@ public class DefaultHandler : IRequestHandler<DefaultRequest>
                 name = $"{originalName}{retries}";
             }
         }
-        catch (Exception e)
+        catch (Exception exception)
         {
-            logger.LogError(e.Message);
+            logger.LogError(exception, exception.Message);
         }
     }
 }
