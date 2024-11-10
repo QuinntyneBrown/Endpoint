@@ -46,22 +46,6 @@ public class ConstructorSyntaxGenerationStrategy : GenericSyntaxGenerationStrate
 
         builder.AppendLine("{");
 
-        foreach (var param in model.Params)
-        {
-            var field = ((ClassModel)model.Parent).Fields.SingleOrDefault(x => x.Type.Name == param.Type.Name);
-
-            if (field != null)
-            {
-                var fieldName = namingConventionConverter.Convert(NamingConvention.CamelCase, field.Name);
-
-                var paramName = namingConventionConverter.Convert(NamingConvention.CamelCase, param.Name);
-
-                builder.AppendLine($"ArgumentNullException.ThrowIfNull({paramName});".Indent(1));
-
-                builder.AppendLine($"{fieldName} = {paramName};".Indent(1));
-            }
-        }
-
         if (model.Body != null)
         {
             string result = await syntaxGenerator.GenerateAsync(model.Body);

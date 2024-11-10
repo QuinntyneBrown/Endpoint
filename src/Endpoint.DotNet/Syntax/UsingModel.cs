@@ -14,5 +14,7 @@ public class UsingModel
     {
     }
 
+    public static UsingModel MediatR => new ("MediatR");
+
     public string Name { get; init; }
 }

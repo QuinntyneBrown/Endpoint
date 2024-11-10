@@ -14,8 +14,9 @@ public class ConstructorModel : SyntaxModel
     {
         Parent = @class;
         Name = name;
-        Params = new List<ParamModel>();
-        BaseParams = new List<string>();
+        Params = [];
+        BaseParams = [];
+        Body = new ConstructorExpressionModel(@class, this);
     }
 
     public string Name { get; set; }

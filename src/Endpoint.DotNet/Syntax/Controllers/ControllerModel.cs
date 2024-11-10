@@ -19,19 +19,19 @@ public class ControllerModel : ClassModel
     {
         Attributes.Add(new AttributeModel(AttributeType.ApiController, "ApiController", null));
 
-        Implements.Add(new TypeModel("ControllerBase"));
+        Implements.Add(new ("ControllerBase"));
 
         Fields.Add(FieldModel.LoggerOf(Name));
 
         Fields.Add(FieldModel.Mediator);
 
-        var ctor = new ConstructorModel(this, Name);
+        var constructor = new ConstructorModel(this, Name);
 
-        ctor.Params.Add(ParamModel.LoggerOf(Name));
+        constructor.Params.Add(ParamModel.LoggerOf(Name));
 
-        ctor.Params.Add(ParamModel.Mediator);
+        constructor.Params.Add(ParamModel.Mediator);
 
-        Constructors.Add(ctor);
+        Constructors.Add(constructor);
 
         foreach (var routeType in Enum.GetValues<RouteType>())
         {

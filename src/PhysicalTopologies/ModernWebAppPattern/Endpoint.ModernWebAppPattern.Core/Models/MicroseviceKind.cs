@@ -8,5 +8,5 @@ public enum MicroseviceKind
     Api,
     WebApp,
     Worker,
-    Frontend
+    WebBrowserApplication
 }

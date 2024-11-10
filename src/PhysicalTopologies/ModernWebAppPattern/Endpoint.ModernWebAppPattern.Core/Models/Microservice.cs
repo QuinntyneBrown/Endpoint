@@ -15,4 +15,5 @@ public class Microservice {
     public string Name { get; set; }
     public string BoundedContextName { get; set; }
     public MicroseviceKind Kind { get; set; } = MicroseviceKind.Api;
+    public string ProductName { get; set; } = string.Empty;
 }
