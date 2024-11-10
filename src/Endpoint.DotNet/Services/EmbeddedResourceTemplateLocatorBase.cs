@@ -21,7 +21,7 @@ public class EmbeddedResourceTemplateLocatorBase<T> : ITemplateLocator
 
     public string Get(string name)
     {
-        logger.LogInformation("Attempting to get template for: {naem}.", name);
+        logger.LogInformation("Attempting to get template for: {name}.", name);
 
         var @namespace = $"{typeof(T).Namespace}";
 
@@ -40,7 +40,7 @@ public class EmbeddedResourceTemplateLocatorBase<T> : ITemplateLocator
 
     public string GetResource(Assembly assembly, string name)
     {
-        logger.LogInformation("Attempting to get resource for: {naem}.", name);
+        logger.LogInformation("Attempting to get resource for: {name}.", name);
 
         var lines = new List<string>();
 

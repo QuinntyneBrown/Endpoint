@@ -143,13 +143,13 @@ public class SignalRAppCreateRequestHandler : IRequestHandler<SignalRAppCreateRe
 
         var workerModel = await classFactory.CreateMessageProducerWorkerAsync(request.Name, projectModel.Directory);
 
-        projectModel.Files.Add(new CodeFileModel<ClassModel>(workerModel, workerModel.Name, projectModel.Directory, CSharpFile));
+        projectModel.Files.Add(new CodeFileModel<ClassModel>(workerModel, workerModel.Name, projectModel.Directory, CSharp));
 
-        projectModel.Files.Add(new CodeFileModel<ClassModel>(messageModel, messageModel.Name, projectModel.Directory, CSharpFile));
+        projectModel.Files.Add(new CodeFileModel<ClassModel>(messageModel, messageModel.Name, projectModel.Directory, CSharp));
 
-        projectModel.Files.Add(new CodeFileModel<ClassModel>(hubClassModel, hubClassModel.Name, projectModel.Directory, CSharpFile));
+        projectModel.Files.Add(new CodeFileModel<ClassModel>(hubClassModel, hubClassModel.Name, projectModel.Directory, CSharp));
 
-        projectModel.Files.Add(new CodeFileModel<InterfaceModel>(interfaceModel, interfaceModel.Name, projectModel.Directory, CSharpFile));
+        projectModel.Files.Add(new CodeFileModel<InterfaceModel>(interfaceModel, interfaceModel.Name, projectModel.Directory, CSharp));
 
         await artifactGenerator.GenerateAsync(solutionModel);
 

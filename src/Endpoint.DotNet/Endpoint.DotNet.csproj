@@ -17,7 +17,9 @@
     <Title>Endpoint Core</Title>
     <NoWarn>1998;4014,SA1101,SA1600,SA1200,SA1633,SA1309</NoWarn>
   </PropertyGroup>
-
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\**\*.txt" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.0" />
     <PackageReference Include="DotLiquid" Version="2.2.677" />

@@ -256,7 +256,7 @@ return udpClient;
 """),
         });
 
-        return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharpFile);
+        return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharp);
     }
 
     public async Task<FileModel> CreateUdpMessageSenderInterfaceAsync(string directory)
@@ -280,7 +280,7 @@ return udpClient;
             ],
         });
 
-        return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharpFile);
+        return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharp);
     }
 
     public async Task<FileModel> CreateUdpMessageReceiverInterfaceAsync(string directory)
@@ -289,7 +289,7 @@ return udpClient;
 
         @interface.Implements.Add(new ("IUdpFactory"));
 
-        return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharpFile);
+        return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharp);
     }
 
     public async Task<FileModel> CreateUdpServiceBusMessageAsync(string directory)
@@ -321,7 +321,7 @@ return udpClient;
                 """),
         });
 
-        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharpFile);
+        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharp);
     }
 
     public async Task<FileModel> CreateUdpMessageSenderAsync(string directory)
@@ -330,7 +330,7 @@ return udpClient;
 
         @class.Implements.Add(new ("IMessageSender"));
 
-        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharpFile);
+        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharp);
     }
 
     public async Task<FileModel> CreateUdpMessageReceiverAsync(string directory)
@@ -339,7 +339,7 @@ return udpClient;
 
         @class.Implements.Add(new ("IMessageReceiver"));
 
-        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharpFile);
+        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharp);
     }
 
     public async Task<FileModel> CreateUdpServiceBusConfigureServicesAsync(string directory)
@@ -361,7 +361,7 @@ return udpClient;
             ],
         });
 
-        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharpFile);
+        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharp);
     }
 
     public async Task<FileModel> CreateUdpServiceBusHostExtensionsAsync(string directory)
@@ -383,6 +383,6 @@ return udpClient;
             ],
         });
 
-        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharpFile);
+        return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharp);
     }
 }

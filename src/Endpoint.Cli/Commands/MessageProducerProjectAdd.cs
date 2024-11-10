@@ -86,13 +86,13 @@ host.Run();
 
         var workerModel = await _classFactory.CreateMessageProducerWorkerAsync(request.Name, model.Directory);
 
-        model.Files.Add(new CodeFileModel<ClassModel>(workerModel, workerModel.Name, model.Directory, CSharpFile));
+        model.Files.Add(new CodeFileModel<ClassModel>(workerModel, workerModel.Name, model.Directory, CSharp));
 
-        model.Files.Add(new CodeFileModel<ClassModel>(messageModel, messageModel.Name, model.Directory, CSharpFile));
+        model.Files.Add(new CodeFileModel<ClassModel>(messageModel, messageModel.Name, model.Directory, CSharp));
 
-        model.Files.Add(new CodeFileModel<ClassModel>(hubClassModel, hubClassModel.Name, model.Directory, CSharpFile));
+        model.Files.Add(new CodeFileModel<ClassModel>(hubClassModel, hubClassModel.Name, model.Directory, CSharp));
 
-        model.Files.Add(new CodeFileModel<InterfaceModel>(interfaceModel, interfaceModel.Name, model.Directory, CSharpFile));
+        model.Files.Add(new CodeFileModel<InterfaceModel>(interfaceModel, interfaceModel.Name, model.Directory, CSharp));
 
         await _projectService.AddProjectAsync(model);
 

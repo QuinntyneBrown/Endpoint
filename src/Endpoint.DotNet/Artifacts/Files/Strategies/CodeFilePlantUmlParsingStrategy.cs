@@ -30,7 +30,7 @@ public abstract class CodeFilePlantUmlParsingStrategy<T> : BaseArtifactParsingSt
 
         var model = await syntaxParser.ParseAsync<T>(valueOrDirectoryOrPath);
 
-        return new CodeFileModel<T>(model, codeFile.Name, codeFile.Directory, CSharpFile);
+        return new CodeFileModel<T>(model, codeFile.Name, codeFile.Directory, CSharp);
     }
 }
 

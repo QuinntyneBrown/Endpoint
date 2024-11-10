@@ -118,7 +118,7 @@ public class AggregateService : IAggregateService
 
         var queryModel = await cqrsFactory.CreateQueryAsync(routeType, name, properties);
 
-        var model = new CodeFileModel<QueryModel>(queryModel, queryModel.UsingDirectives, queryModel.Name, directory, CSharpFile);
+        var model = new CodeFileModel<QueryModel>(queryModel, queryModel.UsingDirectives, queryModel.Name, directory, CSharp);
 
         await artifactGenerator.GenerateAsync(model);
     }

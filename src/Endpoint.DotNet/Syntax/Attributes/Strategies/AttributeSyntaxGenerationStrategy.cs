@@ -33,7 +33,7 @@ public class AttributeSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy
             builder.Append($"({model.Template})");
         }
 
-        if (model.Properties.Count == 1)
+        if (model.Properties != null && model.Properties.Count == 1)
         {
             builder.Append('(');
 
@@ -50,7 +50,7 @@ public class AttributeSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy
             builder.Append(')');
         }
 
-        if (model.Properties.Count > 1)
+        if (model.Properties != null && model.Properties.Count > 1)
         {
             builder.AppendLine("(");
 

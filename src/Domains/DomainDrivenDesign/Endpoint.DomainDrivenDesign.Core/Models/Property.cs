@@ -5,12 +5,12 @@ namespace Endpoint.DomainDrivenDesign.Core.Models;
 
 public class Property
 {
-    public Property(string name, PropertyKind type)
+    public Property(string name, PropertyKind kind)
     {
         Name = name;
-        Type = type;
+        Kind = kind;
     }
 
     public string Name { get; set; }
-    public PropertyKind Type { get; set; }
+    public PropertyKind Kind { get; set; }
 }

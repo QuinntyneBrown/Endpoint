@@ -85,7 +85,7 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
 
         classModel.Implements.Add(new ("IRequest"));
 
-        var classFileModel = new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, directory, CSharpFile);
+        var classFileModel = new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, directory, CSharp);
 
         await artifactGenerator.GenerateAsync(classFileModel);
     }
@@ -158,7 +158,7 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
 
         classModel.Methods.Add(methodModel);
 
-        var classFileModel = new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, directory, CSharpFile);
+        var classFileModel = new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, directory, CSharp);
 
         await artifactGenerator.GenerateAsync(classFileModel);
     }
@@ -309,14 +309,14 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
 
         classModel.Methods.Add(method);
 
-        await artifactGenerator.GenerateAsync(new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, directory, CSharpFile));
+        await artifactGenerator.GenerateAsync(new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, directory, CSharp));
     }
 
     public async Task ServiceCreateAsync(string name, string directory)
     {
-        if (fileSystem.File.Exists(fileSystem.Path.Combine(directory, $"{name}{CSharpFile}")))
+        if (fileSystem.File.Exists(fileSystem.Path.Combine(directory, $"{name}{CSharp}")))
         {
-            throw new Exception($"Service exists: {fileSystem.Path.Combine(directory, $"{name}{CSharpFile}")}");
+            throw new Exception($"Service exists: {fileSystem.Path.Combine(directory, $"{name}{CSharp}")}");
         }
 
         var projectPath = fileProvider.Get("*.csproj", directory);
@@ -375,7 +375,7 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
                 @interface.Usings,
                 @interface.Name,
                 directory,
-                CSharpFile);
+                CSharp);
 
             await artifactGenerator.GenerateAsync(interfaceFile);
 
@@ -412,7 +412,7 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
                 @class.Usings,
                 @class.Name,
                 directory,
-                CSharpFile);
+                CSharp);
 
             await artifactGenerator.GenerateAsync(classFile);
 

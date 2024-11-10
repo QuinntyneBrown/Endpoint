@@ -711,6 +711,7 @@ public class ClassFactory : IClassFactory
         var model = new ClassModel(controllerName);
 
         model.Attributes.Add(new AttributeModel(AttributeType.ApiController, null, null));
+
         return model;
     }
 

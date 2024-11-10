@@ -66,7 +66,7 @@ public class EnumCreateRequestHandler : IRequestHandler<EnumCreateRequest>
             model.Usings,
             model.Name,
             request.Directory,
-            CSharpFile);
+            CSharp);
 
         await _generator.GenerateAsync(classFile);
     }
