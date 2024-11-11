@@ -22,7 +22,11 @@ public class ControllerDeleteExpressionGenerationStrategy : GenericSyntaxGenerat
 
         var stringBuilder = new StringBuilder();
 
-        stringBuilder.AppendLine("throw new NotImplementedException();");
+        stringBuilder.AppendLine($$"""
+            var response = await _mediator.Send(request);
+
+            return Ok(response);
+            """);
 
         return stringBuilder.ToString();
     }

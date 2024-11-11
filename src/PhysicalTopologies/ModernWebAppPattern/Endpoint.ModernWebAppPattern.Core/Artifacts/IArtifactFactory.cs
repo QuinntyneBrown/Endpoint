@@ -13,5 +13,7 @@ public interface IArtifactFactory
 
     Task<IEnumerable<FileModel>> AggregateCreateAsync(IDataContext context, Aggregate aggregate, string directory, CancellationToken cancellationToken);
 
+    Task<FileModel> CommandValidatorCreateAsync(Command command, string directory);
+
 }
 

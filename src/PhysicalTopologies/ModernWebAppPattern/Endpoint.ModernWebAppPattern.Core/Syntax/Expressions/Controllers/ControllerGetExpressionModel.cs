@@ -10,13 +10,13 @@ namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.Controllers;
 
 public class ControllerGetExpressionModel : ExpressionModel
 {
-    public ControllerGetExpressionModel(ClassModel @class, Aggregate aggregate)
+    public ControllerGetExpressionModel(ClassModel @class, Query query)
         : base(string.Empty)
     {
         Class = @class;
-        Aggregate = aggregate;
+        Query = query;
     }
 
     public ClassModel Class { get; set; }
-    public Aggregate Aggregate { get; set; }
+    public Query Query { get; set; }
 }

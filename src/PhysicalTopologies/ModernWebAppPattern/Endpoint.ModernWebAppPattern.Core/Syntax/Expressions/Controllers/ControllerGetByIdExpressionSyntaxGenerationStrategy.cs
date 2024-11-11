@@ -13,6 +13,8 @@ public class ControllerGetByIdExpressionGenerationStrategy : GenericSyntaxGenera
 
     public ControllerGetByIdExpressionGenerationStrategy(ILogger<ControllerGetByIdExpressionGenerationStrategy> logger)
     {
+        ArgumentNullException.ThrowIfNull(logger);
+
         _logger = logger;
     }
 
@@ -22,7 +24,16 @@ public class ControllerGetByIdExpressionGenerationStrategy : GenericSyntaxGenera
 
         var stringBuilder = new StringBuilder();
 
-        stringBuilder.AppendLine("throw new NotImplementedException();");
+        stringBuilder.AppendLine($$"""
+            var response = await _mediator.Send(request);
+
+            if(response.{{model.Query.Aggregate.Name}} == null)
+            {
+                return NotFound(request.{{model.Query.Aggregate.Name}}Id);
+            }
+
+            return Ok(response);
+            """);
 
         return stringBuilder.ToString();
     }

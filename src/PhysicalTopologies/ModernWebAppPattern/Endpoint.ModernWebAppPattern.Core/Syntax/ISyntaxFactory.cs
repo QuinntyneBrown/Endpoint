@@ -9,15 +9,15 @@ namespace Endpoint.ModernWebAppPattern.Core.Syntax;
 
 public interface ISyntaxFactory
 {
-    Task<MethodModel> ControllerCreateMethodCreateAsync(ClassModel @class, Aggregate aggregate);
+    Task<MethodModel> ControllerCreateMethodCreateAsync(ClassModel @class, Command command);
 
-    Task<MethodModel> ControllerGetMethodCreateAsync(ClassModel @class, Aggregate aggregate);
+    Task<MethodModel> ControllerGetMethodCreateAsync(ClassModel @class, Query query);
 
-    Task<MethodModel> ControllerGetByIdMethodCreateAsync(ClassModel @class, Aggregate aggregate);
+    Task<MethodModel> ControllerGetByIdMethodCreateAsync(ClassModel @class, Query query);
 
-    Task<MethodModel> ControllerUpdateMethodCreateAsync(ClassModel @class, Aggregate aggregate);
+    Task<MethodModel> ControllerUpdateMethodCreateAsync(ClassModel @class, Command command);
 
-    Task<MethodModel> ControllerDeleteMethodCreateAsync(ClassModel @class, Aggregate aggregate);
+    Task<MethodModel> ControllerDeleteMethodCreateAsync(ClassModel @class, Command command);
 
 }
 

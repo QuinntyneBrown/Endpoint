@@ -35,6 +35,24 @@ public class FileSystemDataContextProvider : IDataContextProvider
                 PropertyNameCaseInsensitive = true
             })!;
 
+            foreach(var boundedContext in _context.BoundedContexts)
+            {
+                foreach(var aggregate in boundedContext.Aggregates)
+                {
+                    foreach (var request in aggregate.Commands)
+                    {
+                        request.Aggregate = aggregate;
+                        request.ProductName = _context.ProductName;
+                    }
+
+                    foreach (var request in aggregate.Queries)
+                    {
+                        request.Aggregate = aggregate;
+                        request.ProductName = _context.ProductName;
+                    }
+                }
+            }
+
         }
 
         return _context;

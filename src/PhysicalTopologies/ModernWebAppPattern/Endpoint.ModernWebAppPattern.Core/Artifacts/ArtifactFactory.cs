@@ -17,6 +17,7 @@ using Endpoint.DotNet.Syntax.Params;
 using Endpoint.DotNet.Syntax.Properties;
 using Endpoint.DotNet.Syntax.Types;
 using Endpoint.ModernWebAppPattern.Core.Extensions;
+using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using SimpleNLG.Extensions;
@@ -113,6 +114,8 @@ public class ArtifactFactory : IArtifactFactory
 
         var model = new ProjectModel($"{context.ProductName}.Models", directory);
 
+        model.Packages.Add(new("FluentValidation", "11.10.0"));
+
         model.DotNetProjectType = DotNet.Artifacts.Projects.Enums.DotNetProjectType.ClassLib;
 
         foreach(var boundedContext in context.BoundedContexts)
@@ -146,10 +149,12 @@ public class ArtifactFactory : IArtifactFactory
 
         model.Files.Add(await DbContextInterfaceCreateAsync(context, microservice, boundedContext, model.Directory));
 
-        model.Packages.Add(new PackageModel("Microsoft.EntityFrameworkCore", "8.0.10"));
+        model.Packages.Add(new ("Microsoft.EntityFrameworkCore", "8.0.10"));
 
         foreach (var aggregate in boundedContext.Aggregates)
         {
+            var aggregateNamespace = $"{context.ProductName}.Models.{aggregate.Name}";
+
             model.Files.Add(await ControllerCreateAsync(microservice, aggregate, controllersDirectory));
             
             foreach(var command in aggregate.Commands)
@@ -158,7 +163,7 @@ public class ArtifactFactory : IArtifactFactory
 
                 commandHandlerModel.Usings.Add(UsingModel.MediatR);
 
-                commandHandlerModel.Usings.Add(new($"{context.ProductName}.Models.{aggregate.Name}"));
+                commandHandlerModel.Usings.Add(new(aggregateNamespace));
 
                 model.Files.Add(new CodeFileModel<ClassModel>(commandHandlerModel, commandHandlerModel.Name, requestHandlersDirectory, CSharp) { Namespace = $"{microservice.Name}.RequestHandlers" });
             }
@@ -169,7 +174,7 @@ public class ArtifactFactory : IArtifactFactory
 
                 queryHandlerModel.Usings.Add(UsingModel.MediatR);
 
-                queryHandlerModel.Usings.Add(new($"{context.ProductName}.Models.{aggregate.Name}"));
+                queryHandlerModel.Usings.Add(new(aggregateNamespace));
 
                 model.Files.Add(new CodeFileModel<ClassModel>(queryHandlerModel, queryHandlerModel.Name, requestHandlersDirectory, CSharp) { Namespace = $"{microservice.Name}.RequestHandlers" });
             }
@@ -188,6 +193,8 @@ public class ArtifactFactory : IArtifactFactory
 
         var aggregateDtoModel = new ClassModel($"{aggregate.Name}Dto");
 
+        var aggregateNamespace = $"{context.ProductName}.Models.{aggregate.Name}";
+
         foreach (var property in aggregate.Properties)
         {
             aggregateClassModel.Properties.Add(new(aggregateClassModel, AccessModifier.Public, property.Kind.ToType(), property.Name, PropertyAccessorModel.GetSet));
@@ -195,35 +202,91 @@ public class ArtifactFactory : IArtifactFactory
             aggregateDtoModel.Properties.Add(new(aggregateClassModel, AccessModifier.Public, property.Kind.ToType(), property.Name, PropertyAccessorModel.GetSet));
         }
 
-        files.Add(new CodeFileModel<ClassModel>(aggregateClassModel, aggregateClassModel.Name, aggregateDirectory, CSharp) { Namespace = $"{context.ProductName}.Models.{aggregate.Name}" });
+        files.Add(new CodeFileModel<ClassModel>(aggregateClassModel, aggregateClassModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
 
-        files.Add(new CodeFileModel<ClassModel>(aggregateDtoModel, aggregateDtoModel.Name, aggregateDirectory, CSharp) { Namespace = $"{context.ProductName}.Models.{aggregate.Name}" });
+        files.Add(new CodeFileModel<ClassModel>(aggregateDtoModel, aggregateDtoModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
 
 
         foreach(var command in aggregate.Commands)
         {
+            files.add(await CommandValidatorCreateAsync(command, aggregateDirectory));
+
             var commandRequestClassModel = new ClassModel($"{command.Name}Request") {  Usings = [new ("MediatR")] };
 
-            commandRequestClassModel.Implements.Add(new TypeModel($"IRequest<{command.Name}Response>"));
+            commandRequestClassModel.Implements.Add(new ($"IRequest<{command.Name}Response>"));
 
-            files.Add(new CodeFileModel<ClassModel>(commandRequestClassModel, commandRequestClassModel.Name, aggregateDirectory, CSharp) { Namespace = $"{context.ProductName}.Models.{aggregate.Name}" });
+            switch(command.Kind)
+            {
+                case RequestKind.Create:
+                    foreach (var property in aggregate.Properties.Where(x => !x.Key))
+                    {
+                        commandRequestClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, property.Kind.ToType(), property.Name, PropertyAccessorModel.GetSet));
+                    }
+                    break;
+
+                case RequestKind.Update:
+                    foreach(var property in aggregate.Properties)
+                    {
+                        commandRequestClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, property.Kind.ToType(), property.Name, PropertyAccessorModel.GetSet));
+                    }
+                    
+                    break;
+
+                case RequestKind.Delete:
+
+                    var keyProperty = aggregate.Properties.Single(x => x.Key);
+
+                    commandRequestClassModel.Properties.Add(new (commandRequestClassModel, AccessModifier.Public, keyProperty.Kind.ToType(), keyProperty.Name, PropertyAccessorModel.GetSet));
+
+                    break;
+            }
+
+            files.Add(new CodeFileModel<ClassModel>(commandRequestClassModel, commandRequestClassModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
 
             var commandResponseClassModel = new ClassModel($"{command.Name}Response");
 
-            files.Add(new CodeFileModel<ClassModel>(commandResponseClassModel, commandResponseClassModel.Name, aggregateDirectory, CSharp) { Namespace = $"{context.ProductName}.Models.{aggregate.Name}" });
+            switch (command.Kind)
+            {
+                case RequestKind.Create:    
+                case RequestKind.Update:
+                    commandResponseClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, new($"{command.Aggregate.Name}Dto"), command.Aggregate.Name, PropertyAccessorModel.GetSet));
+                    break;
+            }
+
+            files.Add(new CodeFileModel<ClassModel>(commandResponseClassModel, commandResponseClassModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
         }
 
         foreach (var query in aggregate.Queries)
         {
             var queryRequestClassModel = new ClassModel($"{query.Name}Request") { Usings = [new("MediatR")] }; ;
 
-            queryRequestClassModel.Implements.Add(new TypeModel($"IRequest<{query.Name}Response>"));
+            queryRequestClassModel.Implements.Add(new ($"IRequest<{query.Name}Response>"));
 
-            files.Add(new CodeFileModel<ClassModel>(queryRequestClassModel, queryRequestClassModel.Name, aggregateDirectory, CSharp) { Namespace = $"{context.ProductName}.Models.{aggregate.Name}" });
+            switch(query.Kind)
+            {
+                case RequestKind.GetById:
+                    var keyProperty = aggregate.Properties.Single(x => x.Key);
+
+                    queryRequestClassModel.Properties.Add(new(queryRequestClassModel, AccessModifier.Public, keyProperty.Kind.ToType(), keyProperty.Name, PropertyAccessorModel.GetSet));
+                    break;
+            }
+
+            files.Add(new CodeFileModel<ClassModel>(queryRequestClassModel, queryRequestClassModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
 
             var queryResponseClassModel = new ClassModel($"{query.Name}Response");
 
-            files.Add(new CodeFileModel<ClassModel>(queryResponseClassModel, queryResponseClassModel.Name, aggregateDirectory, CSharp) { Namespace = $"{context.ProductName}.Models.{aggregate.Name}" });
+            switch (query.Kind)
+            {
+                case RequestKind.GetById:
+                    queryResponseClassModel.Properties.Add(new(queryRequestClassModel, AccessModifier.Public, new($"{aggregate.Name}Dto"), aggregate.Name, PropertyAccessorModel.GetSet));
+                    break;
+
+                case RequestKind.Get:
+                    queryResponseClassModel.Properties.Add(new(queryRequestClassModel, AccessModifier.Public, TypeModel.ListOf($"{aggregate.Name}Dto"), aggregate.Name.Pluralize(), PropertyAccessorModel.GetSet));
+                    break;
+            }
+
+            files.Add(new CodeFileModel<ClassModel>(queryResponseClassModel, queryResponseClassModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
         }
 
         return files;
@@ -241,9 +304,11 @@ public class ArtifactFactory : IArtifactFactory
 
         foreach (var aggregate in boundedContext.Aggregates)
         {
-            model.Usings.Add(new($"{context.ProductName}.Models.{aggregate.Name}"));
+            var aggregateNamespace = $"{context.ProductName}.Models.{aggregate.Name}";
 
-            model.Properties.Add(new PropertyModel(model, AccessModifier.Public, TypeModel.DbSetOf(aggregate.Name), aggregate.Name.Pluralize(), PropertyAccessorModel.GetPrivateSet));
+            model.Usings.Add(new(aggregateNamespace));
+
+            model.Properties.Add(new (model, AccessModifier.Public, TypeModel.DbSetOf(aggregate.Name), aggregate.Name.Pluralize(), PropertyAccessorModel.GetPrivateSet));
         }
 
         return new CodeFileModel<ClassModel>(model, model.Name, directory, CSharp) { Namespace = $"{microservice.Name}" };
@@ -257,9 +322,11 @@ public class ArtifactFactory : IArtifactFactory
 
         foreach (var aggregate in boundedContext.Aggregates)
         {
-            model.Usings.Add(new($"{context.ProductName}.Models.{aggregate.Name}"));
+            var aggregateNamespace = $"{context.ProductName}.Models.{aggregate.Name}";
 
-            model.Properties.Add(new PropertyModel(model, AccessModifier.Public, TypeModel.DbSetOf(aggregate.Name), aggregate.Name.Pluralize(), PropertyAccessorModel.GetPrivateSet));
+            model.Usings.Add(new(aggregateNamespace));
+
+            model.Properties.Add(new (model, AccessModifier.Public, TypeModel.DbSetOf(aggregate.Name), aggregate.Name.Pluralize(), PropertyAccessorModel.GetPrivateSet));
         }
 
         return new CodeFileModel<InterfaceModel>(model, model.Name, directory, CSharp) { Namespace = $"{microservice.Name}" };
@@ -302,9 +369,9 @@ public class ArtifactFactory : IArtifactFactory
             model.Methods.Add(command.Kind switch
             {
 
-                RequestKind.Create => await _syntaxFactory.ControllerCreateMethodCreateAsync(model, aggregate),
-                RequestKind.Update => await _syntaxFactory.ControllerUpdateMethodCreateAsync(model, aggregate),
-                RequestKind.Delete => await _syntaxFactory.ControllerDeleteMethodCreateAsync(model, aggregate)
+                RequestKind.Create => await _syntaxFactory.ControllerCreateMethodCreateAsync(model, command),
+                RequestKind.Update => await _syntaxFactory.ControllerUpdateMethodCreateAsync(model, command),
+                RequestKind.Delete => await _syntaxFactory.ControllerDeleteMethodCreateAsync(model, command)
             });
         }
 
@@ -313,12 +380,30 @@ public class ArtifactFactory : IArtifactFactory
             model.Methods.Add(query.Kind switch
             {
 
-                RequestKind.Get => await _syntaxFactory.ControllerGetMethodCreateAsync(model, aggregate),
-                RequestKind.GetById => await _syntaxFactory.ControllerGetByIdMethodCreateAsync(model, aggregate),
+                RequestKind.Get => await _syntaxFactory.ControllerGetMethodCreateAsync(model, query),
+                RequestKind.GetById => await _syntaxFactory.ControllerGetByIdMethodCreateAsync(model, query),
             });
         }
 
         return new CodeFileModel<ClassModel>(model, model.Name, directory, CSharp) { Namespace = $"{microservice.Name}.Controllers" };
+    }
+
+    public async Task<FileModel> CommandValidatorCreateAsync(Command command, string directory)
+    {
+        var classModel = new ClassModel($"{command.Name}RequestValidator");
+
+        classModel.Implements.add(new($"AbstractValidator<{command.Name}Request>"));
+
+        classModel.Usings.Add(new("FluentValidation"));
+
+        classModel.Constructors.Add(new ConstructorModel(classModel, classModel.Name)
+        {
+            Body = new CommandRequestValidatorConstructorExpressionModel(command)
+        });
+
+        var file = new CodeFileModel<ClassModel>(classModel, classModel.Name, directory, CSharp) { Namespace = $"{command.ProductName}.Models.{command.Aggregate.Name}" };
+
+        return file;
     }
 }
 
