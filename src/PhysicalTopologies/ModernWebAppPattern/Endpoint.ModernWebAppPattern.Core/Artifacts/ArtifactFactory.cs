@@ -1,7 +1,6 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using DotLiquid.Util;
 using Endpoint.DomainDrivenDesign.Core.Models;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
@@ -20,7 +19,6 @@ using Endpoint.ModernWebAppPattern.Core.Extensions;
 using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions;
 using Humanizer;
 using Microsoft.Extensions.Logging;
-using SimpleNLG.Extensions;
 using System.IO.Abstractions;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
@@ -69,9 +67,13 @@ public class ArtifactFactory : IArtifactFactory
             model.Projects.Add(messagingProject);
         }
 
+        var validationProject = await ValidationProjectCreateAsync(context.ProductName, model.SrcDirectory);
+
+        model.Projects.Add(validationProject);
+
         var modelsProject = await ModelsProjectCreateAsync(model.SrcDirectory, cancellationToken);
 
-        modelsProject.Packages.Add(new PackageModel("MediatR", "12.4.1"));
+        model.DependOns.Add(new DependsOnModel(modelsProject, validationProject));
 
         model.Projects.Add(modelsProject);
 
@@ -113,8 +115,6 @@ public class ArtifactFactory : IArtifactFactory
         var context = await _dataContextProvider.GetAsync(cancellationToken: cancellationToken);
 
         var model = new ProjectModel($"{context.ProductName}.Models", directory);
-
-        model.Packages.Add(new("FluentValidation", "11.10.0"));
 
         model.DotNetProjectType = DotNet.Artifacts.Projects.Enums.DotNetProjectType.ClassLib;
 
@@ -209,7 +209,7 @@ public class ArtifactFactory : IArtifactFactory
 
         foreach(var command in aggregate.Commands)
         {
-            files.add(await CommandValidatorCreateAsync(command, aggregateDirectory));
+            files.Add(await CommandValidatorCreateAsync(command, aggregateDirectory));
 
             var commandRequestClassModel = new ClassModel($"{command.Name}Request") {  Usings = [new ("MediatR")] };
 
@@ -344,7 +344,7 @@ public class ArtifactFactory : IArtifactFactory
 
         model.Usings.Add(new("System.Net.Mime"));
 
-        model.Usings.add(new($"{microservice.ProductName}.Models.{aggregate.Name}"));
+        model.Usings.Add(new($"{microservice.ProductName}.Models.{aggregate.Name}"));
 
         model.Fields.Add(FieldModel.LoggerOf(model.Name));
 
@@ -392,7 +392,7 @@ public class ArtifactFactory : IArtifactFactory
     {
         var classModel = new ClassModel($"{command.Name}RequestValidator");
 
-        classModel.Implements.add(new($"AbstractValidator<{command.Name}Request>"));
+        classModel.Implements.Add(new($"AbstractValidator<{command.Name}Request>"));
 
         classModel.Usings.Add(new("FluentValidation"));
 
@@ -404,6 +404,122 @@ public class ArtifactFactory : IArtifactFactory
         var file = new CodeFileModel<ClassModel>(classModel, classModel.Name, directory, CSharp) { Namespace = $"{command.ProductName}.Models.{command.Aggregate.Name}" };
 
         return file;
+    }
+
+    public async Task<ProjectModel> ValidationProjectCreateAsync(string productName, string directory)
+    {
+        var model = new ProjectModel($"{productName}.Validation", directory);
+
+        model.Packages.Add(new("FluentValidation", "11.10.0"));
+
+        model.Packages.Add(new PackageModel("MediatR", "12.4.1"));
+
+        model.Packages.Add(new PackageModel("FluentValidation.DependencyInjectionExtensions", "11.10.0"));
+
+        model.Files.Add(new FileModel("ConfigureServices", model.Directory, CSharp)
+        {
+            Body = $$"""
+            using FluentValidation;
+            using MediatR;
+            using {{productName}}.Validation;
+
+            namespace Microsoft.Extensions.DependencyInjection;
+
+            public static class ConfigureServices
+            {
+                public static void AddValidation(this IServiceCollection services, Type type)
+                {
+                    services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+                    services.AddValidatorsFromAssemblyContaining(type);
+                }
+            }
+            """
+        });
+
+        model.Files.Add(new FileModel("ConfigureServices", model.Directory, CSharp)
+        {
+            Body = $$"""
+            using FluentValidation;
+            using MediatR;
+            using {{productName}}.Validation;
+
+            namespace Microsoft.Extensions.DependencyInjection;
+
+            public static class ConfigureServices
+            {
+                public static void AddValidation(this IServiceCollection services, Type type)
+                {
+                    services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+                    services.AddValidatorsFromAssemblyContaining(type);
+                }
+            }
+            """
+        });
+
+        model.Files.Add(new FileModel("ValidationBehavior", model.Directory, CSharp)
+        {
+            Body = $$"""
+            using FluentValidation;
+            using MediatR;
+
+            namespace {{productName}}.Validation;
+
+            public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+                where TRequest : IRequest<TResponse>
+                where TResponse : ResponseBase, new()
+            {
+                private readonly IEnumerable<IValidator<TRequest>> _validators;
+
+                public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
+                    => _validators = validators;
+
+                public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+                {
+                    var context = new ValidationContext<TRequest>(request);
+                    var failures = _validators
+                        .Select(v => v.Validate(context))
+                        .SelectMany(result => result.Errors)
+                        .Where(validationFailure => validationFailure != null)
+                        .ToList();
+
+                    if (failures.Any())
+                    {
+                        var response = new TResponse();
+
+                        foreach (var failure in failures)
+                        {
+                            response.Errors.Add(failure.ErrorMessage);
+                        }
+
+                        return response;
+                    }
+
+
+                    return await next();
+                }
+            }
+            """
+        });
+
+        model.Files.Add(new FileModel("ResponseBase", model.Directory, CSharp)
+        {
+            Body = $$"""
+            namespace {{productName}}.Validation;
+
+            public class ResponseBase
+            {
+                public ResponseBase()
+                {
+                    Errors = new List<string>();
+                }
+                public List<string> Errors { get; set; }
+            }
+            """
+        });
+
+        return model;
     }
 }
 
