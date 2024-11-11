@@ -1,7 +1,6 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using DotLiquid;
 using Endpoint.DomainDrivenDesign.Core.Models;
 using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Attributes;
@@ -10,7 +9,6 @@ using Endpoint.DotNet.Syntax.Methods;
 using Endpoint.DotNet.Syntax.Params;
 using Endpoint.DotNet.Syntax.Types;
 using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.Controllers;
-using Humanizer;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.ModernWebAppPattern.Core.Syntax;
@@ -26,9 +24,9 @@ public class SyntaxFactory : ISyntaxFactory
         _logger = logger;
     }
 
-    public async Task<MethodModel> ControllerCreateMethodCreateAsync(ClassModel @class, Aggregate aggregate)
+    public async Task<MethodModel> ControllerCreateMethodCreateAsync(ClassModel @class, Command command)
     {
-        _logger.LogInformation("ControllerCreateMethodCreateAsync. {class} {aggregate}", @class.Name, aggregate.Name);
+        _logger.LogInformation("ControllerCreateMethodCreateAsync. {class} {command}", @class.Name, command.Name);
 
         var model = new MethodModel
         {
@@ -36,7 +34,7 @@ public class SyntaxFactory : ISyntaxFactory
             ReturnType = TypeModel.TaskOf("IActionResult"),
             Async = true,
             AccessModifier = AccessModifier.Public,
-            Body = new ControllerCreateExpressionModel(@class, aggregate),
+            Body = new ControllerCreateExpressionModel(@class, command),
             Attributes =
             [
                 new (AttributeType.Http, "HttpPost", new() { { "Name", "Create" } }),
@@ -46,16 +44,16 @@ public class SyntaxFactory : ISyntaxFactory
             ],
             Params =
             [
-                new ParamModel() { Type = new TypeModel($"Create{aggregate.Name}Request"), Name = "request", Attribute = new() { Name = "FromBody" } }
+                new ParamModel() { Type = new TypeModel($"{command.Name}Request"), Name = "request", Attribute = new() { Name = "FromBody" } }
             ]
         };
 
         return model;
     }
 
-    public async Task<MethodModel> ControllerDeleteMethodCreateAsync(ClassModel @class, Aggregate aggregate)
+    public async Task<MethodModel> ControllerDeleteMethodCreateAsync(ClassModel @class, Command command)
     {
-        _logger.LogInformation("ControllerDeleteMethodCreateAsync. {class} {aggregate}", @class.Name, aggregate.Name);
+        _logger.LogInformation("ControllerDeleteMethodCreateAsync. {class} {aggregate}", @class.Name, command.Name);
 
         var model = new MethodModel
         {
@@ -63,25 +61,25 @@ public class SyntaxFactory : ISyntaxFactory
             ReturnType = TypeModel.TaskOf("IActionResult"),
             Async = true,
             AccessModifier = AccessModifier.Public,
-            Body = new ControllerDeleteExpressionModel(@class, aggregate),
+            Body = new ControllerDeleteExpressionModel(@class, command),
             Attributes =
             [
-                new(AttributeType.Http, "HttpDelete", new() { { "Name", "Delete" } }) { Template = "\"{" + $"{aggregate.Name.ToCamelCase()}Id" + "}\"" },
+                new(AttributeType.Http, "HttpDelete", new() { { "Name", "Delete" } }) { Template = "\"{" + $"{command.Aggregate.Name.ToCamelCase()}Id" + "}\"" },
                 new(AttributeType.ProducesResponseType, "ProducesResponseType", []) { Template = "StatusCodes.Status200OK" },
                 new(AttributeType.ProducesResponseType, "ProducesResponseType", []) { Template = "StatusCodes.Status400BadRequest" }
             ],
             Params =
             [
-                new ParamModel() { Type = new TypeModel($"Delete{aggregate.Name}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
+                new ParamModel() { Type = new TypeModel($"{command.Name}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
             ]
         };
 
         return model;
     }
 
-    public async Task<MethodModel> ControllerGetByIdMethodCreateAsync(ClassModel @class, Aggregate aggregate)
+    public async Task<MethodModel> ControllerGetByIdMethodCreateAsync(ClassModel @class, Query query)
     {
-        _logger.LogInformation("ControllerGetByIdMethodCreateAsync. {class} {aggregate}", @class.Name, aggregate.Name);
+        _logger.LogInformation("ControllerGetByIdMethodCreateAsync. {class} {query}", @class.Name, query.Name);
 
         var model = new MethodModel
         {
@@ -89,25 +87,25 @@ public class SyntaxFactory : ISyntaxFactory
             ReturnType = TypeModel.TaskOf("IActionResult"),
             Async = true,
             AccessModifier = AccessModifier.Public,
-            Body = new ControllerGetByIdExpressionModel(@class, aggregate),
+            Body = new ControllerGetByIdExpressionModel(@class, query),
             Attributes =
             [
-                new(AttributeType.Http, "HttpGet", new() { { "Name", "GetById" } }) { Template = "\"{" + $"{aggregate.Name.ToCamelCase()}Id" + "}\"" },
+                new(AttributeType.Http, "HttpGet", new() { { "Name", "GetById" } }) { Template = "\"{" + $"{query.Aggregate.Name.ToCamelCase()}Id" + "}\"" },
                 new(AttributeType.ProducesResponseType, "ProducesResponseType", []) { Template = "StatusCodes.Status200OK" },
                 new(AttributeType.ProducesResponseType, "ProducesResponseType", []) { Template = "StatusCodes.Status400BadRequest" }
             ],
             Params =
             [
-                new ParamModel() { Type = new TypeModel($"Get{aggregate.Name}ByIdRequest"), Name = "request", Attribute = new() { Name = "FromRoute" } }
+                new ParamModel() { Type = new TypeModel($"{query.Name}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
             ]
         };
 
         return model;
     }
 
-    public async Task<MethodModel> ControllerGetMethodCreateAsync(ClassModel @class, Aggregate aggregate)
+    public async Task<MethodModel> ControllerGetMethodCreateAsync(ClassModel @class, Query query)
     {
-        _logger.LogInformation("ControllerGetMethodCreateAsync. {class} {aggregate}", @class.Name, aggregate.Name);
+        _logger.LogInformation("ControllerGetMethodCreateAsync. {class} {query}", @class.Name, query.Name);
 
         var model = new MethodModel
         {
@@ -115,7 +113,7 @@ public class SyntaxFactory : ISyntaxFactory
             ReturnType = TypeModel.TaskOf("IActionResult"),
             Async = true,
             AccessModifier = AccessModifier.Public,
-            Body = new ControllerGetExpressionModel(@class, aggregate),
+            Body = new ControllerGetExpressionModel(@class, query),
             Attributes =
             [
                 new(AttributeType.Http, "HttpGet", new() { { "Name", "Get" } }),
@@ -124,16 +122,16 @@ public class SyntaxFactory : ISyntaxFactory
             ],
             Params =
             [
-                new ParamModel() { Type = new TypeModel($"Get{aggregate.Name.Pluralize()}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
+                new ParamModel() { Type = new TypeModel($"{query.Name}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
             ]
         };
 
         return model;
     }
 
-    public async Task<MethodModel> ControllerUpdateMethodCreateAsync(ClassModel @class, Aggregate aggregate)
+    public async Task<MethodModel> ControllerUpdateMethodCreateAsync(ClassModel @class, Command command)
     {
-        _logger.LogInformation("ControllerUpdateMethodCreateAsync. {class} {aggregate}", @class.Name, aggregate.Name);
+        _logger.LogInformation("ControllerUpdateMethodCreateAsync. {class} {command}", @class.Name, command.Name);
 
         var model = new MethodModel
         {
@@ -141,7 +139,7 @@ public class SyntaxFactory : ISyntaxFactory
             ReturnType = TypeModel.TaskOf("IActionResult"),
             Async = true,
             AccessModifier = AccessModifier.Public,
-            Body = new ControllerUpdateExpressionModel(@class, aggregate),
+            Body = new ControllerUpdateExpressionModel(@class, command),
             Attributes =
             [
                 new(AttributeType.Http, "HttpPut", new() { { "Name", "Update" } }),
@@ -151,7 +149,7 @@ public class SyntaxFactory : ISyntaxFactory
             ],
             Params =
             [
-                new ParamModel() { Type = new TypeModel($"Update{aggregate.Name}Request"), Name = "request", Attribute = new() { Name = "FromBody" } }
+                new ParamModel() { Type = new TypeModel($"{command.Name}Request"), Name = "request", Attribute = new() { Name = "FromBody" } }
             ]
         };
 

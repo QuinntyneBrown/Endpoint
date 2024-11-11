@@ -4,19 +4,18 @@
 using Endpoint.DomainDrivenDesign.Core.Models;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Expressions;
-using System;
 
 namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.Controllers;
 
 public class ControllerGetByIdExpressionModel : ExpressionModel
 {
-    public ControllerGetByIdExpressionModel(ClassModel @class, Aggregate aggregate)
+    public ControllerGetByIdExpressionModel(ClassModel @class, Query query)
         : base(string.Empty)
     {
         Class = @class;
-        Aggregate = aggregate;
+        Query = query;
     }
 
     public ClassModel Class { get; set; }
-    public Aggregate Aggregate { get; set; }
+    public Query Query { get; set; }
 }
