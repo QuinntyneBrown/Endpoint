@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
 
-[Verb("modern-web-app-create")]
+[Verb("mwa-create")]
 public class ModernWebAppCreateRequest : IRequest
 {
     [Option('n', "name")]
@@ -21,7 +21,7 @@ public class ModernWebAppCreateRequest : IRequest
     public string Path { get; set; } = Environment.GetEnvironmentVariable("MWA_PATH", EnvironmentVariableTarget.Machine) !;
 
     [Option('d', Required = false)]
-    public string Directory { get; set; } = Environment.GetEnvironmentVariable("MWA_DIRECTORY", EnvironmentVariableTarget.Machine) !;
+    public string Directory { get; set; } = System.Environment.CurrentDirectory;
 }
 
 public class ModernWebAppCreateRequestHandler : IRequestHandler<ModernWebAppCreateRequest>
