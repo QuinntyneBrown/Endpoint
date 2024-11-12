@@ -4,6 +4,7 @@
 using Endpoint.DomainDrivenDesign.Core.Models;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Solutions;
+using Endpoint.ModernWebAppPattern.Core.Models;
 
 namespace Endpoint.ModernWebAppPattern.Core.Artifacts;
 
@@ -14,6 +15,14 @@ public interface IArtifactFactory
     Task<IEnumerable<FileModel>> AggregateCreateAsync(IDataContext context, Aggregate aggregate, string directory, CancellationToken cancellationToken);
 
     Task<FileModel> CommandValidatorCreateAsync(Command command, string directory);
+
+    Task<FileModel> AggregateExtenionCreateAsync(Aggregate aggregate, string directory);
+
+    Task<FileModel> ApiConfigureServicesCreateAsync(Microservice microservice, string directory);
+
+    Task<FileModel> ApiProgramCreateAsync(BoundedContext boundedContext, Microservice microservice, string directory);
+
+    Task<FileModel> ApiAppSettingsCreateAsync(BoundedContext boundedContext, string directory);
 
 }
 

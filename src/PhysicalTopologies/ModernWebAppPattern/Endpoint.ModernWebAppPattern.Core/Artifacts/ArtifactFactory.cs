@@ -17,6 +17,7 @@ using Endpoint.DotNet.Syntax.Properties;
 using Endpoint.DotNet.Syntax.Types;
 using Endpoint.ModernWebAppPattern.Core.Extensions;
 using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions;
+using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.RequestHandlers;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
@@ -60,7 +61,7 @@ public class ArtifactFactory : IArtifactFactory
 
         ProjectModel? messagingProject = null;
 
-        if (context.Messages.Any())
+        if (context.Messages.Count != 0)
         {
             messagingProject = await MessagingProjectCreateAsync(model.SrcDirectory, cancellationToken);
 
@@ -73,7 +74,7 @@ public class ArtifactFactory : IArtifactFactory
 
         var modelsProject = await ModelsProjectCreateAsync(model.SrcDirectory, cancellationToken);
 
-        model.DependOns.Add(new DependsOnModel(modelsProject, validationProject));
+        model.DependOns.Add(new (modelsProject, validationProject));
 
         model.Projects.Add(modelsProject);
 
@@ -83,11 +84,11 @@ public class ArtifactFactory : IArtifactFactory
             
             model.Projects.Add(microserviceProject);
 
-            model.DependOns.Add(new DependsOnModel(microserviceProject, modelsProject));
+            model.DependOns.Add(new (microserviceProject, modelsProject));
 
-            if(context.Messages.Any())
+            if(context.Messages.Count != 0)
             {
-                model.DependOns.Add(new DependsOnModel(microserviceProject, messagingProject));
+                model.DependOns.Add(new (microserviceProject, messagingProject));
             }
         }
 
@@ -149,7 +150,17 @@ public class ArtifactFactory : IArtifactFactory
 
         model.Files.Add(await DbContextInterfaceCreateAsync(context, microservice, boundedContext, model.Directory));
 
-        model.Packages.Add(new ("Microsoft.EntityFrameworkCore", "8.0.10"));
+        model.Files.Add(await ApiProgramCreateAsync(boundedContext, microservice, model.Directory));
+
+        model.Files.Add(await ApiAppSettingsCreateAsync(boundedContext, model.Directory));
+
+        model.Files.Add(await ApiConfigureServicesCreateAsync(microservice, model.Directory));
+
+        model.Packages.Add(new("Microsoft.EntityFrameworkCore", "8.0.10"));
+
+        model.Packages.Add(new("Microsoft.EntityFrameworkCore.Design", "8.0.10"));
+
+        model.Packages.Add(new("Microsoft.EntityFrameworkCore.SqlServer", "8.0.10"));
 
         foreach (var aggregate in boundedContext.Aggregates)
         {
@@ -161,9 +172,44 @@ public class ArtifactFactory : IArtifactFactory
             {
                 var commandHandlerModel = new ClassModel($"{command.Name}Handler");
 
+                commandHandlerModel.Implements.Add(new($"IRequestHandler<{command.Name}Request, {command.Name}Response>"));
+                
                 commandHandlerModel.Usings.Add(UsingModel.MediatR);
 
                 commandHandlerModel.Usings.Add(new(aggregateNamespace));
+
+                commandHandlerModel.Fields =
+                    [
+                        FieldModel.LoggerOf($"{command.Name}Handler"),
+                        new FieldModel() { Name = "_context", Type = new TypeModel($"I{boundedContext.Name}DbContext") }
+                    ];
+
+                commandHandlerModel.Constructors.Add(new (commandHandlerModel, commandHandlerModel.Name)
+                {
+                    Params =
+                    [
+                        ParamModel.LoggerOf($"{command.Name}Handler"),
+                        new ParamModel() {  Name = "context", Type = new TypeModel($"I{boundedContext.Name}DbContext")}
+                    ]
+                });
+
+                commandHandlerModel.Methods.Add(new()
+                {
+                    Name = "Handle",
+                    Params = [
+                        new() { Name = "request", Type = new TypeModel($"{command.Name}Request") },
+                        ParamModel.CancellationToken
+                    ],
+                    Async = true,
+                    ReturnType = TypeModel.TaskOf($"{command.Name}Response"),
+                    Body = command.Kind switch
+                    {
+                        RequestKind.Create => new CreateRequestHandlerExpressionModel(command),
+                        RequestKind.Update => new UpdateRequestHandlerExpressionModel(command),
+                        RequestKind.Delete => new DeleteRequestHandlerExpressionModel(command),
+                        _ => throw new NotImplementedException()
+                    }
+                });
 
                 model.Files.Add(new CodeFileModel<ClassModel>(commandHandlerModel, commandHandlerModel.Name, requestHandlersDirectory, CSharp) { Namespace = $"{microservice.Name}.RequestHandlers" });
             }
@@ -171,6 +217,44 @@ public class ArtifactFactory : IArtifactFactory
             foreach(var query in aggregate.Queries)
             {
                 var queryHandlerModel = new ClassModel($"{query.Name}Handler");
+
+                queryHandlerModel.Usings.Add(UsingModel.MediatR);
+
+                queryHandlerModel.Usings.Add(new(aggregateNamespace));
+
+                queryHandlerModel.Implements.Add(new($"IRequestHandler<{query.Name}Request, {query.Name}Response>"));
+
+                queryHandlerModel.Fields =
+                    [
+                        FieldModel.LoggerOf($"{query.Name}Handler"),
+                        new FieldModel() { Name = "_context", Type = new TypeModel($"I{boundedContext.Name}DbContext") }
+                    ];
+
+                queryHandlerModel.Constructors.Add(new(queryHandlerModel, queryHandlerModel.Name)
+                {
+                    Params =
+                    [
+                        ParamModel.LoggerOf($"{query.Name}Handler"),
+                        new ParamModel() { Name = "context", Type = new TypeModel($"I{boundedContext.Name}DbContext") }
+                    ]
+                });
+
+                queryHandlerModel.Methods.Add(new()
+                {
+                    Name = "Handle",
+                    Params = [
+                        new() { Name = "request", Type = new TypeModel($"{query.Name}Request") },
+                        ParamModel.CancellationToken
+                    ],
+                    Async = true,
+                    ReturnType = TypeModel.TaskOf($"{query.Name}Response"),
+                    Body = query.Kind switch
+                    {
+                        RequestKind.GetById => new GetByIdRequestHandlerExpressionModel(query),
+                        RequestKind.Get => new GetRequestHandlerExpressionModel(query),
+                        _ => throw new NotImplementedException()
+                    }
+                });
 
                 queryHandlerModel.Usings.Add(UsingModel.MediatR);
 
@@ -202,10 +286,11 @@ public class ArtifactFactory : IArtifactFactory
             aggregateDtoModel.Properties.Add(new(aggregateClassModel, AccessModifier.Public, property.Kind.ToType(), property.Name, PropertyAccessorModel.GetSet));
         }
 
+        files.Add(await AggregateExtenionCreateAsync(aggregate, aggregateDirectory));
+
         files.Add(new CodeFileModel<ClassModel>(aggregateClassModel, aggregateClassModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
 
         files.Add(new CodeFileModel<ClassModel>(aggregateDtoModel, aggregateDtoModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
-
 
         foreach(var command in aggregate.Commands)
         {
@@ -294,13 +379,25 @@ public class ArtifactFactory : IArtifactFactory
 
     public async Task<FileModel> DbContextCreateAsync(IDataContext context, Microservice microservice, BoundedContext boundedContext, string directory)
     {
-        var model = new ClassModel("DataContext");
+        var model = new ClassModel($"{boundedContext.Name}DbContext");
 
         model.Implements.Add(new("DbContext"));
 
-        model.Implements.Add(new("IDataContext"));
+        model.Implements.Add(new($"I{boundedContext.Name}DbContext"));
 
         model.Usings.Add(new("Microsoft.EntityFrameworkCore"));
+
+        model.Constructors.Add(new (model, model.Name)
+        {
+            BaseParams =
+            [
+                "options",
+            ],
+            Params =
+            [
+                new() { Name = "options", Type = new($"DbContextOptions<{boundedContext.Name}DbContext>") }
+            ]
+        });
 
         foreach (var aggregate in boundedContext.Aggregates)
         {
@@ -316,7 +413,7 @@ public class ArtifactFactory : IArtifactFactory
 
     public async Task<FileModel> DbContextInterfaceCreateAsync(IDataContext context, Microservice microservice, BoundedContext boundedContext, string directory)
     {
-        var model = new InterfaceModel("IDataContext");
+        var model = new InterfaceModel($"I{boundedContext.Name}DbContext");
 
         model.Usings.Add(new("Microsoft.EntityFrameworkCore"));
 
@@ -328,6 +425,17 @@ public class ArtifactFactory : IArtifactFactory
 
             model.Properties.Add(new (model, AccessModifier.Public, TypeModel.DbSetOf(aggregate.Name), aggregate.Name.Pluralize(), PropertyAccessorModel.GetPrivateSet));
         }
+
+        model.Methods.Add(new()
+        {
+            Name = "SaveChangesAsync",
+            Interface = true,
+            Params =
+            [
+                ParamModel.CancellationToken
+            ],
+            ReturnType = TypeModel.TaskOf("int")
+        });
 
         return new CodeFileModel<InterfaceModel>(model, model.Name, directory, CSharp) { Namespace = $"{microservice.Name}" };
     }
@@ -350,15 +458,13 @@ public class ArtifactFactory : IArtifactFactory
 
         model.Fields.Add(FieldModel.Mediator);
 
-        var constructor = new ConstructorModel(model, model.Name)
+        model.Constructors.Add(new(model, model.Name)
         {
             Params = [
                 ParamModel.LoggerOf(model.Name),
                 ParamModel.Mediator,
             ],
-        };
-
-        model.Constructors.Add(constructor);
+        });
 
         model.Attributes.Add(new (AttributeType.ApiController, "ApiController", []));
 
@@ -368,7 +474,6 @@ public class ArtifactFactory : IArtifactFactory
         {
             model.Methods.Add(command.Kind switch
             {
-
                 RequestKind.Create => await _syntaxFactory.ControllerCreateMethodCreateAsync(model, command),
                 RequestKind.Update => await _syntaxFactory.ControllerUpdateMethodCreateAsync(model, command),
                 RequestKind.Delete => await _syntaxFactory.ControllerDeleteMethodCreateAsync(model, command)
@@ -379,7 +484,6 @@ public class ArtifactFactory : IArtifactFactory
         {
             model.Methods.Add(query.Kind switch
             {
-
                 RequestKind.Get => await _syntaxFactory.ControllerGetMethodCreateAsync(model, query),
                 RequestKind.GetById => await _syntaxFactory.ControllerGetByIdMethodCreateAsync(model, query),
             });
@@ -410,13 +514,13 @@ public class ArtifactFactory : IArtifactFactory
     {
         var model = new ProjectModel($"{productName}.Validation", directory);
 
-        model.Packages.Add(new("FluentValidation", "11.10.0"));
+        model.Packages.Add(new ("FluentValidation", "11.10.0"));
 
-        model.Packages.Add(new PackageModel("MediatR", "12.4.1"));
+        model.Packages.Add(new ("MediatR", "12.4.1"));
 
-        model.Packages.Add(new PackageModel("FluentValidation.DependencyInjectionExtensions", "11.10.0"));
+        model.Packages.Add(new ("FluentValidation.DependencyInjectionExtensions", "11.10.0"));
 
-        model.Files.Add(new FileModel("ConfigureServices", model.Directory, CSharp)
+        model.Files.Add(new ("ConfigureServices", model.Directory, CSharp)
         {
             Body = $$"""
             using FluentValidation;
@@ -437,7 +541,7 @@ public class ArtifactFactory : IArtifactFactory
             """
         });
 
-        model.Files.Add(new FileModel("ConfigureServices", model.Directory, CSharp)
+        model.Files.Add(new ("ConfigureServices", model.Directory, CSharp)
         {
             Body = $$"""
             using FluentValidation;
@@ -458,7 +562,7 @@ public class ArtifactFactory : IArtifactFactory
             """
         });
 
-        model.Files.Add(new FileModel("ValidationBehavior", model.Directory, CSharp)
+        model.Files.Add(new ("ValidationBehavior", model.Directory, CSharp)
         {
             Body = $$"""
             using FluentValidation;
@@ -503,7 +607,7 @@ public class ArtifactFactory : IArtifactFactory
             """
         });
 
-        model.Files.Add(new FileModel("ResponseBase", model.Directory, CSharp)
+        model.Files.Add(new ("ResponseBase", model.Directory, CSharp)
         {
             Body = $$"""
             namespace {{productName}}.Validation;
@@ -520,6 +624,172 @@ public class ArtifactFactory : IArtifactFactory
         });
 
         return model;
+    }
+
+    public async Task<FileModel> AggregateExtenionCreateAsync(Aggregate aggregate, string directory)
+    {
+        var model = new ClassModel($"{aggregate.Name}Extensions")
+        {
+            Static = true
+        };
+
+        model.Methods.Add(new ()
+        {
+            Static = true,
+            ReturnType = new ($"{aggregate.Name}Dto"),
+            Name = "ToDto",
+            Params =
+            [
+                new ()
+                {
+                    ExtensionMethodParam = true,
+                    Type = new TypeModel(aggregate.Name),
+                    Name = aggregate.Name.ToCamelCase()
+                }
+            ],
+            Body = new ToDtoExpressionModel(aggregate)
+        });
+
+        var file = new CodeFileModel<ClassModel>(model, model.Name, directory, CSharp) { Namespace = $"{aggregate.BoundedContext!.ProductName}.Models.{aggregate.Name}" };
+
+        return file;
+    }
+
+    public async Task<FileModel> ApiConfigureServicesCreateAsync(Microservice microservice, string directory)
+    {
+        return new FileModel("ConfigureServices", directory, CSharp)
+        {
+            Body = $$"""
+            using {{microservice.Name}};
+            using Microsoft.AspNetCore.Cors.Infrastructure;
+            using Microsoft.EntityFrameworkCore;
+
+            namespace Microsoft.Extensions.DependencyInjection;
+
+            public static class ConfigureApiServices
+            {
+                public static void AddApiServices(this IServiceCollection services, Action<CorsPolicyBuilder> configureCorsPolicyBuilder, string connectionString)
+                {
+                    services.AddControllers();
+
+                    services.AddCors(options => options.AddPolicy("CorsPolicy",
+                        builder =>
+                        {
+                            configureCorsPolicyBuilder.Invoke(builder);
+
+                            builder
+                            .AllowAnyMethod()
+                            .AllowAnyHeader()
+                            .SetIsOriginAllowed(isOriginAllowed: _ => true)
+                            .AllowCredentials();
+                        }));
+
+                    services.AddTransient<I{{microservice.BoundedContextName}}DbContext, {{microservice.BoundedContextName}}DbContext>();
+
+                    services.AddDbContextPool<{{microservice.BoundedContextName}}DbContext>(options =>
+                    {
+                        options.UseSqlServer(connectionString,
+                            builder => builder.MigrationsAssembly("{{microservice.Name}}")
+                                .EnableRetryOnFailure())
+                        .EnableThreadSafetyChecks(false)
+                        .LogTo(Console.WriteLine)
+                        .EnableSensitiveDataLogging();
+                    });
+
+                    services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<Program>());
+                }
+            }
+            """
+        };
+    }
+
+    public async Task<FileModel> ApiProgramCreateAsync(BoundedContext boundedContext, Microservice microservice, string directory)
+    {
+        return new FileModel("Program", directory, CSharp)
+        {
+            Body = $$"""
+            using {{microservice.Name}};
+            {{string.Join(Environment.NewLine, boundedContext.Aggregates.Select(x => $"using {boundedContext.ProductName}.Models.{x.Name};"))}}
+            using Microsoft.EntityFrameworkCore;
+
+            var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddEndpointsApiExplorer();
+
+            builder.Services.AddValidation(typeof({{boundedContext.Aggregates.First().Name}}));
+
+            builder.Services.AddApiServices(corsPolicyBuilder =>
+            {
+                corsPolicyBuilder.WithOrigins(builder.Configuration["WithOrigins"]!.Split(','));
+            }, builder.Configuration.GetConnectionString("DefaultConnection")!);
+
+            builder.Services.AddSwaggerGen();
+
+            var app = builder.Build();
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.MapControllers();
+
+            app.UseHttpsRedirection();
+
+            var services = (IServiceScopeFactory)app.Services.GetRequiredService(typeof(IServiceScopeFactory));
+
+            using (var scope = services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<{{boundedContext.Name}}DbContext>();
+
+                if (args.Contains("ci"))
+                    args = new string[4] { "dropdb", "migratedb", "seeddb", "stop" };
+
+                if (args.Contains("dropdb"))
+                {
+
+                }
+
+                if (args.Contains("migratedb"))
+                {
+                    context.Database.Migrate();
+                }
+
+                if (args.Contains("seeddb"))
+                {
+
+                }
+
+                if (args.Contains("stop"))
+                    Environment.Exit(0);
+            }
+
+            app.Run();
+            """
+        };
+    }
+
+    public async Task<FileModel> ApiAppSettingsCreateAsync(BoundedContext boundedContext, string directory)
+    {
+        return new FileModel("appsettings.Development", directory, ".json")
+        {
+            Body = $$"""
+            {
+              "Logging": {
+                "LogLevel": {
+                  "Default": "Information",
+                  "Microsoft.AspNetCore": "Warning"
+                }
+              },
+              "ConnectionStrings": {
+                "DefaultConnection": "Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={{boundedContext.Name}};Integrated Security=SSPI;"
+              },
+              "WithOrigins":  "https://localhost:4200/"
+            }
+            
+            """
+        };
     }
 }
 

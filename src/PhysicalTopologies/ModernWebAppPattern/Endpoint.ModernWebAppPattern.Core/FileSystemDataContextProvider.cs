@@ -37,8 +37,12 @@ public class FileSystemDataContextProvider : IDataContextProvider
 
             foreach(var boundedContext in _context.BoundedContexts)
             {
+                boundedContext.ProductName = _context.ProductName;
+
                 foreach(var aggregate in boundedContext.Aggregates)
                 {
+                    aggregate.BoundedContext = boundedContext;
+
                     foreach (var request in aggregate.Commands)
                     {
                         request.Aggregate = aggregate;

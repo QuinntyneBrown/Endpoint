@@ -10,7 +10,4 @@
     <ProjectReference Include="..\..\..\Domains\DomainDrivenDesign\Endpoint.DomainDrivenDesign.Core\Endpoint.DomainDrivenDesign.Core.csproj" />
     <ProjectReference Include="..\..\..\Endpoint.DotNet\Endpoint.DotNet.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Syntax\Expressions\RequestHandlers\" />
-  </ItemGroup>
 </Project>
