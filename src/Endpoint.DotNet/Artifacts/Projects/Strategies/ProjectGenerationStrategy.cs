@@ -117,6 +117,11 @@ public class ProjectGenerationStrategy : GenericArtifactGenerationStrategy<Proje
             element.Add(new XElement("GenerateDocumentationFile", true));
         }
 
+        if(templateType == "webapi")
+        {
+            element.Add(new XElement("InvariantGlobalization", false));
+        }
+
         doc.Save(model.Path);
     }
 }

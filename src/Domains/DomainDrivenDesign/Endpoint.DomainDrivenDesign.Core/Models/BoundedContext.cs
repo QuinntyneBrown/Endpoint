@@ -19,4 +19,6 @@ public class BoundedContext
 
     public List<Message> Handles { get; set; } = [];
 
+    public string ProductName { get; set; }
+
 }
