@@ -1,52 +1,33 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.DotNet.Artifacts;
-using Endpoint.DotNet.Artifacts.Files.Factories;
-using Endpoint.DotNet.Artifacts.Folders.Factories;
-using Endpoint.DotNet.Artifacts.Projects.Factories;
-using Endpoint.DotNet.Artifacts.Projects.Services;
-using Endpoint.DotNet.Artifacts.Services;
-using Endpoint.DotNet.Artifacts.Solutions.Factories;
-using Endpoint.DotNet.Artifacts.Solutions.Services;
 using Endpoint.DotNet.Services;
-using Endpoint.DotNet.Syntax.Classes.Factories;
-using Endpoint.DotNet.Syntax.Units.Services;
-using Endpoint.DotNet.SystemModels;
+using Endpoint.DotNet.Syntax;
+using Endpoint.ModernWebAppPattern.Core.Artifacts;
+using Endpoint.ModernWebAppPattern.Core.Syntax;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Endpoint.Cli.Commands;
 
 [Verb("ddd-app-create")]
 public class DddAppCreateRequest : IRequest
 {
-    [Option('n', "name")]
-    public string Name { get; set; } = "Microservices";
+    [Option('n', "product-name")]
+    public string ProductName { get; set; }
 
-    [Option('m', "microservice-name")]
-    public string MicroserviceName { get; set; } = "ToDoService";
+    [Option('b', "bounded-context")]
+    public string BoundedContext { get; set; } = "ToDos";
 
     [Option('a', "aggregate")]
-    public string AggregateName { get; set; } = "ToDo";
+    public string Aggregate { get; set; } = "ToDo";
 
-    [Option("properties")]
-    public string Properties { get; set; } = "Title:string,IsComplete:bool";
-
-    [Option("app-name")]
-    public string ApplicationName { get; set; } = "app";
-
-    [Option('v', "version")]
-    public string Version { get; set; } = "latest";
-
-    [Option('p', "prefix")]
-    public string Prefix { get; set; } = "app";
+    [Option('p', "properties")]
+    public string Properties { get; set; } = "ToDoId:Guid,Title:String,IsComplete:String";
 
     [Option('d', Required = false)]
     public string Directory { get; set; } = System.Environment.CurrentDirectory;
@@ -54,85 +35,52 @@ public class DddAppCreateRequest : IRequest
 
 public class DddAppCreateRequestHandler : IRequestHandler<DddAppCreateRequest>
 {
-    private readonly ILogger<DddAppCreateRequestHandler> logger;
-    private readonly ISolutionService solutionService;
-    private readonly IAngularService angularService;
-    private readonly ISolutionFactory solutionFactory;
-    private readonly IArtifactGenerator artifactGenerator;
-    private readonly INamingConventionConverter namingConventionConverter;
-    private readonly ICommandService commandService;
-    private readonly IClassFactory classFactory;
-    private readonly IFileProvider fileProvider;
-    private readonly IFileSystem fileSystem;
-    private readonly IFileFactory fileFactory;
-    private readonly IFolderFactory folderFactory;
-    private readonly IProjectFactory projectFactory;
-    private readonly IAggregateService aggregateService;
-    private readonly IApiProjectService apiProjectService;
-    private readonly ISystemContextFactory systemContextFactory;
-    private readonly IContext context;
-    private ISystemContext systemContext;
+    private readonly ILogger<DddAppCreateRequestHandler> _logger;
+    private readonly ISyntaxGenerator _syntaxGenerator;
+    private readonly IArtifactGenerator _artifactGenerator;
+    private readonly IFileSystem _fileSystem;
+    private readonly IArtifactFactory _artifactFactory;
+    private readonly ICommandService _commandService;
 
-    public DddAppCreateRequestHandler(
-        ILogger<DddAppCreateRequestHandler> logger,
-        ISolutionService solutionService,
-        IAngularService angularService,
-        ISolutionFactory solutionFactory,
-        IArtifactGenerator artifactGenerator,
-        INamingConventionConverter namingConventionConverter,
-        ICommandService commandService,
-        IClassFactory classFactory,
-        IFileProvider fileProvider,
-        IFileSystem fileSystem,
-        IFileFactory fileFactory,
-        IFolderFactory folderFactory,
-        IProjectFactory projectFactory,
-        IAggregateService aggregateService,
-        IApiProjectService apiProjectService,
-        ISystemContextFactory systemContextFactory,
-        IContext context,
-        ISystemContext systemContext)
+    public DddAppCreateRequestHandler(ILogger<DddAppCreateRequestHandler> logger, ISyntaxGenerator syntaxGenerator, IArtifactGenerator artifactGenerator, IFileSystem fileSystem, IArtifactFactory artifactFactory, ICommandService commandService)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.angularService = angularService ?? throw new ArgumentNullException(nameof(angularService));
-        this.solutionService = solutionService ?? throw new ArgumentNullException(nameof(solutionService));
-        this.solutionFactory = solutionFactory ?? throw new ArgumentNullException(nameof(solutionFactory));
-        this.artifactGenerator = artifactGenerator ?? throw new ArgumentNullException(nameof(artifactGenerator));
-        this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
-        this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
-        this.classFactory = classFactory ?? throw new ArgumentNullException(nameof(classFactory));
-        this.fileProvider = fileProvider ?? throw new ArgumentNullException(nameof(fileProvider));
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        this.fileFactory = fileFactory ?? throw new ArgumentNullException(nameof(fileFactory));
-        this.folderFactory = folderFactory ?? throw new ArgumentNullException(nameof(folderFactory));
-        this.projectFactory = projectFactory ?? throw new ArgumentNullException(nameof(projectFactory));
-        this.aggregateService = aggregateService ?? throw new ArgumentNullException(nameof(aggregateService));
-        this.apiProjectService = apiProjectService ?? throw new ArgumentNullException(nameof(apiProjectService));
-        this.systemContextFactory = systemContextFactory ?? throw new ArgumentNullException(nameof(systemContextFactory));
-        this.context = context ?? throw new ArgumentNullException(nameof(context));
-        this.systemContext = systemContext ?? throw new ArgumentNullException(nameof(systemContext));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(syntaxGenerator);
+        ArgumentNullException.ThrowIfNull(artifactGenerator);
+        ArgumentNullException.ThrowIfNull(fileSystem);
+        ArgumentNullException.ThrowIfNull(artifactFactory);
+        ArgumentNullException.ThrowIfNull(commandService);
+
+        _logger = logger;
+        _syntaxGenerator = syntaxGenerator;
+        _artifactGenerator = artifactGenerator;
+        _fileSystem = fileSystem;
+        _artifactFactory = artifactFactory;
+        _commandService = commandService;
     }
 
     public async Task Handle(DddAppCreateRequest request, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Creating Domain Driven Design Application", nameof(DddAppCreateRequestHandler));
+        _logger.LogInformation("Creating Domain Driven Design Application", nameof(DddAppCreateRequestHandler));
 
-        systemContext = await systemContextFactory.DddCreateAsync(request.Name, request.MicroserviceName, request.AggregateName, request.Properties, request.Directory);
+        var modernWebAppDataModel = new ModernWebAppDataModel()
+        {
+            ProductName = request.ProductName,
+            BoundedContextName = request.BoundedContext,
+            Aggregates = request.Aggregate,
+            Properties = request.Properties,
+        };
 
-        context.Set(systemContext);
+        var json = await _syntaxGenerator.GenerateAsync(modernWebAppDataModel);
 
-        context.Set(systemContext.Microservices.First());
+        var path = _fileSystem.Path.Combine(_fileSystem.Path.GetTempPath(), $"{request.ProductName}.jaon");
 
-        var solution = await solutionFactory.DddCreateAync(request.Name, request.Directory);
+        _fileSystem.File.WriteAllText(path, json);
 
-        await artifactGenerator.GenerateAsync(solution);
+        var model = await _artifactFactory.SolutionCreateAsync(path, request.ProductName, request.Directory, cancellationToken);
 
-        var temporaryAppName = $"{namingConventionConverter.Convert(NamingConvention.SnakeCase, request.Name)}-app";
+        await _artifactGenerator.GenerateAsync(model);
 
-        await angularService.CreateWorkspace(temporaryAppName, request.Version, request.ApplicationName, "application", request.Prefix, solution.SrcDirectory, false);
-
-        fileSystem.Directory.Move(Path.Combine(solution.SrcDirectory, temporaryAppName), Path.Combine(solution.SrcDirectory, $"{request.Name}.App"));
-
-        commandService.Start("code .", solution.SolutionDirectory);
+        _commandService.Start($"code {model.SolutionDirectory}");
     }
 }

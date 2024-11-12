@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Endpoint.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "ddd-app-create -d C:\\projects -n Foox"
+    }
+  }
+}
