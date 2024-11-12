@@ -1,62 +1,35 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Threading;
-using System.Threading.Tasks;
-using CommandLine;
-using Humanizer;
-using MediatR;
+using Endpoint.DomainDrivenDesign.Core.Models;
+using Endpoint.DotNet.Syntax;
 using Microsoft.Extensions.Logging;
+using System.Text;
+using System.Text.Json.Nodes;
+using System.Text.Json;
+using Humanizer;
 
-namespace Endpoint.Cli.Commands;
+namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.Controllers;
 
-[Verb("mwa-data-create")]
-public class ModernWebAppDataCreateRequest : IRequest
+public class ModernWebAppDataGenerationStrategy : GenericSyntaxGenerationStrategy<ModernWebAppDataModel>
 {
-    [Option('n', "name", Required = true )]
-    public string ProductName { get; set; }
+    private readonly ILogger<ModernWebAppDataGenerationStrategy> _logger;
 
-    [Option('b', "bounded-context-name", Required = true)]
-    public string BoundedContextName { get; set; }
-
-    [Option('a', "aggregates", Required = true)]
-    public string Aggregates { get; set; }
-
-    [Option('p', "properties", Required = true)]
-    public string Properties { get; set; }
-
-    [Option('d', Required = false)]
-    public string Directory { get; set; } = System.Environment.CurrentDirectory;
-}
-
-public class ModernWebAppDataCreateRequestHandler : IRequestHandler<ModernWebAppDataCreateRequest>
-{
-    private readonly ILogger<ModernWebAppDataCreateRequestHandler> _logger;
-    private readonly IFileSystem _fileSystem;
-
-    public ModernWebAppDataCreateRequestHandler(ILogger<ModernWebAppDataCreateRequestHandler> logger, IArtifactGenerator artifactGenerator, IFileSystem fileSystem)
+    public ModernWebAppDataGenerationStrategy(ILogger<ModernWebAppDataGenerationStrategy> logger)
     {
-        ArgumentNullException.ThrowIfNull(logger);
-        ArgumentNullException.ThrowIfNull(artifactGenerator);
-        ArgumentNullException.ThrowIfNull(fileSystem);
-
         _logger = logger;
-        _fileSystem = fileSystem;
     }
 
-    public async Task Handle(ModernWebAppDataCreateRequest request, CancellationToken cancellationToken)
+    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, ModernWebAppDataModel model)
     {
-        _logger.LogInformation("Handled: {0}", nameof(ModernWebAppDataCreateRequestHandler));
+        _logger.LogInformation("Generating syntax. {type}", model.GetType());
 
         var initialJson = $$"""
             {
-                "productName": "{{request.ProductName}}",
+                "productName": "{{model.ProductName}}",
                 "boundedContexts": [
                     {
-                        "name": "{{request.BoundedContextName}}"                        
+                        "name": "{{model.BoundedContextName}}"                        
                     }
                 ]
             }
@@ -68,13 +41,13 @@ public class ModernWebAppDataCreateRequestHandler : IRequestHandler<ModernWebApp
 
         var properties = new JsonArray();
 
-        foreach (var property in request.Properties.Split(','))
+        foreach (var property in model.Properties.Split(','))
         {
             var propertyName = property.Split(':')[0];
 
             var propertyKind = property.Split(':')[1];
 
-            var key = propertyName == $"{request.Aggregates}Id";
+            var key = propertyName == $"{model.Aggregates}Id";
 
             properties.Add(JsonNode.Parse($$"""
                 {
@@ -85,7 +58,7 @@ public class ModernWebAppDataCreateRequestHandler : IRequestHandler<ModernWebApp
                 """));
         }
 
-        foreach (var aggregate in request.Aggregates.Split(','))
+        foreach (var aggregate in model.Aggregates.Split(','))
         {
             aggregates.Add(JsonNode.Parse($$"""
                 { 
@@ -124,9 +97,9 @@ public class ModernWebAppDataCreateRequestHandler : IRequestHandler<ModernWebApp
             [
                 { 
                 
-                    "name": "{{request.ProductName}}.{{request.BoundedContextName}}.Api",
-                    "productName": "{{request.ProductName}}",
-                    "boundedContextName":"{{request.BoundedContextName}}"                
+                    "name": "{{model.ProductName}}.{{model.BoundedContextName}}.Api",
+                    "productName": "{{model.ProductName}}",
+                    "boundedContextName":"{{model.BoundedContextName}}"                
                 }
             ]
             """);
@@ -135,12 +108,9 @@ public class ModernWebAppDataCreateRequestHandler : IRequestHandler<ModernWebApp
 
         node["microservices"] = microservices;
 
-        var json = JsonSerializer.Serialize(node, new JsonSerializerOptions()
+        return JsonSerializer.Serialize(node, new JsonSerializerOptions()
         {
             WriteIndented = true,
         });
-
-        _fileSystem.File.WriteAllText(_fileSystem.Path.Combine(request.Directory, $"{request.ProductName.ToCamelCase()}.json"), json, System.Text.Encoding.UTF8);
-
     }
 }
