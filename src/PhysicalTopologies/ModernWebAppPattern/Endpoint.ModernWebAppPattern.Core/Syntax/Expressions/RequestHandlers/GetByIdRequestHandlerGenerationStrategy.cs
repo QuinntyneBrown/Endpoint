@@ -4,6 +4,7 @@
 using Endpoint.DomainDrivenDesign.Core.Models;
 using Endpoint.DotNet.Syntax;
 using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.RequestHandlers;
+using Humanizer;
 using Microsoft.Extensions.Logging;
 using System.Text;
 
@@ -24,8 +25,15 @@ public class GetByIdRequestHandlerExpressionGenerationStrategy : GenericSyntaxGe
 
         var stringBuilder = new StringBuilder();
 
+        var key = model.Query.Aggregate.Properties.Single(x => x.Key);
+
         stringBuilder.AppendLine($$"""
-            throw new NotImplementedException();
+            return new {{model.Query.Name}}Response()
+            {
+                {{model.Query.Aggregate.Name}} = _context.{{model.Query.Aggregate.Name.Pluralize()}}
+                .SingleOrDefault(x => x.{{key.Name}} == request.{{key.Name}})?
+                .ToDto()
+            };
             """);
 
         return stringBuilder.ToString();

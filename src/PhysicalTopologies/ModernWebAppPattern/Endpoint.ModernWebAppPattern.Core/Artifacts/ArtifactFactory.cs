@@ -334,7 +334,7 @@ public class ArtifactFactory : IArtifactFactory
             {
                 case RequestKind.Create:    
                 case RequestKind.Update:
-                    commandResponseClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, new($"{command.Aggregate.Name}Dto"), command.Aggregate.Name, PropertyAccessorModel.GetSet));
+                    commandResponseClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, new($"{command.Aggregate.Name}Dto?"), command.Aggregate.Name, PropertyAccessorModel.GetSet));
                     break;
             }
 

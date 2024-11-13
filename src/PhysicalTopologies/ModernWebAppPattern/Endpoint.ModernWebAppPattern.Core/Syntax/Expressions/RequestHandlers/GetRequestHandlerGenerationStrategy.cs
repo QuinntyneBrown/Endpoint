@@ -1,9 +1,9 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Endpoint.DomainDrivenDesign.Core.Models;
 using Endpoint.DotNet.Syntax;
 using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.RequestHandlers;
+using Humanizer;
 using Microsoft.Extensions.Logging;
 using System.Text;
 
@@ -25,7 +25,12 @@ public class GetRequestHandlerExpressionGenerationStrategy : GenericSyntaxGenera
         var stringBuilder = new StringBuilder();
 
         stringBuilder.AppendLine($$"""
-            throw new NotImplementedException();
+            return new {{model.Query.Name}}Response()
+            {
+                {{model.Query.Aggregate.Name.Pluralize()}} = _context.{{model.Query.Aggregate.Name.Pluralize()}}
+                .Select(x => x.ToDto())
+                .ToList()
+            };
             """);
 
         return stringBuilder.ToString();

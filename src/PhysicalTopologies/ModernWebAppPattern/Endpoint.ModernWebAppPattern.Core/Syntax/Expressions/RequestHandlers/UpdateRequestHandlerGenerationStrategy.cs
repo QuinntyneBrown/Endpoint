@@ -4,6 +4,7 @@
 using Endpoint.DomainDrivenDesign.Core.Models;
 using Endpoint.DotNet.Syntax;
 using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.RequestHandlers;
+using Humanizer;
 using Microsoft.Extensions.Logging;
 using System.Text;
 
@@ -24,8 +25,25 @@ public class UpdateRequestHandlerExpressionGenerationStrategy : GenericSyntaxGen
 
         var stringBuilder = new StringBuilder();
 
+        var key = model.Command.Aggregate.Properties.Single(x => x.Key);
+
         stringBuilder.AppendLine($$"""
-            throw new NotImplementedException();
+            var {{model.Command.Aggregate.Name.ToCamelCase()}} = _context.{{model.Command.Aggregate.Name.Pluralize()}}
+            .Single(x => x.{{key.Name}} == request.{{key.Name}});
+            """);
+
+        foreach(var property in model.Command.Aggregate.Properties.Where(x => !x.Key))
+        {
+            stringBuilder.AppendLine($"{model.Command.Aggregate.Name.ToCamelCase()}.{property.Name} = request.{property.Name};");
+        }
+
+        stringBuilder.AppendLine($$"""
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return new()
+            {
+                {{model.Command.Aggregate.Name}} = {{model.Command.Aggregate.Name.ToCamelCase()}}.ToDto()
+            };
             """);
 
         return stringBuilder.ToString();
