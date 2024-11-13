@@ -71,6 +71,12 @@ public class DddAppCreateRequestHandler : IRequestHandler<DddAppCreateRequest>
             Properties = request.Properties,
         };
 
+        // Ensure Key Defined
+        if (!request.Properties.Contains($"{request.Aggregate}Id"))
+        {
+            request.Properties = $"{request.Aggregate}Id:Guid,{request.Properties}";
+        }
+
         var json = await _syntaxGenerator.GenerateAsync(modernWebAppDataModel);
 
         var path = _fileSystem.Path.Combine(_fileSystem.Path.GetTempPath(), $"{request.ProductName}.jaon");

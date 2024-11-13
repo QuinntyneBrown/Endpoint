@@ -12,5 +12,9 @@ public enum PropertyKind
 
     String,
     
-    Int
+    Int,
+    
+    Bool,
+
+    Json
 }
