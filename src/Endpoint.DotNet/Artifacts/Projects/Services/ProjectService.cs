@@ -3,14 +3,10 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml.Linq;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Services;
-using Endpoint.DotNet.Syntax.Classes;
-using Endpoint.DotNet.Syntax.Classes.Factories;
-using Microsoft.CodeAnalysis;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Services;
 

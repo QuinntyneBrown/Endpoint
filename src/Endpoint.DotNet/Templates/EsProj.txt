@@ -1,12 +1,10 @@
-﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.62-alpha">
+﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.126-alpha">
   <PropertyGroup>
     <StartupCommand>npm start</StartupCommand>
     <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
-    <!-- Command to run on project build -->
-    <BuildCommand></BuildCommand>
-    <!-- Command to create an optimized build of the project that's ready for publishing -->
-    <ProductionBuildCommand>npm run build</ProductionBuildCommand>
+    <!-- Allows the build (or compile) script located on package.json to run on Build -->
+    <ShouldRunBuildScript>false</ShouldRunBuildScript>
     <!-- Folder where production build objects will be placed -->
-    <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\{{ projectName }}</BuildOutputFolder>
+    <PublishAssetsDirectory>$(MSBuildProjectDirectory)\dist\AngularProject1\</PublishAssetsDirectory>
   </PropertyGroup>
 </Project>

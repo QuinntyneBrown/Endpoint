@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.DotNet;
-using Endpoint.DotNet.Artifacts;
 using Endpoint.DotNet.Artifacts.Projects;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Artifacts.Projects.Services;
@@ -59,13 +58,13 @@ public class ProjectAddRequestHandler : IRequestHandler<ProjectAddRequest>
         IProjectFactory projectFactory,
         IFileProvider fileProvider)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.artifactGenerator = artifactGenerator ?? throw new ArgumentNullException(nameof(artifactGenerator));
-        this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        this.projectService = projectService ?? throw new ArgumentNullException(nameof(projectService));
-        this.projectFactory = projectFactory ?? throw new ArgumentNullException(nameof(projectFactory));
-        this.fileProvider = fileProvider ?? throw new ArgumentNullException(nameof(fileProvider));
+        this.logger = logger;
+        this.artifactGenerator = artifactGenerator;
+        this.commandService = commandService;
+        this.fileSystem = fileSystem;
+        this.projectService = projectService;
+        this.projectFactory = projectFactory;
+        this.fileProvider = fileProvider;
     }
 
     public async Task Handle(ProjectAddRequest request, CancellationToken cancellationToken)
