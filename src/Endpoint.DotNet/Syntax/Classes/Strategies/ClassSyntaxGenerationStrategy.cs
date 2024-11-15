@@ -7,9 +7,6 @@ using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Methods;
 using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.Options;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Classes.Strategies;
