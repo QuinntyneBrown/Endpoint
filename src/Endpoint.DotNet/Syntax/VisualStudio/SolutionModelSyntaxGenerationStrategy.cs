@@ -2,12 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 
 namespace Endpoint.DotNet.Syntax.VisualStudio.Strategies;
 
-public class SolutionModelSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<SolutionModel>
+public class SolutionModelSyntaxGenerationStrategy : ISyntaxGenerationStrategy<SolutionModel>
 {
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, SolutionModel model)
+    public async Task<string> GenerateAsync(SolutionModel model, CancellationToken cancellationToken)
     {
         var stringBuilder = new StringBuilder();
 

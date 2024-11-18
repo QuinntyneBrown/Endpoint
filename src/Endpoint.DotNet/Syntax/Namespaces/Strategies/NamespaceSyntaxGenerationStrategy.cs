@@ -2,11 +2,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Namespaces.Strategies;
 
-public class NamespaceGenerationStrategy : GenericSyntaxGenerationStrategy<NamespaceModel>
+public class NamespaceGenerationStrategy : ISyntaxGenerationStrategy<NamespaceModel>
 {
     private readonly ILogger<NamespaceGenerationStrategy> logger;
 
@@ -15,7 +16,7 @@ public class NamespaceGenerationStrategy : GenericSyntaxGenerationStrategy<Names
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, NamespaceModel model)
+    public async Task<string> GenerateAsync(NamespaceModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax. {name}", model.Name);
 

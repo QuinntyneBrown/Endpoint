@@ -3,14 +3,16 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
 
 namespace Endpoint.DotNet.Syntax.Methods.Strategies;
 
-public class PageQueryHandlerMethodGenerationStrategy : GenericSyntaxGenerationStrategy<MethodModel>
+public class PageQueryHandlerMethodGenerationStrategy : ISyntaxGenerationStrategy<MethodModel>
 {
     private readonly INamingConventionConverter namingConventionConverter;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public PageQueryHandlerMethodGenerationStrategy(
         INamingConventionConverter namingConventionConverter)
@@ -28,7 +30,7 @@ public class PageQueryHandlerMethodGenerationStrategy : GenericSyntaxGenerationS
         return false;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, object target)
+    public async Task<string> GenerateAsync(object target)
     {
         /*        if (target is MethodModel)
                 {
@@ -38,7 +40,7 @@ public class PageQueryHandlerMethodGenerationStrategy : GenericSyntaxGenerationS
         return null;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, MethodModel model)
+    public async Task<string> GenerateAsync(MethodModel model, CancellationToken cancellationToken)
     {
         var builder = new StringBuilder();
 

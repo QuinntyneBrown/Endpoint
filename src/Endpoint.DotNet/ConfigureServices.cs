@@ -118,7 +118,7 @@ public static class ConfigureServices
         services.AddSingleton<IArtifactParser, ArtifactParser>();
         services.AddSingleton<ISyntaxParser, SyntaxParser>();
 
-        services.AddSingleton(typeof(IGenericSyntaxGenerationStrategy<>), typeof(Constants).Assembly);
+        services.AddSingleton(typeof(ISyntaxGenerationStrategy<>), typeof(Constants).Assembly);
         services.AddSingleton(typeof(IGenericArtifactGenerationStrategy<>), typeof(Constants).Assembly);
         services.AddSingleton(typeof(ISyntaxParsingStrategy<>), typeof(Constants).Assembly);
         services.AddSingleton(typeof(IArtifactParsingStrategy<>), typeof(Constants).Assembly);

@@ -3,22 +3,24 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Types;
 
-public class TypeSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<TypeModel>
+public class TypeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<TypeModel>
 {
     private readonly ILogger<TypeSyntaxGenerationStrategy> logger;
-
+    private readonly ISyntaxGenerator syntaxGenerator;
     public TypeSyntaxGenerationStrategy(
-
+        ISyntaxGenerator syntaxGenerator,
         ILogger<TypeSyntaxGenerationStrategy> logger)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.syntaxGenerator = syntaxGenerator ?? throw new ArgumentNullException(nameof(syntaxGenerator));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, TypeModel model)
+    public async Task<string> GenerateAsync(TypeModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

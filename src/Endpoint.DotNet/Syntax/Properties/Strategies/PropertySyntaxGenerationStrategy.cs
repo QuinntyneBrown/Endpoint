@@ -1,11 +1,13 @@
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Properties.Strategies;
 
-public class PropertySyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<PropertyModel>
+public class PropertySyntaxGenerationStrategy : ISyntaxGenerationStrategy<PropertyModel>
 {
     private readonly ILogger<PropertySyntaxGenerationStrategy> logger;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public PropertySyntaxGenerationStrategy(
 
@@ -16,7 +18,7 @@ public class PropertySyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<
 
     public int GetPriority() => 0;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, PropertyModel model)
+    public async Task<string> GenerateAsync(PropertyModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

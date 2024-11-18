@@ -2,11 +2,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax;
 
-public class RuleForSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<RuleForModel>
+public class RuleForSyntaxGenerationStrategy : ISyntaxGenerationStrategy<RuleForModel>
 {
     private readonly ILogger<RuleForSyntaxGenerationStrategy> logger;
 
@@ -19,7 +20,7 @@ public class RuleForSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<R
 
     public int GetPriority() => 0;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, RuleForModel model)
+    public async Task<string> GenerateAsync(RuleForModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

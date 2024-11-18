@@ -2,17 +2,20 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
-using Endpoint.DotNet.Syntax.Units;
+using System.Threading;
 
 namespace Endpoint.DotNet.Syntax.Units.Strategies;
 
-public class QueryModelSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<QueryModel>
+public class QueryModelSyntaxGenerationStrategy : ISyntaxGenerationStrategy<QueryModel>
 {
-    public QueryModelSyntaxGenerationStrategy(IServiceProvider serviceProvider)
+    private readonly ISyntaxGenerator syntaxGenerator;
+
+    public QueryModelSyntaxGenerationStrategy(ISyntaxGenerator syntaxGenerator)
     {
+        this.syntaxGenerator = syntaxGenerator;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, QueryModel model)
+    public async Task<string> GenerateAsync(QueryModel model, CancellationToken cancellationToken)
     {
         var builder = new StringBuilder();
 

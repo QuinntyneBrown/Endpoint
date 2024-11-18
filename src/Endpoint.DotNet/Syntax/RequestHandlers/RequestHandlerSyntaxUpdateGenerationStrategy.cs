@@ -2,12 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.RequestHandlers;
 
-public class RequestHandlerSyntaxUpdateGenerationStrategy : GenericSyntaxGenerationStrategy<RequestHandlerModel>
+public class RequestHandlerSyntaxUpdateGenerationStrategy : ISyntaxGenerationStrategy<RequestHandlerModel>
 {
     private readonly ILogger<RequestHandlerSyntaxUpdateGenerationStrategy> logger;
     private readonly ICodeAnalysisService codeAnalysisService;
@@ -26,7 +27,7 @@ public class RequestHandlerSyntaxUpdateGenerationStrategy : GenericSyntaxGenerat
     public bool CanHandle(object model)
         => model is RequestHandlerModel requestHandlerModel && requestHandlerModel.RouteType == RouteType.Update;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, RequestHandlerModel model)
+    public async Task<string> GenerateAsync(RequestHandlerModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0} and type {1}.", model);
 

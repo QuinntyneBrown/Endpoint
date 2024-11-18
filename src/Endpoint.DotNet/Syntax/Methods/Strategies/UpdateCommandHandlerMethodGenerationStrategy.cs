@@ -3,15 +3,16 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
-using Microsoft.VisualStudio.OLE.Interop;
 
 namespace Endpoint.DotNet.Syntax.Methods.Strategies;
 
-public class UpdateCommandHandlerMethodGenerationStrategy : GenericSyntaxGenerationStrategy<MethodModel>
+public class UpdateCommandHandlerMethodGenerationStrategy : ISyntaxGenerationStrategy<MethodModel>
 {
     private readonly INamingConventionConverter namingConventionConverter;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public UpdateCommandHandlerMethodGenerationStrategy(
         INamingConventionConverter namingConventionConverter)
@@ -19,7 +20,7 @@ public class UpdateCommandHandlerMethodGenerationStrategy : GenericSyntaxGenerat
         this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, object target)
+    public async Task<string> GenerateAsync(object target)
     {
         /*        if (target is MethodModel)
                 {
@@ -29,7 +30,7 @@ public class UpdateCommandHandlerMethodGenerationStrategy : GenericSyntaxGenerat
         return null;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, MethodModel model)
+    public async Task<string> GenerateAsync(MethodModel model, CancellationToken cancellationToken)
     {
         var entity = new ClassModel();
 

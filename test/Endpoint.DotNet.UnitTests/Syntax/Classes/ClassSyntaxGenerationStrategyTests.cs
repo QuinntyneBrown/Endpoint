@@ -1,8 +1,6 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Classes.Strategies;
@@ -12,9 +10,8 @@ using Endpoint.DotNet.Syntax.Methods;
 using Endpoint.DotNet.Syntax.Params;
 using Endpoint.DotNet.Syntax.Types;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
-namespace Endpoint.UnitTests;
+namespace Endpoint.DotNet.UnitTests.Classes;
 
 public class ClassSyntaxGenerationStrategyTests
 {
@@ -27,22 +24,20 @@ public class ClassSyntaxGenerationStrategyTests
 
         services.AddLogging();
 
-        //services.AddCliServices();
+        services.AddDotNetServices();
 
         var container = services.BuildServiceProvider();
 
         var syntaxGenerator = container.GetRequiredService<ISyntaxGenerator>();
 
-        var sut = ActivatorUtilities.CreateInstance<ClassSyntaxGenerationStrategy>(container);
-
         var classModel = new ClassModel("Foo");
 
-        classModel.Constructors = new List<ConstructorModel>()
-        {
-            new ConstructorModel(classModel, classModel.Name),
-        };
+        classModel.Constructors =
+        [
+            new (classModel, classModel.Name),
+        ];
 
-        var result = await sut.GenerateAsync(classModel, default);
+        string result = await syntaxGenerator.GenerateAsync(classModel);
 
         Assert.Equal(expected, result);
     }
@@ -56,7 +51,6 @@ public class ClassSyntaxGenerationStrategyTests
 
         services.AddLogging();
 
-        //services.AddCliServices();
 
         var container = services.BuildServiceProvider();
 

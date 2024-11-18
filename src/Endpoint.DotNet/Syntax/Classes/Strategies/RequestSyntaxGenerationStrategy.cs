@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Endpoint.DotNet.Syntax.Classes.Strategies;
 
-public class RequestSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<RequestModel>
+public class RequestSyntaxGenerationStrategy : ISyntaxGenerationStrategy<RequestModel>
 {
     private readonly ILogger<RequestSyntaxGenerationStrategy> _logger;
     public RequestSyntaxGenerationStrategy(
@@ -19,7 +19,7 @@ public class RequestSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<R
 
 
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, RequestModel model)
+    public async Task<string> GenerateAsync(RequestModel model)
     {
         _logger.LogInformation("Generating syntax for {0}.", model);
 

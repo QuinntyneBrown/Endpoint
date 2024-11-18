@@ -4,13 +4,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Methods.Strategies;
 
-public class MethodsSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<List<MethodModel>>
+public class MethodsSyntaxGenerationStrategy : ISyntaxGenerationStrategy<List<MethodModel>>
 {
     private readonly ILogger<MethodsSyntaxGenerationStrategy> logger;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public MethodsSyntaxGenerationStrategy(
         ILogger<MethodsSyntaxGenerationStrategy> logger)
@@ -18,7 +20,7 @@ public class MethodsSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<L
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, List<MethodModel> model)
+    public async Task<string> GenerateAsync(List<MethodModel> model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

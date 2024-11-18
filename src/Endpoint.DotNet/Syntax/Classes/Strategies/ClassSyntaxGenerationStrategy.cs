@@ -3,6 +3,7 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Methods;
 using Endpoint.DotNet.Syntax.Properties;
@@ -11,18 +12,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Classes.Strategies;
 
-public class ClassSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<ClassModel>
+public class ClassSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ClassModel>
 {
     private readonly ILogger<ClassSyntaxGenerationStrategy> logger;
+    private readonly ISyntaxGenerator syntaxGenerator;
     private readonly IContext context;
 
-    public ClassSyntaxGenerationStrategy(IContext context, ILogger<ClassSyntaxGenerationStrategy> logger)
+    public ClassSyntaxGenerationStrategy(IContext context, ILogger<ClassSyntaxGenerationStrategy> logger, ISyntaxGenerator syntaxGenerator)
     {
         this.context = context;
+        this.syntaxGenerator = syntaxGenerator;
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, ClassModel model)
+    public async Task<string> GenerateAsync(ClassModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
@@ -96,6 +99,6 @@ public class ClassSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<Cla
 
         builder.AppendLine("}");
 
-        return builder.ToString().FormatCSharp();
+        return builder.ToString();
     }
 }

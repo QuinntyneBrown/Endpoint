@@ -1,9 +1,10 @@
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Statements;
 
-public class LogStatementSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<LogStatementModel>
+public class LogStatementSyntaxGenerationStrategy : ISyntaxGenerationStrategy<LogStatementModel>
 {
     private readonly ILogger<LogStatementSyntaxGenerationStrategy> logger;
 
@@ -14,7 +15,7 @@ public class LogStatementSyntaxGenerationStrategy : GenericSyntaxGenerationStrat
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, LogStatementModel model)
+    public async Task<string> GenerateAsync(LogStatementModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

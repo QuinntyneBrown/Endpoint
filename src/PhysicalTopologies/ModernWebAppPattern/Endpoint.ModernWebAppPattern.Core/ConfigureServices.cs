@@ -17,6 +17,6 @@ public static class ConfigureServices
         services.AddSingleton<IDataContextProvider,FileSystemDataContextProvider>();
         services.AddSingleton<IDataContext,DataContext>();
         services.AddSingleton<IArtifactFactory,ArtifactFactory>();
-        services.AddSingleton(typeof(IGenericSyntaxGenerationStrategy<>), typeof(FileSystemDataContextProvider).Assembly);
+        services.AddSingleton(typeof(ISyntaxGenerationStrategy<>), typeof(FileSystemDataContextProvider).Assembly);
     }
 }

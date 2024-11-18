@@ -3,11 +3,12 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.TypeScript.Strategies;
 
-public class ImportSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<ImportModel>
+public class ImportSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ImportModel>
 {
     private readonly ILogger<ImportSyntaxGenerationStrategy> logger;
 
@@ -18,7 +19,7 @@ public class ImportSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<Im
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, ImportModel model)
+    public async Task<string> GenerateAsync(ImportModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

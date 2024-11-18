@@ -3,26 +3,30 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Methods;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Interfaces;
 
-public class InterfaceSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<InterfaceModel>
+public class InterfaceSyntaxGenerationStrategy : ISyntaxGenerationStrategy<InterfaceModel>
 {
     private readonly ILogger<InterfaceSyntaxGenerationStrategy> logger;
     private readonly IContext context;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public InterfaceSyntaxGenerationStrategy(
+        ISyntaxGenerator syntaxGenerator,
         IContext context,
         ILogger<InterfaceSyntaxGenerationStrategy> logger)
     {
+        this.syntaxGenerator = syntaxGenerator;
         this.context = context ?? throw new ArgumentNullException(nameof(context));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, InterfaceModel model)
+    public async Task<string> GenerateAsync(InterfaceModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

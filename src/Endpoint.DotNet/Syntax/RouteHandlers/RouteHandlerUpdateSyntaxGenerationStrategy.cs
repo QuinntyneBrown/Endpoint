@@ -2,11 +2,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.RouteHandlers;
 
-public class RouteHandlerUpdateSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<RouteHandlerModel>
+public class RouteHandlerUpdateSyntaxGenerationStrategy : ISyntaxGenerationStrategy<RouteHandlerModel>
 {
     private readonly ILogger<RouteHandlerSyntaxGenerationStrategy> logger;
 
@@ -29,7 +30,7 @@ public class RouteHandlerUpdateSyntaxGenerationStrategy : GenericSyntaxGeneratio
         return false;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, RouteHandlerModel model)
+    public async Task<string> GenerateAsync(RouteHandlerModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

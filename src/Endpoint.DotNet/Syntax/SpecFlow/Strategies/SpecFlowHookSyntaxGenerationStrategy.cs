@@ -2,11 +2,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.SpecFlow.Strategies;
 
-public class SpecFlowHookSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<SpecFlowHookModel>
+public class SpecFlowHookSyntaxGenerationStrategy : ISyntaxGenerationStrategy<SpecFlowHookModel>
 {
     private readonly ILogger<SpecFlowHookSyntaxGenerationStrategy> logger;
 
@@ -19,7 +20,7 @@ public class SpecFlowHookSyntaxGenerationStrategy : GenericSyntaxGenerationStrat
 
     public int GetPriority() => 0;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, SpecFlowHookModel model)
+    public async Task<string> GenerateAsync(SpecFlowHookModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

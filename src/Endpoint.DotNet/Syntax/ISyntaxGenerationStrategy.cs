@@ -5,7 +5,7 @@ namespace Endpoint.DotNet.Syntax;
 
 public interface ISyntaxGenerationStrategy
 {
-    Task<string> GenerateAsync(ISyntaxGenerator generator, object target);
+    Task<string> GenerateAsync(object target);
 
     int GetPriority();
 }

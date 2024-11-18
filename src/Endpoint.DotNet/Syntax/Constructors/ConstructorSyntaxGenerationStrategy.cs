@@ -3,27 +3,30 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Constructors;
 
-public class ConstructorSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<ConstructorModel>
+public class ConstructorSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ConstructorModel>
 {
     private readonly ILogger<ConstructorSyntaxGenerationStrategy> logger;
     private readonly INamingConventionConverter namingConventionConverter;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public ConstructorSyntaxGenerationStrategy(
-
+        ISyntaxGenerator syntaxGenerator,
         INamingConventionConverter namingConventionConverter,
         ILogger<ConstructorSyntaxGenerationStrategy> logger)
     {
         this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.syntaxGenerator = syntaxGenerator ?? throw new ArgumentNullException(nameof(SyntaxGenerator));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, ConstructorModel model)
+    public async Task<string> GenerateAsync(ConstructorModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

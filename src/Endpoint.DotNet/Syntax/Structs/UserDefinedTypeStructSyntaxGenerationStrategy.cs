@@ -3,10 +3,11 @@
 
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace Endpoint.DotNet.Syntax.Structs;
 
-public class UserDefinedTypeStructGenerationStrategy : GenericSyntaxGenerationStrategy<UserDefinedTypeStructModel>
+public class UserDefinedTypeStructGenerationStrategy : ISyntaxGenerationStrategy<UserDefinedTypeStructModel>
 {
     private readonly ILogger<UserDefinedTypeStructGenerationStrategy> logger;
 
@@ -15,7 +16,7 @@ public class UserDefinedTypeStructGenerationStrategy : GenericSyntaxGenerationSt
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, UserDefinedTypeStructModel model)
+    public async Task<string> GenerateAsync(UserDefinedTypeStructModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax. {name}", model.Name);
 

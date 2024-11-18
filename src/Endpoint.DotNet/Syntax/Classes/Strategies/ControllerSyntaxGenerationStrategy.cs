@@ -2,11 +2,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Classes.Strategies;
 
-public class ControllerGenerationStrategy : GenericSyntaxGenerationStrategy<ClassModel>
+public class ControllerGenerationStrategy : ISyntaxGenerationStrategy<ClassModel>
 {
     private readonly ILogger<ControllerGenerationStrategy> logger;
 
@@ -15,14 +16,9 @@ public class ControllerGenerationStrategy : GenericSyntaxGenerationStrategy<Clas
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override int GetPriority() => -1;
+    public int GetPriority() => -1;
 
-    public override Task<string> GenerateAsync(ISyntaxGenerator generator, object target)
-    {
-        return base.GenerateAsync(generator, target);
-    }
-
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, ClassModel model)
+    public async Task<string> GenerateAsync(ClassModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax. {name}", model.Name);
 

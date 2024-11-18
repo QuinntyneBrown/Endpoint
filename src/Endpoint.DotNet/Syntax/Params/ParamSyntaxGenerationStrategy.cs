@@ -2,13 +2,15 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Params;
 
-public class ParamSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<ParamModel>
+public class ParamSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ParamModel>
 {
     private readonly ILogger<ParamSyntaxGenerationStrategy> logger;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public ParamSyntaxGenerationStrategy(
 
@@ -19,7 +21,7 @@ public class ParamSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<Par
 
     public int GetPriority() => 0;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, ParamModel model)
+    public async Task<string> GenerateAsync(ParamModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
