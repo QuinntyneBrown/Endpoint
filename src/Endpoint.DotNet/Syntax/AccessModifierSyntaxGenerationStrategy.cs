@@ -2,11 +2,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax;
 
-public class AccessModifierSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<AccessModifier>
+public class AccessModifierSyntaxGenerationStrategy : ISyntaxGenerationStrategy<AccessModifier>
 {
     private readonly ILogger<AccessModifierSyntaxGenerationStrategy> logger;
 
@@ -17,7 +18,7 @@ public class AccessModifierSyntaxGenerationStrategy : GenericSyntaxGenerationStr
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, AccessModifier model)
+    public async Task<string> GenerateAsync(AccessModifier model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

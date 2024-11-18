@@ -1,15 +1,17 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Threading;
+
 namespace Endpoint.DotNet.Syntax.Entities;
 
-public class EntityModelSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<EntityModel>
+public class EntityModelSyntaxGenerationStrategy : ISyntaxGenerationStrategy<EntityModel>
 {
     public EntityModelSyntaxGenerationStrategy(IServiceProvider serviceProvider)
     {
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, EntityModel model)
+    public async Task<string> GenerateAsync(EntityModel model, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

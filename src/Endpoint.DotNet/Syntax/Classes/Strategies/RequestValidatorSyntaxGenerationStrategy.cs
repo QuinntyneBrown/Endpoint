@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Endpoint.DotNet.Syntax.Classes.Strategies;
 
-public class RequestValidatorSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<RequestValidatorModel>
+public class RequestValidatorSyntaxGenerationStrategy : ISyntaxGenerationStrategy<RequestValidatorModel>
 {
     private readonly ILogger<RequestValidatorSyntaxGenerationStrategy> _logger;
     public RequestValidatorSyntaxGenerationStrategy(
@@ -19,7 +19,7 @@ public class RequestValidatorSyntaxGenerationStrategy : GenericSyntaxGenerationS
 
 
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, RequestValidatorModel model)
+    public async Task<string> GenerateAsync(RequestValidatorModel model)
     {
         _logger.LogInformation("Generating syntax for {0}.", model);
 

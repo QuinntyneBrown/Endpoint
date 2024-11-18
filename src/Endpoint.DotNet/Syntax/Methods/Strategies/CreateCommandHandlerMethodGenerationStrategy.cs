@@ -3,21 +3,23 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
 
 namespace Endpoint.DotNet.Syntax.Methods.Strategies;
 
-public class CreateCommandHandlerMethodGenerationStrategy : GenericSyntaxGenerationStrategy<MethodModel>
+public class CreateCommandHandlerMethodGenerationStrategy : ISyntaxGenerationStrategy<MethodModel>
 {
     private readonly INamingConventionConverter namingConventionConverter;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public CreateCommandHandlerMethodGenerationStrategy(INamingConventionConverter namingConventionConverter)
     {
         this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, object target)
+    public async Task<string> GenerateAsync(object target, CancellationToken cancellationToken)
     {
         /*        if (target is MethodModel)
                 {
@@ -27,7 +29,7 @@ public class CreateCommandHandlerMethodGenerationStrategy : GenericSyntaxGenerat
         return null;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, MethodModel model)
+    public async Task<string> GenerateAsync(MethodModel model, CancellationToken cancellationToken)
     {
         var builder = new StringBuilder();
 

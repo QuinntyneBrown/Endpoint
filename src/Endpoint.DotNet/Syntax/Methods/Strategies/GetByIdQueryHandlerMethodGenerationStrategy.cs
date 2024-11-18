@@ -3,16 +3,17 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Methods.Strategies;
 
-public class GetByIdQueryHandlerMethodGenerationStrategy : GenericSyntaxGenerationStrategy<MethodModel>
+public class GetByIdQueryHandlerMethodGenerationStrategy : ISyntaxGenerationStrategy<MethodModel>
 {
     private readonly INamingConventionConverter namingConventionConverter;
-
+    private readonly ISyntaxGenerator syntaxGenerator;
     public GetByIdQueryHandlerMethodGenerationStrategy(
         INamingConventionConverter namingConventionConverter)
     {
@@ -21,7 +22,7 @@ public class GetByIdQueryHandlerMethodGenerationStrategy : GenericSyntaxGenerati
 
     public int Priority => int.MaxValue;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, object target)
+    public async Task<string> GenerateAsync(object target, CancellationToken cancellationToken)
     {
         /*        if (target is MethodModel)
                 {
@@ -41,7 +42,7 @@ public class GetByIdQueryHandlerMethodGenerationStrategy : GenericSyntaxGenerati
         return false;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, MethodModel model)
+    public async Task<string> GenerateAsync(MethodModel model, CancellationToken cancellationToken)
     {
         var builder = new StringBuilder();
 

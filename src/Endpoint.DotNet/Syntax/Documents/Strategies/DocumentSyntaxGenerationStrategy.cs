@@ -3,20 +3,21 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Documents.Strategies;
 
-public class DocumentGenerationStrategy : GenericSyntaxGenerationStrategy<DocumentModel>
+public class DocumentGenerationStrategy : ISyntaxGenerationStrategy<DocumentModel>
 {
     private readonly ILogger<DocumentGenerationStrategy> logger;
-
+    private readonly ISyntaxGenerator syntaxGenerator;
     public DocumentGenerationStrategy(ILogger<DocumentGenerationStrategy> logger)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, DocumentModel model)
+    public async Task<string> GenerateAsync(DocumentModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax. {name}", model.Name);
 
@@ -35,7 +36,7 @@ public class DocumentGenerationStrategy : GenericSyntaxGenerationStrategy<Docume
 
         foreach (var item in model.Code)
         {
-            string result = await generator.GenerateAsync(item);
+            string result = await syntaxGenerator.GenerateAsync(item);
 
             stringBuilder.AppendLine(result);
 

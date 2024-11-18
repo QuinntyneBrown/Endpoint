@@ -4,11 +4,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.RouteHandlers;
 
-public class RouteHandlerSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<RouteHandlerModel>
+public class RouteHandlerSyntaxGenerationStrategy : ISyntaxGenerationStrategy<RouteHandlerModel>
 {
     private readonly ILogger<RouteHandlerSyntaxGenerationStrategy> logger;
 
@@ -21,7 +22,7 @@ public class RouteHandlerSyntaxGenerationStrategy : GenericSyntaxGenerationStrat
 
     public int GetPriority() => 0;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, RouteHandlerModel model)
+    public async Task<string> GenerateAsync(RouteHandlerModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

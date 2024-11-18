@@ -1,49 +1,74 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Endpoint.DotNet.Services;
+using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Octokit;
 
 namespace Endpoint.DotNet.Syntax;
 
 public class SyntaxGenerator : ISyntaxGenerator
 {
-    private readonly ILogger<SyntaxGenerator> logger;
-    private readonly IServiceProvider serviceProvider;
-    private readonly IObjectCache cache;
+    private static readonly ConcurrentDictionary<Type, SyntaxGenerationStrategyBase> _syntaxGenerators = new();
+    private readonly IServiceProvider _serviceProvider;
 
-    public SyntaxGenerator(ILogger<SyntaxGenerator> logger, IObjectCache cache, IServiceProvider serviceProvider)
+    public SyntaxGenerator(IServiceProvider serviceProvider)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+
+        _serviceProvider = serviceProvider;
     }
 
-    public async Task<string> GenerateAsync<T>(T model)
+    public Task<string> GenerateAsync<T>(T model)
     {
-        var inner = typeof(IGenericSyntaxGenerationStrategy<>).MakeGenericType(model.GetType());
-
-        var type = typeof(IEnumerable<>).MakeGenericType(inner);
-
-        var strategies = cache.FromCacheOrService(() => serviceProvider.GetRequiredService(type) as IEnumerable<ISyntaxGenerationStrategy>, $"{GetType().Name}{model.GetType().FullName}");
-
-        var orderedStrategies = strategies!.OrderByDescending(x => x.GetPriority());
-
-        var result = string.Empty;
-
-        foreach (var strategy in orderedStrategies)
+        var handler = _syntaxGenerators.GetOrAdd(model.GetType(), static targetType =>
         {
-            result = await strategy.GenerateAsync(this, model);
+            var wrapperType = typeof(SyntaxGenerationStrategyWrapperImplementation<>).MakeGenericType(targetType);
+            var wrapper = Activator.CreateInstance(wrapperType) ?? throw new InvalidOperationException($"Could not create wrapper type for {targetType}");
+            return (SyntaxGenerationStrategyBase)wrapper;
+        });
 
-            if (result != null)
-            {
-                return result;
-            }
-        }
-
-        throw new Exception();
+        return handler.GenerateAsync(_serviceProvider, model, default);
     }
+}
+
+public abstract class SyntaxGenerationStrategyBase
+{
+    public abstract Task<string> GenerateAsync(IServiceProvider serviceProvider, object target, CancellationToken cancellationToken);
+}
+
+public abstract class SyntaxGenerationStrategyWrapper<T> : SyntaxGenerationStrategyBase
+{
+    public abstract Task<string> GenerateAsync(T target, IServiceProvider serviceProvider, CancellationToken cancellationToken);
+}
+
+public class SyntaxGenerationStrategyWrapperImplementation<T> : SyntaxGenerationStrategyWrapper<T>
+{
+    private readonly ConcurrentDictionary<Type, IEnumerable<ISyntaxGenerationStrategy>> _strategies = [];
+
+    public override async Task<string> GenerateAsync(IServiceProvider serviceProvider, object target, CancellationToken cancellationToken)
+    {
+        return await GenerateAsync((T)target, serviceProvider, cancellationToken).ConfigureAwait(false);
+    }
+
+    public override async Task<string> GenerateAsync(T target, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+    {
+        var handlers = serviceProvider.GetRequiredService<IEnumerable<ISyntaxGenerationStrategy<T>>>();
+
+        var handler = handlers
+            .OrderByDescending(x => x.GetPriority())
+            .First();
+
+        return await handler.GenerateAsync(target, cancellationToken);
+    }
+}
+
+public interface ISyntaxGenerationStrategy<T>
+{
+    virtual int GetPriority() => 1;
+
+    Task<string> GenerateAsync(T target, CancellationToken cancellationToken);
 }

@@ -2,12 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax;
 
-public class SyntaxReferenceSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<SyntaxReferenceModel>
+public class SyntaxReferenceSyntaxGenerationStrategy : ISyntaxGenerationStrategy<SyntaxReferenceModel>
 {
     public static string SetInitialLanguageInAppComponent = nameof(SetInitialLanguageInAppComponent);
 
@@ -24,9 +25,9 @@ public class SyntaxReferenceSyntaxGenerationStrategy : GenericSyntaxGenerationSt
     }
 
     public bool CanHandle(object model)
-        => true; // model is SyntaxReferenceModel && context.Request == SetInitialLanguageInAppComponent;
+        => true;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, SyntaxReferenceModel model)
+    public async Task<string> GenerateAsync(SyntaxReferenceModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

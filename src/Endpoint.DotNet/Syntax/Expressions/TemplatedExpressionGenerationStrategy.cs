@@ -2,12 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Expressions;
 
-public class TemplatedExpressionGenerationStrategy : GenericSyntaxGenerationStrategy<TemplateExpressionModel>
+public class TemplatedExpressionGenerationStrategy : ISyntaxGenerationStrategy<TemplateExpressionModel>
 {
     private readonly ILogger<TemplatedExpressionGenerationStrategy> logger;
     private readonly ITemplateLocator templateLocator;
@@ -20,7 +21,7 @@ public class TemplatedExpressionGenerationStrategy : GenericSyntaxGenerationStra
         this.templateLocator = templateLocator ?? throw new ArgumentNullException(nameof(templateLocator));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, TemplateExpressionModel model)
+    public async Task<string> GenerateAsync(TemplateExpressionModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating Templated Expression Body");
 

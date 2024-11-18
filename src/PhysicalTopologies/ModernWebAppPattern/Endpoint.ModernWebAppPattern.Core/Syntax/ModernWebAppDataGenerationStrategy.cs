@@ -11,7 +11,7 @@ using Humanizer;
 
 namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.Controllers;
 
-public class ModernWebAppDataGenerationStrategy : GenericSyntaxGenerationStrategy<ModernWebAppDataModel>
+public class ModernWebAppDataGenerationStrategy : ISyntaxGenerationStrategy<ModernWebAppDataModel>
 {
     private readonly ILogger<ModernWebAppDataGenerationStrategy> _logger;
 
@@ -20,7 +20,7 @@ public class ModernWebAppDataGenerationStrategy : GenericSyntaxGenerationStrateg
         _logger = logger;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, ModernWebAppDataModel model)
+    public async Task<string> GenerateAsync(ModernWebAppDataModel model, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Generating syntax. {type}", model.GetType());
 

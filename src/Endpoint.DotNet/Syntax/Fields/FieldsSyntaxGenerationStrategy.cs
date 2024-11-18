@@ -4,23 +4,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using EnvDTE;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Fields;
 
-public class FieldsSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<List<FieldModel>>
+public class FieldsSyntaxGenerationStrategy : ISyntaxGenerationStrategy<List<FieldModel>>
 {
     private readonly ILogger<FieldsSyntaxGenerationStrategy> logger;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public FieldsSyntaxGenerationStrategy(
-
+        ISyntaxGenerator syntaxGenerator,
         ILogger<FieldsSyntaxGenerationStrategy> logger)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.syntaxGenerator = syntaxGenerator;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, List<FieldModel> model)
+    public async Task<string> GenerateAsync(List<FieldModel> model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

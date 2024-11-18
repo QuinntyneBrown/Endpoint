@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Attributes;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,15 +21,15 @@ public class CreateShould
 
         services.AddLogging();
 
-        var container = services.BuildServiceProvider();
+        var serviceProvider = services.BuildServiceProvider();
 
         var expected = "[Fact]";
 
         // ACT
-        var sut = ActivatorUtilities.CreateInstance<AttributeSyntaxGenerationStrategy>(container);
+        var sut = serviceProvider.GetRequiredService<ISyntaxGenerator>();
 
         // ASSERT
-        var result = await sut.GenerateAsync(default, new AttributeModel() { Name = "Fact" });
+        var result = await sut.GenerateAsync(new AttributeModel() { Name = "Fact" });
 
         Assert.Equal(expected, result);
     }

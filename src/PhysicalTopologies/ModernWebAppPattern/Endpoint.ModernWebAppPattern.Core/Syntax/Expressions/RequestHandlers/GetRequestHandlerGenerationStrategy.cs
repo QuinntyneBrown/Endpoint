@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.Controllers;
 
-public class GetRequestHandlerExpressionGenerationStrategy : GenericSyntaxGenerationStrategy<GetRequestHandlerExpressionModel>
+public class GetRequestHandlerExpressionGenerationStrategy : ISyntaxGenerationStrategy<GetRequestHandlerExpressionModel>
 {
     private readonly ILogger<ControllerGetExpressionGenerationStrategy> _logger;
 
@@ -18,7 +18,7 @@ public class GetRequestHandlerExpressionGenerationStrategy : GenericSyntaxGenera
         _logger = logger;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, GetRequestHandlerExpressionModel model)
+    public async Task<string> GenerateAsync(GetRequestHandlerExpressionModel model, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Generating syntax. {type}", model.GetType());
 

@@ -2,13 +2,14 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Entities;
 
-public class IdPropertySyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<PropertyModel>
+public class IdPropertySyntaxGenerationStrategy : ISyntaxGenerationStrategy<PropertyModel>
 {
     private readonly ILogger<IdPropertySyntaxGenerationStrategy> logger;
     private readonly ICodeAnalysisService codeAnalysisService;
@@ -27,7 +28,7 @@ public class IdPropertySyntaxGenerationStrategy : GenericSyntaxGenerationStrateg
     public bool CanHandle(object model)
         => model is PropertyModel propertyModel && propertyModel.Id;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, PropertyModel model)
+    public async Task<string> GenerateAsync(PropertyModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

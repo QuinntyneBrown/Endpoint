@@ -2,19 +2,19 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.WebApplications;
 
-public class WebApplicationBuilderSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<WebApplicationBuilderModel>
+public class WebApplicationBuilderSyntaxGenerationStrategy : ISyntaxGenerationStrategy<WebApplicationBuilderModel>
 {
     private readonly ILogger<WebApplicationBuilderSyntaxGenerationStrategy> logger;
     private readonly ITemplateLocator templateLocator;
     private readonly ITemplateProcessor templateProcessor;
 
     public WebApplicationBuilderSyntaxGenerationStrategy(
-
         ITemplateLocator templateLocator,
         ITemplateProcessor templateProcessor,
         ILogger<WebApplicationBuilderSyntaxGenerationStrategy> logger)
@@ -24,7 +24,7 @@ public class WebApplicationBuilderSyntaxGenerationStrategy : GenericSyntaxGenera
         this.templateLocator = templateLocator ?? throw new ArgumentNullException(nameof(templateLocator));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, WebApplicationBuilderModel model)
+    public async Task<string> GenerateAsync(WebApplicationBuilderModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

@@ -1,15 +1,17 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Threading;
+
 namespace Endpoint.DotNet.Syntax.Controllers;
 
-public class ControllerSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<ControllerModel>
+public class ControllerSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ControllerModel>
 {
     public ControllerSyntaxGenerationStrategy(IServiceProvider serviceProvider)
     {
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, ControllerModel model)
+    public async Task<string> GenerateAsync(ControllerModel model, CancellationToken cancellationToken)
     {
         /*            new ClassBuilder($"{((Token)model).PascalCase}Controller", new Endpoint.DotNet.Services.Context(), fileSystem)
                 .WithDirectory($"{settings.ApiDirectory}{Path.DirectorySeparatorChar}Controllers")

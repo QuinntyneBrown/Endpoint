@@ -1,24 +1,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Properties.Strategies;
 
-public class PropertiesSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<List<PropertyModel>>
+public class PropertiesSyntaxGenerationStrategy : ISyntaxGenerationStrategy<List<PropertyModel>>
 {
     private readonly ILogger<PropertiesSyntaxGenerationStrategy> logger;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public PropertiesSyntaxGenerationStrategy(
-
+        ISyntaxGenerator syntaxGenerator,
         ILogger<PropertiesSyntaxGenerationStrategy> logger)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.syntaxGenerator = syntaxGenerator ?? throw new ArgumentNullException(nameof(syntaxGenerator));
     }
 
     public int GetPriority() => 0;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, List<PropertyModel> model)
+    public async Task<string> GenerateAsync(List<PropertyModel> model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

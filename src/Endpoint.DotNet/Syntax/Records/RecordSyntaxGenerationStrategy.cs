@@ -1,10 +1,11 @@
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Syntax.Records.RecordType;
 
 namespace Endpoint.DotNet.Syntax.Records;
 
-public class RecordSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<RecordModel>
+public class RecordSyntaxGenerationStrategy : ISyntaxGenerationStrategy<RecordModel>
 {
     private readonly ILogger<RecordSyntaxGenerationStrategy> logger;
 
@@ -14,7 +15,7 @@ public class RecordSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<Re
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, RecordModel model)
+    public async Task<string> GenerateAsync(RecordModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating Record. {name}", model.Name);
 

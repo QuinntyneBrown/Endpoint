@@ -3,13 +3,13 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
-using Endpoint.DotNet.Syntax.Classes;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Expressions;
 
-public class ConstructorExpressionGenerationStrategy : GenericSyntaxGenerationStrategy<ConstructorExpressionModel>
+public class ConstructorExpressionGenerationStrategy : ISyntaxGenerationStrategy<ConstructorExpressionModel>
 {
     private readonly ILogger<ConstructorExpressionGenerationStrategy> _logger;
     private readonly INamingConventionConverter _namingConventionConverter;
@@ -23,7 +23,7 @@ public class ConstructorExpressionGenerationStrategy : GenericSyntaxGenerationSt
         _namingConventionConverter = namingConventionConverter;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, ConstructorExpressionModel model)
+    public async Task<string> GenerateAsync(ConstructorExpressionModel model, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Generating Constructor Expression Body.");
 

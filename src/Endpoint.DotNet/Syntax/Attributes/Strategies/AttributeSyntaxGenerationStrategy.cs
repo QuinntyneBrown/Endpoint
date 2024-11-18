@@ -3,11 +3,12 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Attributes.Strategies;
 
-public class AttributeSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<AttributeModel>
+public class AttributeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<AttributeModel>
 {
     private readonly ILogger<AttributeSyntaxGenerationStrategy> _logger;
 
@@ -18,31 +19,31 @@ public class AttributeSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy
         _logger = logger;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, AttributeModel model)
+    public async Task<string> GenerateAsync(AttributeModel target, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Generating syntax for {0}.", model);
+        _logger.LogInformation("Generating syntax for {0}.", target);
 
         var builder = new StringBuilder();
 
         builder.Append('[');
 
-        builder.Append(model.Name);
+        builder.Append(target.Name);
 
-        if (model.Template != null && model.Properties.Count == 0)
+        if (target.Template != null && target.Properties.Count == 0)
         {
-            builder.Append($"({model.Template})");
+            builder.Append($"({target.Template})");
         }
 
-        if (model.Properties != null && model.Properties.Count == 1)
+        if (target.Properties != null && target.Properties.Count == 1)
         {
             builder.Append('(');
 
-            if (model.Template != null)
+            if (target.Template != null)
             {
-                builder.Append($"{model.Template}, ");
+                builder.Append($"{target.Template}, ");
             }
 
-            foreach (var property in model.Properties)
+            foreach (var property in target.Properties)
             {
                 builder.Append($"{property.Key} = \"{property.Value}\"");
             }
@@ -50,15 +51,15 @@ public class AttributeSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy
             builder.Append(')');
         }
 
-        if (model.Properties != null && model.Properties.Count > 1)
+        if (target.Properties != null && target.Properties.Count > 1)
         {
             builder.AppendLine("(");
 
-            foreach (var property in model.Properties)
+            foreach (var property in target.Properties)
             {
                 var propertyKeyValuePair = new StringBuilder($"{property.Key} = \"{property.Value}\"");
 
-                if (property.Key != model.Properties.Last().Key)
+                if (property.Key != target.Properties.Last().Key)
                 {
                     propertyKeyValuePair.Append(',');
                 }
@@ -73,4 +74,5 @@ public class AttributeSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy
 
         return builder.ToString();
     }
+
 }

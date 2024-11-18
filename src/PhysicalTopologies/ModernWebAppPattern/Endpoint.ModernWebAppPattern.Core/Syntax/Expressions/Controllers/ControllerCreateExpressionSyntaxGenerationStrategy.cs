@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.Controllers;
 
-public class ControllerCreateExpressionGenerationStrategy : GenericSyntaxGenerationStrategy<ControllerCreateExpressionModel>
+public class ControllerCreateExpressionGenerationStrategy : ISyntaxGenerationStrategy<ControllerCreateExpressionModel>
 {
     private readonly ILogger<ControllerCreateExpressionGenerationStrategy> _logger;
 
@@ -16,7 +16,7 @@ public class ControllerCreateExpressionGenerationStrategy : GenericSyntaxGenerat
         _logger = logger;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, ControllerCreateExpressionModel model)
+    public async Task<string> GenerateAsync(ControllerCreateExpressionModel model, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Generating syntax. {type}", model.GetType());
 

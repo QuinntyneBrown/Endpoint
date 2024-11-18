@@ -2,11 +2,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Attributes.Strategies;
 
-public class ProducesResponseTypeAttributeSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<ProducesResponseTypeAttributeModel>
+public class ProducesResponseTypeAttributeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ProducesResponseTypeAttributeModel>
 {
     private readonly ILogger<ProducesResponseTypeAttributeSyntaxGenerationStrategy> logger;
 
@@ -17,7 +18,7 @@ public class ProducesResponseTypeAttributeSyntaxGenerationStrategy : GenericSynt
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, ProducesResponseTypeAttributeModel model)
+    public async Task<string> GenerateAsync(ProducesResponseTypeAttributeModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

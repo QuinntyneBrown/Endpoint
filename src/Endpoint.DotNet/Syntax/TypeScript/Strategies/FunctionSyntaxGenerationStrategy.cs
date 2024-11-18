@@ -3,26 +3,29 @@
 
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.TypeScript.Strategies;
 
-public class FunctionSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<FunctionModel>
+public class FunctionSyntaxGenerationStrategy : ISyntaxGenerationStrategy<FunctionModel>
 {
     private readonly ILogger<FunctionSyntaxGenerationStrategy> logger;
     private readonly INamingConventionConverter namingConventionConverter;
+    private readonly ISyntaxGenerator syntaxGenerator;
 
     public FunctionSyntaxGenerationStrategy(
-
+        ISyntaxGenerator syntaxGenerator,
         INamingConventionConverter namingConventionConverter,
         ILogger<FunctionSyntaxGenerationStrategy> logger)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
+        this.syntaxGenerator = syntaxGenerator;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, FunctionModel model)
+    public async Task<string> GenerateAsync(FunctionModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

@@ -2,12 +2,13 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.TypeScript.Strategies;
 
-public class TypeScriptTypeSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<TypeScriptTypeModel>
+public class TypeScriptTypeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<TypeScriptTypeModel>
 {
     private readonly ILogger<TypeScriptTypeSyntaxGenerationStrategy> logger;
     private readonly INamingConventionConverter namingConventionConverter;
@@ -21,7 +22,7 @@ public class TypeScriptTypeSyntaxGenerationStrategy : GenericSyntaxGenerationStr
         this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, TypeScriptTypeModel model)
+    public async Task<string> GenerateAsync(TypeScriptTypeModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 

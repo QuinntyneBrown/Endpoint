@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.Controllers;
 
-public class CommandRequestValidatorConstructorExpressionGenerationStrategy : GenericSyntaxGenerationStrategy<CommandRequestValidatorConstructorExpressionModel>
+public class CommandRequestValidatorConstructorExpressionGenerationStrategy : ISyntaxGenerationStrategy<CommandRequestValidatorConstructorExpressionModel>
 {
     private readonly ILogger<ControllerCreateExpressionGenerationStrategy> _logger;
 
@@ -17,7 +17,7 @@ public class CommandRequestValidatorConstructorExpressionGenerationStrategy : Ge
         _logger = logger;
     }
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator generator, CommandRequestValidatorConstructorExpressionModel model)
+    public async Task<string> GenerateAsync(CommandRequestValidatorConstructorExpressionModel model, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Generating syntax. {type}", model.GetType());
 

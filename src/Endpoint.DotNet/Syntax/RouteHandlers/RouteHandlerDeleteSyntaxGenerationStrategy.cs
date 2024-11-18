@@ -2,16 +2,16 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.RouteHandlers;
 
-public class RouteHandlerDeleteSyntaxGenerationStrategy : GenericSyntaxGenerationStrategy<RouteHandlerModel>
+public class RouteHandlerDeleteSyntaxGenerationStrategy : ISyntaxGenerationStrategy<RouteHandlerModel>
 {
     private readonly ILogger<RouteHandlerDeleteSyntaxGenerationStrategy> logger;
 
     public RouteHandlerDeleteSyntaxGenerationStrategy(
-
         ILogger<RouteHandlerDeleteSyntaxGenerationStrategy> logger)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -22,7 +22,7 @@ public class RouteHandlerDeleteSyntaxGenerationStrategy : GenericSyntaxGeneratio
     public bool CanHandle(object model)
         => model is RouteHandlerModel routeHandlerModel && routeHandlerModel.Type == RouteType.Delete;
 
-    public override async Task<string> GenerateAsync(ISyntaxGenerator syntaxGenerator, RouteHandlerModel model)
+    public async Task<string> GenerateAsync(RouteHandlerModel model, CancellationToken cancellationToken)
     {
         logger.LogInformation("Generating syntax for {0} and type {1}.", model, model.Type);
 
