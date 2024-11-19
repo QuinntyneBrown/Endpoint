@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using CommandLine;
+using Endpoint.Core.Syntax;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax;
 using Endpoint.ModernWebAppPattern.Core.Artifacts;

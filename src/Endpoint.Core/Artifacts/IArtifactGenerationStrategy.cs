@@ -9,3 +9,10 @@ public interface IArtifactGenerationStrategy
 
     Task<bool> GenerateAsync(IArtifactGenerator generator, object target);
 }
+
+public interface IArtifactGenerationStrategy<T>
+{
+    int GetPriority();
+
+    Task<bool> GenerateAsync(T target);
+}
