@@ -5,7 +5,7 @@ using Endpoint.DotNet.Services;
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;
 
-public class DbContextFileFromCoreDirectoryArtifactGenerationStrategy : GenericArtifactGenerationStrategy<string>
+public class DbContextFileFromCoreDirectoryArtifactGenerationStrategy : IArtifactGenerationStrategy<string>
 {
     private readonly IFileProvider fileProvider;
 
@@ -24,7 +24,7 @@ public class DbContextFileFromCoreDirectoryArtifactGenerationStrategy : GenericA
         return false;
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, string directory)
+    public async Task GenerateAsync( string directory)
     {
         throw new NotImplementedException();
     }

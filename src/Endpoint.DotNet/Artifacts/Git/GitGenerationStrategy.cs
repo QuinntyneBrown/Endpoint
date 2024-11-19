@@ -8,7 +8,7 @@ using Octokit;
 
 namespace Endpoint.DotNet.Artifacts.Git;
 
-public class GitGenerationStrategy : GenericArtifactGenerationStrategy<GitModel>
+public class GitGenerationStrategy : IArtifactGenerationStrategy<GitModel>
 {
     private readonly ICommandService commandService;
     private readonly ILogger<GitGenerationStrategy> logger;
@@ -23,7 +23,7 @@ public class GitGenerationStrategy : GenericArtifactGenerationStrategy<GitModel>
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, GitModel model)
+    public async Task GenerateAsync( GitModel model)
     {
         logger.LogInformation("Generating Git Repository. {repositoryName}", model.RepositoryName);
 

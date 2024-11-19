@@ -9,30 +9,28 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;
 
-public abstract class CodeFileIArtifactGenerationStrategy<T> : GenericArtifactGenerationStrategy<CodeFileModel<T>>
+public abstract class CodeFileIArtifactGenerationStrategy<T> : IArtifactGenerationStrategy<CodeFileModel<T>>
     where T : SyntaxModel
 {
     protected readonly ILogger<CodeFileIArtifactGenerationStrategy<T>> logger;
     protected readonly ISyntaxGenerator syntaxGenerator;
     protected readonly IFileSystem fileSystem;
     protected readonly INamespaceProvider namespaceProvider;
-    protected readonly IGenericArtifactGenerationStrategy<FileModel> fileArtifactGenerationStrategy;
+
 
     public CodeFileIArtifactGenerationStrategy(
         ISyntaxGenerator syntaxGenerator,
         IFileSystem fileSystem,
         INamespaceProvider namespaceProvider,
-        IGenericArtifactGenerationStrategy<FileModel> fileArtifactGenerationStrategy,
         ILogger<CodeFileIArtifactGenerationStrategy<T>> logger)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.syntaxGenerator = syntaxGenerator ?? throw new ArgumentNullException(nameof(syntaxGenerator));
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         this.namespaceProvider = namespaceProvider ?? throw new ArgumentNullException(nameof(namespaceProvider));
-        this.fileArtifactGenerationStrategy = fileArtifactGenerationStrategy ?? throw new ArgumentNullException(nameof(fileArtifactGenerationStrategy));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator generator, CodeFileModel<T> model)
+    public async Task GenerateAsync(CodeFileModel<T> model)
     {
         logger.LogInformation("Generating Code File. {name}", model.Name);
 
@@ -64,6 +62,5 @@ public abstract class CodeFileIArtifactGenerationStrategy<T> : GenericArtifactGe
 
         model.Body = stringBuilder.ToString();
 
-        await fileArtifactGenerationStrategy.GenerateAsync(generator, model);
     }
 }

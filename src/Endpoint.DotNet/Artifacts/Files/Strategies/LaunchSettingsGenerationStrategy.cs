@@ -6,7 +6,7 @@ using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;
-public class LaunchSettingsFileGenerationStrategy : FileGenerationStrategy, IGenericArtifactGenerationStrategy<LaunchSettingsFileModel>
+public class LaunchSettingsFileGenerationStrategy : FileGenerationStrategy, IArtifactGenerationStrategy<LaunchSettingsFileModel>
 {
     private readonly ITemplateProcessor templateProcessor;
 
@@ -16,7 +16,7 @@ public class LaunchSettingsFileGenerationStrategy : FileGenerationStrategy, IGen
         this.templateProcessor = templateProcessor;
     }
 
-    public async Task GenerateAsync(IArtifactGenerator artifactGenerator, LaunchSettingsFileModel model)
+    public async Task GenerateAsync(LaunchSettingsFileModel model)
     {
         var builder = new StringBuilder();
 
@@ -26,6 +26,6 @@ public class LaunchSettingsFileGenerationStrategy : FileGenerationStrategy, IGen
 
         model.Body = builder.ToString();
 
-        await base.GenerateAsync(artifactGenerator, model);
+        await base.GenerateAsync(model);
     }
 }

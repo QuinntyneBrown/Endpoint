@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Workspaces;
 
-public class AngularWorkspaceGenerationStrategy : GenericArtifactGenerationStrategy<AngularWorkspaceModel>
+public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<AngularWorkspaceModel>
 {
     private readonly ILogger<AngularWorkspaceGenerationStrategy> logger;
     private readonly ICommandService commandService;
@@ -18,7 +18,7 @@ public class AngularWorkspaceGenerationStrategy : GenericArtifactGenerationStrat
         this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, AngularWorkspaceModel model)
+    public async Task GenerateAsync( AngularWorkspaceModel model)
     {
         logger.LogInformation("Generating Angular Workspace. {name}", model.Name);
 

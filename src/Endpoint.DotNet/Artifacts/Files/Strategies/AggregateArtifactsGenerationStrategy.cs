@@ -2,22 +2,22 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.IO;
-using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Units;
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;
 
-public class AggregateArtifactsGenerationStrategy : GenericArtifactGenerationStrategy<AggregateModel>
+public class AggregateArtifactsGenerationStrategy : IArtifactGenerationStrategy<AggregateModel>
 {
     private readonly IFileSystem fileSystem;
+    private readonly IArtifactGenerator artifactGenerator;
 
     public AggregateArtifactsGenerationStrategy(IServiceProvider serviceProvider, IFileSystem fileSystem)
     {
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, AggregateModel model)
+    public async Task GenerateAsync(AggregateModel model)
     {
         var directory = string.Empty;
 

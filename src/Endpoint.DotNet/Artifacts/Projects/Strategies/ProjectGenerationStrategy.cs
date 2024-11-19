@@ -10,11 +10,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Strategies;
 
-public class ProjectGenerationStrategy : GenericArtifactGenerationStrategy<ProjectModel>
+public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectModel>
 {
     private readonly ILogger<ProjectGenerationStrategy> logger;
     private readonly IFileSystem fileSystem;
     private readonly ICommandService commandService;
+    private readonly IArtifactGenerator _artifactGenerator;
 
     public ProjectGenerationStrategy(
         ILogger<ProjectGenerationStrategy> logger,
@@ -26,7 +27,7 @@ public class ProjectGenerationStrategy : GenericArtifactGenerationStrategy<Proje
         this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator generator, ProjectModel model)
+    public async Task GenerateAsync(ProjectModel model)
     {
         logger.LogInformation("Generating artifact for {0}.", model);
 
@@ -100,7 +101,7 @@ public class ProjectGenerationStrategy : GenericArtifactGenerationStrategy<Proje
 
         foreach (var file in model.Files)
         {
-            await generator.GenerateAsync(file);
+            await _artifactGenerator.GenerateAsync(file);
         }
 
         var doc = XDocument.Load(model.Path);

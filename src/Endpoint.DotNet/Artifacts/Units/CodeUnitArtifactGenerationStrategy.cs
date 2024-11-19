@@ -10,10 +10,10 @@ public class Folder<T>
 {
 }
 
-public abstract class CodeUnitArtifactGenerationStrategy<T> : GenericArtifactGenerationStrategy<Folder<T>>
+public abstract class CodeUnitArtifactGenerationStrategy<T> : IArtifactGenerationStrategy<Folder<T>>
     where T : DocumentModel
 {
-    public override Task GenerateAsync(IArtifactGenerator generator, Folder<T> model)
+    public Task GenerateAsync(Folder<T> model)
     {
         throw new NotImplementedException();
     }

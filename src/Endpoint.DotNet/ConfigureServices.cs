@@ -1,8 +1,6 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.Linq;
-using System.Reflection;
 using Endpoint.DotNet;
 using Endpoint.DotNet.Artifacts;
 using Endpoint.DotNet.Artifacts.AngularProjects;
@@ -38,8 +36,6 @@ using Endpoint.DotNet.SystemModels;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-using Type = System.Type;
-
 public static class ConfigureServices
 {
     public static void AddDotNetServices(this IServiceCollection services)
@@ -60,7 +56,6 @@ public static class ConfigureServices
         services.AddSingleton<ICqrsFactory, CqrsFactory>();
         services.AddSingleton<ISyntaxFactory, SyntaxFactory>();
         services.AddSingleton<IExpressionFactory, ExpressionFactory>();
-        services.AddSingleton<IObjectCache, ObjectCache>();
         services.AddSingleton<ITypeFactory, TypeFactory>();
         services.AddSingleton<IPlaywrightService, PlaywrightService>();
         services.AddSingleton<IMethodFactory, MethodFactory>();
@@ -103,9 +98,6 @@ public static class ConfigureServices
         services.AddSingleton<IFileFactory, FileFactory>();
         services.AddSingleton<IAngularProjectFactory, AngularProjectFactory>();
 
-        services.AddSingleton<IArtifactGenerator, ArtifactGenerator>();
-        services.AddSingleton<ISyntaxGenerator, SyntaxGenerator>();
-
         services.AddSingleton<IClipboardService, ClipboardService>();
 
         services.AddSingleton<IEntityFileFactory, EntityFileFactory>();
@@ -118,44 +110,8 @@ public static class ConfigureServices
         services.AddSingleton<IArtifactParser, ArtifactParser>();
         services.AddSingleton<ISyntaxParser, SyntaxParser>();
 
-        services.AddSingleton(typeof(ISyntaxGenerationStrategy<>), typeof(Constants).Assembly);
-        services.AddSingleton(typeof(IGenericArtifactGenerationStrategy<>), typeof(Constants).Assembly);
-        services.AddSingleton(typeof(ISyntaxParsingStrategy<>), typeof(Constants).Assembly);
-        services.AddSingleton(typeof(IArtifactParsingStrategy<>), typeof(Constants).Assembly);
-
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
     }
 
-    public static void AddSingleton(this IServiceCollection services, Type @interface, Assembly assembly)
-    {
-        var implementations = assembly.GetTypes()
-            .Where(type =>
-                !type.IsAbstract &&
-                type.GetInterfaces().Any(interfaceType =>
-                    interfaceType.IsGenericType &&
-                    interfaceType.GetGenericTypeDefinition() == @interface))
-            .ToList();
 
-        foreach (var implementation in implementations)
-        {
-            foreach (var implementedInterface in implementation.GetInterfaces())
-            {
-                if (implementedInterface.IsGenericType && implementedInterface.GetGenericTypeDefinition() == @interface)
-                {
-                    services.AddSingleton(implementedInterface, implementation);
-                }
-            }
-        }
-    }
-
-    public static void AddCoreServices<T>(this IServiceCollection services)
-        where T : class
-    {
-        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<T>>();
-        AddDotNetServices(services);
-    }
 }
-
-
-
-
