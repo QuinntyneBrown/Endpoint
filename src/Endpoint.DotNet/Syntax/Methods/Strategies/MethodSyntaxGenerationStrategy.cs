@@ -23,7 +23,7 @@ public class MethodSyntaxGenerationStrategy : ISyntaxGenerationStrategy<MethodMo
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         foreach (var attribute in model.Attributes)
         {
@@ -92,6 +92,6 @@ public class MethodSyntaxGenerationStrategy : ISyntaxGenerationStrategy<MethodMo
             builder.Append('}');
         }
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

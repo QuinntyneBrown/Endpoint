@@ -23,7 +23,7 @@ public class AttributeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Attri
     {
         _logger.LogInformation("Generating syntax for {0}.", target);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.Append('[');
 
@@ -72,7 +72,7 @@ public class AttributeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Attri
 
         builder.Append(']');
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 
 }

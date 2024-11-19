@@ -20,10 +20,10 @@ public class ExpressionGenerationStrategy : ISyntaxGenerationStrategy<Expression
     {
         logger.LogInformation("Generating Expression Body.");
 
-        StringBuilder sb = new StringBuilder();
+        var sb = StringBuilderCache.Acquire();
 
         sb.AppendLine(model.Body);
 
-        return sb.ToString();
+        return StringBuilderCache.GetStringAndRelease(sb);
     }
 }

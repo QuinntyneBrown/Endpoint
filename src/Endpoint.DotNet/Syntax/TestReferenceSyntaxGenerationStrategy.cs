@@ -21,8 +21,8 @@ public class TestReferenceSyntaxGenerationStrategy : ISyntaxGenerationStrategy<T
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

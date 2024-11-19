@@ -30,7 +30,7 @@ public class ConstructorSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Con
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.Append(await syntaxGenerator.GenerateAsync(model.AccessModifier));
 
@@ -58,6 +58,6 @@ public class ConstructorSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Con
 
         builder.Append("}");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

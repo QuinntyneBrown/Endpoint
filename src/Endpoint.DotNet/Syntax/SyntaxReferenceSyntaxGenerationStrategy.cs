@@ -31,7 +31,7 @@ public class SyntaxReferenceSyntaxGenerationStrategy : ISyntaxGenerationStrategy
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         var tabSize = 2;
 
@@ -86,6 +86,6 @@ public class SyntaxReferenceSyntaxGenerationStrategy : ISyntaxGenerationStrategy
             }
         }
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

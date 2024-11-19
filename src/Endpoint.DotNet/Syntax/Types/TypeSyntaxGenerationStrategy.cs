@@ -24,7 +24,7 @@ public class TypeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<TypeModel>
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.Append(model.Name);
 
@@ -37,6 +37,6 @@ public class TypeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<TypeModel>
             builder.Append('>');
         }
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

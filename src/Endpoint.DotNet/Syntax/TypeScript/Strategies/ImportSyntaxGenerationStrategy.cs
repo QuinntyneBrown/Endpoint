@@ -23,7 +23,7 @@ public class ImportSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ImportMo
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.Append("import { ");
 
@@ -35,6 +35,6 @@ public class ImportSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ImportMo
 
         builder.Append("\";");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

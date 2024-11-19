@@ -29,7 +29,7 @@ public class ClassSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ClassMode
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         if (model.UsingAs.Count > 0)
         {
@@ -99,6 +99,6 @@ public class ClassSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ClassMode
 
         builder.AppendLine("}");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

@@ -22,10 +22,10 @@ public class PropertyAccessorsSyntaxGenerationStrategy : ISyntaxGenerationStrate
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.Append("{ get; set; }");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

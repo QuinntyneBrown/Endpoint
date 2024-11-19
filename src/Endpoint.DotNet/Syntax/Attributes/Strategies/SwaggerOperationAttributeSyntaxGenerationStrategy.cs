@@ -21,7 +21,7 @@ public class SwaggerOperationAttributeSyntaxGenerationStrategy : ISyntaxGenerati
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine("[SwaggerOperation(");
 
@@ -31,6 +31,6 @@ public class SwaggerOperationAttributeSyntaxGenerationStrategy : ISyntaxGenerati
 
         builder.Append(")]");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

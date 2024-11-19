@@ -189,7 +189,7 @@ public class NamingConventionConverter : INamingConventionConverter
         }
 
         index = 0;
-        var sb = new StringBuilder();
+        var sb = StringBuilderCache.Acquire();
         foreach (char c in value.ToList())
         {
             if (indexesOfTitleCharacter.Any(x => x == index))
@@ -204,7 +204,7 @@ public class NamingConventionConverter : INamingConventionConverter
             index++;
         }
 
-        return sb.ToString();
+        return StringBuilderCache.GetStringAndRelease(sb);
     }
 
     public string FirstCharacterUpperAfterADash(string value)
@@ -222,7 +222,7 @@ public class NamingConventionConverter : INamingConventionConverter
         }
 
         index = 0;
-        var sb = new StringBuilder();
+        var sb = StringBuilderCache.Acquire();
         foreach (char c in value.ToList())
         {
             if (indexesOfTitleCharacter.Any(x => x == index))
@@ -237,7 +237,7 @@ public class NamingConventionConverter : INamingConventionConverter
             index++;
         }
 
-        return sb.ToString();
+        return StringBuilderCache.GetStringAndRelease(sb);
     }
 
     public string InsertSpaceBeforeUpperCase(string value)

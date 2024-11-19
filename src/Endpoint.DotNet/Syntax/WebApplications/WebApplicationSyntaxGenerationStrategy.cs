@@ -33,7 +33,7 @@ public class WebApplicationSyntaxGenerationStrategy : ISyntaxGenerationStrategy<
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         var template = templateLocator.Get("WebApplication");
 
@@ -50,6 +50,6 @@ public class WebApplicationSyntaxGenerationStrategy : ISyntaxGenerationStrategy<
 
         builder.AppendLine(await syntaxGenerator.GenerateAsync(new DbContextModel(namingConventionConverter, model.DbContextName, model.Entities, string.Empty)));
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }
