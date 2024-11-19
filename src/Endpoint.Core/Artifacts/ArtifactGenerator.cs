@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Concurrent;
+using Endpoint.Core.Syntax;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Core.Artifacts;

@@ -1,14 +1,13 @@
-// Copyright (c) Quinntyne Brown. All Rights Reserved.
+﻿// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace Endpoint.Core.Artifacts;
 
 public class ArtifactGenerationStrategyWrapperImplementation<T> : ArtifactGenerationStrategyWrapper<T>
 {
-
     private readonly ConcurrentDictionary<Type, IEnumerable<IArtifactGenerationStrategy<T>>> _strategies = [];
 
     public override async Task GenerateAsync(IServiceProvider serviceProvider, object target, CancellationToken cancellationToken)
