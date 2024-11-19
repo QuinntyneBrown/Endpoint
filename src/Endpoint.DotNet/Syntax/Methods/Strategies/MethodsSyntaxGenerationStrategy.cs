@@ -24,7 +24,7 @@ public class MethodsSyntaxGenerationStrategy : ISyntaxGenerationStrategy<List<Me
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         foreach (var method in model)
         {
@@ -36,6 +36,6 @@ public class MethodsSyntaxGenerationStrategy : ISyntaxGenerationStrategy<List<Me
             }
         }
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

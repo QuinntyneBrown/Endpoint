@@ -29,7 +29,7 @@ public class FunctionSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Functi
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         foreach (var import in model.Imports)
         {
@@ -47,6 +47,6 @@ public class FunctionSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Functi
 
         builder.AppendLine("};");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

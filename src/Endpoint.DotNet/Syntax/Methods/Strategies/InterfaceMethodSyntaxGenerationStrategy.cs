@@ -44,7 +44,7 @@ public class InterfaceMethodSyntaxGenerationStrategy : ISyntaxGenerationStrategy
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.Append($"{await syntaxGenerator.GenerateAsync(model.ReturnType)}");
 
@@ -56,6 +56,6 @@ public class InterfaceMethodSyntaxGenerationStrategy : ISyntaxGenerationStrategy
 
         builder.Append(");");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

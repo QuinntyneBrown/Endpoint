@@ -46,7 +46,7 @@ public class GetQueryHandlerMethodGenerationStrategy : ISyntaxGenerationStrategy
 
     public async Task<string> GenerateAsync(MethodModel model, CancellationToken cancellationToken)
     {
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         var entityName = string.Empty; // ""; // context.Entity.Name;
 

@@ -22,7 +22,7 @@ public class AccessModifierSyntaxGenerationStrategy : ISyntaxGenerationStrategy<
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.Append(model switch
         {
@@ -33,6 +33,6 @@ public class AccessModifierSyntaxGenerationStrategy : ISyntaxGenerationStrategy<
             _ => "public"
         });
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

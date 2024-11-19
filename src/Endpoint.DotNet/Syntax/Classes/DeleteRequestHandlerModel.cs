@@ -83,7 +83,7 @@ public class DeleteRequestHandlerModel : RequestHandlerModel
 
         Constructors.Add(requestHandlerCtor);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         var entityName = entity.Name;
 
@@ -246,7 +246,7 @@ public class GetRequestHandlerModel : RequestHandlerModel
 
         Constructors.Add(requestHandlerCtor);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine("return new () {");
 
@@ -281,7 +281,7 @@ public class GetByIdRequestHandlerModel : RequestHandlerModel
 
         Constructors.Add(requestHandlerCtor);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine("return new () {");
 
@@ -316,7 +316,7 @@ public class PageRequestHandlerModel : RequestHandlerModel
 
         Constructors.Add(requestHandlerCtor);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine($"var query = from {((SyntaxToken)entity.Name).CamelCase()} in _context.{((SyntaxToken)entity.Name).PascalCasePlural()}");
 

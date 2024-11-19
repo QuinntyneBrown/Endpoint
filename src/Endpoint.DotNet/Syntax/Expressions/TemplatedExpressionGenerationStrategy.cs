@@ -25,12 +25,12 @@ public class TemplatedExpressionGenerationStrategy : ISyntaxGenerationStrategy<T
     {
         logger.LogInformation("Generating Templated Expression Body");
 
-        StringBuilder sb = new StringBuilder();
+        var sb = StringBuilderCache.Acquire();
 
         var result = string.Join(Environment.NewLine, templateLocator.Get(model.Template));
 
         sb.AppendLine(result);
 
-        return sb.ToString();
+        return StringBuilderCache.GetStringAndRelease(sb);
     }
 }

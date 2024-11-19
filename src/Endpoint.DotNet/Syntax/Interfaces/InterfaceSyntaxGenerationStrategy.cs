@@ -30,7 +30,7 @@ public class InterfaceSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Inter
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.Append($"public interface {model.Name}");
 
@@ -45,7 +45,7 @@ public class InterfaceSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Inter
         {
             builder.Append(" { }");
 
-            return builder.ToString();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         builder.AppendLine($"");
@@ -66,6 +66,6 @@ public class InterfaceSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Inter
 
         builder.AppendLine("}");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

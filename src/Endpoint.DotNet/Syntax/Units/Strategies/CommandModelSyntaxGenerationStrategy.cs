@@ -18,7 +18,7 @@ public class CommandModelSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Co
 
     public async Task<string> GenerateAsync(CommandModel model, CancellationToken cancellationToken)
     {
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine(await syntaxGenerator.GenerateAsync(model.RequestValidator));
 
@@ -34,6 +34,6 @@ public class CommandModelSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Co
 
         builder.AppendLine(await syntaxGenerator.GenerateAsync(model.RequestHandler));
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

@@ -19,7 +19,7 @@ public class LogStatementSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Lo
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         var syntax = model.RouteType switch
         {
@@ -31,7 +31,7 @@ public class LogStatementSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Lo
 
         builder.AppendJoin(Environment.NewLine, syntax);
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 
     public string[] BuildForCreateCommand(LogStatementModel model)

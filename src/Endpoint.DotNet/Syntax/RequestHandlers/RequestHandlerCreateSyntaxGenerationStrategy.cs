@@ -27,8 +27,8 @@ public class RequestHandlerCreateSyntaxGenerationStrategy : ISyntaxGenerationStr
     {
         logger.LogInformation("Generating syntax for {0} and type {1}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

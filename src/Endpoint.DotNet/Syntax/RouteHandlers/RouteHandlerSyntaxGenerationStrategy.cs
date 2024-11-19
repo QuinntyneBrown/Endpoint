@@ -26,7 +26,7 @@ public class RouteHandlerSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Ro
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         List<string> content = new List<string>();
 
@@ -115,6 +115,6 @@ public class RouteHandlerSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Ro
             content.Add(".Produces(StatusCodes.Status404NotFound);".Indent(1));
         }
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

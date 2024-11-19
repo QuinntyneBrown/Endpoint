@@ -31,7 +31,7 @@ public class RouteHandlerGetSyntaxGenerationStrategy : ISyntaxGenerationStrategy
 
         var dbContext = (SyntaxToken)model.DbContextName;
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine($"app.MapGet(\"/{resource.SnakeCasePlural}\", async ({dbContext.PascalCase} context) =>");
 
@@ -39,6 +39,6 @@ public class RouteHandlerGetSyntaxGenerationStrategy : ISyntaxGenerationStrategy
 
         builder.AppendLine($".WithName(\"GetAll{resource.PascalCasePlural}\");".Indent(1));
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

@@ -22,8 +22,8 @@ public class ControllerGenerationStrategy : ISyntaxGenerationStrategy<ClassModel
     {
         logger.LogInformation("Generating syntax. {name}", model.Name);
 
-        StringBuilder sb = new StringBuilder();
+        var sb = StringBuilderCache.Acquire();
 
-        return sb.ToString();
+        return StringBuilderCache.GetStringAndRelease(sb);
     }
 }

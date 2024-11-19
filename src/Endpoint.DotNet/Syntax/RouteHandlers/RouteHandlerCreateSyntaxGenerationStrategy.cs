@@ -33,7 +33,7 @@ public class RouteHandlerCreateSyntaxGenerationStrategy : ISyntaxGenerationStrat
 
         var dbContext = (SyntaxToken)model.DbContextName;
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine($"app.MapPost(\"/{resource.SnakeCasePlural}\", async ({resource.PascalCase} {resource.CamelCase}, {dbContext.PascalCase} context) =>");
 
@@ -53,6 +53,6 @@ public class RouteHandlerCreateSyntaxGenerationStrategy : ISyntaxGenerationStrat
 
         builder.AppendLine($".Produces<{resource.PascalCase}>(StatusCodes.Status201Created);".Indent(1));
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

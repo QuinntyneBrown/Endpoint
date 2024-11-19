@@ -35,7 +35,7 @@ public class RouteHandlerGetByIdSyntaxGenerationStrategy : ISyntaxGenerationStra
 
         var dbContext = (SyntaxToken)model.DbContextName;
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine($"app.MapGet(\"/{resource.SnakeCasePlural}/" + "{" + "id" + "}" + $"\", async ({idPropertyType} id, {dbContext.PascalCase} context) =>");
 
@@ -53,6 +53,6 @@ public class RouteHandlerGetByIdSyntaxGenerationStrategy : ISyntaxGenerationStra
 
         builder.AppendLine(".Produces(StatusCodes.Status404NotFound);".Indent(1));
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

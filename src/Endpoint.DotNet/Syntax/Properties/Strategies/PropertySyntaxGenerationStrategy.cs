@@ -22,7 +22,7 @@ public class PropertySyntaxGenerationStrategy : ISyntaxGenerationStrategy<Proper
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         foreach (var attribute in model.Attributes)
         {
@@ -50,6 +50,6 @@ public class PropertySyntaxGenerationStrategy : ISyntaxGenerationStrategy<Proper
             builder.Append($" = {model.DefaultValue};");
         }
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

@@ -34,7 +34,7 @@ public class RouteHandlerDeleteSyntaxGenerationStrategy : ISyntaxGenerationStrat
 
         var idPropertyType = "guid";
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine($"app.MapDelete(\"/{resource.SnakeCasePlural}/" + "{" + "id" + "}" + $"\", async ({idPropertyType} id, {dbContext.PascalCase} context) =>");
 
@@ -64,6 +64,6 @@ public class RouteHandlerDeleteSyntaxGenerationStrategy : ISyntaxGenerationStrat
 
         builder.AppendLine(".Produces(StatusCodes.Status404NotFound);".Indent(1));
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

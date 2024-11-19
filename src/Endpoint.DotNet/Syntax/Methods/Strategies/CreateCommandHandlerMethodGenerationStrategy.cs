@@ -31,7 +31,7 @@ public class CreateCommandHandlerMethodGenerationStrategy : ISyntaxGenerationStr
 
     public async Task<string> GenerateAsync(MethodModel model, CancellationToken cancellationToken)
     {
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         var entity = new ClassModel();
 

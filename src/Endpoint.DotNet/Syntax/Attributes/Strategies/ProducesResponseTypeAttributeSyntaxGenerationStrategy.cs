@@ -22,7 +22,7 @@ public class ProducesResponseTypeAttributeSyntaxGenerationStrategy : ISyntaxGene
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.Append('[');
 
@@ -37,6 +37,6 @@ public class ProducesResponseTypeAttributeSyntaxGenerationStrategy : ISyntaxGene
 
         builder.Append(")]");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

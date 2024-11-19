@@ -17,7 +17,7 @@ public class QueryModelSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Quer
 
     public async Task<string> GenerateAsync(QueryModel model, CancellationToken cancellationToken)
     {
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine(await syntaxGenerator.GenerateAsync(model.Request));
 
@@ -29,6 +29,6 @@ public class QueryModelSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Quer
 
         builder.AppendLine(await syntaxGenerator.GenerateAsync(model.RequestHandler));
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

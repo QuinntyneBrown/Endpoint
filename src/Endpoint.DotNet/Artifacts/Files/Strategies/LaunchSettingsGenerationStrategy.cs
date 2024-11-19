@@ -18,7 +18,7 @@ public class LaunchSettingsFileGenerationStrategy : FileGenerationStrategy, IArt
 
     public async Task GenerateAsync(LaunchSettingsFileModel model)
     {
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         var template = templateLocator.Get("LaunchSettings");
 

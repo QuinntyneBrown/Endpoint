@@ -26,7 +26,7 @@ public class TypeScriptTypeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine($"export type {namingConventionConverter.Convert(NamingConvention.PascalCase, model.Name)}" + " = {");
 
@@ -37,6 +37,6 @@ public class TypeScriptTypeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<
 
         builder.AppendLine("};");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

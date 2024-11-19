@@ -19,7 +19,7 @@ public class RecordSyntaxGenerationStrategy : ISyntaxGenerationStrategy<RecordMo
     {
         logger.LogInformation("Generating Record. {name}", model.Name);
 
-        var sb = new StringBuilder();
+        var sb = StringBuilderCache.Acquire();
 
         sb.AppendLine($"public record {model.Type switch { Struct => "struct", Class => "class" } } {model.Name}");
 
@@ -27,6 +27,6 @@ public class RecordSyntaxGenerationStrategy : ISyntaxGenerationStrategy<RecordMo
 
         sb.AppendLine("}");
 
-        return sb.ToString();
+        return StringBuilderCache.GetStringAndRelease(sb);
     }
 }

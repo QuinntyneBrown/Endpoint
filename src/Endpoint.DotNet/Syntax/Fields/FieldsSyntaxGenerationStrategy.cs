@@ -27,7 +27,7 @@ public class FieldsSyntaxGenerationStrategy : ISyntaxGenerationStrategy<List<Fie
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         foreach (var field in model)
         {
@@ -39,14 +39,14 @@ public class FieldsSyntaxGenerationStrategy : ISyntaxGenerationStrategy<List<Fie
             }
         }
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 
     private async Task<string> CreateAsync(ISyntaxGenerator syntaxGenerator, FieldModel model)
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.Append(await syntaxGenerator.GenerateAsync(model.AccessModifier));
 
@@ -69,6 +69,6 @@ public class FieldsSyntaxGenerationStrategy : ISyntaxGenerationStrategy<List<Fie
             builder.Append($" {await syntaxGenerator.GenerateAsync(model.Type)} {model.Name};");
         }
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

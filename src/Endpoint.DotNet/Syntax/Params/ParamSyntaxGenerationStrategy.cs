@@ -25,7 +25,7 @@ public class ParamSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ParamMode
     {
         logger.LogInformation("Generating syntax for {0}.", model);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         if (model.ExtensionMethodParam)
         {
@@ -39,6 +39,6 @@ public class ParamSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ParamMode
 
         builder.Append($"{await syntaxGenerator.GenerateAsync(model.Type)} {model.Name}");
 
-        return builder.ToString();
+        return StringBuilderCache.GetStringAndRelease(builder);
     }
 }

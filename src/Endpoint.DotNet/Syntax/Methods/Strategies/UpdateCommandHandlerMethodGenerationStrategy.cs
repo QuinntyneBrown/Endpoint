@@ -40,7 +40,7 @@ public class UpdateCommandHandlerMethodGenerationStrategy : ISyntaxGenerationStr
 
         var entityNameCamelCase = namingConventionConverter.Convert(NamingConvention.CamelCase, entityName);
 
-        var builder = new StringBuilder();
+        var builder = StringBuilderCache.Acquire();
 
         builder.AppendLine($"var {entityNameCamelCase} = await _context.{entityNamePascalCasePlural}.SingleAsync(x => x.{entityName}Id == request.{entityName}Id);");
 
