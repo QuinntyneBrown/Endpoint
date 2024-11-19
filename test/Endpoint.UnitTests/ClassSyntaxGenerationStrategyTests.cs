@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Endpoint.Core.Syntax;
 using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Classes.Strategies;
