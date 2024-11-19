@@ -6,16 +6,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;
 
-public class TemplatedFileArtifactGenerationStrategy : GenericArtifactGenerationStrategy<TemplatedFileModel>
+public class TemplatedFileArtifactGenerationStrategy : IArtifactGenerationStrategy<TemplatedFileModel>
 {
     private readonly ILogger<TemplatedFileArtifactGenerationStrategy> logger;
     private readonly ITemplateProcessor templateProcessor;
     private readonly ISolutionNamespaceProvider solutionNamespaceProvider;
     private readonly ITemplateLocator templateLocator;
-    private readonly IGenericArtifactGenerationStrategy<FileModel> fileModelGenerationStrategy;
 
     public TemplatedFileArtifactGenerationStrategy(
-        IGenericArtifactGenerationStrategy<FileModel> fileModelGenerationStrategy,
         ITemplateProcessor templateProcessor,
         ITemplateLocator templateLocator,
         ISolutionNamespaceProvider solutionNamespaceProvider,
@@ -25,10 +23,9 @@ public class TemplatedFileArtifactGenerationStrategy : GenericArtifactGeneration
         this.templateProcessor = templateProcessor ?? throw new ArgumentNullException(nameof(templateProcessor));
         this.solutionNamespaceProvider = solutionNamespaceProvider ?? throw new ArgumentNullException(nameof(solutionNamespaceProvider));
         this.templateLocator = templateLocator ?? throw new ArgumentNullException(nameof(templateLocator));
-        this.fileModelGenerationStrategy = fileModelGenerationStrategy ?? throw new ArgumentNullException(nameof(fileModelGenerationStrategy));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator generator, TemplatedFileModel model)
+    public async Task GenerateAsync(TemplatedFileModel model)
     {
         logger.LogInformation("Generating artifact for {0}.", model);
 
@@ -51,6 +48,6 @@ public class TemplatedFileArtifactGenerationStrategy : GenericArtifactGeneration
 
         model.Body = string.Join(Environment.NewLine, result);
 
-        await fileModelGenerationStrategy.GenerateAsync(generator, model);
+        //await fileModelGenerationStrategy.GenerateAsync(generator, model);
     }
 }

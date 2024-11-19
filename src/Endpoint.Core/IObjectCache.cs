@@ -1,4 +1,4 @@
-namespace Endpoint.DotNet.Services;
+namespace Endpoint.Core;
 
 public interface IObjectCache
 {

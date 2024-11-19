@@ -26,7 +26,9 @@ public class ClassObjectFileArtifactGenerationStrategyTests
 
         services.AddLogging();
 
-        services.AddCoreServices<CodeGeneratorApplication>();
+        services.AddCoreServices(typeof(CodeGeneratorApplication).Assembly);
+
+        services.AddDotNetServices();
 
         var container = services.BuildServiceProvider();
 
@@ -34,10 +36,10 @@ public class ClassObjectFileArtifactGenerationStrategyTests
 
         var classModel = new ClassModel("Foo");
 
-        var objectFileModel = new CodeFileModel<ClassModel>(classModel, new List<UsingModel>()
-        {
+        var objectFileModel = new CodeFileModel<ClassModel>(classModel,
+        [
             new UsingModel() { Name = "Sytem" },
-        }, "Foo", "directory", "extension");
+        ], "Foo", "directory", "extension");
 
         await sut.GenerateAsync(objectFileModel);
     }

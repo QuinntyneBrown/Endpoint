@@ -3,16 +3,9 @@
 
 namespace Endpoint.Core.Artifacts;
 
-public interface IArtifactGenerationStrategy
-{
-    int GetPriority();
-
-    Task<bool> GenerateAsync(IArtifactGenerator generator, object target);
-}
-
 public interface IArtifactGenerationStrategy<T>
 {
-    int GetPriority();
+    public int GetPriority() => 1;
 
-    Task<bool> GenerateAsync(T target);
+    Task GenerateAsync(T target);
 }

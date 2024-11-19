@@ -3,7 +3,7 @@
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;
 
-public class ContentFileArtifactGenerationStrategy : GenericArtifactGenerationStrategy<ContentFileModel>
+public class ContentFileArtifactGenerationStrategy : IArtifactGenerationStrategy<ContentFileModel>
 {
     private readonly IFileSystem fileSystem;
 
@@ -14,7 +14,7 @@ public class ContentFileArtifactGenerationStrategy : GenericArtifactGenerationSt
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, ContentFileModel model)
+    public async Task GenerateAsync( ContentFileModel model)
     {
         fileSystem.File.WriteAllText(model.Path, model.Content);
     }

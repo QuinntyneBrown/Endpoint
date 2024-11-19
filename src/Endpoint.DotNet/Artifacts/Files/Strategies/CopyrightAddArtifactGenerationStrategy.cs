@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;
 
-public class CopyrightAddArtifactGenerationStrategy : GenericArtifactGenerationStrategy<FileReferenceModel>
+public class CopyrightAddArtifactGenerationStrategy : IArtifactGenerationStrategy<FileReferenceModel>
 {
     private readonly ILogger<CopyrightAddArtifactGenerationStrategy> logger;
     private readonly ITemplateLocator templateLocator;
@@ -25,7 +25,7 @@ public class CopyrightAddArtifactGenerationStrategy : GenericArtifactGenerationS
         this.templateLocator = templateLocator ?? throw new ArgumentNullException(nameof(templateLocator));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, FileReferenceModel model)
+    public async Task GenerateAsync( FileReferenceModel model)
     {
         logger.LogInformation("Generating artifact for {0}.", model);
 

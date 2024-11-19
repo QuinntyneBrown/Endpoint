@@ -22,6 +22,7 @@ public class CodeGeneratorApplicationBuilder
     public CodeGeneratorApplication Build()
     {
         var entryAssembly = Assembly.GetEntryAssembly();
+        services.AddCoreServices(typeof(CodeGeneratorApplication).Assembly);
         services.AddDotNetServices();
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(entryAssembly));
         services.AddSingleton(new Observable<INotification>());

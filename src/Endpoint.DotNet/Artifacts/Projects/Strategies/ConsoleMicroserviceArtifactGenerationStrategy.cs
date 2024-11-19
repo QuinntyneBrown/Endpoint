@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Strategies;
 
-public class ConsoleMicroserviceArtifactGenerationStrategy : GenericArtifactGenerationStrategy<ConsoleMicroserviceProjectModel>
+public class ConsoleMicroserviceArtifactGenerationStrategy : IArtifactGenerationStrategy<ConsoleMicroserviceProjectModel>
 {
     private readonly IFileSystem fileSytem;
     private readonly Observable<INotification> notificationListener;
@@ -21,7 +21,7 @@ public class ConsoleMicroserviceArtifactGenerationStrategy : GenericArtifactGene
         this.notificationListener = notificationListener;
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, ConsoleMicroserviceProjectModel model)
+    public async Task GenerateAsync( ConsoleMicroserviceProjectModel model)
     {
         throw new NotImplementedException();
     }

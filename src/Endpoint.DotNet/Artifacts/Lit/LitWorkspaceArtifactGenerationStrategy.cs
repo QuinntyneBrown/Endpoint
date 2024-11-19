@@ -9,13 +9,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Lit;
 
-public class LitWorkspaceArtifactGenerationStrategy : GenericArtifactGenerationStrategy<LitWorkspaceModel>
+public class LitWorkspaceArtifactGenerationStrategy : IArtifactGenerationStrategy<LitWorkspaceModel>
 {
     private readonly ILogger<LitWorkspaceArtifactGenerationStrategy> logger;
     private readonly ICommandService commandService;
     private readonly IFileSystem fileSystem;
     private readonly IFileFactory fileFactory;
-
+    private readonly IArtifactGenerator artifactGenerator;
     public LitWorkspaceArtifactGenerationStrategy(
         ILogger<LitWorkspaceArtifactGenerationStrategy> logger,
         IFileSystem fileSystem,
@@ -30,7 +30,7 @@ public class LitWorkspaceArtifactGenerationStrategy : GenericArtifactGenerationS
         this.fileFactory = fileFactory ?? throw new ArgumentNullException(nameof(fileFactory));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, LitWorkspaceModel model)
+    public async Task GenerateAsync( LitWorkspaceModel model)
     {
         logger.LogInformation("Generating artifact for {0}.", model);
 

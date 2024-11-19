@@ -5,7 +5,7 @@ using Endpoint.DotNet.Services;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Strategies;
 
-public class ConsoleMicroserviceTestArtifactGenerationStrategy : GenericArtifactGenerationStrategy<ConsoleMicroserviceProjectModel>
+public class ConsoleMicroserviceTestArtifactGenerationStrategy : IArtifactGenerationStrategy<ConsoleMicroserviceProjectModel>
 {
     private readonly IFileSystem fileSytem;
 
@@ -14,7 +14,7 @@ public class ConsoleMicroserviceTestArtifactGenerationStrategy : GenericArtifact
         fileSytem = fileSystem;
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, ConsoleMicroserviceProjectModel model)
+    public async Task GenerateAsync( ConsoleMicroserviceProjectModel model)
     {
         throw new NotImplementedException();
     }

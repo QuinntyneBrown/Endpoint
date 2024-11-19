@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.AngularProjects;
 
-public class AngularProjectGenerationStrategy : GenericArtifactGenerationStrategy<AngularProjectModel>
+public class AngularProjectGenerationStrategy : IArtifactGenerationStrategy<AngularProjectModel>
 {
     private readonly ICommandService commandService;
     private readonly ILogger<AngularProjectGenerationStrategy> logger;
@@ -23,7 +23,7 @@ public class AngularProjectGenerationStrategy : GenericArtifactGenerationStrateg
 
     public bool CanHandle(AngularProjectModel model) => model is AngularProjectModel;
 
-    public override async Task GenerateAsync(IArtifactGenerator generator, AngularProjectModel model)
+    public async Task GenerateAsync(AngularProjectModel model)
     {
         logger.LogInformation("Create Angular Project. {name}", model.Name);
 

@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 
-namespace Endpoint.DotNet.Services;
+namespace Endpoint.Core;
 
 public class ObjectCache : IObjectCache
 {

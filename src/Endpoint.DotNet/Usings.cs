@@ -7,3 +7,4 @@ global using System.Threading.Tasks;
 global using Endpoint.Core.Artifacts;
 global using Endpoint.Core.Syntax;
 global using Endpoint.DotNet.Syntax;
+global using Endpoint.Core.Artifacts;

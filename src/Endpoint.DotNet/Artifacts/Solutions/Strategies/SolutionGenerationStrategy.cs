@@ -11,20 +11,22 @@ using Endpoint.DotNet.Services;
 
 namespace Endpoint.DotNet.Artifacts.Solutions.Strategies;
 
-public class SolutionGenerationStrategy : GenericArtifactGenerationStrategy<SolutionModel>
+public class SolutionGenerationStrategy : IArtifactGenerationStrategy<SolutionModel>
 {
     private readonly ICommandService commandService;
     private readonly IFileSystem fileSystem;
     private readonly IProjectService projectService;
+    private readonly IArtifactGenerator _artifactGenerator;
 
-    public SolutionGenerationStrategy(ICommandService commandService, IFileSystem fileSystem, IProjectService projectService, ICodeFormatterService codeFormatterService)
+    public SolutionGenerationStrategy(ICommandService commandService, IFileSystem fileSystem, IProjectService projectService, ICodeFormatterService codeFormatterService, IArtifactGenerator artifactGenerator)
     {
         this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         this.projectService = projectService ?? throw new ArgumentNullException(nameof(projectService));
+        _artifactGenerator = artifactGenerator;
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator generator, SolutionModel model)
+    public async Task GenerateAsync(SolutionModel model)
     {
         if (fileSystem.Directory.Exists(model.SolutionDirectory))
         {
@@ -43,15 +45,15 @@ public class SolutionGenerationStrategy : GenericArtifactGenerationStrategy<Solu
 
         fileSystem.Directory.CreateDirectory(solutionDocsDirectory);
 
-        await generator.GenerateAsync(new ContentFileModel($"# {model.Name}", "README", solutionDocsDirectory, ".md"));
+        await _artifactGenerator.GenerateAsync(new ContentFileModel($"# {model.Name}", "README", solutionDocsDirectory, ".md"));
 
-        await generator.GenerateAsync(new ContentFileModel($"# {model.Name}", "README", model.SolutionDirectory, ".md"));
+        await _artifactGenerator.GenerateAsync(new ContentFileModel($"# {model.Name}", "README", model.SolutionDirectory, ".md"));
 
-        await CreateProjectsAndAddToSln(generator, model, model.Folders);
+        await CreateProjectsAndAddToSln(_artifactGenerator, model, model.Folders);
 
         foreach (var project in model.Projects)
         {
-            await generator.GenerateAsync(project);
+            await _artifactGenerator.GenerateAsync(project);
 
             await projectService.AddToSolution(project);
         }
@@ -61,6 +63,8 @@ public class SolutionGenerationStrategy : GenericArtifactGenerationStrategy<Solu
             commandService.Start($"dotnet add {dependOn.Client.Directory} reference {dependOn.Service.Path}");
         }
     }
+
+
 
     private async Task CreateProjectsAndAddToSln(IArtifactGenerator artifactGenerator, SolutionModel model, List<FolderModel> folders)
     {

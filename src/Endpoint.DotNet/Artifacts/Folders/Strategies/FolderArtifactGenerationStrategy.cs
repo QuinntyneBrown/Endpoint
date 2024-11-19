@@ -5,10 +5,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Folders.Strategies;
 
-public class FolderArtifactGenerationStrategy : GenericArtifactGenerationStrategy<FolderModel>
+public class FolderArtifactGenerationStrategy : IArtifactGenerationStrategy<FolderModel>
 {
     private readonly ILogger<FolderArtifactGenerationStrategy> logger;
     private readonly IFileSystem fileSystem;
+    private readonly IArtifactGenerator artifactGenerator;
 
     public FolderArtifactGenerationStrategy(
         IFileSystem fileSystem,
@@ -18,7 +19,7 @@ public class FolderArtifactGenerationStrategy : GenericArtifactGenerationStrateg
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, FolderModel model)
+    public async Task GenerateAsync( FolderModel model)
     {
         logger.LogInformation("Generating artifact for {0}.", model);
 

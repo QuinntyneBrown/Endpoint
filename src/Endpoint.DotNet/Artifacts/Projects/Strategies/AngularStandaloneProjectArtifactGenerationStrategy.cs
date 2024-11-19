@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Strategies;
 
-public class AngularStandaloneProjectArtifactGenerationStrategy : IGenericArtifactGenerationStrategy<ProjectModel>
+public class AngularStandaloneProjectArtifactGenerationStrategy : IArtifactGenerationStrategy<ProjectModel>
 {
     private readonly ILogger<AngularStandaloneProjectArtifactGenerationStrategy> logger;
     private readonly IFileSystem fileSystem;
@@ -38,7 +38,7 @@ public class AngularStandaloneProjectArtifactGenerationStrategy : IGenericArtifa
 
     public virtual int GetPriority() => 1;
 
-    public async Task GenerateAsync(IArtifactGenerator generator, ProjectModel model)
+    public async Task GenerateAsync(ProjectModel model)
     {
         var template = string.Join(Environment.NewLine, templateLocator.Get("EsProj"));
 

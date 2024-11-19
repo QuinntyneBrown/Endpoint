@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 
-public class {{ modelNamePascalCase }}GenerationStrategy : GenericArtifactGenerationStrategy<{{ modelNamePascalCase }}Model>
+public class {{ modelNamePascalCase }}GenerationStrategy : IArtifactGenerationStrategy<{{ modelNamePascalCase }}Model>
 {
     private readonly ILogger<{{ modelNamePascalCase }}GenerationStrategy> _logger;
 
@@ -11,7 +11,7 @@ public class {{ modelNamePascalCase }}GenerationStrategy : GenericArtifactGenera
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator generator, {{ modelNamePascalCase }}Model model)
+    public async Task GenerateAsync({{ modelNamePascalCase }}Model model)
     {
         _logger.LogInformation("Generating artifact. {name}", model.Name);
     }

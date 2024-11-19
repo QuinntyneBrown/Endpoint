@@ -11,7 +11,7 @@ using static Endpoint.DotNet.Constants;
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;
 
-public class FileGenerationStrategy : GenericArtifactGenerationStrategy<FileModel>
+public class FileGenerationStrategy : IArtifactGenerationStrategy<FileModel>
 {
     protected readonly IFileSystem fileSystem;
     protected readonly ITemplateLocator templateLocator;
@@ -27,7 +27,7 @@ public class FileGenerationStrategy : GenericArtifactGenerationStrategy<FileMode
         this.templateLocator = templateLocator ?? throw new ArgumentNullException(nameof(templateLocator));
     }
 
-    public override async Task GenerateAsync(IArtifactGenerator generator, FileModel model)
+    public async Task GenerateAsync(FileModel model)
     {
         logger.LogInformation("Generating file artifact. {name}", model.Name);
 

@@ -9,14 +9,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Strategies;
 
-public class ApiProjectEnsureArtifactGenerationStrategy : GenericArtifactGenerationStrategy<ProjectReferenceModel>
+public class ApiProjectEnsureArtifactGenerationStrategy : IArtifactGenerationStrategy<ProjectReferenceModel>
 {
     private readonly ILogger<ApiProjectEnsureArtifactGenerationStrategy> logger;
     private readonly IFileFactory fileFactory;
     private readonly IFileSystem fileSystem;
     private readonly IFileProvider fileProvider;
     private readonly ICommandService commandService;
-
+    private readonly IArtifactGenerator artifactGenerator;
     public ApiProjectEnsureArtifactGenerationStrategy(
         IFileFactory fileFactory,
         IFileSystem fileSystem,
@@ -35,7 +35,7 @@ public class ApiProjectEnsureArtifactGenerationStrategy : GenericArtifactGenerat
     public bool CanHandle(object model)
         => true; // => model is ProjectReferenceModel && context.Command is ApiProjectEnsure;
 
-    public override async Task GenerateAsync(IArtifactGenerator artifactGenerator, ProjectReferenceModel model)
+    public async Task GenerateAsync( ProjectReferenceModel model)
     {
         logger.LogInformation("Generating artifact for {0}.", model);
 
