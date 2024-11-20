@@ -50,6 +50,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Endpoint.DotNet\Endpoint.DotNet.csproj" />
     <ProjectReference Include="..\PhysicalTopologies\ModernWebAppPattern\Endpoint.ModernWebAppPattern.Core\Endpoint.ModernWebAppPattern.Core.csproj" />
+    <ProjectReference Include="..\Testing\Endpoint.Testing.Core\Endpoint.Testing.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

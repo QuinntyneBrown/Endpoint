@@ -32,7 +32,7 @@ public class AngularService : IAngularService
     private readonly IFileSystem fileSystem;
     private readonly IFileFactory fileFactory;
     private readonly Observable<INotification> observableNotifications;
-    private readonly IUtlitityService utlitityService;
+    private readonly IUtilityService utilityService;
     private readonly INamingConventionConverter namingConventionConverter;
     private readonly List<ImportModel> importModels = new List<ImportModel>()
         {
@@ -50,7 +50,7 @@ public class AngularService : IAngularService
         IFileSystem fileSystem,
         IFileFactory fileFactory,
         Observable<INotification> observableNotifications,
-        IUtlitityService utlitityService,
+        IUtilityService utlitityService,
         INamingConventionConverter namingConventionConverter)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -60,7 +60,7 @@ public class AngularService : IAngularService
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         this.fileFactory = fileFactory ?? throw new ArgumentNullException(nameof(fileFactory));
         this.observableNotifications = observableNotifications ?? throw new ArgumentNullException(nameof(observableNotifications));
-        this.utlitityService = utlitityService ?? throw new ArgumentNullException(nameof(utlitityService));
+        this.utilityService = utlitityService ?? throw new ArgumentNullException(nameof(utlitityService));
         this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
     }
 
@@ -202,7 +202,7 @@ public class AngularService : IAngularService
 
         await artifactGenerator.GenerateAsync(workspaceModel);
 
-        utlitityService.CopyrightAdd(workspaceModel.Directory);
+        utilityService.CopyrightAdd(workspaceModel.Directory);
 
         commandService.Start("npm install --registry=https://registry.npmjs.org/ npm-run-all --force", workspaceModel.Directory);
 
@@ -268,7 +268,7 @@ public class AngularService : IAngularService
 
         await UpdateAngularJsonToUseJest(model);
 
-        utlitityService.CopyrightAdd(model.RootDirectory);
+        utilityService.CopyrightAdd(model.RootDirectory);
 
         if (model.ProjectType == "library")
         {

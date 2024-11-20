@@ -21,11 +21,11 @@ public class CopyrightAddRequest : IRequest
 public class CopyrightAddRequestHandler : IRequestHandler<CopyrightAddRequest>
 {
     private readonly ILogger<CopyrightAddRequestHandler> logger;
-    private readonly IUtlitityService utlitityService;
+    private readonly IUtilityService utlitityService;
 
     public CopyrightAddRequestHandler(
         ILogger<CopyrightAddRequestHandler> logger,
-        IUtlitityService utlitityService)
+        IUtilityService utlitityService)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.utlitityService = utlitityService ?? throw new ArgumentNullException(nameof(utlitityService));

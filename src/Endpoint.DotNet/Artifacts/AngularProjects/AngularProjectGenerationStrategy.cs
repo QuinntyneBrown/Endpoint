@@ -27,6 +27,6 @@ public class AngularProjectGenerationStrategy : IArtifactGenerationStrategy<Angu
     {
         logger.LogInformation("Create Angular Project. {name}", model.Name);
 
-        commandService.Start($"ng new {model.Name}", model.Directory);
+        commandService.Start($"ng new {model.Name} --force", model.Directory);
     }
 }

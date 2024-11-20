@@ -65,7 +65,7 @@ public static class ConfigureServices
         services.AddSingleton<IDomainDrivenDesignService, DomainDrivenDesignService>();
 
         services.AddSingleton<IClassService, ClassService>();
-        services.AddSingleton<IUtlitityService, UtlitityService>();
+        services.AddSingleton<IUtilityService, UtlitityService>();
         services.AddSingleton<ISignalRService, SignalRService>();
         services.AddSingleton<IReactService, ReactService>();
         services.AddSingleton<ICoreProjectService, CoreProjectService>();
