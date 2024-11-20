@@ -68,11 +68,16 @@ public static class StringExtensions
     {
         try
         {
-            string[] values = value.Split(Environment.NewLine);
+            if (value.Contains(Environment.NewLine))
+            {
+                string[] values = value.Split(Environment.NewLine);
 
-            var result = string.Join(Environment.NewLine, values.Select(v => string.IsNullOrEmpty(v) ? v : $"{string.Join(string.Empty, Range(1, spaces * indent).Select(i => ' '))}{v}"));
-
-            return result;
+                return string.Join(Environment.NewLine, values.Select(v => string.IsNullOrEmpty(v) ? v : $"{string.Join(string.Empty, Range(1, spaces * indent).Select(i => ' '))}{v}"));
+            }
+            else
+            {
+                return string.IsNullOrEmpty(value) ? value : $"{string.Join(string.Empty, Range(1, spaces * indent).Select(i => ' '))}{value}";
+            }
         }
         catch (Exception e)
         {

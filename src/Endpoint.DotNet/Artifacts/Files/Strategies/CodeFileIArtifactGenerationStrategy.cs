@@ -16,18 +16,20 @@ public abstract class CodeFileIArtifactGenerationStrategy<T> : IArtifactGenerati
     protected readonly ISyntaxGenerator syntaxGenerator;
     protected readonly IFileSystem fileSystem;
     protected readonly INamespaceProvider namespaceProvider;
-
+    private readonly IArtifactGenerator _artifactGenerator;
 
     public CodeFileIArtifactGenerationStrategy(
         ISyntaxGenerator syntaxGenerator,
         IFileSystem fileSystem,
         INamespaceProvider namespaceProvider,
+        IArtifactGenerator artifactGenerator,
         ILogger<CodeFileIArtifactGenerationStrategy<T>> logger)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.syntaxGenerator = syntaxGenerator ?? throw new ArgumentNullException(nameof(syntaxGenerator));
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         this.namespaceProvider = namespaceProvider ?? throw new ArgumentNullException(nameof(namespaceProvider));
+        _artifactGenerator = artifactGenerator;
     }
 
     public async Task GenerateAsync(CodeFileModel<T> model)
@@ -62,5 +64,6 @@ public abstract class CodeFileIArtifactGenerationStrategy<T> : IArtifactGenerati
 
         model.Body = stringBuilder.ToString();
 
+        await _artifactGenerator.GenerateAsync(new FileModel(model.Name, model.Directory, model.Extension) {  Body = model.Body });
     }
 }

@@ -2,7 +2,7 @@
   "profiles": {
     "Endpoint.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "crud-api-testing-create -n Foo -r Bar -d C:\\projects"
+      "commandLineArgs": "ddd-app-create -n TryTing -d C:\\projects"
     }
   }
 }

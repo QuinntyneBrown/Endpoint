@@ -11,24 +11,29 @@ namespace Endpoint.DotNet.Syntax.Methods.Strategies;
 
 public class MethodsSyntaxGenerationStrategy : ISyntaxGenerationStrategy<List<MethodModel>>
 {
-    private readonly ILogger<MethodsSyntaxGenerationStrategy> logger;
-    private readonly ISyntaxGenerator syntaxGenerator;
+    private readonly ILogger<MethodsSyntaxGenerationStrategy> _logger;
+    private readonly ISyntaxGenerator _syntaxGenerator;
 
     public MethodsSyntaxGenerationStrategy(
-        ILogger<MethodsSyntaxGenerationStrategy> logger)
+        ILogger<MethodsSyntaxGenerationStrategy> logger,
+        ISyntaxGenerator syntaxGenerator)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(syntaxGenerator);
+
+        _logger = logger;
+        _syntaxGenerator = syntaxGenerator;
     }
 
     public async Task<string> GenerateAsync(List<MethodModel> model, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Generating syntax for {0}.", model);
+        _logger.LogInformation("Generating syntax for {0}.", model);
 
         var builder = StringBuilderCache.Acquire();
 
         foreach (var method in model)
         {
-            builder.AppendLine(await syntaxGenerator.GenerateAsync(method));
+            builder.AppendLine(await _syntaxGenerator.GenerateAsync(method));
 
             if (method != model.Last())
             {

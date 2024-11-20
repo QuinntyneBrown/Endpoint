@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
@@ -18,16 +17,6 @@ public class UpdateCommandHandlerMethodGenerationStrategy : ISyntaxGenerationStr
         INamingConventionConverter namingConventionConverter)
     {
         this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
-    }
-
-    public async Task<string> GenerateAsync(object target)
-    {
-        /*        if (target is MethodModel)
-                {
-                    return await GenerateAsync(generator, target as MethodModel);
-                }*/
-
-        return null;
     }
 
     public async Task<string> GenerateAsync(MethodModel model, CancellationToken cancellationToken)

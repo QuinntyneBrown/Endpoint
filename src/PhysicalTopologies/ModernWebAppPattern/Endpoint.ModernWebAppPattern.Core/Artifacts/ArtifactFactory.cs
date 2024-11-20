@@ -21,6 +21,7 @@ using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.RequestHandlers;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
+using System.Text.Json;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.ModernWebAppPattern.Core.Artifacts;
@@ -49,6 +50,50 @@ public class ArtifactFactory : IArtifactFactory
         _fileSystem = fileSystem;
         _classFactory = classFactory;
         _syntaxFactory = syntaxFactory;
+    }
+    public async Task<SolutionModel> SolutionCreateAsync(JsonElement jsonElement, string name, string directory, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("SolutionCreateAsync");
+
+        var model = new SolutionModel(name, directory);
+
+        var context = await _dataContextProvider.GetAsync(jsonElement, cancellationToken);
+
+        ProjectModel? messagingProject = null;
+
+        if (context.Messages.Count != 0)
+        {
+            messagingProject = await MessagingProjectCreateAsync(model.SrcDirectory, cancellationToken);
+
+            model.Projects.Add(messagingProject);
+        }
+
+        var validationProject = await ValidationProjectCreateAsync(context.ProductName, model.SrcDirectory);
+
+        model.Projects.Add(validationProject);
+
+        var modelsProject = await ModelsProjectCreateAsync(model.SrcDirectory, cancellationToken);
+
+        model.DependOns.Add(new(modelsProject, validationProject));
+
+        model.Projects.Add(modelsProject);
+
+        foreach (var microservice in context.Microservices)
+        {
+            var microserviceProject = await ApiProjectCreateAsync(microservice, model.SrcDirectory, cancellationToken);
+
+            model.Projects.Add(microserviceProject);
+
+            model.DependOns.Add(new(microserviceProject, modelsProject));
+
+            if (context.Messages.Count != 0)
+            {
+                model.DependOns.Add(new(microserviceProject, messagingProject));
+            }
+        }
+
+        return model;
+
     }
 
     public async Task<SolutionModel> SolutionCreateAsync(string path, string name, string directory, CancellationToken cancellationToken)

@@ -22,22 +22,17 @@ public class InterfaceMethodSyntaxGenerationStrategy : ISyntaxGenerationStrategy
         IContext context,
         ISyntaxGenerator syntaxGenerator)
     {
-        this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.context = context ?? throw new ArgumentNullException(nameof(context));
-        this.syntaxGenerator = syntaxGenerator ?? throw new ArgumentNullException(nameof(syntaxGenerator));
+        this.namingConventionConverter = namingConventionConverter;
+        this.logger = logger;
+        this.context = context;
+        this.syntaxGenerator = syntaxGenerator;
     }
 
-    public int GetPriority() => 1;
+    public int GetPriority() => 2;
 
-    public async Task<string> GenerateAsync(object target, CancellationToken cancellationToken)
+    public bool CanHandle(object target)
     {
-        if (context.Get<MethodModel>().Interface && target is MethodModel && ((MethodModel)target).DefaultMethod == false)
-        {
-            return await GenerateAsync(target, cancellationToken);
-        }
-
-        return null;
+        return target is MethodModel methodModel && methodModel.Interface;
     }
 
     public async Task<string> GenerateAsync(MethodModel model, CancellationToken cancellationToken)

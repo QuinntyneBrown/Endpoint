@@ -30,16 +30,28 @@ public class FileSystemDataContextProvider : IDataContextProvider
         {
             var json = _fileSystem.File.ReadAllText(path);
 
-            _context = JsonSerializer.Deserialize<DataContext>(json, new JsonSerializerOptions()
+            return await GetAsync(JsonSerializer.Deserialize<JsonElement>(json), cancellationToken).ConfigureAwait(false);
+        }
+
+        return _context;
+    }
+
+    public async Task<IDataContext> GetAsync(JsonElement jsonElement, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("GetAsync");
+
+        if (_context == null)
+        {            
+            _context = JsonSerializer.Deserialize<DataContext>(jsonElement, new JsonSerializerOptions()
             {
                 PropertyNameCaseInsensitive = true
             })!;
 
-            foreach(var boundedContext in _context.BoundedContexts)
+            foreach (var boundedContext in _context.BoundedContexts)
             {
                 boundedContext.ProductName = _context.ProductName;
 
-                foreach(var aggregate in boundedContext.Aggregates)
+                foreach (var aggregate in boundedContext.Aggregates)
                 {
                     aggregate.BoundedContext = boundedContext;
 
@@ -61,5 +73,4 @@ public class FileSystemDataContextProvider : IDataContextProvider
 
         return _context;
     }
-
 }
