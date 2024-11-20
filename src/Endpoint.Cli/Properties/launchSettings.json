@@ -2,7 +2,7 @@
   "profiles": {
     "Endpoint.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "solution-create -n Sasha --no-service-create -d C:\\projects"
+      "commandLineArgs": "crud-api-testing-create -n Foo -r Bar -d C:\\projects"
     }
   }
 }

@@ -3,7 +3,7 @@
 
 namespace Endpoint.DotNet.Syntax;
 
-public interface IUtlitityService
+public interface IUtilityService
 {
     void CopyrightAdd(string directory);
 }

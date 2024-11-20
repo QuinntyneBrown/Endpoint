@@ -32,6 +32,7 @@ var app = CodeGeneratorApplication.CreateBuilder()
         services.AddLogging(x => x.AddSerilog(Log.Logger));
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
         services.AddModernWebAppPatternCoreServices();
+        services.AddTestingCoreServices();
     })
     .Build();
 

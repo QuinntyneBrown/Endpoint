@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax;
 
-public class UtlitityService : IUtlitityService
+public class UtlitityService : IUtilityService
 {
     private readonly ILogger<UtlitityService> logger;
     private readonly Observable<INotification> observableNotifications;
