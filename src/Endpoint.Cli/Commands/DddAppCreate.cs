@@ -1,17 +1,16 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Core.Syntax;
 using Endpoint.DotNet.Services;
-using Endpoint.DotNet.Syntax;
 using Endpoint.ModernWebAppPattern.Core.Artifacts;
 using Endpoint.ModernWebAppPattern.Core.Syntax;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Endpoint.Cli.Commands;
 
@@ -80,7 +79,7 @@ public class DddAppCreateRequestHandler : IRequestHandler<DddAppCreateRequest>
 
         var json = await _syntaxGenerator.GenerateAsync(modernWebAppDataModel);
 
-        var path = _fileSystem.Path.Combine(_fileSystem.Path.GetTempPath(), $"{request.ProductName}.jaon");
+        var path = _fileSystem.Path.Combine(_fileSystem.Path.GetTempPath(), $"{request.ProductName}.json");
 
         _fileSystem.File.WriteAllText(path, json);
 

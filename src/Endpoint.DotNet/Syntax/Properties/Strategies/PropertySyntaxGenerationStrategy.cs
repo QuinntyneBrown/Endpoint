@@ -1,4 +1,3 @@
-using System.Text;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 
@@ -6,34 +5,38 @@ namespace Endpoint.DotNet.Syntax.Properties.Strategies;
 
 public class PropertySyntaxGenerationStrategy : ISyntaxGenerationStrategy<PropertyModel>
 {
-    private readonly ILogger<PropertySyntaxGenerationStrategy> logger;
-    private readonly ISyntaxGenerator syntaxGenerator;
+    private readonly ILogger<PropertySyntaxGenerationStrategy> _logger;
+    private readonly ISyntaxGenerator _syntaxGenerator;
 
     public PropertySyntaxGenerationStrategy(
-
+        ISyntaxGenerator syntaxGenerator,
         ILogger<PropertySyntaxGenerationStrategy> logger)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(syntaxGenerator);
+
+        _logger = logger;
+        _syntaxGenerator = syntaxGenerator;
     }
 
     public int GetPriority() => 0;
 
     public async Task<string> GenerateAsync(PropertyModel model, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Generating syntax for {0}.", model);
+        _logger.LogInformation("Generating syntax for {0}.", model);
 
         var builder = StringBuilderCache.Acquire();
 
         foreach (var attribute in model.Attributes)
         {
-            string attributeSyntax = await syntaxGenerator.GenerateAsync(attribute);
+            string attributeSyntax = await _syntaxGenerator.GenerateAsync(attribute);
 
             builder.AppendLine(attributeSyntax);
         }
 
         if (model.IsClassProperty || model.ForceAccessModifier)
         {
-            builder.Append(await syntaxGenerator.GenerateAsync(model.AccessModifier));
+            builder.Append(await _syntaxGenerator.GenerateAsync(model.AccessModifier));
 
             builder.Append(" ");
 
@@ -43,7 +46,7 @@ public class PropertySyntaxGenerationStrategy : ISyntaxGenerationStrategy<Proper
             }
         }
 
-        builder.Append($"{await syntaxGenerator.GenerateAsync(model.Type)} {model.Name} {await syntaxGenerator.GenerateAsync(model.Accessors)}");
+        builder.Append($"{await _syntaxGenerator.GenerateAsync(model.Type)} {model.Name} {await _syntaxGenerator.GenerateAsync(model.Accessors)}");
 
         if (model.IsClassProperty && !string.IsNullOrEmpty(model.DefaultValue))
         {

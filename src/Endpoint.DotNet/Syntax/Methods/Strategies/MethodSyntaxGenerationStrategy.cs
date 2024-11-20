@@ -2,35 +2,36 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Linq;
-using System.Text;
 using System.Threading;
-using Endpoint.DotNet.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Methods.Strategies;
 
 public class MethodSyntaxGenerationStrategy : ISyntaxGenerationStrategy<MethodModel>
 {
-    private readonly ILogger<MethodSyntaxGenerationStrategy> logger;
-    private readonly ISyntaxGenerator syntaxGenerator;
+    private readonly ILogger<MethodSyntaxGenerationStrategy> _logger;
+    private readonly ISyntaxGenerator _syntaxGenerator;
+
     public MethodSyntaxGenerationStrategy(
-        ILogger<MethodSyntaxGenerationStrategy> logger)
+        ILogger<MethodSyntaxGenerationStrategy> logger,
+        ISyntaxGenerator syntaxGenerator)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _logger = logger;
+        _syntaxGenerator = syntaxGenerator;
     }
 
     public async Task<string> GenerateAsync(MethodModel model, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Generating syntax for {0}.", model);
+        _logger.LogInformation("Generating syntax for {0}.", model);
 
         var builder = StringBuilderCache.Acquire();
 
         foreach (var attribute in model.Attributes)
         {
-            builder.AppendLine(await syntaxGenerator.GenerateAsync(attribute));
+            builder.AppendLine(await _syntaxGenerator.GenerateAsync(attribute));
         }
 
-        builder.Append(await syntaxGenerator.GenerateAsync(model.AccessModifier));
+        builder.Append(await _syntaxGenerator.GenerateAsync(model.AccessModifier));
 
         if (model.Override)
         {
@@ -57,27 +58,23 @@ public class MethodSyntaxGenerationStrategy : ISyntaxGenerationStrategy<MethodMo
         }
         else
         {
-            builder.Append($" {await syntaxGenerator.GenerateAsync(model.ReturnType)}");
+            builder.Append($" {await _syntaxGenerator.GenerateAsync(model.ReturnType)}");
         }
 
         builder.Append($" {model.Name}");
 
         builder.Append('(');
 
-        builder.Append(string.Join(',', await Task.WhenAll(model.Params.Select(async x => await syntaxGenerator.GenerateAsync(x)))));
+        builder.Append(string.Join(',', await Task.WhenAll(model.Params.Select(async x => await _syntaxGenerator.GenerateAsync(x)))));
 
         builder.Append(')');
 
         if (model.Body == null)
         {
-            // builder.Append("{ }");
+
             builder.AppendLine();
             builder.AppendLine("{");
             builder.AppendLine("}");
-
-            /*            builder.AppendLine();
-                        builder.AppendLine("{");
-                        builder.AppendLine("}");*/
         }
         else
         {
@@ -85,7 +82,7 @@ public class MethodSyntaxGenerationStrategy : ISyntaxGenerationStrategy<MethodMo
 
             builder.AppendLine("{");
 
-            string body = await syntaxGenerator.GenerateAsync(model.Body);
+            string body = await _syntaxGenerator.GenerateAsync(model.Body);
 
             builder.AppendLine(body.Indent(1));
 

@@ -7,5 +7,7 @@ public interface ISyntaxGenerationStrategy<T>
 {
     virtual int GetPriority() => 1;
 
+    public bool CanHandle(object target) => target is T;
+
     Task<string> GenerateAsync(T target, CancellationToken cancellationToken);
 }

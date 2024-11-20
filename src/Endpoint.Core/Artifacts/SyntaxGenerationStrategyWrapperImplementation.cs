@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Endpoint.Core.Artifacts;
 
@@ -17,9 +17,14 @@ public class ArtifactGenerationStrategyWrapperImplementation<T> : ArtifactGenera
 
     public override async Task GenerateAsync(T target, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
+        var typeoftype = target.GetType();
+
+        Console.WriteLine($"Type of t. {typeoftype}");
+
         var handlers = serviceProvider.GetRequiredService<IEnumerable<IArtifactGenerationStrategy<T>>>();
 
         var handler = handlers
+            .Where(x => x.CanHandle(target!))
             .OrderByDescending(x => x.GetPriority())
             .First();
 

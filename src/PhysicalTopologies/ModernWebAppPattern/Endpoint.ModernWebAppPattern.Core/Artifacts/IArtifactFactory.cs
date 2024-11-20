@@ -5,12 +5,15 @@ using Endpoint.DomainDrivenDesign.Core.Models;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Solutions;
 using Endpoint.ModernWebAppPattern.Core.Models;
+using System.Text.Json;
 
 namespace Endpoint.ModernWebAppPattern.Core.Artifacts;
 
 public interface IArtifactFactory
 {
     Task<SolutionModel> SolutionCreateAsync(string path, string name, string directory, CancellationToken cancellationToken);
+
+    Task<SolutionModel> SolutionCreateAsync(JsonElement jsonElement, string name, string directory, CancellationToken cancellationToken);
 
     Task<IEnumerable<FileModel>> AggregateCreateAsync(IDataContext context, Aggregate aggregate, string directory, CancellationToken cancellationToken);
 

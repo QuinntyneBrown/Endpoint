@@ -24,7 +24,6 @@ public class ArtifactFactory : IArtifactFactory
 
     public async Task<SolutionModel> SolutionCreateAsync(string systemName, string resourceName, string directory, CancellationToken cancellationToken)
     {
-
         _logger.LogInformation("SolutionCreateAsync");
 
         var model = new SolutionModel(systemName, directory);

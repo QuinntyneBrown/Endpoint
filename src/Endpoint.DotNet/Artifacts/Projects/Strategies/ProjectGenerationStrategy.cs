@@ -12,24 +12,33 @@ namespace Endpoint.DotNet.Artifacts.Projects.Strategies;
 
 public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectModel>
 {
-    private readonly ILogger<ProjectGenerationStrategy> logger;
-    private readonly IFileSystem fileSystem;
-    private readonly ICommandService commandService;
+    private readonly ILogger<ProjectGenerationStrategy> _logger;
+    private readonly IFileSystem _fileSystem;
+    private readonly ICommandService _commandService;
     private readonly IArtifactGenerator _artifactGenerator;
 
     public ProjectGenerationStrategy(
         ILogger<ProjectGenerationStrategy> logger,
         IFileSystem fileSystem,
-        ICommandService commandService)
+        ICommandService commandService,
+        IArtifactGenerator artifactGenerator)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(fileSystem);
+        ArgumentNullException.ThrowIfNull(commandService);
+        ArgumentNullException.ThrowIfNull(artifactGenerator);
+
+        _logger = logger;
+        _fileSystem = fileSystem;
+        _commandService = commandService;
+        _artifactGenerator = artifactGenerator;
     }
+
+    public int GetPriority() => 2;
 
     public async Task GenerateAsync(ProjectModel model)
     {
-        logger.LogInformation("Generating artifact for {0}.", model);
+        _logger.LogInformation("Generating artifact for {0}.", model);
 
         string templateType = model.DotNetProjectType switch
         {
@@ -43,24 +52,24 @@ public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectMode
             _ => "console"
         };
 
-        fileSystem.Directory.CreateDirectory(model.Directory);
+        _fileSystem.Directory.CreateDirectory(model.Directory);
 
-        commandService.Start($"dotnet new {templateType} --framework net8.0", model.Directory);
+        _commandService.Start($"dotnet new {templateType} --framework net8.0", model.Directory);
 
-        foreach (var path in fileSystem.Directory.GetFiles(model.Directory, "*1.cs", SearchOption.AllDirectories))
+        foreach (var path in _fileSystem.Directory.GetFiles(model.Directory, "*1.cs", SearchOption.AllDirectories))
         {
-            fileSystem.File.Delete(path);
+            _fileSystem.File.Delete(path);
         }
 
         if (templateType == "webapi")
         {
             try
             {
-                fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Controllers{Path.DirectorySeparatorChar}WeatherForecastController.cs");
+                _fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Controllers{Path.DirectorySeparatorChar}WeatherForecastController.cs");
 
-                fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}WeatherForecast.cs");
+                _fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}WeatherForecast.cs");
 
-                fileSystem.Directory.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Controllers");
+                _fileSystem.Directory.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Controllers");
             }
             catch { }
         }
@@ -69,14 +78,14 @@ public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectMode
         {
             try
             {
-                fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Worker.cs");
+                _fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Worker.cs");
             }
             catch { }
         }
 
         foreach (var folder in model.Folders)
         {
-            fileSystem.Directory.CreateDirectory(folder.Directory);
+            _fileSystem.Directory.CreateDirectory(folder.Directory);
         }
 
         foreach (var package in model.Packages)
@@ -88,14 +97,14 @@ public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectMode
                 version = null;
             }
 
-            commandService.Start($"dotnet add package {package.Name} {version}", model.Directory);
+            _commandService.Start($"dotnet add package {package.Name} {version}", model.Directory);
         }
 
         if (model.References != null)
         {
             foreach (var path in model.References)
             {
-                commandService.Start($"dotnet add {model.Directory} reference {path}", model.Directory);
+                _commandService.Start($"dotnet add {model.Directory} reference {path}", model.Directory);
             }
         }
 

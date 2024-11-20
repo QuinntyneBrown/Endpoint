@@ -3,8 +3,14 @@
 
 namespace Endpoint.Core.Artifacts;
 
+/// <summary>
+/// IArtifactGenerationStrategy.
+/// </summary>
+/// <typeparam name="T">Target.</typeparam>
 public interface IArtifactGenerationStrategy<T>
 {
+    public bool CanHandle(object model) => model is T;
+
     public int GetPriority() => 1;
 
     Task GenerateAsync(T target);

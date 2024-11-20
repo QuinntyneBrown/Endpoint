@@ -26,11 +26,8 @@ public class ProjectModel : ArtifactModel
                 _ => DotNetProjectType.Console
             }, name, parentDirectory, references)
     {
-        Folders = new List<FolderModel>();
-        Packages = new List<PackageModel>()
-        {
-            // new ("StyleCop.Analyzers", "1.1.118"),
-        };
+        Folders = [];
+        Packages = [];
     }
 
     public ProjectModel(DotNetProjectType dotNetProjectType, string name, string parentDirectory, List<string> references = null)
@@ -39,12 +36,9 @@ public class ProjectModel : ArtifactModel
         Name = name;
         Extension = dotNetProjectType == DotNetProjectType.TypeScriptStandalone ? ".esproj" : ".csproj";
         Directory = Combine(parentDirectory, name);
-        References = references ?? new List<string>();
-        Folders = new List<FolderModel>();
-        Packages = new List<PackageModel>()
-        {
-            // new ("StyleCop.Analyzers", "1.1.118"),
-        };
+        References = references ?? [];
+        Folders = [];
+        Packages = [];
     }
 
     public ProjectModel(string name, string parentDirectory)
@@ -52,22 +46,16 @@ public class ProjectModel : ArtifactModel
         DotNetProjectType = DotNetProjectType.ClassLib;
         Name = name;
         Directory = Combine(parentDirectory, name);
-        References = new List<string>();
-        Folders = new List<FolderModel>();
-        Packages = new List<PackageModel>()
-        {
-            // new ("StyleCop.Analyzers", "1.1.118"),
-        };
+        References = [];
+        Folders = [];
+        Packages = [];
     }
 
     public ProjectModel()
     {
-        References = new List<string>();
-        Folders = new List<FolderModel>();
-        Packages = new List<PackageModel>()
-        {
-            // new ("StyleCop.Analyzers", "1.1.118"),
-        };
+        References = [];
+        Folders = [];
+        Packages = [];
     }
 
     public string Name { get; init; }
@@ -107,6 +95,7 @@ public class ProjectModel : ArtifactModel
         "SA1200",
         "SA1633",
         "1591",
+        "SA1309",
     };
 
     public List<FolderModel> Folders { get; set; }
