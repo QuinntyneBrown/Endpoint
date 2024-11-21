@@ -61,4 +61,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Endpoint.Core\Endpoint.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Syntax\TypeScript\" />
+  </ItemGroup>
 </Project>

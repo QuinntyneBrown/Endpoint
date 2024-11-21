@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Endpoint.DotNet.Syntax.Entities;
 using Endpoint.DotNet.Syntax.Interfaces;
 using Endpoint.DotNet.Syntax.Properties;
-using Endpoint.DotNet.SystemModels;
 
 namespace Endpoint.DotNet.Syntax.Classes.Factories;
 
@@ -45,7 +44,7 @@ public interface IClassFactory
 
     Task<ClassModel> CreateResponseAsync(string responseName, List<PropertyModel> properties);
 
-    Task<ClassModel> CreateHandlerAsync(RouteType routeType, Aggregate aggregate);
+    Task<ClassModel> CreateHandlerAsync(RouteType routeType, dynamic aggregate);
 
     Task<ClassModel> CreateWorkerAsync(string name);
 

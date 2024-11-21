@@ -1,13 +1,10 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Endpoint.Angular.Artifacts;
 using Endpoint.Core.Artifacts;
-using Endpoint.DotNet.Artifacts.AngularProjects;
+using Endpoint.Core.Services;
 using Endpoint.DotNet.Artifacts.Files;
-using Endpoint.DotNet.Artifacts.Files.Factories;
-using Endpoint.DotNet.Artifacts.Workspaces;
-using Endpoint.DotNet.Extensions;
-using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -17,7 +14,9 @@ using System.Text;
 
 namespace Endpoint.Testing.Core;
 
-public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<AngularWorkspaceModel>
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
+
+public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<WorkspaceModel>
 {
     private readonly ILogger<AngularWorkspaceGenerationStrategy> _logger;
     private readonly ICommandService _commandService;
@@ -58,7 +57,7 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<An
         _utilityService = utilityService;
     }
 
-    public async Task GenerateAsync(AngularWorkspaceModel model)
+    public async Task GenerateAsync(WorkspaceModel model)
     {
         _logger.LogInformation("Generating Angular Workspace. {name}", model.Name);
 
@@ -150,7 +149,7 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<An
         }
     }
 
-    public async Task UpdateCompilerOptionsToUseJestTypes(AngularProjectModel model)
+    public async Task UpdateCompilerOptionsToUseJestTypes(ProjectModel model)
     {
         var tsConfigSpecJsonPath = $"{model.Directory}{Path.DirectorySeparatorChar}tsconfig.spec.json";
 
@@ -161,7 +160,7 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<An
         _fileSystem.File.WriteAllText(tsConfigSpecJsonPath, JsonConvert.SerializeObject(tsConfigSpecJson, Formatting.Indented));
     }
 
-    public async Task AddProject(AngularProjectModel model)
+    public async Task AddProject(ProjectModel model)
     {
         var stringBuilder = new StringBuilder().Append($"ng generate {model.ProjectType} {model.Name} --prefix {model.Prefix} --defaults=true");
 
@@ -176,11 +175,11 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<An
 
         _fileSystem.File.Delete(appRoutingModulePath);
 
-        var angularProjectReferenceModel = new AngularProjectReferenceModel(model.Name, model.Directory, model.ProjectType);
+        var projectReferenceModel = new ProjectReferenceModel(model.Name, model.Directory, model.ProjectType);
 
-        await EnableDefaultStandalone(angularProjectReferenceModel);
+        await EnableDefaultStandalone(projectReferenceModel);
 
-        await ExportsAssetsAndStyles(angularProjectReferenceModel);
+        await ExportsAssetsAndStyles(projectReferenceModel);
 
         if (model.ProjectType == "application")
         {
@@ -266,7 +265,7 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<An
         }
     }
 
-    public async Task EnableDefaultStandalone(AngularProjectReferenceModel model)
+    public async Task EnableDefaultStandalone(ProjectReferenceModel model)
     {
         var angularJsonPath = _fileProvider.Get("angular.json", model.ReferencedDirectory);
 
@@ -277,7 +276,7 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<An
         _fileSystem.File.WriteAllText(angularJsonPath, JsonConvert.SerializeObject(angularJson, Formatting.Indented));
     }
 
-    public async Task ExportsAssetsAndStyles(AngularProjectReferenceModel model)
+    public async Task ExportsAssetsAndStyles(ProjectReferenceModel model)
     {
         if (model.ProjectType == "application")
         {
@@ -294,7 +293,7 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<An
     }
 
 
-    public async Task UpdateAngularJsonToUseJest(AngularProjectModel model)
+    public async Task UpdateAngularJsonToUseJest(ProjectModel model)
     {
         var angularJsonPath = _fileProvider.Get("angular.json", model.Directory);
 
@@ -310,7 +309,7 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<An
         _fileSystem.File.WriteAllText(angularJsonPath, JsonConvert.SerializeObject(angularJson, Formatting.Indented));
     }
 
-    public async Task JestConfigCreate(AngularProjectModel model)
+    public async Task JestConfigCreate(ProjectModel model)
     {
         var stringBuilder = new StringBuilder();
 

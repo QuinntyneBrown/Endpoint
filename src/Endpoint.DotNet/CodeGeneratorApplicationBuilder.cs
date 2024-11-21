@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Reflection;
-using Endpoint.DotNet.Internal;
+using Endpoint.Core.Internal;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 

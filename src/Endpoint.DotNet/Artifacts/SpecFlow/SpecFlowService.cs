@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.SpecFlow;
 
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
+
 public class SpecFlowService : ISpecFlowService
 {
     private readonly ILogger<SpecFlowService> logger;

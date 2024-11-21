@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Strategies;
 
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
 public class ApiProjectEnsureArtifactGenerationStrategy : IArtifactGenerationStrategy<ProjectReferenceModel>
 {
     private readonly ILogger<ApiProjectEnsureArtifactGenerationStrategy> logger;
@@ -17,11 +18,11 @@ public class ApiProjectEnsureArtifactGenerationStrategy : IArtifactGenerationStr
     private readonly IFileProvider fileProvider;
     private readonly ICommandService commandService;
     private readonly IArtifactGenerator artifactGenerator;
+
     public ApiProjectEnsureArtifactGenerationStrategy(
         IFileFactory fileFactory,
         IFileSystem fileSystem,
         IFileProvider fileProvider,
-
         ICommandService commandService,
         ILogger<ApiProjectEnsureArtifactGenerationStrategy> logger)
     {

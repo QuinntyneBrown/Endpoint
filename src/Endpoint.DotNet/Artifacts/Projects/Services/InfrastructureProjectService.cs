@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Services;
 
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
 public class InfrastructureProjectService : IInfrastructureProjectService
 {
     private readonly ILogger<InfrastructureProjectService> logger;

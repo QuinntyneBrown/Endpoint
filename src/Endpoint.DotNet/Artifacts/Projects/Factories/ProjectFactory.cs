@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Endpoint.DotNet.Artifacts.Files;
-using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Options;
 using Endpoint.DotNet.Services;
@@ -16,11 +15,11 @@ using Endpoint.DotNet.Syntax.Constructors;
 using Endpoint.DotNet.Syntax.Entities;
 using Endpoint.DotNet.Syntax.Properties;
 using Endpoint.DotNet.Syntax.Types;
-using Endpoint.DotNet.Syntax.Units;
-using Endpoint.DotNet.SystemModels;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Factories;
+
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
 
 public class ProjectFactory : IProjectFactory
 {
@@ -428,17 +427,7 @@ public class ProjectFactory : IProjectFactory
 
     public async Task<ProjectModel> CreateInfrastructure(string name, string directory)
     {
-        var microserviceContext = context.Get<Microservice>();
-
-        var model = await CreateLibrary(name, directory, new () { Constants.ProjectType.Infrastructure });
-
-        var aggregates = microserviceContext.Aggregates.Select(x => new EntityModel(x.Name)).ToList();
-
-        var dbContext = classFactory.CreateDbContext($"{microserviceContext.SchemaRootName}DbContext", aggregates, Path.Combine(model.Directory, "Data"));
-
-        model.Files.Add(new CodeFileModel<ClassModel>(dbContext, dbContext.Usings, dbContext.Name, Path.Combine(model.Directory, "Data"), ".cs"));
-
-        return model;
+        throw new NotImplementedException();
     }
 
     public async Task<ProjectModel> CreateApi(string name, string directory)

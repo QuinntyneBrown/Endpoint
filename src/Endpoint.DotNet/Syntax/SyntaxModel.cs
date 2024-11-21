@@ -9,7 +9,7 @@ public class SyntaxModel
 {
     public SyntaxModel()
     {
-        Usings = new List<UsingModel>();
+        Usings = [];
     }
 
     public SyntaxModel Parent { get; set; }
@@ -25,7 +25,7 @@ public class SyntaxModel
     {
         syntax ??= this;
 
-        children ??= new ();
+        children ??= [];
 
         children.Add(syntax);
 

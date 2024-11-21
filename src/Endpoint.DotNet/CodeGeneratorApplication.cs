@@ -4,7 +4,7 @@
 using System.Threading;
 using CommandLine;
 using Endpoint.DotNet.Extensions;
-using Endpoint.DotNet.Internal;
+using Endpoint.Core.Internal;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
