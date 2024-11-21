@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
+using Endpoint.Core.Services;
 using Endpoint.DotNet.Artifacts.Solutions.Factories;
 using Endpoint.DotNet.Artifacts.Solutions.Services;
 using Endpoint.DotNet.Services;

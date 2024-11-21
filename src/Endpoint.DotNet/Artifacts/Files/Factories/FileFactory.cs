@@ -16,7 +16,6 @@ using Endpoint.DotNet.Syntax.Params;
 using Endpoint.DotNet.Syntax.Properties;
 using Endpoint.DotNet.Syntax.RouteHandlers;
 using Endpoint.DotNet.Syntax.Types;
-using Endpoint.DotNet.SystemModels;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.DotNet.Artifacts.Files.Factories;

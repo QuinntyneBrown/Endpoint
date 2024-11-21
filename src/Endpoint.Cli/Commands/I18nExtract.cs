@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.DotNet.Artifacts.AngularProjects;
+
 using Endpoint.DotNet.Artifacts.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -39,6 +39,6 @@ public class I18nExtractRequestHandler : IRequestHandler<I18nExtractRequest>
     {
         logger.LogInformation("Handled: {0}", nameof(I18nExtractRequestHandler));
 
-        await angularService.I18nExtract(new AngularProjectReferenceModel(request.Name, request.Directory));
+        await angularService.I18nExtract(new ProjectReferenceModel(request.Name, request.Directory));
     }
 }

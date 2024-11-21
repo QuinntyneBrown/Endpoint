@@ -8,7 +8,6 @@ using Endpoint.DotNet.Artifacts.Folders;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Options;
 using Endpoint.DotNet.Services;
-using Endpoint.DotNet.SystemModels;
 
 namespace Endpoint.DotNet.Artifacts.Solutions.Factories;
 
@@ -152,62 +151,6 @@ public class SolutionFactory : ISolutionFactory
 
     public async Task<SolutionModel> DddCreateAync(string name, string directory)
     {
-        var systemContext = context.Get<ISystemContext>();
-
-        var model = new SolutionModel(name, directory);
-
-        var schema = name.Remove("Service");
-
-        var sourceFolder = new FolderModel("src", model.SolutionDirectory);
-
-        var servicesFolder = new FolderModel("Services", sourceFolder);
-
-        var serviceFolder = new FolderModel(schema, servicesFolder);
-
-        var buildingBlocksFolder = new FolderModel("BuildingBlocks", sourceFolder) { Priority = 1 };
-
-        var kernel = await projectFactory.CreateKernelProject(buildingBlocksFolder.Directory);
-
-        var messaging = await projectFactory.CreateMessagingProject(buildingBlocksFolder.Directory);
-
-        var messagingUdp = await projectFactory.CreateMessagingUdpProject(buildingBlocksFolder.Directory);
-
-        var security = await projectFactory.CreateSecurityProject(buildingBlocksFolder.Directory);
-
-        var validation = await projectFactory.CreateValidationProject(buildingBlocksFolder.Directory);
-
-        var compression = await projectFactory.CreateIOCompression(buildingBlocksFolder.Directory);
-
-        buildingBlocksFolder.Projects.Add(messaging);
-
-        buildingBlocksFolder.Projects.Add(messagingUdp);
-
-        buildingBlocksFolder.Projects.Add(security);
-
-        buildingBlocksFolder.Projects.Add(kernel);
-
-        buildingBlocksFolder.Projects.Add(validation);
-
-        buildingBlocksFolder.Projects.Add(compression);
-
-        servicesFolder.Projects.Add(await projectFactory.CreateCommon(servicesFolder.Directory));
-
-        var core = await projectFactory.CreateCore(name, serviceFolder.Directory);
-
-        var infrastructure = await projectFactory.CreateInfrastructure(name, serviceFolder.Directory);
-
-        var api = await projectFactory.CreateApi(name, serviceFolder.Directory);
-
-        sourceFolder.Projects.AddRange(new[] { core, infrastructure, api });
-
-        model.Folders.Add(sourceFolder);
-
-        model.Folders.Add(buildingBlocksFolder);
-
-        model.Folders.Add(servicesFolder);
-
-        model.Folders = model.Folders.OrderByDescending(x => x.Priority).ToList();
-
-        return model;
+        throw new NotImplementedException();
     }
 }

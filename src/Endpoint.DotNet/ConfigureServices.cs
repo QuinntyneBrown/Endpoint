@@ -3,7 +3,7 @@
 
 using Endpoint.DotNet;
 using Endpoint.DotNet.Artifacts;
-using Endpoint.DotNet.Artifacts.AngularProjects;
+
 using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Artifacts.Files.Services;
 using Endpoint.DotNet.Artifacts.Folders.Factories;
@@ -17,7 +17,6 @@ using Endpoint.DotNet.Artifacts.Solutions.Factories;
 using Endpoint.DotNet.Artifacts.Solutions.Services;
 using Endpoint.DotNet.Artifacts.SpecFlow;
 using Endpoint.DotNet.Artifacts.Units;
-using Endpoint.DotNet.DataModel;
 using Endpoint.DotNet.Events;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes.Factories;
@@ -32,7 +31,6 @@ using Endpoint.DotNet.Syntax.RouteHandlers;
 using Endpoint.DotNet.Syntax.Types;
 using Endpoint.DotNet.Syntax.Units.Factories;
 using Endpoint.DotNet.Syntax.Units.Services;
-using Endpoint.DotNet.SystemModels;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -40,12 +38,8 @@ public static class ConfigureServices
 {
     public static void AddDotNetServices(this IServiceCollection services)
     {
-        services.AddSingleton<IDataModelContextProvider<DataModelContext>,DataModelContextProvider<DataModelContext>>();
-        services.AddSingleton<IDataModelContext,DataModelContext>();
         services.AddSingleton<IEndpointEventContainer,EndpointEventContainer>();
         services.AddSingleton<IFullStackFactory,FullStackFactory>();
-        services.AddSingleton<ISystemContextFactory, SystemContextFactory>();
-        services.AddSingleton<ISystemContext, SystemContext>();
         services.AddSingleton<IDocumentFactory, DocumentFactory>();
         services.AddSingleton<IGitService, GitService>();
         services.AddSingleton<ICodeFormatterService, DotnetCodeFormatterService>();
@@ -70,7 +64,6 @@ public static class ConfigureServices
         services.AddSingleton<IReactService, ReactService>();
         services.AddSingleton<ICoreProjectService, CoreProjectService>();
         services.AddSingleton<ILitService, LitService>();
-        services.AddSingleton<IAngularService, AngularService>();
         services.AddSingleton<IInfrastructureProjectService, InfrastructureProjectService>();
         services.AddSingleton<IApiProjectService, ApiProjectService>();
         services.AddSingleton<IAggregateService, AggregateService>();
@@ -96,7 +89,6 @@ public static class ConfigureServices
 
         services.AddSingleton<IMinimalApiService, MinimalApiService>();
         services.AddSingleton<IFileFactory, FileFactory>();
-        services.AddSingleton<IAngularProjectFactory, AngularProjectFactory>();
 
         services.AddSingleton<IClipboardService, ClipboardService>();
 

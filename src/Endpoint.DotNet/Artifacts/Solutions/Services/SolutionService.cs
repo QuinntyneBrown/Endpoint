@@ -8,7 +8,7 @@ using Endpoint.DotNet.Artifacts.Folders;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Artifacts.Units;
-using Endpoint.DotNet.Internal;
+using Endpoint.Core.Internal;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Classes.Services;

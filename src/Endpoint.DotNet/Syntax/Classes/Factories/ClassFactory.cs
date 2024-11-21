@@ -18,7 +18,6 @@ using Endpoint.DotNet.Syntax.Params;
 using Endpoint.DotNet.Syntax.Properties;
 using Endpoint.DotNet.Syntax.Properties.Factories;
 using Endpoint.DotNet.Syntax.Types;
-using Endpoint.DotNet.SystemModels;
 
 namespace Endpoint.DotNet.Syntax.Classes.Factories;
 
@@ -991,7 +990,7 @@ public class ClassFactory : IClassFactory
         return model;
     }
 
-    public async Task<ClassModel> CreateHandlerAsync(RouteType routeType, Aggregate aggregate)
+    public async Task<ClassModel> CreateHandlerAsync(RouteType routeType, dynamic aggregate)
     {
         throw new NotImplementedException();
     }

@@ -10,6 +10,8 @@ using Endpoint.DotNet.Services;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Services;
 
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
+
 // https://learn.microsoft.com/en-us/visualstudio/extensibility/internals/solution-dot-sln-file?view=vs-2022
 public class ProjectService : IProjectService
 {

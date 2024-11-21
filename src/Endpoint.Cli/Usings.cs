@@ -3,3 +3,4 @@
 
 global using System.IO.Abstractions;
 global using Endpoint.Core.Artifacts;
+global using Endpoint.Core.Services;
