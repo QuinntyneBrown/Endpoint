@@ -3,13 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Endpoint.Core.Artifacts;
 using Endpoint.DotNet.Artifacts.Files;
-using Endpoint.DotNet.Artifacts.Folders;
 using Endpoint.DotNet.Artifacts.Projects.Services;
 using Endpoint.DotNet.Services;
 
 namespace Endpoint.DotNet.Artifacts.Solutions.Strategies;
+
+using ContentFileModel = Endpoint.DotNet.Artifacts.Files.ContentFileModel;
 
 public class SolutionGenerationStrategy : IArtifactGenerationStrategy<SolutionModel>
 {
@@ -66,20 +66,8 @@ public class SolutionGenerationStrategy : IArtifactGenerationStrategy<SolutionMo
 
 
 
-    private async Task CreateProjectsAndAddToSln(IArtifactGenerator artifactGenerator, SolutionModel model, List<FolderModel> folders)
+    private async Task CreateProjectsAndAddToSln(IArtifactGenerator artifactGenerator, SolutionModel model, List<dynamic> folders)
     {
-        foreach (var folder in folders)
-        {
-            foreach (var project in folder.Projects.OrderBy(x => x.Order))
-            {
-                fileSystem.Directory.CreateDirectory(folder.Directory);
-
-                await artifactGenerator.GenerateAsync(project);
-
-                await projectService.AddToSolution(project);
-            }
-
-            await CreateProjectsAndAddToSln(artifactGenerator, model, folder.SubFolders);
-        }
+        throw new NotImplementedException();
     }
 }

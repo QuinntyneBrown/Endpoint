@@ -5,6 +5,8 @@ using Endpoint.DotNet.Syntax.Types;
 
 namespace Endpoint.DotNet.Syntax.Fields;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class FieldModel : SyntaxModel
 {
     public FieldModel()

@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.ModernWebAppPattern.Core.Syntax;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class SyntaxFactory : ISyntaxFactory
 {
     private readonly ILogger<SyntaxFactory> _logger;

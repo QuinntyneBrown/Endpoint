@@ -95,7 +95,7 @@ public class ProjectAddRequestHandler : IRequestHandler<ProjectAddRequest>
     {
         var projectPath = fileProvider.Get("*.*sproj", directory);
 
-        if (projectPath != Constants.FileNotFound)
+        if (projectPath != Endpoint.Core.Constants.FileNotFound)
         {
             var projectName = Path.GetFileNameWithoutExtension(projectPath);
 

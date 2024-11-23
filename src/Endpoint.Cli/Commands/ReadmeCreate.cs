@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
 
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
+
 [Verb("readme-create")]
 public class ReadmeCreateRequest : IRequest
 {

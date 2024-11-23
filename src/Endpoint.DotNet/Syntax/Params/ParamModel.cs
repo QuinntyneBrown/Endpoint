@@ -6,6 +6,8 @@ using Endpoint.DotNet.Syntax.Types;
 
 namespace Endpoint.DotNet.Syntax.Params;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class ParamModel : SyntaxModel
 {
     public static ParamModel CancellationToken = new ()

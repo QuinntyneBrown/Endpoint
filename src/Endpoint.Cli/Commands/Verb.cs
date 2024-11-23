@@ -4,6 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
+using Endpoint.Core.Syntax;
 using Endpoint.DotNet.Artifacts;
 using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Services;
@@ -12,6 +13,10 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
+
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
+
+
 
 [Verb("verb")]
 public class VerbRequest : IRequest

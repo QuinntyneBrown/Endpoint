@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml.Linq;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Options;
@@ -14,12 +13,12 @@ using Endpoint.DotNet.Syntax.Classes.Factories;
 using Endpoint.DotNet.Syntax.Constructors;
 using Endpoint.DotNet.Syntax.Entities;
 using Endpoint.DotNet.Syntax.Properties;
-using Endpoint.DotNet.Syntax.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Factories;
 
 using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 public class ProjectFactory : IProjectFactory
 {
@@ -122,7 +121,7 @@ public class ProjectFactory : IProjectFactory
 
                     model.DotNetProjectType = DotNetProjectType.ClassLib;
 
-                    model.Folders.Add(new ("AggregatesModel", model.Directory));
+
 
                     model.Files.Add(fileFactory.CreateResponseBase(model.Directory));
                     model.Files.Add(fileFactory.CreateCoreUsings(model.Directory));
@@ -161,7 +160,7 @@ public class ProjectFactory : IProjectFactory
                         .Build();
 
                     model.DotNetProjectType = DotNetProjectType.ClassLib;
-                    model.Folders.Add(new ("Data", model.Directory));
+
                     model.Files.Add(fileFactory.CreateTemplate("DddApp.Infrastructure.ConfigureServices", "ConfigureServices", model.Directory, ".cs", tokens: tokens));
 
                     model.Files.Add(fileFactory.CreateTemplate("DddApp.Infrastructure.SeedData", "SeedData", Path.Combine(model.Directory, "Data"), ".cs", tokens: new TokensBuilder()
@@ -180,11 +179,11 @@ public class ProjectFactory : IProjectFactory
 
                 case Constants.ProjectType.Api:
 
-                    var schema = serviceName.Remove("Service");
+                    var schema = string.Empty;
 
                     model.DotNetProjectType = DotNetProjectType.WebApi;
 
-                    model.Folders.Add(new ("Controllers", model.Directory));
+
 
                     model.References.Add($"..{Path.DirectorySeparatorChar}{serviceName}.Infrastructure{Path.DirectorySeparatorChar}{serviceName}.Infrastructure.csproj");
 

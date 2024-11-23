@@ -18,6 +18,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
 
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
+
 [Verb("microservice-add")]
 public class MicroserviceAddRequest : IRequest
 {

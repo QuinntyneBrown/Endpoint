@@ -9,17 +9,19 @@ namespace Endpoint.DotNet.Syntax.Attributes.Strategies;
 
 public class SwaggerOperationAttributeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<SwaggerOperationAttributeModel>
 {
-    private readonly ILogger<SwaggerOperationAttributeSyntaxGenerationStrategy> logger;
+    private readonly ILogger<SwaggerOperationAttributeSyntaxGenerationStrategy> _logger;
 
     public SwaggerOperationAttributeSyntaxGenerationStrategy(
         ILogger<SwaggerOperationAttributeSyntaxGenerationStrategy> logger)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        ArgumentNullException.ThrowIfNull(logger);
+
+        _logger = logger;
     }
 
     public async Task<string> GenerateAsync(SwaggerOperationAttributeModel model, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Generating syntax for {0}.", model);
+        _logger.LogInformation("Generating syntax for {0}.", model);
 
         var builder = StringBuilderCache.Acquire();
 

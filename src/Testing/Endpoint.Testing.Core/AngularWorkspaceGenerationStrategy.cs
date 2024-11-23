@@ -4,6 +4,7 @@
 using Endpoint.Angular.Artifacts;
 using Endpoint.Core.Artifacts;
 using Endpoint.Core.Services;
+using Endpoint.Core.Syntax;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Syntax;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,7 @@ using System.Text;
 namespace Endpoint.Testing.Core;
 
 using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
-
+using ContentFileModel = Endpoint.DotNet.Artifacts.Files.ContentFileModel;
 public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<WorkspaceModel>
 {
     private readonly ILogger<AngularWorkspaceGenerationStrategy> _logger;
@@ -155,7 +156,7 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<Wo
 
         var tsConfigSpecJson = JObject.Parse(File.ReadAllText(tsConfigSpecJsonPath));
 
-        tsConfigSpecJson.UpdateCompilerOptionsToUseJestTypes();
+        //tsConfigSpecJson.UpdateCompilerOptionsToUseJestTypes();
 
         _fileSystem.File.WriteAllText(tsConfigSpecJsonPath, JsonConvert.SerializeObject(tsConfigSpecJson, Formatting.Indented));
     }
@@ -271,7 +272,7 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<Wo
 
         var angularJson = JObject.Parse(_fileSystem.File.ReadAllText(angularJsonPath));
 
-        angularJson.EnableDefaultStandalone(model.Name);
+        //angularJson.EnableDefaultStandalone(model.Name);
 
         _fileSystem.File.WriteAllText(angularJsonPath, JsonConvert.SerializeObject(angularJson, Formatting.Indented));
     }
@@ -287,7 +288,7 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<Wo
 
         var ngPackageJson = JObject.Parse(_fileSystem.File.ReadAllText(ngPackagePath));
 
-        ngPackageJson.ExportsAssetsAndStyles();
+        //ngPackageJson.ExportsAssetsAndStyles();
 
         _fileSystem.File.WriteAllText(ngPackagePath, JsonConvert.SerializeObject(ngPackageJson, Formatting.Indented));
     }

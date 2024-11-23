@@ -6,7 +6,7 @@ using System;
 
 namespace Endpoint.DotNet.UnitTests.FolderFactory;
 
-using FolderFactory = Endpoint.DotNet.Artifacts.Folders.Factories.FolderFactory;
+
 public class CreateAggregateAsyncShould {
 
     [Fact]

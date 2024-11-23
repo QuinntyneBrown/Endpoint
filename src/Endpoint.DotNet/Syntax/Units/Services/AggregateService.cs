@@ -3,19 +3,19 @@
 
 using System.IO;
 using System.Linq;
-using Endpoint.DotNet.Artifacts;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Artifacts.Projects.Services;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Classes.Factories;
-using Endpoint.DotNet.Syntax.Units;
 using Endpoint.DotNet.Syntax.Units.Factories;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.DotNet.Syntax.Units.Services;
+
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
 
 public class AggregateService : IAggregateService
 {

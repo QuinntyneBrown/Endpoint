@@ -6,6 +6,8 @@ using Endpoint.DotNet.Syntax.Types;
 
 namespace Endpoint.DotNet.Syntax.Structs;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class UserDefinedTypeStructModel : SyntaxModel
 {
     public UserDefinedTypeStructModel()

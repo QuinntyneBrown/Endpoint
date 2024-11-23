@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Endpoint.DotNet.Artifacts.Files;
-using Endpoint.DotNet.Artifacts.Folders;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using static System.IO.Path;
 
@@ -26,7 +24,6 @@ public class ProjectModel : ArtifactModel
                 _ => DotNetProjectType.Console
             }, name, parentDirectory, references)
     {
-        Folders = [];
         Packages = [];
     }
 
@@ -37,7 +34,6 @@ public class ProjectModel : ArtifactModel
         Extension = dotNetProjectType == DotNetProjectType.TypeScriptStandalone ? ".esproj" : ".csproj";
         Directory = Combine(parentDirectory, name);
         References = references ?? [];
-        Folders = [];
         Packages = [];
     }
 
@@ -47,14 +43,12 @@ public class ProjectModel : ArtifactModel
         Name = name;
         Directory = Combine(parentDirectory, name);
         References = [];
-        Folders = [];
         Packages = [];
     }
 
     public ProjectModel()
     {
         References = [];
-        Folders = [];
         Packages = [];
     }
 
@@ -97,8 +91,6 @@ public class ProjectModel : ArtifactModel
         "1591",
         "SA1309",
     };
-
-    public List<FolderModel> Folders { get; set; }
 
     public string GetApplicationUrl(IFileSystem fileSystem)
     {

@@ -13,7 +13,7 @@ namespace Endpoint.DotNet.UnitTests.Syntax
 
         public RuleForModelTests()
         {
-            property = new PropertyModel(new TypeModel("TestValue1785358663"), "TestValue563825375", new PropertyAccessorModel(PropertyAccessorType.Set));
+            property = new PropertyModel(new Endpoint.DotNet.Syntax.Types.TypeModel("TestValue1785358663"), "TestValue563825375", new PropertyAccessorModel(PropertyAccessorType.Set));
             testClass = new RuleForModel(property);
         }
 
@@ -43,7 +43,7 @@ namespace Endpoint.DotNet.UnitTests.Syntax
         public void CanSetAndGetProperty()
         {
             // Arrange
-            var testValue = new PropertyModel(new TypeModel("TestValue1766792680"), "TestValue658604556", new PropertyAccessorModel(PropertyAccessorType.Get));
+            var testValue = new PropertyModel(new Endpoint.DotNet.Syntax.Types.TypeModel("TestValue1766792680"), "TestValue658604556", new PropertyAccessorModel(PropertyAccessorType.Get));
 
             // Act
             testClass.Property = testValue;

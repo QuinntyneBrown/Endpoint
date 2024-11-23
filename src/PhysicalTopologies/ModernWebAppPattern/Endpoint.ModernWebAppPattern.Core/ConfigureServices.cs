@@ -1,10 +1,9 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Endpoint.DotNet.Syntax;
+using Endpoint.Core;
 using Endpoint.ModernWebAppPattern.Core;
 using Endpoint.ModernWebAppPattern.Core.Artifacts;
-using Endpoint.ModernWebAppPattern.Core.Syntax;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

@@ -10,8 +10,8 @@ public class AttributeModel : SyntaxModel
 {
     public AttributeModel()
     {
-        Properties = new Dictionary<string, string>();
-        Params = new List<ParamModel>();
+        Properties = [];
+        Params = [];
     }
 
     public AttributeModel(AttributeType type, string name, Dictionary<string, string> properties)

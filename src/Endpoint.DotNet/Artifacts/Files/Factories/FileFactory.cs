@@ -20,6 +20,8 @@ using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.DotNet.Artifacts.Files.Factories;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 using IFileProvider = IFileProvider;
 public class FileFactory : IFileFactory
 {

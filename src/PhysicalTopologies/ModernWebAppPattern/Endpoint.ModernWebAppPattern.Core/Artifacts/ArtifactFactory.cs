@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Endpoint.Core.Artifacts;
 using Endpoint.DomainDrivenDesign.Core.Models;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
@@ -26,6 +27,7 @@ using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.ModernWebAppPattern.Core.Artifacts;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 using Aggregate = Endpoint.DomainDrivenDesign.Core.Models.Aggregate;
 using Microservice = Endpoint.ModernWebAppPattern.Core.Models.Microservice;
 using ISyntaxFactory = Endpoint.ModernWebAppPattern.Core.Syntax.ISyntaxFactory;
@@ -219,7 +221,7 @@ public class ArtifactFactory : IArtifactFactory
 
                 commandHandlerModel.Implements.Add(new($"IRequestHandler<{command.Name}Request, {command.Name}Response>"));
                 
-                commandHandlerModel.Usings.Add(UsingModel.MediatR);
+                commandHandlerModel.Usings.Add(new ("MediatR"));
 
                 commandHandlerModel.Usings.Add(new(aggregateNamespace));
 
@@ -263,7 +265,7 @@ public class ArtifactFactory : IArtifactFactory
             {
                 var queryHandlerModel = new ClassModel($"{query.Name}Handler");
 
-                queryHandlerModel.Usings.Add(UsingModel.MediatR);
+                queryHandlerModel.Usings.Add(new("MediatR"));
 
                 queryHandlerModel.Usings.Add(new(aggregateNamespace));
 
@@ -301,7 +303,7 @@ public class ArtifactFactory : IArtifactFactory
                     }
                 });
 
-                queryHandlerModel.Usings.Add(UsingModel.MediatR);
+                queryHandlerModel.Usings.Add(new("MediatR"));
 
                 queryHandlerModel.Usings.Add(new(aggregateNamespace));
 

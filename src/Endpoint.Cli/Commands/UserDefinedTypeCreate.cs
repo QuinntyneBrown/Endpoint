@@ -52,7 +52,7 @@ public class UserDefinedTypeCreateRequestHandler : IRequestHandler<UserDefinedTy
                 new UserDefinedTypeStructModel()
                 {
                     Name = request.Name,
-                    SourceType = new TypeModel(request.SourceType),
+                    SourceType = new Endpoint.DotNet.Syntax.Types.TypeModel(request.SourceType),
                 },
             },
         };

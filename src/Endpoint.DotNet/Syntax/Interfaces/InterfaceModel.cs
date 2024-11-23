@@ -7,6 +7,8 @@ using Endpoint.DotNet.Syntax.Types;
 
 namespace Endpoint.DotNet.Syntax.Interfaces;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class InterfaceModel : TypeDeclarationModel
 {
     public InterfaceModel()

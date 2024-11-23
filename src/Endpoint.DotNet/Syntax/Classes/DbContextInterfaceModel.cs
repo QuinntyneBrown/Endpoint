@@ -9,6 +9,8 @@ using Endpoint.DotNet.Syntax.Types;
 
 namespace Endpoint.DotNet.Syntax.Classes;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class DbContextInterfaceModel : ClassModel
 {
     public DbContextInterfaceModel(string name, List<EntityModel> entities, string serviceName, INamingConventionConverter namingConventionConverter)

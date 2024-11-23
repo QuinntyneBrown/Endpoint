@@ -9,12 +9,14 @@ using Endpoint.DotNet.Syntax.Types;
 
 namespace Endpoint.DotNet.Syntax.Methods;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class MethodModel : SyntaxModel
 {
     public MethodModel()
     {
-        Params = new ();
-        Attributes = new ();
+        Params = [];
+        Attributes = [];
         ReturnType = new ("void");
     }
 

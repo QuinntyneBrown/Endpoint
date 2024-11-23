@@ -3,15 +3,14 @@
 
 namespace Endpoint.DotNet.Syntax.Attributes;
 
-public class ProducesResponseTypeAttributeModel : AttributeModel
+/// <summary>
+/// Initializes a new instance of the <see cref="ProducesResponseTypeAttributeModel"/> class.
+/// </summary>
+/// <param name="httpStatusCodeName">The http status code name.</param>
+/// <param name="typeName">The type name.</param>
+public class ProducesResponseTypeAttributeModel(string httpStatusCodeName, string typeName = null) : AttributeModel
 {
-    public ProducesResponseTypeAttributeModel(string httpStatusCodeName, string typeName = null)
-    {
-        HttpStatusCodeName = httpStatusCodeName;
-        TypeName = typeName;
-    }
+    public string HttpStatusCodeName { get; set; } = httpStatusCodeName;
 
-    public string HttpStatusCodeName { get; set; }
-
-    public string TypeName { get; set; }
+    public string TypeName { get; set; } = typeName;
 }

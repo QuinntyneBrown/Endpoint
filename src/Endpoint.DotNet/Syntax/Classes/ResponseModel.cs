@@ -8,6 +8,7 @@ using Endpoint.DotNet.Syntax.Types;
 
 namespace Endpoint.DotNet.Syntax.Classes;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 public class ResponseModel : ClassModel
 {
     public ResponseModel(ClassModel entity, RouteType routeType, INamingConventionConverter namingConventionConverter)

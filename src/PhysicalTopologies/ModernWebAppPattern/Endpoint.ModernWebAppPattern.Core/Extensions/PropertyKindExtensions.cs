@@ -2,10 +2,10 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.DomainDrivenDesign.Core.Models;
-using Endpoint.DotNet.Syntax;
-using Endpoint.DotNet.Syntax.Types;
 
 namespace Endpoint.ModernWebAppPattern.Core.Extensions;
+
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 public static class PropertyKindExtensions
 { 

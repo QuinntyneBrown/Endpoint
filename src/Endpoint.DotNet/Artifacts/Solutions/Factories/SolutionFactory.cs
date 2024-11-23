@@ -2,9 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.IO;
-using System.Linq;
-using System.Xml.Linq;
-using Endpoint.DotNet.Artifacts.Folders;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Options;
 using Endpoint.DotNet.Services;
@@ -33,22 +30,7 @@ public class SolutionFactory : ISolutionFactory
     {
         var model = new SolutionModel(name, directory);
 
-        var srcFolder = new FolderModel("src", model.SolutionDirectory);
-
-        model.Folders.Add(srcFolder);
-
-        FolderModel userDefinedFolder = null;
-
-        if (!string.IsNullOrEmpty(folderName))
-        {
-            userDefinedFolder = new FolderModel(folderName, srcFolder.Directory);
-
-            srcFolder.SubFolders.Add(userDefinedFolder);
-        }
-
-        var project = await projectFactory.Create(dotNetProjectTypeName, projectName, userDefinedFolder == null ? $"{srcFolder.Directory}" : userDefinedFolder.Directory);
-
-        (userDefinedFolder == null ? srcFolder : userDefinedFolder).Projects.Add(project);
+        var project = await projectFactory.Create(dotNetProjectTypeName, projectName, model.SrcDirectory);
 
         return model;
     }

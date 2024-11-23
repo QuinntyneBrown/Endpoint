@@ -83,11 +83,6 @@ public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectMode
             catch { }
         }
 
-        foreach (var folder in model.Folders)
-        {
-            _fileSystem.Directory.CreateDirectory(folder.Directory);
-        }
-
         foreach (var package in model.Packages)
         {
             var version = package.IsPreRelease ? "--prerelease" : $"--version {package.Version}";

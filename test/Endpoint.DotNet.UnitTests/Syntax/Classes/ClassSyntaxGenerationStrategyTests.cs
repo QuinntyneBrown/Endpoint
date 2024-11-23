@@ -62,7 +62,7 @@ public class ClassSyntaxGenerationStrategyTests
 
         var methodParam = new ParamModel()
         {
-            Type = new TypeModel("IServiceCollection"),
+            Type = new Endpoint.DotNet.Syntax.Types.TypeModel("IServiceCollection"),
             Name = "services",
             ExtensionMethodParam = true,
         };
@@ -70,7 +70,7 @@ public class ClassSyntaxGenerationStrategyTests
         var method = new MethodModel()
         {
             Name = "AddApplicationServices",
-            ReturnType = new TypeModel("void"),
+            ReturnType = new Endpoint.DotNet.Syntax.Types.TypeModel("void"),
             Static = true,
             Params = new List<ParamModel>() { methodParam },
         };
@@ -107,12 +107,12 @@ public class ClassSyntaxGenerationStrategyTests
         {
             new FieldModel()
             {
-                Name = "_logger", Type = new TypeModel()
+                Name = "_logger", Type = new Endpoint.DotNet.Syntax.Types.TypeModel()
             {
                 Name = "ILogger",
-                GenericTypeParameters = new List<TypeModel>
+                GenericTypeParameters = new List<Endpoint.DotNet.Syntax.Types.TypeModel>
                 {
-                    new TypeModel() { Name = classModel.Name },
+                    new Endpoint.DotNet.Syntax.Types.TypeModel() { Name = classModel.Name },
                 },
             }, AccessModifier = AccessModifier.Private,
             },
@@ -126,12 +126,12 @@ public class ClassSyntaxGenerationStrategyTests
                 {
                     new ParamModel
                     {
-                        Type = new TypeModel()
+                        Type = new Endpoint.DotNet.Syntax.Types.TypeModel()
                         {
                             Name = "ILogger",
-                            GenericTypeParameters = new List<TypeModel>
+                            GenericTypeParameters = new List<Endpoint.DotNet.Syntax.Types.TypeModel>
                             {
-                                new TypeModel() { Name = classModel.Name },
+                                new Endpoint.DotNet.Syntax.Types.TypeModel() { Name = classModel.Name },
                             },
                         },
                         Name = "logger",

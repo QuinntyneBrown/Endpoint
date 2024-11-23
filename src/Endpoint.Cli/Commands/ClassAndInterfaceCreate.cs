@@ -17,6 +17,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 [Verb("class-and-interface-create")]
 public class ClassAndInterfaceCreateRequest : IRequest
 {
@@ -57,7 +59,7 @@ public class ClassAndInterfaceCreateRequestHandler : IRequestHandler<ClassAndInt
             {
                 for (var i = 1; i < parts.Length; i++)
                 {
-                    interfaces.Add(new TypeModel(parts[i]));
+                    interfaces.Add(new Endpoint.DotNet.Syntax.Types.TypeModel(parts[i]));
                 }
             }
 

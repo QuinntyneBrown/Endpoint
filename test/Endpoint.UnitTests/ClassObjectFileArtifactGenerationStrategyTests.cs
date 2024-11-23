@@ -10,6 +10,7 @@ using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Classes;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Endpoint.Core.Syntax;
 
 namespace Endpoint.UnitTests;
 
@@ -19,28 +20,4 @@ public class ClassObjectFileArtifactGenerationStrategyTests
     {
     }
 
-    [Fact]
-    public async Task Test()
-    {
-        var services = new ServiceCollection();
-
-        services.AddLogging();
-
-        services.AddCoreServices(typeof(CodeGeneratorApplication).Assembly);
-
-        services.AddDotNetServices();
-
-        var container = services.BuildServiceProvider();
-
-        var sut = container.GetRequiredService<IArtifactGenerator>();
-
-        var classModel = new ClassModel("Foo");
-
-        var objectFileModel = new CodeFileModel<ClassModel>(classModel,
-        [
-            new UsingModel() { Name = "Sytem" },
-        ], "Foo", "directory", "extension");
-
-        await sut.GenerateAsync(objectFileModel);
-    }
 }
