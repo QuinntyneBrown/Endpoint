@@ -56,7 +56,7 @@ public class MessageCreateRequestHandler : IRequestHandler<MessageCreateRequest>
                 var name = parts[0];
                 var type = parts[1];
 
-                properties.Add(new PropertyModel(default, AccessModifier.Public, new TypeModel(type), name, PropertyAccessorModel.GetSet));
+                properties.Add(new PropertyModel(default, AccessModifier.Public, new Endpoint.DotNet.Syntax.Types.TypeModel(type), name, PropertyAccessorModel.GetSet));
             }
         }
 

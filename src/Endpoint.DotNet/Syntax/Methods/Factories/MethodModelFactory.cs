@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Methods.Factories;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 public class MethodFactory : IMethodFactory
 {
     private readonly ILogger<MethodFactory> logger;

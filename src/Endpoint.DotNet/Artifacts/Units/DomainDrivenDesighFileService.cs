@@ -22,6 +22,7 @@ using static Endpoint.DotNet.Syntax.Types.TypeModel;
 
 namespace Endpoint.DotNet.Artifacts.Units;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
 {
     private readonly IArtifactGenerator artifactGenerator;

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Endpoint.DotNet.Artifacts.Files;
-using Endpoint.DotNet.Artifacts.Folders;
+
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Artifacts.Units;
@@ -146,81 +146,18 @@ public class SolutionService : ISolutionService
         commandService.Start($"dotnet sln {solutionName} add {messagingUdpProjectModel.Path}", solutionDirectory);
     }
 
-    private async Task<FolderModel> BuildingBlocksCreate(string directory)
+    private async Task<dynamic> BuildingBlocksCreate(string directory)
     {
-        var model = new FolderModel("BuildingBlocks", directory);
-
-        var messagingFolder = new FolderModel("Messaging", model.Directory);
-
-        model.Projects.Add(await projectFactory.CreateKernelProject(model.Directory));
-
-        messagingFolder.Projects.Add(await projectFactory.CreateMessagingProject(messagingFolder.Directory));
-
-        messagingFolder.Projects.Add(await projectFactory.CreateMessagingUdpProject(messagingFolder.Directory));
-
-        model.SubFolders.Add(messagingFolder);
-
-        return model;
+        throw new NotImplementedException();
     }
 
-    private async Task<FolderModel> ServicesCreate(string services, string directory, List<INotification> notifications)
+    private async Task<dynamic> ServicesCreate(string services, string directory, List<INotification> notifications)
     {
-        var model = new FolderModel("Services", directory);
-
-        if (string.IsNullOrEmpty(services))
-        {
-            return model;
-        }
-
-        foreach (var service in services.Split(','))
-        {
-            var serviceFolder = new FolderModel(service, model.Directory);
-
-            var coreModel = await projectFactory.CreateLibrary($"{service}.Core", serviceFolder.Directory, new List<string>()
-            {
-                Constants.ProjectType.Core,
-            });
-
-            var serviceBusMessageConsumer = domainDrivenDesignService.ServiceBusMessageConsumerCreate($"{coreModel.Name}.Messages", coreModel.Directory);
-
-            var fileModel = new CodeFileModel<ClassModel>(serviceBusMessageConsumer, serviceBusMessageConsumer.Usings, serviceBusMessageConsumer.Name, coreModel.Directory, ".cs");
-
-            coreModel.Files.Add(fileModel);
-
-            coreModel.References.Add(@"..\..\..\BuildingBlocks\Messaging\Messaging.Udp\Messaging.Udp.csproj");
-
-            serviceFolder.Projects.Add(coreModel);
-
-            var infrastructureModel = await projectFactory.CreateLibrary($"{service}.Infrastructure", serviceFolder.Directory, new List<string>()
-            {
-                Constants.ProjectType.Infrastructure,
-            });
-
-            infrastructureModel.References.Add(@$"..\{service}.Core\{service}.Core.csproj");
-
-            serviceFolder.Projects.Add(infrastructureModel);
-
-            var apiProjectModel = await projectFactory.CreateLibrary($"{service}.Api", serviceFolder.Directory, new List<string>()
-            {
-                Constants.ProjectType.Api,
-            });
-
-            apiProjectModel.References.Add(@$"..\{service}.Infrastructure\{service}.Infrastructure.csproj");
-
-            apiProjectModel.DotNetProjectType = DotNetProjectType.Web;
-
-            serviceFolder.Projects.Add(apiProjectModel);
-
-            model.SubFolders.Add(serviceFolder);
-        }
-
-        return model;
+        throw new NotImplementedException();
     }
 
-    private FolderModel AppsCreate(string directory)
+    private dynamic AppsCreate(string directory)
     {
-        var model = new FolderModel("Apps", directory);
-
-        return model;
+        throw new NotImplementedException();
     }
 }

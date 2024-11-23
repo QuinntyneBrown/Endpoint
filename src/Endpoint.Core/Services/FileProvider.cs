@@ -14,7 +14,7 @@ public class FileProvider : IFileProvider
 
         if (parts.Length == depth)
         {
-            return Constants.FileNotFound;
+            return Endpoint.Core.Constants.FileNotFound;
         }
 
         var file = Directory.GetFiles(string.Join(Path.DirectorySeparatorChar, parts.Take(parts.Length - depth)), searchPattern).FirstOrDefault();

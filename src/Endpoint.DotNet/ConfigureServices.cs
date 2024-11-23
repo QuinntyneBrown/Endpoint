@@ -6,8 +6,6 @@ using Endpoint.DotNet.Artifacts;
 
 using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Artifacts.Files.Services;
-using Endpoint.DotNet.Artifacts.Folders.Factories;
-using Endpoint.DotNet.Artifacts.Folders.Services;
 using Endpoint.DotNet.Artifacts.FullStack;
 using Endpoint.DotNet.Artifacts.Git;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
@@ -54,10 +52,7 @@ public static class ConfigureServices
         services.AddSingleton<IPlaywrightService, PlaywrightService>();
         services.AddSingleton<IMethodFactory, MethodFactory>();
         services.AddSingleton<ISpecFlowService, SpecFlowService>();
-        services.AddSingleton<IFolderFactory, FolderFactory>();
-        services.AddSingleton<IFolderService, FolderService>();
         services.AddSingleton<IDomainDrivenDesignService, DomainDrivenDesignService>();
-
         services.AddSingleton<IClassService, ClassService>();
         services.AddSingleton<IUtilityService, UtlitityService>();
         services.AddSingleton<ISignalRService, SignalRService>();
@@ -74,7 +69,6 @@ public static class ConfigureServices
         services.AddSingleton<ISettingsProvider, SettingsProvider>();
         services.AddSingleton<ITenseConverter, TenseConverter>();
         services.AddSingleton<IContext, Context>();
-        services.AddSingleton<IFileFactory, FileFactory>();
         services.AddSingleton<INamespaceProvider, NamespaceProvider>();
         services.AddSingleton<IDomainDrivenDesignFileService, DomainDrivenDesignFileService>();
         services.AddSingleton<IDependencyInjectionService, DependencyInjectionService>();
@@ -86,19 +80,13 @@ public static class ConfigureServices
         services.AddSingleton<ISolutionNamespaceProvider, SolutionNamespaceProvider>();
         services.AddSingleton<ISolutionFactory, SolutionFactory>();
         services.AddSingleton<IControllerFactory, ControllerFactory>();
-
         services.AddSingleton<IMinimalApiService, MinimalApiService>();
-        services.AddSingleton<IFileFactory, FileFactory>();
-
         services.AddSingleton<IClipboardService, ClipboardService>();
-
         services.AddSingleton<IEntityFileFactory, EntityFileFactory>();
         services.AddSingleton<IProjectFactory, ProjectFactory>();
         services.AddSingleton<IRouteHandlerFactory, RouteHandlerFactory>();
-        services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(typeof(Constants).Assembly));
-
+        services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(typeof(Endpoint.DotNet.Constants).Assembly));
         services.AddSingleton<IClassFactory, ClassFactory>();
-
         services.AddSingleton<IArtifactParser, ArtifactParser>();
         services.AddSingleton<ISyntaxParser, SyntaxParser>();
 

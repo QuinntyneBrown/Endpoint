@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Methods.Strategies;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class MethodPlantUmlParsingStrategy : BaseSyntaxParsingStrategy<MethodModel>
 {
     private readonly ILogger<MethodPlantUmlParsingStrategy> logger;

@@ -40,7 +40,7 @@ public class RecordCreateRequestHandler : IRequestHandler<RecordCreateRequest>
 
         var file = new CodeFileModel<RecordModel>(
             model,
-            new List<DotNet.Syntax.UsingModel>(),
+            new List<Core.Syntax.UsingModel>(),
             model.Name,
             request.Directory,
             ".cs");

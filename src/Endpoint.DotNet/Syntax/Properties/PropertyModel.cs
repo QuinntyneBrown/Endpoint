@@ -6,6 +6,8 @@ using Endpoint.DotNet.Syntax.Types;
 
 namespace Endpoint.DotNet.Syntax.Properties;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class PropertyModel : SyntaxModel
 {
     public PropertyModel()

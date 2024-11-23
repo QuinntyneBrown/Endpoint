@@ -39,8 +39,4 @@
     <ProjectReference Include="..\..\src\PhysicalTopologies\ModernWebAppPattern\Endpoint.ModernWebAppPattern.Core\Endpoint.ModernWebAppPattern.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Syntax\Methods\" />
-  </ItemGroup>
-
 </Project>

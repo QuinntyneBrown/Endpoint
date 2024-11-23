@@ -36,7 +36,7 @@ public class TemplateProcessorTests
 
         entity.Properties = new List<PropertyModel>
         {
-            new PropertyModel(entity, AccessModifier.Public, new TypeModel() { Name = "string" }, "Name", PropertyAccessorModel.GetPrivateSet),
+            new PropertyModel(entity, AccessModifier.Public, new Endpoint.DotNet.Syntax.Types.TypeModel() { Name = "string" }, "Name", PropertyAccessorModel.GetPrivateSet),
         };
 
         var template = new StringBuilder().AppendJoin(Environment.NewLine, new string[9]

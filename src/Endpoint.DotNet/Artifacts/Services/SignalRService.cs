@@ -1,13 +1,11 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.IO;
-using System.Threading.Tasks;
-using Endpoint.DotNet.Artifacts.Files;
-using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
+using System.IO;
 
 namespace Endpoint.DotNet.Artifacts.Services;
+
 
 public class SignalRService : ISignalRService
 {

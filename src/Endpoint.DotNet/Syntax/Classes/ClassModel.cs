@@ -16,6 +16,10 @@ public class ClassModel : InterfaceModel
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ClassModel"/> class.
+    /// </summary>
+    /// <param name="name">The name.</param>
     public ClassModel(string name)
         : base(name)
     {

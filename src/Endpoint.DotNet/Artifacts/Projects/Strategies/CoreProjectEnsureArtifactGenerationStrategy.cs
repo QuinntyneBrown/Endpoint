@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Strategies;
 
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
 public class CoreProjectEnsureArtifactGenerationStrategy : IArtifactGenerationStrategy<ProjectReferenceModel>
 {
     private readonly ILogger<ApiProjectEnsureArtifactGenerationStrategy> logger;

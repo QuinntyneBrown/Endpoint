@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
 
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
+
 [Verb("udp-client-factory-interface-create")]
 public class UdpClientFactoryInterfaceCreateRequest : IRequest
 {

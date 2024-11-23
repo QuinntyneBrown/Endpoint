@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Files.Services;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class ClassService : IClassService
 {
     private readonly ILogger<ClassService> _logger;

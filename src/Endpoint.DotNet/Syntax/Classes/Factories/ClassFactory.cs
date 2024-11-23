@@ -21,6 +21,8 @@ using Endpoint.DotNet.Syntax.Types;
 
 namespace Endpoint.DotNet.Syntax.Classes.Factories;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class ClassFactory : IClassFactory
 {
     private readonly INamingConventionConverter namingConventionConverter;

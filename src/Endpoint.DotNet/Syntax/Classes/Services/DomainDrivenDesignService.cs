@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Classes.Services;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
 public class DomainDrivenDesignService : IDomainDrivenDesignService
 {
     private readonly ILogger<DomainDrivenDesignService> logger;

@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
 
+using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
+
 [Verb("editor-config-create")]
 public class EditorConfigCreateRequest : IRequest
 {

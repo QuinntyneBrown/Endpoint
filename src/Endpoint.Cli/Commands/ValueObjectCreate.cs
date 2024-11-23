@@ -70,14 +70,14 @@ public class ValueObjectCreateRequestHandler : IRequestHandler<ValueObjectCreate
 
         var @class = new ClassModel(request.Name);
 
-        @class.Implements.Add(new TypeModel("ValueObject"));
+        @class.Implements.Add(new Endpoint.DotNet.Syntax.Types.TypeModel("ValueObject"));
 
         @class.Usings.Add(new ("System"));
 
         var equalityMethod = new MethodModel
         {
             Name = "GetEqualityComponents",
-            ReturnType = new TypeModel("IEnumerable<object>"),
+            ReturnType = new Endpoint.DotNet.Syntax.Types.TypeModel("IEnumerable<object>"),
             Override = true,
             AccessModifier = AccessModifier.Protected,
             Body = new DotNet.Syntax.Expressions.ExpressionModel("throw new NotImplementedException();"),

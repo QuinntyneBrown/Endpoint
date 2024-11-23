@@ -165,7 +165,7 @@ public class DependencyInjectionService : IDependencyInjectionService
 
         var configureServicesFilePath = Path.Combine(projectDirectory, "ConfigureServices.cs");
 
-        if (path == Constants.FileNotFound)
+        if (path == Endpoint.Core.Constants.FileNotFound)
         {
             await AddConfigureServices(projectSuffix, projectDirectory);
         }
