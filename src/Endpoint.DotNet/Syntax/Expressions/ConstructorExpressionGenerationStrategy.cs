@@ -51,7 +51,7 @@ public class ConstructorExpressionGenerationStrategy : ISyntaxGenerationStrategy
 
                 var paramName = _namingConventionConverter.Convert(NamingConvention.CamelCase, param.Name);
 
-                stringBuilder.AppendLine($"{fieldName} = {paramName};".Indent(1));
+                stringBuilder.AppendLine($"{fieldName} = {paramName};");
             }
         }
 

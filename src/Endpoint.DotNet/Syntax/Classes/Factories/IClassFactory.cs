@@ -50,5 +50,11 @@ public interface IClassFactory
 
     Task<ClassModel> CreateUserDefinedEnumAsync(string name, string type, List<KeyValuePair<string,string>> keyValuePairs);
 
+    /// <summary>
+    /// CreateUserDefinedTypeAsync.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="type">The type.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     Task<ClassModel> CreateUserDefinedTypeAsync(string name, string type);
 }

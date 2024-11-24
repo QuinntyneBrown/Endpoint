@@ -74,5 +74,4 @@ public class AttributeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Attri
 
         return StringBuilderCache.GetStringAndRelease(builder);
     }
-
 }

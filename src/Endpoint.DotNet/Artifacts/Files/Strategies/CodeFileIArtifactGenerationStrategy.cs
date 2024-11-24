@@ -36,33 +36,30 @@ public abstract class CodeFileIArtifactGenerationStrategy<T> : IArtifactGenerati
     {
         logger.LogInformation("Generating Code File. {name}", model.Name);
 
-        var stringBuilder = new StringBuilder();
+        var stringBuilder = StringBuilderCache.Acquire();
 
-        if (typeof(T) != typeof(DocumentModel))
+        foreach (var @using in model.Usings)
         {
-            foreach (var @using in model.Usings)
+            stringBuilder.AppendLine($"using {@using.Name};");
+
+            if (@using == model.Usings.Last())
             {
-                stringBuilder.AppendLine($"using {@using.Name};");
-
-                if (@using == model.Usings.Last())
-                {
-                    stringBuilder.AppendLine();
-                }
-            }
-
-            var fileNamespace = string.IsNullOrEmpty(model.Namespace) ? namespaceProvider.Get(model.Directory) : model.Namespace;
-
-            if (!string.IsNullOrEmpty(fileNamespace) && fileNamespace != "NamespaceNotFound" && !fileNamespace.Contains(".lib."))
-            {
-                stringBuilder.AppendLine($"namespace {fileNamespace};");
-
                 stringBuilder.AppendLine();
             }
         }
 
+        var fileNamespace = string.IsNullOrEmpty(model.Namespace) ? namespaceProvider.Get(model.Directory) : model.Namespace;
+
+        if (!string.IsNullOrEmpty(fileNamespace) && fileNamespace != "NamespaceNotFound" && !fileNamespace.Contains(".lib."))
+        {
+            stringBuilder.AppendLine($"namespace {fileNamespace};");
+
+            stringBuilder.AppendLine();
+        }
+
         stringBuilder.AppendLine(await syntaxGenerator.GenerateAsync(model.Object));
 
-        model.Body = stringBuilder.ToString();
+        model.Body = StringBuilderCache.GetStringAndRelease(stringBuilder);
 
         await _artifactGenerator.GenerateAsync(new FileModel(model.Name, model.Directory, model.Extension) {  Body = model.Body });
     }
