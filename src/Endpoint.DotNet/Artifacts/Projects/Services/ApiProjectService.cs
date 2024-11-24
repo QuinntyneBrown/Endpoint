@@ -3,8 +3,8 @@
 
 using System.IO;
 using Endpoint.DotNet.Artifacts.Files;
-using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Classes.Factories;
 using Endpoint.DotNet.Syntax.Entities;
 using Endpoint.DotNet.Syntax.Methods.Factories;
@@ -16,9 +16,9 @@ using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
 
 public class ApiProjectService : IApiProjectService
 {
-    private readonly ILogger<ApiProjectService> logger;
-    private readonly IFileProvider fileProvider;
-    private readonly IFileSystem fileSystem;
+    private readonly ILogger<ApiProjectService> _logger;
+    private readonly IFileProvider _fileProvider;
+    private readonly IFileSystem _fileSystem;
     private readonly IArtifactGenerator artifactGenerator;
     private readonly IFileFactory fileFactory;
     private readonly IClassFactory classFactory;
@@ -39,9 +39,9 @@ public class ApiProjectService : IApiProjectService
         IClipboardService clipboardService,
         ICodeAnalysisService codeAnalysisService)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.fileProvider = fileProvider ?? throw new ArgumentNullException(nameof(fileProvider));
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
+        this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this._fileProvider = fileProvider ?? throw new ArgumentNullException(nameof(fileProvider));
+        this._fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         this.artifactGenerator = artifactGenerator ?? throw new ArgumentNullException(nameof(artifactGenerator));
         this.fileFactory = fileFactory ?? throw new ArgumentNullException(nameof(fileFactory));
         this.classFactory = classFactory ?? throw new ArgumentNullException(nameof(classFactory));
@@ -51,28 +51,15 @@ public class ApiProjectService : IApiProjectService
         this.codeAnalysisService = codeAnalysisService ?? throw new ArgumentNullException(nameof(codeAnalysisService));
     }
 
-    public async Task ControllerCreateAsync(string entityName, bool empty, string directory)
+    public async Task ControllerCreateAsync(string resourceName, bool empty, string directory)
     {
-        logger.LogInformation("Controller Add");
+        _logger.LogInformation("ControllerCreateAsync. {resourceName}", resourceName);
 
-        var entity = new EntityModel(entityName);
+        var controller = empty ? classFactory.CreateEmptyController(resourceName) : await classFactory.CreateControllerAsync($"{resourceName}Controller");
 
-        await artifactGenerator.GenerateAsync(new ProjectReferenceModel()
-        {
-            ReferenceDirectory = directory,
-        });
+        var model = new CodeFileModel<ClassModel>(controller, controller.Name, directory, ".cs");
 
-        var csProjPath = fileProvider.Get("*.csproj", directory);
-
-        var csProjDirectory = Path.GetDirectoryName(csProjPath);
-
-        var controllersDirectory = fileSystem.Path.Combine(csProjDirectory, "Controllers");
-
-        fileSystem.Directory.CreateDirectory(controllersDirectory);
-
-        var controllerClassModel = empty ? classFactory.CreateEmptyController(entityName, csProjDirectory) : classFactory.CreateController(entity, csProjDirectory);
-
-        await artifactGenerator.GenerateAsync(fileFactory.CreateCSharp(controllerClassModel, controllersDirectory));
+        await artifactGenerator.GenerateAsync(model);
     }
 
     public async Task ControllerMethodAdd(string name, string controller, string route, string directory)
@@ -96,7 +83,7 @@ public class ApiProjectService : IApiProjectService
 
         clipboardService.SetText(syntax);
 
-        logger.LogInformation(syntax);
+        _logger.LogInformation(syntax);
     }
 
     private async Task AddApiFiles(string serviceName, string directory)

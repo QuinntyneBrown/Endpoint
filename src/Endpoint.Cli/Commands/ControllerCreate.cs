@@ -26,19 +26,22 @@ public class ControllerCreateRequest : IRequest
 
 public class ControllerCreateRequestHandler : IRequestHandler<ControllerCreateRequest>
 {
-    private readonly ILogger<ControllerCreateRequestHandler> logger;
-    private readonly IApiProjectService apiProjectService;
+    private readonly ILogger<ControllerCreateRequestHandler> _logger;
+    private readonly IApiProjectService _apiProjectService;
 
     public ControllerCreateRequestHandler(ILogger<ControllerCreateRequestHandler> logger, IApiProjectService apiProjectService)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.apiProjectService = apiProjectService ?? throw new ArgumentNullException(nameof(apiProjectService));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(apiProjectService);
+
+        _logger = logger;
+        _apiProjectService = apiProjectService;
     }
 
     public async Task Handle(ControllerCreateRequest request, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Handled: {0}", nameof(ControllerCreateRequestHandler));
+        _logger.LogInformation("Handled: {0}", nameof(ControllerCreateRequestHandler));
 
-        await apiProjectService.ControllerCreateAsync(request.EntityName, request.Empty, request.Directory);
+        await _apiProjectService.ControllerCreateAsync(request.EntityName, request.Empty, request.Directory);
     }
 }

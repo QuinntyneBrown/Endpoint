@@ -2,9 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Linq;
-using System.Text;
 using Endpoint.DotNet.Services;
-using Endpoint.DotNet.Syntax.Documents;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;
