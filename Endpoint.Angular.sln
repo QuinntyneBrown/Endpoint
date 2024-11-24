@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.Angular", "src\End
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.Angular.Cli", "src\Endpoint.Angular.Cli\Endpoint.Angular.Cli.csproj", "{AA0BE175-FD25-483A-A693-CDA2C811A059}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{9C398454-F87D-4A65-8340-7AF04D577B04}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Endpoint.ModernWebAppPlatform.Core.Tests", "test\Endpoint.ModernWebAppPlatform.Core.Tests\Endpoint.ModernWebAppPlatform.Core.Tests.csproj", "{8E3E13D7-97C3-45AE-8C00-5CB53268D57C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +33,10 @@ Global
 		{AA0BE175-FD25-483A-A693-CDA2C811A059}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA0BE175-FD25-483A-A693-CDA2C811A059}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA0BE175-FD25-483A-A693-CDA2C811A059}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E3E13D7-97C3-45AE-8C00-5CB53268D57C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E3E13D7-97C3-45AE-8C00-5CB53268D57C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E3E13D7-97C3-45AE-8C00-5CB53268D57C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E3E13D7-97C3-45AE-8C00-5CB53268D57C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -37,5 +45,6 @@ Global
 		{D988E86B-8CFF-44FF-A98F-576F1273C16B} = {E9F29401-2D73-4BE5-BF68-28699DA057B0}
 		{7611BB26-C67E-4386-93EF-B14C9FF94FAD} = {E9F29401-2D73-4BE5-BF68-28699DA057B0}
 		{AA0BE175-FD25-483A-A693-CDA2C811A059} = {E9F29401-2D73-4BE5-BF68-28699DA057B0}
+		{8E3E13D7-97C3-45AE-8C00-5CB53268D57C} = {9C398454-F87D-4A65-8340-7AF04D577B04}
 	EndGlobalSection
 EndGlobal
