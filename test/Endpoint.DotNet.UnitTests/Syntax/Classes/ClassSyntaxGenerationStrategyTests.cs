@@ -103,9 +103,9 @@ public class ClassSyntaxGenerationStrategyTests
 
         var classModel = new ClassModel("Foo");
 
-        classModel.Fields = new List<FieldModel>()
-        {
-            new FieldModel()
+        classModel.Fields =
+        [
+            new ()
             {
                 Name = "_logger", Type = new Endpoint.DotNet.Syntax.Types.TypeModel()
             {
@@ -116,15 +116,15 @@ public class ClassSyntaxGenerationStrategyTests
                 },
             }, AccessModifier = AccessModifier.Private,
             },
-        };
+        ];
 
-        classModel.Constructors = new List<ConstructorModel>()
-        {
-            new ConstructorModel(classModel, classModel.Name)
+        classModel.Constructors =
+        [
+            new (classModel, classModel.Name)
             {
-                Params = new List<ParamModel>()
-                {
-                    new ParamModel
+                Params =
+                [
+                    new ()
                     {
                         Type = new Endpoint.DotNet.Syntax.Types.TypeModel()
                         {
@@ -136,9 +136,9 @@ public class ClassSyntaxGenerationStrategyTests
                         },
                         Name = "logger",
                     },
-                },
+                ],
             },
-        };
+        ];
 
         var result = await sut.GenerateAsync(classModel,default);
 
@@ -190,6 +190,86 @@ public class ClassSyntaxGenerationStrategyTests
 
         // ACT
         var actual = await sut.GenerateAsync(userDefinedTypeModel,default);
+
+        // ASSERT
+        Assert.Equal(expected.RemoveTrivia(), actual.RemoveTrivia());
+    }
+
+    [Fact]
+    public async Task ClassSyntaxGenerationStrategy_returns_valid_syntax_given_a_api_controller_model()
+    {
+        // ARRANGE
+        var expected = $$"""
+            [ApiController]
+            public class PubSubController { }
+            """;
+
+        var services = new ServiceCollection();
+
+        services.AddLogging();
+
+        services.AddDotNetServices();
+
+        services.AddCoreServices(typeof(ClassSyntaxGenerationStrategy).Assembly);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var classFactory = serviceProvider.GetRequiredService<IClassFactory>();
+
+        var controller = await classFactory.CreateControllerAsync("PubSubController");
+
+        var sut = ActivatorUtilities.CreateInstance<ClassSyntaxGenerationStrategy>(serviceProvider);
+
+        // ACT
+        var actual = await sut.GenerateAsync(controller, default);
+
+        // ASSERT
+        Assert.Equal(expected.RemoveTrivia(), actual.RemoveTrivia());
+    }
+
+    [Fact]
+    public async Task ClassSyntaxGenerationStrategy_returns_valid_syntax_given_an_empty_api_controller_model()
+    {
+        // ARRANGE
+        var expected = $$"""
+            [ApiController]
+            [ApiVersion("1.0")]
+            [Route("api/{version:apiVersion}/[controller]")]
+            [Produces(MediaTypeNames.Application.Json)]
+            [Consumes(MediaTypeNames.Application.Json)]
+            public class PubSubController
+            {
+                private readonly IMediator _mediator;
+                private readonly ILogger<PubSubController> _logger;
+
+                public PubSubController(IMediator mediator,ILogger<PubSubController> logger){
+                    ArgumentNullException.ThrowIfNull(mediator);
+                    ArgumentNullException.ThrowIfNull(logger);
+
+                    _mediator = mediator;
+                    _logger = logger;
+                }
+            }            
+            """;
+
+        var services = new ServiceCollection();
+
+        services.AddLogging();
+
+        services.AddDotNetServices();
+
+        services.AddCoreServices(typeof(ClassSyntaxGenerationStrategy).Assembly);
+
+        var serviceProvider = services.BuildServiceProvider();
+
+        var classFactory = serviceProvider.GetRequiredService<IClassFactory>();
+
+        var controller = classFactory.CreateEmptyController("PubSub");
+
+        var sut = ActivatorUtilities.CreateInstance<ClassSyntaxGenerationStrategy>(serviceProvider);
+
+        // ACT
+        var actual = await sut.GenerateAsync(controller, default);
 
         // ASSERT
         Assert.Equal(expected.RemoveTrivia(), actual.RemoveTrivia());

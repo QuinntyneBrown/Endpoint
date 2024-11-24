@@ -12,13 +12,13 @@ public interface IClassFactory
 {
     Task<ClassModel> CreateMessagePackMessageAsync(string name, List<KeyValuePair<string, string>> keyValuePairs, List<string> implements);
 
-    Task<ClassModel> CreateControllerAsync(string controllerName, string directory);
+    Task<ClassModel> CreateControllerAsync(string controllerName);
 
     Task<ClassModel> CreateEntityAsync(string name, List<KeyValuePair<string,string>> keyValuePairs);
 
     ClassModel CreateController(EntityModel model, string directory);
 
-    ClassModel CreateEmptyController(string name, string directory);
+    ClassModel CreateEmptyController(string resourceName);
 
     ClassModel CreateDbContext(string name, List<EntityModel> entities, string directory);
 

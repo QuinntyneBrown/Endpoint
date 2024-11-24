@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Linq;
-using System.Text;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 
@@ -57,7 +56,9 @@ public class AttributeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Attri
 
             foreach (var property in target.Properties)
             {
-                var propertyKeyValuePair = new StringBuilder($"{property.Key} = \"{property.Value}\"");
+                var propertyKeyValuePair = StringBuilderCache.Acquire();
+
+                propertyKeyValuePair.Append($"{property.Key} = \"{property.Value}\"");
 
                 if (property.Key != target.Properties.Last().Key)
                 {
