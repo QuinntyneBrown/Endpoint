@@ -66,7 +66,7 @@ public class ClassSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ClassMode
         {
             builder.Append(" { }");
 
-            return builder.ToString().FormatCSharp();
+            return StringBuilderCache.GetStringAndRelease(builder);
         }
 
         builder.AppendLine($"");

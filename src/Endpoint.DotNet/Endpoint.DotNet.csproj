@@ -21,6 +21,11 @@
     <EmbeddedResource Include="Templates\**\*.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Syntax\TypeScript\**" />
+    <EmbeddedResource Remove="Syntax\TypeScript\**" />
+    <None Remove="Syntax\TypeScript\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.0" />
     <PackageReference Include="DotLiquid" Version="2.2.677" />
     <PackageReference Include="EnvDTE" Version="17.6.36389" />
@@ -60,9 +65,5 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Endpoint.Core\Endpoint.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Syntax\TypeScript\" />
   </ItemGroup>
 </Project>

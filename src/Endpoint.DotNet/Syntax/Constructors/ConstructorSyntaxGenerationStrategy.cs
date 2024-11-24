@@ -2,43 +2,44 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Linq;
-using System.Text;
 using System.Threading;
-using Endpoint.DotNet.Services;
-using Endpoint.DotNet.Syntax.Classes;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Syntax.Constructors;
 
 public class ConstructorSyntaxGenerationStrategy : ISyntaxGenerationStrategy<ConstructorModel>
 {
-    private readonly ILogger<ConstructorSyntaxGenerationStrategy> logger;
-    private readonly INamingConventionConverter namingConventionConverter;
-    private readonly ISyntaxGenerator syntaxGenerator;
+    private readonly ILogger<ConstructorSyntaxGenerationStrategy> _logger;
+    private readonly INamingConventionConverter _namingConventionConverter;
+    private readonly ISyntaxGenerator _syntaxGenerator;
 
     public ConstructorSyntaxGenerationStrategy(
         ISyntaxGenerator syntaxGenerator,
         INamingConventionConverter namingConventionConverter,
         ILogger<ConstructorSyntaxGenerationStrategy> logger)
     {
-        this.namingConventionConverter = namingConventionConverter ?? throw new ArgumentNullException(nameof(namingConventionConverter));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.syntaxGenerator = syntaxGenerator ?? throw new ArgumentNullException(nameof(SyntaxGenerator));
+        ArgumentNullException.ThrowIfNull(syntaxGenerator);
+        ArgumentNullException.ThrowIfNull(namingConventionConverter);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        _namingConventionConverter = namingConventionConverter;
+        _logger = logger;
+        _syntaxGenerator = syntaxGenerator;
     }
 
     public async Task<string> GenerateAsync(ConstructorModel model, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Generating syntax for {0}.", model);
+        _logger.LogInformation("Generating syntax for {0}.", model);
 
         var builder = StringBuilderCache.Acquire();
 
-        builder.Append(await syntaxGenerator.GenerateAsync(model.AccessModifier));
+        builder.Append(await _syntaxGenerator.GenerateAsync(model.AccessModifier));
 
         builder.Append($" {model.Name}");
 
         builder.Append('(');
 
-        builder.Append(string.Join(',', await Task.WhenAll(model.Params.Select(async x => await syntaxGenerator.GenerateAsync(x)))));
+        builder.Append(string.Join(',', await Task.WhenAll(model.Params.Select(async x => await _syntaxGenerator.GenerateAsync(x)))));
 
         builder.Append(')');
 
@@ -51,7 +52,7 @@ public class ConstructorSyntaxGenerationStrategy : ISyntaxGenerationStrategy<Con
 
         if (model.Body != null)
         {
-            string result = await syntaxGenerator.GenerateAsync(model.Body);
+            string result = await _syntaxGenerator.GenerateAsync(model.Body);
 
             builder.AppendLine(result.Indent(1));
         }

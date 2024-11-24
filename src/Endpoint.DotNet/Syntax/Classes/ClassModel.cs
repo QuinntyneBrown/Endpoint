@@ -14,6 +14,10 @@ public class ClassModel : InterfaceModel
 {
     public ClassModel()
     {
+        Fields = [];
+        Constructors = [];
+        Attributes = [];
+        AccessModifier = AccessModifier.Public;
     }
 
     /// <summary>
@@ -23,9 +27,9 @@ public class ClassModel : InterfaceModel
     public ClassModel(string name)
         : base(name)
     {
-        Fields = new List<FieldModel>();
-        Constructors = new List<ConstructorModel>();
-        Attributes = new List<AttributeModel>();
+        Fields = [];
+        Constructors = [];
+        Attributes = [];
         AccessModifier = AccessModifier.Public;
     }
 

@@ -145,7 +145,7 @@ public class ClassFactory : IClassFactory
 
         return model;
     }
-    
+
     public async Task<ClassModel> DtoExtensionsCreateAsync(ClassModel aggregate)
     {
         var model = new ClassModel($"{aggregate.Name}Extensions")

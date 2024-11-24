@@ -8,6 +8,11 @@ namespace System;
 
 public static class StringExtensions
 {
+    public static string RemoveTrivia(this string value)
+    {
+        return value.Remove(' ')
+            .Remove(Environment.NewLine);
+    }
 
     public static string Indent(this string value, int indent, int spaces = 4)
     {
