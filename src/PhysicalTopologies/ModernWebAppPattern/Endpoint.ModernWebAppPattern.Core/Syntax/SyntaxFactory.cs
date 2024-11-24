@@ -7,7 +7,6 @@ using Endpoint.DotNet.Syntax.Attributes;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Methods;
 using Endpoint.DotNet.Syntax.Params;
-using Endpoint.DotNet.Syntax.Types;
 using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.Controllers;
 using Microsoft.Extensions.Logging;
 
@@ -46,7 +45,7 @@ public class SyntaxFactory : ISyntaxFactory
             ],
             Params =
             [
-                new ParamModel() { Type = new TypeModel($"{command.Name}Request"), Name = "request", Attribute = new() { Name = "FromBody" } }
+                new () { Type = new ($"{command.Name}Request"), Name = "request", Attribute = new() { Name = "FromBody" } }
             ]
         };
 
@@ -72,7 +71,7 @@ public class SyntaxFactory : ISyntaxFactory
             ],
             Params =
             [
-                new ParamModel() { Type = new TypeModel($"{command.Name}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
+                new () { Type = new ($"{command.Name}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
             ]
         };
 
@@ -98,7 +97,7 @@ public class SyntaxFactory : ISyntaxFactory
             ],
             Params =
             [
-                new ParamModel() { Type = new TypeModel($"{query.Name}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
+                new () { Type = new ($"{query.Name}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
             ]
         };
 
@@ -124,7 +123,7 @@ public class SyntaxFactory : ISyntaxFactory
             ],
             Params =
             [
-                new ParamModel() { Type = new TypeModel($"{query.Name}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
+                new () { Type = new ($"{query.Name}Request"), Name = "request", Attribute = new() { Name = "FromRoute" } }
             ]
         };
 
@@ -151,7 +150,7 @@ public class SyntaxFactory : ISyntaxFactory
             ],
             Params =
             [
-                new ParamModel() { Type = new TypeModel($"{command.Name}Request"), Name = "request", Attribute = new() { Name = "FromBody" } }
+                new () { Type = new ($"{command.Name}Request"), Name = "request", Attribute = new() { Name = "FromBody" } }
             ]
         };
 

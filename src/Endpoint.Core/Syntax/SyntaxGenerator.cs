@@ -20,13 +20,20 @@ public class SyntaxGenerator : ISyntaxGenerator
 
     public Task<string> GenerateAsync<T>(T model)
     {
-        var handler = _syntaxGenerators.GetOrAdd(model!.GetType(), static targetType =>
+        try
         {
-            var wrapperType = typeof(SyntaxGenerationStrategyWrapperImplementation<>).MakeGenericType(targetType);
-            var wrapper = Activator.CreateInstance(wrapperType) ?? throw new InvalidOperationException($"Could not create wrapper type for {targetType}");
-            return (SyntaxGenerationStrategyBase)wrapper;
-        });
+            var handler = _syntaxGenerators.GetOrAdd(model!.GetType(), static targetType =>
+            {
+                var wrapperType = typeof(SyntaxGenerationStrategyWrapperImplementation<>).MakeGenericType(targetType);
+                var wrapper = Activator.CreateInstance(wrapperType) ?? throw new InvalidOperationException($"Could not create wrapper type for {targetType}");
+                return (SyntaxGenerationStrategyBase)wrapper;
+            });
 
-        return handler.GenerateAsync(_serviceProvider, model, default);
+            return handler.GenerateAsync(_serviceProvider, model, default);
+        }
+        catch(Exception ex)
+        {
+            throw ex;
+        }
     }
 }

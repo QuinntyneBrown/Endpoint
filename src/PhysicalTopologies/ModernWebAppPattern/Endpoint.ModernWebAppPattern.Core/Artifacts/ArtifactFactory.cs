@@ -228,7 +228,7 @@ public class ArtifactFactory : IArtifactFactory
                 commandHandlerModel.Fields =
                     [
                         FieldModel.LoggerOf($"{command.Name}Handler"),
-                        new FieldModel() { Name = "_context", Type = new TypeModel($"I{boundedContext.Name}DbContext") }
+                        new () { Name = "_context", Type = new ($"I{boundedContext.Name}DbContext") }
                     ];
 
                 commandHandlerModel.Constructors.Add(new (commandHandlerModel, commandHandlerModel.Name)
@@ -236,7 +236,7 @@ public class ArtifactFactory : IArtifactFactory
                     Params =
                     [
                         ParamModel.LoggerOf($"{command.Name}Handler"),
-                        new ParamModel() {  Name = "context", Type = new TypeModel($"I{boundedContext.Name}DbContext")}
+                        new ParamModel() {  Name = "context", Type = new ($"I{boundedContext.Name}DbContext")}
                     ]
                 });
 
@@ -274,7 +274,7 @@ public class ArtifactFactory : IArtifactFactory
                 queryHandlerModel.Fields =
                     [
                         FieldModel.LoggerOf($"{query.Name}Handler"),
-                        new FieldModel() { Name = "_context", Type = new TypeModel($"I{boundedContext.Name}DbContext") }
+                        new () { Name = "_context", Type = new TypeModel($"I{boundedContext.Name}DbContext") }
                     ];
 
                 queryHandlerModel.Constructors.Add(new(queryHandlerModel, queryHandlerModel.Name)
@@ -282,7 +282,7 @@ public class ArtifactFactory : IArtifactFactory
                     Params =
                     [
                         ParamModel.LoggerOf($"{query.Name}Handler"),
-                        new ParamModel() { Name = "context", Type = new TypeModel($"I{boundedContext.Name}DbContext") }
+                        new () { Name = "context", Type = new TypeModel($"I{boundedContext.Name}DbContext") }
                     ]
                 });
 

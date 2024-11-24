@@ -91,6 +91,9 @@ public static class ConfigureServices
         services.AddSingleton<ISyntaxParser, SyntaxParser>();
 
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
+
+        services.AddSyntaxGenerator(typeof(Endpoint.DotNet.Constants).Assembly);
+        services.AddArifactGenerator(typeof(Endpoint.DotNet.Constants).Assembly);
     }
 
 
