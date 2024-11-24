@@ -89,6 +89,8 @@ public static class ConfigureServices
         services.AddSingleton<IClassFactory, ClassFactory>();
         services.AddSingleton<IArtifactParser, ArtifactParser>();
         services.AddSingleton<ISyntaxParser, SyntaxParser>();
+        services.AddSingleton<Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory, Endpoint.DotNet.Artifacts.Files.Factories.FileFactory>();
+
 
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
 

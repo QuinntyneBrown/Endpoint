@@ -4,9 +4,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
-using Endpoint.DotNet.Artifacts.Files;
-using Endpoint.DotNet.Artifacts.Files.Factories;
-using Endpoint.DotNet.Services;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Services;
 

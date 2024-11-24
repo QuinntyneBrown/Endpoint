@@ -7,11 +7,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.DotNet;
 using Endpoint.DotNet.Artifacts.Projects;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Artifacts.Projects.Services;
-using Endpoint.DotNet.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -41,67 +39,68 @@ public class ProjectAddRequest : IRequest
 
 public class ProjectAddRequestHandler : IRequestHandler<ProjectAddRequest>
 {
-    private readonly ILogger<ProjectAddRequestHandler> logger;
-    private readonly IArtifactGenerator artifactGenerator;
-    private readonly ICommandService commandService;
-    private readonly IFileSystem fileSystem;
-    private readonly IProjectService projectService;
-    private readonly IProjectFactory projectFactory;
-    private readonly IFileProvider fileProvider;
+    private readonly ILogger<ProjectAddRequestHandler> _logger;
+    private readonly IFileSystem _fileSystem;
+    private readonly IProjectService _projectService;
+    private readonly IProjectFactory _projectFactory;
+    private readonly IFileProvider _fileProvider;
 
     public ProjectAddRequestHandler(
         ILogger<ProjectAddRequestHandler> logger,
-        IArtifactGenerator artifactGenerator,
-        ICommandService commandService,
         IFileSystem fileSystem,
         IProjectService projectService,
         IProjectFactory projectFactory,
         IFileProvider fileProvider)
     {
-        this.logger = logger;
-        this.artifactGenerator = artifactGenerator;
-        this.commandService = commandService;
-        this.fileSystem = fileSystem;
-        this.projectService = projectService;
-        this.projectFactory = projectFactory;
-        this.fileProvider = fileProvider;
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(fileSystem);
+        ArgumentNullException.ThrowIfNull(projectService);
+        ArgumentNullException.ThrowIfNull(projectFactory);
+        ArgumentNullException.ThrowIfNull(fileProvider);
+
+        _logger = logger;
+        _fileSystem = fileSystem;
+        _projectService = projectService;
+        _projectFactory = projectFactory;
+        _fileProvider = fileProvider;
     }
 
     public async Task Handle(ProjectAddRequest request, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Adding Project. {name}", request.Name);
+        _logger.LogInformation("Adding Project. {name}", request.Name);
 
         if (string.IsNullOrEmpty(request.Name))
         {
             ProjectAdd(request.Directory);
+
             return;
         }
 
-        var projectPath = Path.Combine(request.Directory, request.Name);
+        var projectPath = _fileSystem.Path.Combine(request.Directory, request.Name);
 
-        var projectDirectory = Path.GetDirectoryName(projectPath);
+        var projectDirectory = _fileSystem.Path.GetDirectoryName(projectPath);
 
         if (string.IsNullOrEmpty(request.FolderName))
         {
-            fileSystem.Directory.CreateDirectory(request.Directory);
+            _fileSystem.Directory.CreateDirectory(request.Directory);
         }
 
-        var model = await projectFactory.Create(request.DotNetProjectType, request.Name, projectDirectory, request.References?.Split(',').ToList(), request.Metadata);
+        var model = await _projectFactory.Create(request.DotNetProjectType, request.Name, projectDirectory, request.References?.Split(',').ToList(), request.Metadata);
 
-        await projectService.AddProjectAsync(model);
+        await _projectService.AddProjectAsync(model);
     }
 
     public void ProjectAdd(string directory)
     {
-        var projectPath = fileProvider.Get("*.*sproj", directory);
+        var projectPath = _fileProvider.Get("*.*sproj", directory);
 
         if (projectPath != Endpoint.Core.Constants.FileNotFound)
         {
-            var projectName = Path.GetFileNameWithoutExtension(projectPath);
+            var projectName = _fileSystem.Path.GetFileNameWithoutExtension(projectPath);
 
-            var projectDirectory = Path.GetDirectoryName(projectPath);
+            var projectDirectory = _fileSystem.Path.GetDirectoryName(projectPath);
 
-            projectService.AddToSolution(new ProjectModel
+            _projectService.AddToSolution(new ()
             {
                 Name = projectName,
                 Directory = projectDirectory,
@@ -110,7 +109,7 @@ public class ProjectAddRequestHandler : IRequestHandler<ProjectAddRequest>
 
         foreach (var subDirectory in Directory.GetDirectories(directory))
         {
-            var subDirectoryName = Path.GetFileName(subDirectory);
+            var subDirectoryName = _fileSystem.Path.GetFileName(subDirectory);
 
             var invalidDirectories = new[]
             {
