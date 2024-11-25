@@ -3,7 +3,7 @@
 
 using Endpoint.Core.Artifacts;
 using Endpoint.DomainDrivenDesign.Core.Models;
-using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.DotNet.Artifacts.Projects;
 using Endpoint.DotNet.Artifacts.Solutions;
 using Endpoint.ModernWebAppPattern.Core.Models;
 using System.Text.Json;
@@ -16,7 +16,7 @@ public interface IArtifactFactory
 
     Task<SolutionModel> SolutionCreateAsync(JsonElement jsonElement, string name, string directory, CancellationToken cancellationToken);
 
-    Task<IEnumerable<FileModel>> AggregateCreateAsync(IDataContext context, Aggregate aggregate, string directory, CancellationToken cancellationToken);
+    Task<IEnumerable<FileModel>> AggregateCreateAsync(Endpoint.DomainDrivenDesign.Core.IDataContext context, Aggregate aggregate, string directory, CancellationToken cancellationToken);
 
     Task<FileModel> CommandValidatorCreateAsync(Command command, string directory);
 
@@ -28,5 +28,8 @@ public interface IArtifactFactory
 
     Task<FileModel> ApiAppSettingsCreateAsync(BoundedContext boundedContext, string directory);
 
+    Task<ProjectModel> ModelsProjectCreateAsync(string directory, CancellationToken cancellationToken);
+
+    Task<FileModel> ControllerCreateAsync(Microservice microservice, Aggregate aggregate, string directory);
 }
 

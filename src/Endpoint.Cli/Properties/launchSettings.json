@@ -2,7 +2,7 @@
   "profiles": {
     "Endpoint.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "ddd-app-create -n TryTing -d C:\\projects"
+      "commandLineArgs": "solution-create -n Dry -t classlib -p Dry -d C:\\projects"
     }
   }
 }

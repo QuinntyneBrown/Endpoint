@@ -17,10 +17,6 @@ public class ArtifactGenerationStrategyWrapperImplementation<T> : ArtifactGenera
 
     public override async Task GenerateAsync(T target, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
-        var typeoftype = target.GetType();
-
-        Console.WriteLine($"Type of t. {typeoftype}");
-
         var handlers = serviceProvider.GetRequiredService<IEnumerable<IArtifactGenerationStrategy<T>>>();
 
         var handler = handlers

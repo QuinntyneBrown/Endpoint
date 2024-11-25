@@ -1,5 +1,6 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
+using Humanizer;
 
 namespace Endpoint.DomainDrivenDesign.Core.Models;
 
@@ -21,6 +22,78 @@ public class Aggregate
     public List<Entity> Entities { get; set; } = [];
 
     public BoundedContext? BoundedContext { get; set; }
+
+    public static (Aggregate, IDataContext) Create(string name, string productName)
+    {
+        var aggregate = new Aggregate(name)
+        {
+            Properties =
+            [
+                new($"{name}Id", PropertyKind.Guid) { Key = true },
+            ],
+        };
+
+        var boundedContext = new BoundedContext(name.Pluralize())
+        {
+            Aggregates =
+            [
+                aggregate
+            ],
+            ProductName = productName ?? name,
+        };
+
+        DataContext dataContext = new()
+        {
+            ProductName = productName ?? name,
+            BoundedContexts =
+            [
+                boundedContext,
+            ],
+        };
+
+        aggregate.BoundedContext = boundedContext;
+
+        aggregate.Queries.AddRange([
+            new()
+            {
+                Name = $"Get{name.Pluralize()}",
+                Kind = RequestKind.Get,
+                Aggregate = aggregate,
+            },
+            new()
+            {
+                Name = $"Get{name}ById",
+                Kind = RequestKind.GetById,
+                Aggregate = aggregate,
+            },
+        ]);
+
+        aggregate.Commands.AddRange([
+            new()
+            {
+                Name = $"Create{name}",
+                Kind = RequestKind.Create,
+                ProductName = productName ?? name,
+                Aggregate = aggregate,
+            },
+            new()
+            {
+                Name = $"Update{name}",
+                Kind = RequestKind.Update,
+                ProductName = productName ?? name,
+                Aggregate = aggregate,
+            },
+            new()
+            {
+                Name = $"Delete{name}",
+                Kind = RequestKind.Delete,
+                ProductName = productName ?? name,
+                Aggregate = aggregate,
+            },
+        ]);
+
+        return (aggregate, dataContext);
+    }
 
 
 }
