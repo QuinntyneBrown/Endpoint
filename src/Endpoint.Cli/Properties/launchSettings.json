@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Endpoint.Cli": {
-      "commandName": "Project",
-      "commandLineArgs": "solution-create -n Dry -t classlib -p Dry -d C:\\projects"
-    }
-  }
-}
