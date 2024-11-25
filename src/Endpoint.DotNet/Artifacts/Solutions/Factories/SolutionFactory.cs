@@ -32,6 +32,8 @@ public class SolutionFactory : ISolutionFactory
 
         var project = await projectFactory.Create(dotNetProjectTypeName, projectName, model.SrcDirectory);
 
+        model.Projects.Add(project);
+
         return model;
     }
 

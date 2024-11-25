@@ -15,7 +15,6 @@ using Endpoint.DotNet.Syntax.Fields;
 using Endpoint.DotNet.Syntax.Interfaces;
 using Endpoint.DotNet.Syntax.Params;
 using Endpoint.DotNet.Syntax.Properties;
-using Endpoint.DotNet.Syntax.Types;
 using Endpoint.ModernWebAppPattern.Core.Extensions;
 using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions;
 using Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.RequestHandlers;
@@ -162,11 +161,12 @@ public class ArtifactFactory : IArtifactFactory
     {
         var context = await _dataContextProvider.GetAsync(cancellationToken: cancellationToken);
 
-        var model = new ProjectModel($"{context.ProductName}.Models", directory);
+        var model = new ProjectModel($"{context.ProductName}.Models", directory)
+        {
+            DotNetProjectType = DotNet.Artifacts.Projects.Enums.DotNetProjectType.ClassLib
+        };
 
-        model.DotNetProjectType = DotNet.Artifacts.Projects.Enums.DotNetProjectType.ClassLib;
-
-        foreach(var boundedContext in context.BoundedContexts)
+        foreach (var boundedContext in context.BoundedContexts)
         {
             var microservice =  context.Microservices.Single(x => x.BoundedContextName == boundedContext.Name);
 
@@ -236,7 +236,7 @@ public class ArtifactFactory : IArtifactFactory
                     Params =
                     [
                         ParamModel.LoggerOf($"{command.Name}Handler"),
-                        new ParamModel() {  Name = "context", Type = new ($"I{boundedContext.Name}DbContext")}
+                        new () {  Name = "context", Type = new ($"I{boundedContext.Name}DbContext")}
                     ]
                 });
 
@@ -244,7 +244,7 @@ public class ArtifactFactory : IArtifactFactory
                 {
                     Name = "Handle",
                     Params = [
-                        new() { Name = "request", Type = new TypeModel($"{command.Name}Request") },
+                        new() { Name = "request", Type = new ($"{command.Name}Request") },
                         ParamModel.CancellationToken
                     ],
                     Async = true,
@@ -274,7 +274,7 @@ public class ArtifactFactory : IArtifactFactory
                 queryHandlerModel.Fields =
                     [
                         FieldModel.LoggerOf($"{query.Name}Handler"),
-                        new () { Name = "_context", Type = new TypeModel($"I{boundedContext.Name}DbContext") }
+                        new () { Name = "_context", Type = new ($"I{boundedContext.Name}DbContext") }
                     ];
 
                 queryHandlerModel.Constructors.Add(new(queryHandlerModel, queryHandlerModel.Name)
@@ -282,7 +282,7 @@ public class ArtifactFactory : IArtifactFactory
                     Params =
                     [
                         ParamModel.LoggerOf($"{query.Name}Handler"),
-                        new () { Name = "context", Type = new TypeModel($"I{boundedContext.Name}DbContext") }
+                        new () { Name = "context", Type = new ($"I{boundedContext.Name}DbContext") }
                     ]
                 });
 
@@ -290,7 +290,7 @@ public class ArtifactFactory : IArtifactFactory
                 {
                     Name = "Handle",
                     Params = [
-                        new() { Name = "request", Type = new TypeModel($"{query.Name}Request") },
+                        new() { Name = "request", Type = new ($"{query.Name}Request") },
                         ParamModel.CancellationToken
                     ],
                     Async = true,
@@ -314,7 +314,7 @@ public class ArtifactFactory : IArtifactFactory
         return model;
     }
 
-    public async Task<IEnumerable<FileModel>> AggregateCreateAsync(IDataContext context, Aggregate aggregate, string directory, CancellationToken cancellationToken)
+    public async Task<IEnumerable<FileModel>> AggregateCreateAsync(Endpoint.DomainDrivenDesign.Core.IDataContext context, Aggregate aggregate, string directory, CancellationToken cancellationToken)
     {
         var files = new List<FileModel>();
 

@@ -8,31 +8,40 @@ namespace Endpoint.DotNet.Artifacts.Files.Strategies;
 
 public class TemplatedFileArtifactGenerationStrategy : IArtifactGenerationStrategy<TemplatedFileModel>
 {
-    private readonly ILogger<TemplatedFileArtifactGenerationStrategy> logger;
-    private readonly ITemplateProcessor templateProcessor;
-    private readonly ISolutionNamespaceProvider solutionNamespaceProvider;
-    private readonly ITemplateLocator templateLocator;
+    private readonly ILogger<TemplatedFileArtifactGenerationStrategy> _logger;
+    private readonly ITemplateProcessor _templateProcessor;
+    private readonly ISolutionNamespaceProvider _solutionNamespaceProvider;
+    private readonly ITemplateLocator _templateLocator;
+    private readonly IArtifactGenerator _artifactGenerator;
 
     public TemplatedFileArtifactGenerationStrategy(
         ITemplateProcessor templateProcessor,
         ITemplateLocator templateLocator,
         ISolutionNamespaceProvider solutionNamespaceProvider,
+        IArtifactGenerator artifactGenerator,
         ILogger<TemplatedFileArtifactGenerationStrategy> logger)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.templateProcessor = templateProcessor ?? throw new ArgumentNullException(nameof(templateProcessor));
-        this.solutionNamespaceProvider = solutionNamespaceProvider ?? throw new ArgumentNullException(nameof(solutionNamespaceProvider));
-        this.templateLocator = templateLocator ?? throw new ArgumentNullException(nameof(templateLocator));
+        ArgumentNullException.ThrowIfNull(templateProcessor);
+        ArgumentNullException.ThrowIfNull(templateLocator);
+        ArgumentNullException.ThrowIfNull(solutionNamespaceProvider);
+        ArgumentNullException.ThrowIfNull(artifactGenerator);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        _logger = logger;
+        _templateProcessor = templateProcessor;
+        _solutionNamespaceProvider = solutionNamespaceProvider;
+        _templateLocator = templateLocator;
+        _artifactGenerator = artifactGenerator;
     }
 
     public async Task GenerateAsync(TemplatedFileModel model)
     {
-        logger.LogInformation("Generating artifact for {0}.", model);
+        _logger.LogInformation("Generating artifact for {0}.", model);
 
-        var template = templateLocator.Get(model.Template);
+        var template = _templateLocator.Get(model.Template);
 
         var tokens = new TokensBuilder()
-            .With("SolutionNamespace", solutionNamespaceProvider.Get(model.Directory))
+            .With("SolutionNamespace", _solutionNamespaceProvider.Get(model.Directory))
             .Build();
 
         foreach (var token in tokens)
@@ -44,10 +53,17 @@ public class TemplatedFileArtifactGenerationStrategy : IArtifactGenerationStrate
             catch { }
         }
 
-        var result = templateProcessor.Process(template, model.Tokens);
+        var result = _templateProcessor.Process(template, model.Tokens);
 
         model.Body = string.Join(Environment.NewLine, result);
 
-        //await fileModelGenerationStrategy.GenerateAsync(generator, model);
+        await _artifactGenerator.GenerateAsync(new FileModel()
+        {
+            Body = model.Body,
+            Extension = model.Extension,
+            Name = model.Name,
+            Directory = model.Directory,
+            Path = model.Path,
+        });
     }
 }

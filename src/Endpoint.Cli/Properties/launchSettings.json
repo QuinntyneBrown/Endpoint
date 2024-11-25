@@ -2,7 +2,7 @@
   "profiles": {
     "Endpoint.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "project-add -t xunit -n HairPop.Models.Tests -d C:\\projects\\HairPop\\test"
+      "commandLineArgs": "solution-create -n Dry -t classlib -p Dry -d C:\\projects"
     }
   }
 }

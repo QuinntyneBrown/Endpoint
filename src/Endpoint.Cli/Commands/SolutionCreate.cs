@@ -1,14 +1,10 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Services;
 using Endpoint.DotNet.Artifacts.Solutions.Factories;
-using Endpoint.DotNet.Artifacts.Solutions.Services;
-using Endpoint.DotNet.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -38,36 +34,36 @@ public class SolutionCreateRequest : IRequest
 
 public class SolutionCreateRequestHandler : IRequestHandler<SolutionCreateRequest>
 {
-    private readonly ILogger<SolutionCreateRequestHandler> logger;
-    private readonly ISolutionFactory solutionFactory;
-    private readonly ISolutionService solutionService;
-    private readonly ICommandService commandService;
+    private readonly ILogger<SolutionCreateRequestHandler> _logger;
+    private readonly ISolutionFactory _solutionFactory;
+    private readonly IArtifactGenerator _artifactGenerator;
+    private readonly ICommandService _commandService;
 
     public SolutionCreateRequestHandler(
         ILogger<SolutionCreateRequestHandler> logger,
-        ISolutionService solutionService,
+        IArtifactGenerator artifactGenerator,
         ISolutionFactory solutionFactory,
         ICommandService commandService)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.solutionService = solutionService ?? throw new ArgumentNullException(nameof(solutionService));
-        this.solutionFactory = solutionFactory ?? throw new ArgumentNullException(nameof(solutionFactory));
-        this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
+        _logger = logger;
+        _artifactGenerator = artifactGenerator;
+        _solutionFactory = solutionFactory;
+        _commandService = commandService;
     }
 
     public async Task Handle(SolutionCreateRequest request, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Creating Solution", nameof(SolutionCreateRequestHandler));
+        _logger.LogInformation("Creating Solution. {name}", request.Name);
 
-        var model = await solutionFactory.Create(request.Name, request.ProjectName, request.ProjectType, request.FolderName, request.Directory);
+        var model = await _solutionFactory.Create(request.Name, request.ProjectName, request.ProjectType, request.FolderName, request.Directory);
 
         if (request.NoServiceCreate)
         {
             model.RemoveAllServices();
         }
 
-        await solutionService.Create(model);
+        await _artifactGenerator.GenerateAsync(model);
 
-        commandService.Start($"code .", model.SolutionDirectory);
+        _commandService.Start($"code .", model.SolutionDirectory);
     }
 }

@@ -1,9 +1,6 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Linq;
-using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects.Services;
 using Endpoint.DotNet.Services;
 
@@ -13,61 +10,59 @@ using ContentFileModel = Endpoint.DotNet.Artifacts.Files.ContentFileModel;
 
 public class SolutionGenerationStrategy : IArtifactGenerationStrategy<SolutionModel>
 {
-    private readonly ICommandService commandService;
-    private readonly IFileSystem fileSystem;
-    private readonly IProjectService projectService;
+    private readonly ICommandService _commandService;
+    private readonly IFileSystem _fileSystem;
+    private readonly IProjectService _projectService;
     private readonly IArtifactGenerator _artifactGenerator;
 
-    public SolutionGenerationStrategy(ICommandService commandService, IFileSystem fileSystem, IProjectService projectService, ICodeFormatterService codeFormatterService, IArtifactGenerator artifactGenerator)
+    public SolutionGenerationStrategy(ICommandService commandService, IFileSystem fileSystem, IProjectService projectService, IArtifactGenerator artifactGenerator)
     {
-        this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
-        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
-        this.projectService = projectService ?? throw new ArgumentNullException(nameof(projectService));
+        ArgumentNullException.ThrowIfNull(commandService);
+        ArgumentNullException.ThrowIfNull(fileSystem);
+        ArgumentNullException.ThrowIfNull(projectService);
+        ArgumentNullException.ThrowIfNull(artifactGenerator);
+
+        _commandService = commandService;
+        _fileSystem = fileSystem;
+        _projectService = projectService;
         _artifactGenerator = artifactGenerator;
     }
 
     public async Task GenerateAsync(SolutionModel model)
     {
-        if (fileSystem.Directory.Exists(model.SolutionDirectory))
+        if (_fileSystem.Directory.Exists(model.SolutionDirectory))
         {
             try
             {
-                fileSystem.Directory.Delete(model.SolutionDirectory, true);
+                _fileSystem.Directory.Delete(model.SolutionDirectory, true);
             }
             catch { }
         }
 
-        fileSystem.Directory.CreateDirectory(model.SolutionDirectory);
+        _fileSystem.Directory.CreateDirectory(model.SolutionDirectory);
 
-        commandService.Start($"dotnet new sln -n {model.Name}", model.SolutionDirectory);
+        _fileSystem.Directory.CreateDirectory(model.SrcDirectory);
 
-        var solutionDocsDirectory = fileSystem.Path.Combine(model.SolutionDirectory, "docs");
+        _commandService.Start($"dotnet new sln -n {model.Name}", model.SolutionDirectory);
 
-        fileSystem.Directory.CreateDirectory(solutionDocsDirectory);
+        var solutionDocsDirectory = _fileSystem.Path.Combine(model.SolutionDirectory, "docs");
+
+        _fileSystem.Directory.CreateDirectory(solutionDocsDirectory);
 
         await _artifactGenerator.GenerateAsync(new ContentFileModel($"# {model.Name}", "README", solutionDocsDirectory, ".md"));
 
         await _artifactGenerator.GenerateAsync(new ContentFileModel($"# {model.Name}", "README", model.SolutionDirectory, ".md"));
 
-        await CreateProjectsAndAddToSln(_artifactGenerator, model, model.Folders);
-
         foreach (var project in model.Projects)
         {
             await _artifactGenerator.GenerateAsync(project);
 
-            await projectService.AddToSolution(project);
+            await _projectService.AddToSolution(project);
         }
 
         foreach (var dependOn in model.DependOns)
         {
-            commandService.Start($"dotnet add {dependOn.Client.Directory} reference {dependOn.Service.Path}");
+            _commandService.Start($"dotnet add {dependOn.Client.Directory} reference {dependOn.Service.Path}");
         }
-    }
-
-
-
-    private async Task CreateProjectsAndAddToSln(IArtifactGenerator artifactGenerator, SolutionModel model, List<dynamic> folders)
-    {
-        throw new NotImplementedException();
     }
 }
