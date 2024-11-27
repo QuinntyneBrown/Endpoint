@@ -5,6 +5,11 @@ namespace Endpoint.DomainDrivenDesign.Core.Models;
 
 public class Property
 {
+    public Property()
+    {
+        
+    }
+
     public Property(string name, PropertyKind kind)
     {
         Name = name;

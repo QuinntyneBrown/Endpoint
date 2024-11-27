@@ -18,7 +18,7 @@ public class RequestHandlers : List<ClassModel> {
     {
         var requestHandlers = new RequestHandlers();
 
-        var (aggregate, dataContext) = Aggregate.Create(aggregateName, productName);
+        var (aggregate, dataContext) = AggregateModel.Create(aggregateName, productName);
 
         boundedContextName ??= aggregateName.Pluralize();
 

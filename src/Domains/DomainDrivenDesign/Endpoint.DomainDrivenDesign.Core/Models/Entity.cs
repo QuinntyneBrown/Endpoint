@@ -5,5 +5,10 @@ namespace Endpoint.DomainDrivenDesign.Core.Models;
 
 public class Entity
 {
+    public Entity()
+    {
+        
+    }
+
     public string Name { get; set; }
 }

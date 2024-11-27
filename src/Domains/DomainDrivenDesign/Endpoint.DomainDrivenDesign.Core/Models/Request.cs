@@ -5,7 +5,12 @@ namespace Endpoint.DomainDrivenDesign.Core.Models;
 
 public class Request {
 
+    public Request()
+    {
+        
+    }
+
     public RequestKind Kind { get; set; }
-    public Aggregate Aggregate { get; set; }
+    public AggregateModel Aggregate { get; set; }
     public string ProductName { get; set; }
 }

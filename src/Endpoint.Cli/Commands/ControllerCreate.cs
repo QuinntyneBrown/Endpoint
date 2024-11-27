@@ -60,7 +60,7 @@ public class ControllerCreateRequestHandler : IRequestHandler<ControllerCreateRe
 
         if (!string.IsNullOrEmpty(request.ProductName))
         {
-            var (aggregate, dataContext) = Aggregate.Create(request.EntityName, request.ProductName);
+            var (aggregate, dataContext) = AggregateModel.Create(request.EntityName, request.ProductName);
 
             request.BoundedContextName ??= request.EntityName.Pluralize();
 

@@ -48,7 +48,7 @@ public class DbContextCreateRequestHandler : IRequestHandler<DbContextCreateRequ
     {
         _logger.LogInformation("Handled: {0}", nameof(DbContextCreateRequestHandler));
 
-        var (aggregate, dataContext) = Aggregate.Create(request.AggregateName, request.ProductName);
+        var (aggregate, dataContext) = AggregateModel.Create(request.AggregateName, request.ProductName);
 
         var boundedContext = new BoundedContext(request.AggregateName.Pluralize())
         {

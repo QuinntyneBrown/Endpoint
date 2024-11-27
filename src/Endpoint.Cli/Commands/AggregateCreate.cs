@@ -48,7 +48,7 @@ public class AggregateCreateRequestHandler : IRequestHandler<AggregateCreateRequ
     {
         _logger.LogInformation("Handled: {0}", nameof(AggregateCreateRequestHandler));
 
-        var (aggregate, dataContext) = Aggregate.Create(request.Name, request.ProductName);
+        var (aggregate, dataContext) = AggregateModel.Create(request.Name, request.ProductName);
 
         foreach (var model in await _artifactFactory.AggregateCreateAsync(dataContext, aggregate, request.Directory, cancellationToken))
         {

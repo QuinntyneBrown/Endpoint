@@ -27,7 +27,7 @@ using static Endpoint.DotNet.Constants.FileExtensions;
 namespace Endpoint.ModernWebAppPattern.Core.Artifacts;
 
 using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
-using Aggregate = Endpoint.DomainDrivenDesign.Core.Models.Aggregate;
+using AggregateModel = Endpoint.DomainDrivenDesign.Core.Models.AggregateModel;
 using Microservice = Endpoint.ModernWebAppPattern.Core.Models.Microservice;
 using ISyntaxFactory = Endpoint.ModernWebAppPattern.Core.Syntax.ISyntaxFactory;
 public class ArtifactFactory : IArtifactFactory
@@ -314,7 +314,7 @@ public class ArtifactFactory : IArtifactFactory
         return model;
     }
 
-    public async Task<IEnumerable<FileModel>> AggregateCreateAsync(Endpoint.DomainDrivenDesign.Core.IDataContext context, Aggregate aggregate, string directory, CancellationToken cancellationToken)
+    public async Task<IEnumerable<FileModel>> AggregateCreateAsync(Endpoint.DomainDrivenDesign.Core.IDataContext context, AggregateModel aggregate, string directory, CancellationToken cancellationToken)
     {
         var files = new List<FileModel>();
 
@@ -487,7 +487,7 @@ public class ArtifactFactory : IArtifactFactory
         return new CodeFileModel<InterfaceModel>(model, model.Name, directory, CSharp) { Namespace = $"{microservice.Name}" };
     }
 
-    public async Task<FileModel> ControllerCreateAsync(Microservice microservice, Aggregate aggregate, string directory)
+    public async Task<FileModel> ControllerCreateAsync(Microservice microservice, AggregateModel aggregate, string directory)
     {
         var model = new ClassModel($"{aggregate.Name.Pluralize()}Controller");
 
@@ -673,7 +673,7 @@ public class ArtifactFactory : IArtifactFactory
         return model;
     }
 
-    public async Task<FileModel> AggregateExtenionCreateAsync(Aggregate aggregate, string directory)
+    public async Task<FileModel> AggregateExtenionCreateAsync(AggregateModel aggregate, string directory)
     {
         var model = new ClassModel($"{aggregate.Name}Extensions")
         {

@@ -16,11 +16,11 @@ public interface IArtifactFactory
 
     Task<SolutionModel> SolutionCreateAsync(JsonElement jsonElement, string name, string directory, CancellationToken cancellationToken);
 
-    Task<IEnumerable<FileModel>> AggregateCreateAsync(Endpoint.DomainDrivenDesign.Core.IDataContext context, Aggregate aggregate, string directory, CancellationToken cancellationToken);
+    Task<IEnumerable<FileModel>> AggregateCreateAsync(Endpoint.DomainDrivenDesign.Core.IDataContext context, AggregateModel aggregate, string directory, CancellationToken cancellationToken);
 
     Task<FileModel> CommandValidatorCreateAsync(Command command, string directory);
 
-    Task<FileModel> AggregateExtenionCreateAsync(Aggregate aggregate, string directory);
+    Task<FileModel> AggregateExtenionCreateAsync(AggregateModel aggregate, string directory);
 
     Task<FileModel> ApiConfigureServicesCreateAsync(Microservice microservice, string directory);
 
@@ -30,6 +30,6 @@ public interface IArtifactFactory
 
     Task<ProjectModel> ModelsProjectCreateAsync(string directory, CancellationToken cancellationToken);
 
-    Task<FileModel> ControllerCreateAsync(Microservice microservice, Aggregate aggregate, string directory);
+    Task<FileModel> ControllerCreateAsync(Microservice microservice, AggregateModel aggregate, string directory);
 }
 
