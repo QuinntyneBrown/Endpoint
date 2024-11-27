@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.DomainDrivenDesign.Core;
 using Endpoint.DomainDrivenDesign.Core.Models;
+using Endpoint.ModernWebAppPattern.Core;
 using Endpoint.ModernWebAppPattern.Core.Artifacts;
 using Endpoint.ModernWebAppPattern.Core.Models;
 using MediatR;
@@ -60,6 +61,13 @@ public class ModernWebAppCreateRequestHandler : IRequestHandler<ModernWebAppCrea
     {
         _logger.LogInformation("Handled: {0}", nameof(ModernWebAppCreateRequestHandler));
 
+        JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = true,
+            ReferenceHandler = ReferenceHandler.IgnoreCycles,
+        };
+
         string defaultTemplate = string.Empty;
 
         if (string.IsNullOrEmpty(request.Path))
@@ -76,15 +84,11 @@ public class ModernWebAppCreateRequestHandler : IRequestHandler<ModernWebAppCrea
 
                 Microservices =
                 [
-                    new Microservice($"{dddDataContext.ProductName}.{dddDataContext.BoundedContexts.Single().Name}.Api", dddDataContext.BoundedContexts.First().Name, MicroseviceKind.Api),
+                    new ($"{dddDataContext.ProductName}.{dddDataContext.BoundedContexts.Single().Name}.Api", dddDataContext.BoundedContexts.First().Name, MicroseviceKind.Api)
+                    {
+                        ProductName = dddDataContext.ProductName,
+                    },
                 ],
-            };
-
-            JsonSerializerOptions options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true,
-                ReferenceHandler = ReferenceHandler.IgnoreCycles,
             };
 
             defaultTemplate = JsonSerializer.Serialize(dataContext, options);
@@ -94,11 +98,16 @@ public class ModernWebAppCreateRequestHandler : IRequestHandler<ModernWebAppCrea
             defaultTemplate = _fileSystem.File.ReadAllText(request.Path);
         }
 
-        JsonElement jsonElement = await _userInputService.ReadJsonAsync(defaultTemplate);
+        var jsonElement = await _userInputService.ReadJsonAsync(defaultTemplate);
 
         var model = await _artifactFactory.SolutionCreateAsync(jsonElement, request.Name, request.Directory, cancellationToken);
 
         await _artifactGenerator.GenerateAsync(model);
+
+        await _artifactGenerator.GenerateAsync(new FileModel("endpoint", model.SolutionDirectory, ".json")
+        {
+            Body = JsonSerializer.Serialize(jsonElement, options),
+        });
 
         _commandService.Start("code .", model.SolutionDirectory);
     }

@@ -18,5 +18,6 @@ public class Property
 
     public string Name { get; set; }
     public PropertyKind Kind { get; set; }
+    public string PropertyKindReference { get; set; }
     public bool Key { get; set; }
 }

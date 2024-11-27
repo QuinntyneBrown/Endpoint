@@ -328,9 +328,9 @@ public class ArtifactFactory : IArtifactFactory
 
         foreach (var property in aggregate.Properties)
         {
-            aggregateClassModel.Properties.Add(new(aggregateClassModel, AccessModifier.Public, property.Kind.ToType(), property.Name, PropertyAccessorModel.GetSet));
+            aggregateClassModel.Properties.Add(new(aggregateClassModel, AccessModifier.Public, property.ToType(), property.Name, PropertyAccessorModel.GetSet));
 
-            aggregateDtoModel.Properties.Add(new(aggregateClassModel, AccessModifier.Public, property.Kind.ToType(), property.Name, PropertyAccessorModel.GetSet));
+            aggregateDtoModel.Properties.Add(new(aggregateClassModel, AccessModifier.Public, property.ToType(), property.Name, PropertyAccessorModel.GetSet));
         }
 
         files.Add(await AggregateExtenionCreateAsync(aggregate, aggregateDirectory));
@@ -352,14 +352,14 @@ public class ArtifactFactory : IArtifactFactory
                 case RequestKind.Create:
                     foreach (var property in aggregate.Properties.Where(x => !x.Key))
                     {
-                        commandRequestClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, property.Kind.ToType(), property.Name, PropertyAccessorModel.GetSet));
+                        commandRequestClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, property.ToType(), property.Name, PropertyAccessorModel.GetSet));
                     }
                     break;
 
                 case RequestKind.Update:
                     foreach(var property in aggregate.Properties)
                     {
-                        commandRequestClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, property.Kind.ToType(), property.Name, PropertyAccessorModel.GetSet));
+                        commandRequestClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, property.ToType(), property.Name, PropertyAccessorModel.GetSet));
                     }
                     
                     break;
@@ -368,7 +368,7 @@ public class ArtifactFactory : IArtifactFactory
 
                     var keyProperty = aggregate.Properties.Single(x => x.Key);
 
-                    commandRequestClassModel.Properties.Add(new (commandRequestClassModel, AccessModifier.Public, keyProperty.Kind.ToType(), keyProperty.Name, PropertyAccessorModel.GetSet));
+                    commandRequestClassModel.Properties.Add(new (commandRequestClassModel, AccessModifier.Public, keyProperty.ToType(), keyProperty.Name, PropertyAccessorModel.GetSet));
 
                     break;
             }
@@ -399,7 +399,7 @@ public class ArtifactFactory : IArtifactFactory
                 case RequestKind.GetById:
                     var keyProperty = aggregate.Properties.Single(x => x.Key);
 
-                    queryRequestClassModel.Properties.Add(new(queryRequestClassModel, AccessModifier.Public, keyProperty.Kind.ToType(), keyProperty.Name, PropertyAccessorModel.GetSet));
+                    queryRequestClassModel.Properties.Add(new(queryRequestClassModel, AccessModifier.Public, keyProperty.ToType(), keyProperty.Name, PropertyAccessorModel.GetSet));
                     break;
             }
 
