@@ -16,5 +16,11 @@ public enum PropertyKind
     
     Bool,
 
-    Json
+    Json,
+
+    DateTime,
+
+    Array,
+
+    List
 }

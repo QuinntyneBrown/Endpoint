@@ -40,7 +40,6 @@ public class UserInputService : IUserInputService
 
         while (!changed && await _periodicTimer.WaitForNextTickAsync())
         {
-
             var fileInfo = _fileSystem.FileInfo.New(temporaryFilePath);
 
             lastWriteTimeUtc ??= fileInfo.LastWriteTimeUtc;

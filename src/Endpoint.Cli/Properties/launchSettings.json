@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Endpoint.Cli": {
-      "commandName": "Project",
-      "commandLineArgs": "mwa-create -n StreamingApp -d C:\\projects"
-    }
-  }
-}
