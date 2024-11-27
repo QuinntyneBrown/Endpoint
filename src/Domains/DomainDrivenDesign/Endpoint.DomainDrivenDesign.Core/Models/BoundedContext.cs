@@ -15,7 +15,7 @@ public class BoundedContext
 
     public string Name { get; set; } = string.Empty;
 
-    public List<Aggregate> Aggregates { get; set; } = [];
+    public List<AggregateModel> Aggregates { get; set; } = [];
 
     public List<Message> Handles { get; set; } = [];
 

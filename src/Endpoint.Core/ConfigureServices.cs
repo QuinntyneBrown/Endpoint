@@ -1,10 +1,11 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Reflection;
 using Endpoint.Core.Artifacts;
+using Endpoint.Core.Services;
 using Endpoint.Core.Syntax;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Endpoint.Core;
 
@@ -12,6 +13,7 @@ public static class ConfigureServices
 {
     public static void AddCoreServices(this IServiceCollection services, Assembly assembly)
     {
+        services.AddSingleton<IUserInputService,UserInputService>();
         AddArifactGenerator(services, assembly);
         AddSyntaxGenerator(services, assembly);
     }

@@ -3,7 +3,6 @@
 
 using Endpoint.DotNet;
 using Endpoint.DotNet.Artifacts;
-
 using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Artifacts.Files.Services;
 using Endpoint.DotNet.Artifacts.FullStack;

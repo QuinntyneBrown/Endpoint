@@ -24,7 +24,7 @@ public class DbContextModel: List<TypeDeclarationModel>
     /// <param name="boundedContext">The bounded context.</param>
     /// <param name="aggregates">The aggregates.</param>
     /// <returns></returns>
-    public static DbContextModel Create(BoundedContext boundedContext, List<Aggregate> aggregates)
+    public static DbContextModel Create(BoundedContext boundedContext, List<AggregateModel> aggregates)
     {
         var dbContextClassModel = new ClassModel($"{boundedContext.Name}DbContext");
 

@@ -4,9 +4,14 @@ using Humanizer;
 
 namespace Endpoint.DomainDrivenDesign.Core.Models;
 
-public class Aggregate
+public class AggregateModel
 {
-    public Aggregate(string name)
+    public AggregateModel()
+    {
+        
+    }
+
+    public AggregateModel(string name)
     {
         Name = name;        
     }
@@ -23,9 +28,9 @@ public class Aggregate
 
     public BoundedContext? BoundedContext { get; set; }
 
-    public static (Aggregate, IDataContext) Create(string name, string productName)
+    public static (AggregateModel, IDataContext) Create(string name, string productName)
     {
-        var aggregate = new Aggregate(name)
+        var aggregate = new AggregateModel(name)
         {
             Properties =
             [

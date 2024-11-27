@@ -5,7 +5,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Syntax;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax;
 using MediatR;
@@ -26,28 +25,32 @@ public class ApiTest
 
     public class Handler : IRequestHandler<Request>
     {
-        private readonly ITemplateLocator templateLocator;
-        private readonly ITemplateProcessor templateProcessor;
-        private readonly IFileSystem fileSystem;
+        private readonly ITemplateLocator _templateLocator;
+        private readonly ITemplateProcessor _templateProcessor;
+        private readonly IFileSystem _fileSystem;
 
         public Handler(ITemplateLocator templateLocator, ITemplateProcessor templateProcessor, IFileSystem fileSystem)
         {
-            this.templateLocator = templateLocator;
-            this.templateProcessor = templateProcessor;
-            this.fileSystem = fileSystem;
+            ArgumentNullException.ThrowIfNull(templateLocator);
+            ArgumentNullException.ThrowIfNull(fileSystem);
+            ArgumentNullException.ThrowIfNull(templateProcessor);
+
+            _templateLocator = templateLocator;
+            _templateProcessor = templateProcessor;
+            _fileSystem = fileSystem;
         }
 
         public async Task Handle(Request request, CancellationToken cancellationToken)
         {
-            var template = templateLocator.Get(nameof(ApiTest));
+            var template = _templateLocator.Get(nameof(ApiTest));
 
             var tokens = new TokensBuilder()
                 .With(nameof(request.EntityName), (SyntaxToken)request.EntityName)
                 .Build();
 
-            var contents = string.Join(Environment.NewLine, templateProcessor.Process(template, tokens));
+            var contents = string.Join(Environment.NewLine, _templateProcessor.Process(template, tokens));
 
-            fileSystem.File.WriteAllText($@"{request.Directory}/{((SyntaxToken)request.EntityName).PascalCase}ControllerTests.cs", contents);
+            _fileSystem.File.WriteAllText($@"{request.Directory}/{((SyntaxToken)request.EntityName).PascalCase}ControllerTests.cs", contents);
         }
     }
 }
