@@ -421,6 +421,18 @@ public class ArtifactFactory : IArtifactFactory
             files.Add(new CodeFileModel<ClassModel>(queryResponseClassModel, queryResponseClassModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
         }
 
+        foreach (var entity in aggregate.Entities)
+        {
+            var entityClassModel = new ClassModel(entity.Name);
+
+            foreach (var property in entity.Properties)
+            {
+                entityClassModel.Properties.Add(new(entityClassModel, AccessModifier.Public, property.ToType(), property.Name, PropertyAccessorModel.GetSet));
+            }
+
+            files.Add(new CodeFileModel<ClassModel>(entityClassModel, entityClassModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
+        }
+
         return files;
     }
 

@@ -84,6 +84,11 @@ public class AggregateCreateRequestHandler : IRequestHandler<AggregateCreateRequ
             query.Aggregate = aggregate;
         }
 
+        foreach (var entity in aggregate.Entities)
+        {
+            entity.BoundedContext = aggregate.BoundedContext;
+        }
+
         foreach (var model in await _artifactFactory.AggregateCreateAsync(dataContext, aggregate, request.Directory, cancellationToken))
         {
             await _artifactGenerator.GenerateAsync(model);

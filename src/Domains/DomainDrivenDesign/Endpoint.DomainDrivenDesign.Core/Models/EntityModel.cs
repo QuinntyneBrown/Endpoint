@@ -3,12 +3,16 @@
 
 namespace Endpoint.DomainDrivenDesign.Core.Models;
 
-public class Entity
+public class EntityModel
 {
-    public Entity()
+    public EntityModel()
     {
         
     }
 
     public string Name { get; set; }
+
+    public List<Property> Properties { get; set; } = [];
+
+    public BoundedContext? BoundedContext { get; set; }
 }
