@@ -24,7 +24,7 @@ public class AggregateModel
 
     public List<Query> Queries { get; set; } = [];
 
-    public List<Entity> Entities { get; set; } = [];
+    public List<EntityModel> Entities { get; set; } = [];
 
     public BoundedContext? BoundedContext { get; set; }
 
