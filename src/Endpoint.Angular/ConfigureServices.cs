@@ -11,6 +11,7 @@ public static class ConfigureServices
 {
     public static void AddAngularServices(this IServiceCollection services)
     {
+        services.AddSingleton<IFileFactory,FileFactory>();
         services.AddArifactGenerator(typeof(ProjectModel).Assembly);
         services.AddSyntaxGenerator(typeof(ProjectModel).Assembly);
     }
