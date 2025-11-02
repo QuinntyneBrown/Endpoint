@@ -2,9 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Angular.Artifacts;
-using Endpoint.Core.Artifacts;
 using Endpoint.Core.Services;
-using Endpoint.Core.Syntax;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

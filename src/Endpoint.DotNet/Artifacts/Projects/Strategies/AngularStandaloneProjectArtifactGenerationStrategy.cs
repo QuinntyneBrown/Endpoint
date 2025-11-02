@@ -1,3 +1,4 @@
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 

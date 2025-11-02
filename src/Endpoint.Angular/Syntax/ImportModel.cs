@@ -9,16 +9,17 @@ public class ImportModel
 {
     public ImportModel()
     {
-        Types = new List<TypeModel>();
+        Types = [];
+        Module = string.Empty;
     }
 
     public ImportModel(string type, string module)
     {
         Module = module;
-        Types = new List<TypeModel>
-        {
-            new TypeModel(type),
-        };
+        Types =
+        [
+            new (type),
+        ];
     }
 
     public List<TypeModel> Types { get; set; }

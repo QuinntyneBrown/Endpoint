@@ -13,6 +13,7 @@ using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Classes.Services;
 using MediatR;
+using Endpoint.Core.Artifacts.Abstractions;
 
 namespace Endpoint.DotNet.Artifacts.Solutions.Services;
 

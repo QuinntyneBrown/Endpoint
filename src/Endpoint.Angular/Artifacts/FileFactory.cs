@@ -1,9 +1,6 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Endpoint.Core.Artifacts;
-using Microsoft.Extensions.Logging;
-using System.IO.Abstractions;
 
 namespace Endpoint.Angular.Artifacts;
 
@@ -27,10 +24,11 @@ public class FileFactory: IFileFactory
 
         List<FileModel> result = [];
 
-        foreach(var path in _fileSystem.Directory.GetDirectories(directory))
-        {
-            List<string> lines = [];
+        List<string> lines = [];
 
+        foreach (var path in _fileSystem.Directory.GetDirectories(directory))
+        {
+            
             var files = _fileSystem.Directory.GetFiles(path);
 
             var fileNames = _fileSystem.Directory.GetFiles(path).Select(Path.GetFileNameWithoutExtension);
@@ -45,43 +43,37 @@ public class FileFactory: IFileFactory
             {
                 lines.Add($"export * from './{_fileSystem.Path.GetFileNameWithoutExtension(path)}';");
             }
+        }
 
-            if (scss)
+        if (scss)
+        {
+            foreach (var file in Directory.GetFiles(directory, "*.scss"))
             {
-                foreach (var file in Directory.GetFiles(directory, "*.scss"))
+                if (!file.EndsWith("index.scss"))
                 {
-                    if (!file.EndsWith("index.scss"))
-                    {
-                        lines.Add($"@use './{Path.GetFileNameWithoutExtension(file)}';");
-                    }
+                    lines.Add($"@use './{Path.GetFileNameWithoutExtension(file)}';");
                 }
-
-                result.Add(new()
-                {
-                    Name = "index",
-                    Extension = ".scss",
-                    Directory = directory,
-                    Body = string.Join(System.Environment.NewLine, lines)
-                });
             }
-            else
+
+            result.Add(new("index", directory, ".scss")
             {
-                foreach (var file in Directory.GetFiles(directory, "*.ts"))
+                Body = string.Join(System.Environment.NewLine, lines)
+            });
+        }
+        else
+        {
+            foreach (var file in Directory.GetFiles(directory, "*.ts"))
+            {
+                if (!file.Contains(".spec.") && !file.EndsWith("index.ts"))
                 {
-                    if (!file.Contains(".spec.") && !file.EndsWith("index.ts"))
-                    {
-                        lines.Add($"export * from './{Path.GetFileNameWithoutExtension(file)}';");
-                    }
+                    lines.Add($"export * from './{Path.GetFileNameWithoutExtension(file)}';");
                 }
-
-                result.Add(new()
-                {
-                    Name = "index",
-                    Extension = ".ts",
-                    Directory = directory,
-                    Body = string.Join(System.Environment.NewLine, lines)
-                });
             }
+
+            result.Add(new("index", directory, ".ts")
+            {
+                Body = string.Join(System.Environment.NewLine, lines)
+            });
         }
 
         return result;

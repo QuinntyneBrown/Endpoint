@@ -4,7 +4,7 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Endpoint.Core.Artifacts;
+namespace Endpoint.Core.Artifacts.Abstractions;
 
 public class ArtifactGenerationStrategyWrapperImplementation<T> : ArtifactGenerationStrategyWrapper<T>
 {

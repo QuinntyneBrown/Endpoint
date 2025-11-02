@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 
@@ -57,13 +58,9 @@ public class TemplatedFileArtifactGenerationStrategy : IArtifactGenerationStrate
 
         model.Body = string.Join(Environment.NewLine, result);
 
-        await _artifactGenerator.GenerateAsync(new FileModel()
+        await _artifactGenerator.GenerateAsync(new FileModel(model.Name, model.Directory, model.Extension)
         {
             Body = model.Body,
-            Extension = model.Extension,
-            Name = model.Name,
-            Directory = model.Directory,
-            Path = model.Path,
         });
     }
 }

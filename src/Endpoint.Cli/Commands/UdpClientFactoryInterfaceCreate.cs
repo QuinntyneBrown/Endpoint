@@ -4,6 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts;
 using Endpoint.DotNet.Artifacts.Files.Factories;
 using MediatR;

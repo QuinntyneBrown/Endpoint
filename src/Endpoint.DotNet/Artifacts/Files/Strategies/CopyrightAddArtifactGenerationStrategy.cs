@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.Text;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 

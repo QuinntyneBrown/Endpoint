@@ -4,6 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts.Solutions.Factories;
 using MediatR;
 using Microsoft.Extensions.Logging;

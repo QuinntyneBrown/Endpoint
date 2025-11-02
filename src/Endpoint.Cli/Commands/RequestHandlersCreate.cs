@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Endpoint.ModernWebAppPattern.Core.Syntax;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.Core.Artifacts.Abstractions;
 
 
 namespace Endpoint.Cli.Commands;

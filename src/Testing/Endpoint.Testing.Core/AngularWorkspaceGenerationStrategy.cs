@@ -3,6 +3,7 @@
 
 using Endpoint.Angular.Artifacts;
 using Endpoint.Core.Artifacts;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax;
 using Endpoint.DotNet.Artifacts.Files;

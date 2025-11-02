@@ -3,6 +3,7 @@
 
 using System;
 using CommandLine;
+using Endpoint.Angular;
 using Endpoint.DotNet;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,7 @@ var app = CodeGeneratorApplication.CreateBuilder()
         services.AddLogging(x => x.AddSerilog(Log.Logger));
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
         services.AddModernWebAppPatternCoreServices();
+        services.AddAngularServices();
         services.AddTestingCoreServices();
     })
     .Build();

@@ -7,6 +7,7 @@ using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
+using Endpoint.Core.Artifacts.Abstractions;
 using Humanizer;
 using MediatR;
 using Microsoft.Extensions.Logging;

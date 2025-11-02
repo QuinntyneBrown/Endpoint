@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
+using Endpoint.Core.Artifacts.Abstractions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

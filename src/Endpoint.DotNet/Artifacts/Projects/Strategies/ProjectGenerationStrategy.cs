@@ -4,6 +4,7 @@
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
