@@ -1,15 +1,19 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Endpoint.Core.Syntax;
-
 namespace Endpoint.Angular.Syntax;
 
 public class FunctionModel : SyntaxModel
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FunctionModel"/> class.
+    /// </summary>
+    /// <remarks>This constructor initializes the <see cref="Imports"/> property to an empty list.</remarks>
     public FunctionModel()
     {
-        Imports = new List<ImportModel>();
+        Imports = [];
+        Name = string.Empty;
+        Body = string.Empty;
     }
 
     public string Name { get; set; }

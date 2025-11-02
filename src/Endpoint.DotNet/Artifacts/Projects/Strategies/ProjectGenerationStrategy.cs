@@ -4,6 +4,7 @@
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
@@ -54,7 +55,7 @@ public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectMode
 
         _fileSystem.Directory.CreateDirectory(model.Directory);
 
-        _commandService.Start($"dotnet new {templateType} --framework net8.0", model.Directory);
+        _commandService.Start($"dotnet new {templateType} --framework net9.0", model.Directory);
 
         foreach (var path in _fileSystem.Directory.GetFiles(model.Directory, "*1.cs", SearchOption.AllDirectories))
         {

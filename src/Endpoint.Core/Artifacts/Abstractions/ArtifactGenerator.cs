@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using Endpoint.Core.Syntax;
 using Microsoft.Extensions.Logging;
 
-namespace Endpoint.Core.Artifacts;
+namespace Endpoint.Core.Artifacts.Abstractions;
 
 public class ArtifactGenerator : IArtifactGenerator
 {

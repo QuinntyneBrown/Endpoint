@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.IO;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;

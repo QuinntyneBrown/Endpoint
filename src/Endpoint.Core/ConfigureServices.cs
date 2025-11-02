@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Reflection;
-using Endpoint.Core.Artifacts;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax;
 using Microsoft.Extensions.DependencyInjection;

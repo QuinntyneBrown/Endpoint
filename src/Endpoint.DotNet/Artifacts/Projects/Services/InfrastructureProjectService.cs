@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes.Factories;

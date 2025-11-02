@@ -3,6 +3,7 @@
 
 using System.IO;
 using System.Linq;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Artifacts.Projects.Services;

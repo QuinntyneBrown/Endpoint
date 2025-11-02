@@ -10,6 +10,7 @@ public class CodeFileModel<T> : FileModel
     where T : SyntaxModel
 {
     public CodeFileModel()
+        : base(string.Empty, string.Empty, string.Empty)
     {
     }
 

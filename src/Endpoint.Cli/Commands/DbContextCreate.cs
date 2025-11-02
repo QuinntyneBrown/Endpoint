@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
+using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.DomainDrivenDesign.Core.Models;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Syntax.Classes;
