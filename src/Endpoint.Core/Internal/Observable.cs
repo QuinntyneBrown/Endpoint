@@ -9,10 +9,18 @@ public class Observable<T> : IObservable<T>
 
     private IList<Subscription> subscriptions = new List<Subscription>();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Observable{T}"/> class.
+    /// </summary>
     public Observable()
     {
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="observer"></param>
+    /// <returns></returns>
     public IDisposable Subscribe(IObserver<T> observer)
     {
         return AddSubscription(observer);
