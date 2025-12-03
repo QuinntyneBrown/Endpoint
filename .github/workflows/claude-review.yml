@@ -1,0 +1,33 @@
+name: Claude Review Assistant
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  claude-review:
+    name: Run Claude on PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Claude Action
+        # This uses the official Claude action; ensure the correct repo/version if different
+        uses: anthropic/claude-action@v1
+        with:
+          # The action will need an API key stored in secrets. Create a repo or org secret named CLAUDE_API_KEY.
+          api_key: ${{ secrets.CLAUDE_API_KEY }}
+          # Example prompt - customize as required
+          prompt: |
+            You are a helpful code reviewer. Review the changes in this pull request and provide
+            a concise list of suggested fixes, potential issues, and improvements. If tests are
+            failing, identify likely causes and suggest code changes.
+
+      - name: Post result to PR (example)
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // This step is a placeholder. The Claude action may provide outputs you can post back.
+            core.info('Claude action ran — customize this step to post outputs to the PR body or comments.')
