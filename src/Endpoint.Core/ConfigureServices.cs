@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Reflection;
+using Endpoint.Core.Abstractions;
 using Endpoint.Core.Artifacts.Abstractions;
 using Endpoint.Core.Services;
 using Endpoint.Core.Syntax;
@@ -13,6 +14,7 @@ public static class ConfigureServices
 {
     public static void AddCoreServices(this IServiceCollection services, Assembly assembly)
     {
+        services.AddSingleton<IGenerator,Generator>();
         services.AddSingleton<IUserInputService,UserInputService>();
         AddArifactGenerator(services, assembly);
         AddSyntaxGenerator(services, assembly);
@@ -71,3 +73,4 @@ public static class ConfigureServices
         services.AddSingleton<ISyntaxGenerator, SyntaxGenerator>();
     }
 }
+
