@@ -10,7 +10,9 @@
       "Bash(dotnet build:*)",
       "Bash(Select-String -Pattern \"Passed!|Failed!\")",
       "Bash(dotnet format:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(powershell -Command \"Get-ChildItem -Path ''C:\\projects\\Endpoint'' -Filter ''*.cs'' -Recurse -File | Where-Object { $_FullName -notmatch ''\\obj\\'' -and $_FullName -notmatch ''\\bin\\'' } | ForEach-Object { $content = Get-Content $_FullName -TotalCount 2 -ErrorAction SilentlyContinue; if ($content.Count -lt 2 -or $content[0] -ne ''// Copyright (c) Quinntyne Brown. All Rights Reserved.'' -or $content[1] -ne ''// Licensed under the MIT License. See License.txt in the project root for license information.'') { $_FullName } }\")",
+      "Bash(powershell.exe:*)"
     ],
     "deny": [],
     "ask": []
