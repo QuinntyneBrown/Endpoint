@@ -13,9 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{F4377315-7AD5-4B18-8F02-A253088CAF4D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{F4377315-7AD5-4B18-8F02-A253088CAF4D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.UnitTests", "test\Endpoint.UnitTests\Endpoint.UnitTests.csproj", "{E4754370-506C-4512-9840-4E705DAAE737}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.UnitTests", "tests\Endpoint.UnitTests\Endpoint.UnitTests.csproj", "{E4754370-506C-4512-9840-4E705DAAE737}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domains", "Domains", "{D1E117F5-E794-4D28-B5C6-3885EF0ABF38}"
 EndProject
@@ -29,7 +29,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.Angular", "src\End
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.Lit", "src\Endpoint.Lit\Endpoint.Lit.csproj", "{D7011A91-0EB7-40B7-8A1C-B6D989659510}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.DotNet.UnitTests", "test\Endpoint.DotNet.UnitTests\Endpoint.DotNet.UnitTests.csproj", "{B307CFCF-E7AD-4DD5-A132-1A44EB5E6C96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.DotNet.UnitTests", "tests\Endpoint.DotNet.UnitTests\Endpoint.DotNet.UnitTests.csproj", "{B307CFCF-E7AD-4DD5-A132-1A44EB5E6C96}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.Core", "src\Endpoint.Core\Endpoint.Core.csproj", "{5C39FDAD-0D40-47E1-A888-B921A28EB05D}"
 EndProject
@@ -49,7 +49,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{DF4A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.Testing.Core", "src\Testing\Endpoint.Testing.Core\Endpoint.Testing.Core.csproj", "{28561C78-5B50-4C69-9954-F6672AB49DCA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.ModernWebAppPlatform.Core.Tests", "test\Endpoint.ModernWebAppPlatform.Core.Tests\Endpoint.ModernWebAppPlatform.Core.Tests.csproj", "{1414A8E6-4906-410D-9242-E23305BEFF4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.ModernWebAppPlatform.Core.Tests", "tests\Endpoint.ModernWebAppPlatform.Core.Tests\Endpoint.ModernWebAppPlatform.Core.Tests.csproj", "{1414A8E6-4906-410D-9242-E23305BEFF4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
