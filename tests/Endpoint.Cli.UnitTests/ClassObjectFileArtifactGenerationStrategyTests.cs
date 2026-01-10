@@ -1,0 +1,22 @@
+// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Endpoint.Artifacts;
+using Endpoint.Syntax;
+using Endpoint.DotNet;
+using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+
+namespace Endpoint.UnitTests;
+
+public class ClassObjectFileArtifactGenerationStrategyTests
+{
+    public ClassObjectFileArtifactGenerationStrategyTests()
+    {
+    }
+}

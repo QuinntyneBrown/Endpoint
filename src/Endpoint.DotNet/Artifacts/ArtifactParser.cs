@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Endpoint.Core;
+using Endpoint;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

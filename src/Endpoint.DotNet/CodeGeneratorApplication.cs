@@ -3,7 +3,7 @@
 
 using System.Threading;
 using CommandLine;
-using Endpoint.Core.Internal;
+using Endpoint.Internal;
 using Endpoint.DotNet.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;

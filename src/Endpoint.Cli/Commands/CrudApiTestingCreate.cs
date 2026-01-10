@@ -5,8 +5,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts.Abstractions;
-using Endpoint.Testing.Core;
+using Endpoint.Artifacts.Abstractions;
+using Endpoint.Testing;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

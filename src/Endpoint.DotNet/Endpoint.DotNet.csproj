@@ -64,6 +64,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Endpoint.Core\Endpoint.Core.csproj" />
+    <ProjectReference Include="..\Endpoint\Endpoint.csproj" />
   </ItemGroup>
 </Project>

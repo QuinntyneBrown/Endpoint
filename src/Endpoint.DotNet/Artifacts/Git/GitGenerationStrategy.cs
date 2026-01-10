@@ -2,8 +2,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.IO;
-using Endpoint.Core.Artifacts.Abstractions;
-using Endpoint.Core.Services;
+using Endpoint.Artifacts.Abstractions;
+using Endpoint.Services;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 using Octokit;

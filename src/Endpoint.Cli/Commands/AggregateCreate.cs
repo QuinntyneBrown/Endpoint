@@ -8,10 +8,10 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts.Abstractions;
-using Endpoint.DomainDrivenDesign.Core.Models;
-using Endpoint.ModernWebAppPattern.Core;
-using Endpoint.ModernWebAppPattern.Core.Artifacts;
+using Endpoint.Artifacts.Abstractions;
+using Endpoint.DomainDrivenDesign.Models;
+using Endpoint.ModernWebAppPattern;
+using Endpoint.ModernWebAppPattern.Artifacts;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

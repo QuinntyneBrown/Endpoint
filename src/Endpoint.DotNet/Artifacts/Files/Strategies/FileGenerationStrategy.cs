@@ -4,7 +4,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using Endpoint.Core.Artifacts.Abstractions;
+using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Extensions;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;

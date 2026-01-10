@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Angular.Artifacts;
-using Endpoint.Core.Services;
+using Endpoint.Services;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Endpoint.Angular;
 
-using IFileFactory = Endpoint.Core.Artifacts.IFileFactory;
+using IFileFactory = Endpoint.Artifacts.IFileFactory;
 
 public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<WorkspaceModel>
 {

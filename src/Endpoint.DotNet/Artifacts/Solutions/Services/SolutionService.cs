@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using System.IO;
-using Endpoint.Core.Artifacts.Abstractions;
-using Endpoint.Core.Internal;
+using Endpoint.Artifacts.Abstractions;
+using Endpoint.Internal;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Artifacts.Projects.Factories;

@@ -5,8 +5,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts.Abstractions;
-using Endpoint.DomainDrivenDesign.Core.Models;
+using Endpoint.Artifacts.Abstractions;
+using Endpoint.DomainDrivenDesign.Models;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Interfaces;
@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
 
-using DbContextModel = Endpoint.ModernWebAppPattern.Core.Syntax.DbContextModel;
+using DbContextModel = Endpoint.ModernWebAppPattern.Syntax.DbContextModel;
 
 [Verb("db-context-create")]
 public class DbContextCreateRequest : IRequest

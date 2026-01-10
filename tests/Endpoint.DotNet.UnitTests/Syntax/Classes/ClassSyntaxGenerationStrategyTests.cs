@@ -1,7 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Endpoint.Core;
+using Endpoint;
 using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Classes.Factories;
