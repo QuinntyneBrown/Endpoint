@@ -5,12 +5,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using Endpoint.Core.Artifacts.Abstractions;
-using Endpoint.Core.Services;
-using Endpoint.Core.Syntax;
+using Endpoint.Artifacts.Abstractions;
+using Endpoint.Services;
+using Endpoint.Syntax;
 using Endpoint.DotNet.Services;
-using Endpoint.ModernWebAppPattern.Core.Artifacts;
-using Endpoint.ModernWebAppPattern.Core.Syntax;
+using Endpoint.ModernWebAppPattern.Artifacts;
+using Endpoint.ModernWebAppPattern.Syntax;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

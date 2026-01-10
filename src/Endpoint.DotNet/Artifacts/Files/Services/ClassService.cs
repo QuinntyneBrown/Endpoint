@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Endpoint.Core.Artifacts.Abstractions;
+using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Attributes;
 using Endpoint.DotNet.Syntax.Classes;

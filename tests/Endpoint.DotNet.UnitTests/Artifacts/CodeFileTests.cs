@@ -3,8 +3,8 @@
 
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using Endpoint.Core;
-using Endpoint.Core.Services;
+using Endpoint;
+using Endpoint.Services;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Files.Strategies;
 using Endpoint.DotNet.Syntax.Classes;

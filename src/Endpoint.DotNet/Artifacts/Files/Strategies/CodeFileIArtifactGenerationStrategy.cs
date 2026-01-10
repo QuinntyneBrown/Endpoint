@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Linq;
-using Endpoint.Core.Artifacts.Abstractions;
+using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 

@@ -69,7 +69,7 @@ public class ProjectMoveRequestHandler : IRequestHandler<ProjectMoveRequest>
     {
         var projectPath = fileProvider.Get("*.csproj", directory);
 
-        if (projectPath != Endpoint.Core.Constants.FileNotFound)
+        if (projectPath != Endpoint.Constants.FileNotFound)
         {
             var projectName = Path.GetFileNameWithoutExtension(projectPath);
 

@@ -4,7 +4,7 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using Endpoint.Core.Artifacts.Abstractions;
+using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Syntax.Classes;
@@ -166,7 +166,7 @@ public class DependencyInjectionService : IDependencyInjectionService
 
         var configureServicesFilePath = Path.Combine(projectDirectory, "ConfigureServices.cs");
 
-        if (path == Endpoint.Core.Constants.FileNotFound)
+        if (path == Endpoint.Constants.FileNotFound)
         {
             await AddConfigureServices(projectSuffix, projectDirectory);
         }

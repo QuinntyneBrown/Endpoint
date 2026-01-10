@@ -4,9 +4,9 @@
 global using Endpoint.Angular;
 global using Endpoint.Angular.Artifacts;
 global using Endpoint.Angular.Syntax;
-global using Endpoint.Core.Artifacts;
-global using Endpoint.Core.Services;
-global using Endpoint.Core.Syntax;
+global using Endpoint.Artifacts;
+global using Endpoint.Services;
+global using Endpoint.Syntax;
 global using Microsoft.Extensions.Logging;
 global using Moq;
 global using Newtonsoft.Json.Linq;

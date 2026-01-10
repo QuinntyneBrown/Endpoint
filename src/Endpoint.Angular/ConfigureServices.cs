@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Angular.Artifacts;
-using Endpoint.Core;
+using Endpoint;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Endpoint.Angular;

@@ -5,6 +5,6 @@ global using Xunit;
 global using Moq;
 global using Endpoint.Angular.Cli.Commands;
 global using Endpoint.Angular.Artifacts;
-global using Endpoint.Core.Artifacts;
+global using Endpoint.Artifacts;
 global using Microsoft.Extensions.Logging;
 global using MediatR;
