@@ -23,12 +23,12 @@ public class AngularWorkspaceGenerationStrategy : IArtifactGenerationStrategy<Wo
     private readonly INamingConventionConverter _namingConventionConverter;
     private readonly IFileFactory _fileFactory;
     private readonly IUtilityService _utilityService;
-    
+
     public int GetPriority() => 2;
 
     public AngularWorkspaceGenerationStrategy(
-        ILogger<AngularWorkspaceGenerationStrategy> logger, 
-        ICommandService commandService, 
+        ILogger<AngularWorkspaceGenerationStrategy> logger,
+        ICommandService commandService,
         IArtifactGenerator artifactGenerator,
         IFileProvider fileProvider,
         IFileFactory fileFactory,

@@ -20,7 +20,7 @@ public class ArtifactModel
     {
         root ??= this;
 
-        children ??= new ();
+        children ??= new();
 
         children.Add(root);
 

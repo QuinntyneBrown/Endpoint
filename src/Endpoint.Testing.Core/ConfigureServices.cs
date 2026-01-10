@@ -10,8 +10,8 @@ public static class ConfigureServices
 {
     public static void AddTestingCoreServices(this IServiceCollection services)
     {
-        services.AddSingleton<ISyntaxFactory,SyntaxFactory>();
-        services.AddSingleton<IArtifactFactory,ArtifactFactory>();
+        services.AddSingleton<ISyntaxFactory, SyntaxFactory>();
+        services.AddSingleton<IArtifactFactory, ArtifactFactory>();
         services.AddSyntaxGenerator(typeof(SyntaxFactory).Assembly);
         services.AddArifactGenerator(typeof(ArtifactFactory).Assembly);
     }

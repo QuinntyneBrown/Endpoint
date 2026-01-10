@@ -12,6 +12,7 @@ public class DocumentGenerationStrategy : ISyntaxGenerationStrategy<DocumentMode
 {
     private readonly ILogger<DocumentGenerationStrategy> logger;
     private readonly ISyntaxGenerator syntaxGenerator;
+
     public DocumentGenerationStrategy(ILogger<DocumentGenerationStrategy> logger)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -21,7 +22,7 @@ public class DocumentGenerationStrategy : ISyntaxGenerationStrategy<DocumentMode
     {
         logger.LogInformation("Generating syntax. {name}", model.Name);
 
-        StringBuilder stringBuilder = new ();
+        StringBuilder stringBuilder = new();
 
         foreach (var @using in model.GetDescendants().SelectMany(x => x.Usings.Select(x => x.Name)).Distinct())
         {

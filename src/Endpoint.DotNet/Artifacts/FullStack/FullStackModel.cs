@@ -5,4 +5,6 @@ using System;
 
 namespace Endpoint.DotNet.Artifacts.FullStack;
 
-public class FullStackModel { }
+public class FullStackModel
+{
+}

@@ -25,7 +25,7 @@ public class DbContextFileFromCoreDirectoryArtifactGenerationStrategy : IArtifac
         return false;
     }
 
-    public async Task GenerateAsync( string directory)
+    public async Task GenerateAsync(string directory)
     {
         throw new NotImplementedException();
     }

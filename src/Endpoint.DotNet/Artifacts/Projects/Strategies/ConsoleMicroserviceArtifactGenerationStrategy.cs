@@ -22,7 +22,7 @@ public class ConsoleMicroserviceArtifactGenerationStrategy : IArtifactGeneration
         this.notificationListener = notificationListener;
     }
 
-    public async Task GenerateAsync( ConsoleMicroserviceProjectModel model)
+    public async Task GenerateAsync(ConsoleMicroserviceProjectModel model)
     {
         throw new NotImplementedException();
     }

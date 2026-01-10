@@ -14,5 +14,4 @@ public class InterfaceCodeFileArtifactGenerationStrategy : CodeFileIArtifactGene
         : base(syntaxGenerator, fileSystem, namespaceProvider, artifactGenerator, logger)
     {
     }
-
 }

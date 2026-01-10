@@ -8,7 +8,7 @@ using Endpoint.DotNet.Syntax.Expressions;
 namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.Controllers;
 
 public class ControllerUpdateExpressionModel : ExpressionModel
-{ 
+{
     public ControllerUpdateExpressionModel(ClassModel @class, Command command)
         : base(string.Empty)
     {

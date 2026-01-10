@@ -16,7 +16,7 @@ using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 /// <summary>
 /// DbContextModel.
 /// </summary>
-public class DbContextModel: List<TypeDeclarationModel>
+public class DbContextModel : List<TypeDeclarationModel>
 {
     /// <summary>
     /// Create.

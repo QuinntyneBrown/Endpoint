@@ -55,7 +55,6 @@ public class ConstructorExpressionGenerationStrategy : ISyntaxGenerationStrategy
             }
         }
 
-
         return stringBuilder.ToString();
     }
 }

@@ -5,7 +5,7 @@ using Endpoint.ModernWebAppPattern.Core.Models;
 
 namespace Endpoint.ModernWebAppPattern.Core;
 
-public interface IDataContext: Endpoint.DomainDrivenDesign.Core.IDataContext
+public interface IDataContext : Endpoint.DomainDrivenDesign.Core.IDataContext
 {
     List<Microservice> Microservices { get; set; }
 

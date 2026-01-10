@@ -14,7 +14,7 @@ public interface IClassFactory
 
     Task<ClassModel> CreateControllerAsync(string controllerName);
 
-    Task<ClassModel> CreateEntityAsync(string name, List<KeyValuePair<string,string>> keyValuePairs);
+    Task<ClassModel> CreateEntityAsync(string name, List<KeyValuePair<string, string>> keyValuePairs);
 
     ClassModel CreateController(EntityModel model, string directory);
 
@@ -48,7 +48,7 @@ public interface IClassFactory
 
     Task<ClassModel> CreateWorkerAsync(string name);
 
-    Task<ClassModel> CreateUserDefinedEnumAsync(string name, string type, List<KeyValuePair<string,string>> keyValuePairs);
+    Task<ClassModel> CreateUserDefinedEnumAsync(string name, string type, List<KeyValuePair<string, string>> keyValuePairs);
 
     /// <summary>
     /// CreateUserDefinedTypeAsync.

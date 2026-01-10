@@ -51,7 +51,9 @@ public class TemplatedFileArtifactGenerationStrategy : IArtifactGenerationStrate
             {
                 model.Tokens.Add(token.Key, token.Value);
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         var result = _templateProcessor.Process(template, model.Tokens);

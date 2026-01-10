@@ -10,7 +10,7 @@ public class FileSystenDataContextProvider : IDataContextProvider
 {
     private readonly ILogger<FileSystenDataContextProvider> _logger;
     private readonly FileSystenDataContextProviderOptions _options;
-    private IDataContext _context = default !;
+    private IDataContext _context = default!;
 
     public FileSystenDataContextProvider(ILogger<FileSystenDataContextProvider> logger, IOptions<FileSystenDataContextProviderOptions> optionsAccessor)
     {
@@ -25,7 +25,7 @@ public class FileSystenDataContextProvider : IDataContextProvider
     {
         _logger.LogInformation("GetAsync");
 
-        if(_context == null)
+        if (_context == null)
         {
 
         }

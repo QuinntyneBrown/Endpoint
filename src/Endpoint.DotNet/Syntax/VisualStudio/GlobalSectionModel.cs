@@ -5,5 +5,4 @@ namespace Endpoint.DotNet.Syntax.VisualStudio;
 
 public class GlobalSectionModel
 {
-
 }

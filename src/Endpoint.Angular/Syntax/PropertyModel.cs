@@ -6,7 +6,8 @@ using System;
 
 namespace Endpoint.Angular.Syntax;
 
-public class PropertyModel {
+public class PropertyModel
+{
 
     public string Name { get; set; }
 

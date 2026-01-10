@@ -9,7 +9,7 @@ public class DataContext : IDataContext
 {
     public DataContext()
     {
-        
+
     }
 
     public string ProductName { get; set; } = string.Empty;

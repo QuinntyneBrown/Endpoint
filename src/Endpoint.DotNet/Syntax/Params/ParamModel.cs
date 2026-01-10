@@ -10,13 +10,13 @@ using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 public class ParamModel : SyntaxModel
 {
-    public static ParamModel CancellationToken = new ()
+    public static ParamModel CancellationToken = new()
     {
         Type = new TypeModel("CancellationToken"),
         Name = "cancellationToken",
     };
 
-    public static ParamModel Mediator => new ()
+    public static ParamModel Mediator => new()
     {
         Type = new TypeModel($"IMediator"),
         Name = "mediator",
@@ -32,7 +32,7 @@ public class ParamModel : SyntaxModel
 
     public bool ExtensionMethodParam { get; set; }
 
-    public static ParamModel LoggerOf(string name) => new ()
+    public static ParamModel LoggerOf(string name) => new()
     {
         Type = TypeModel.LoggerOf(name),
         Name = "logger",

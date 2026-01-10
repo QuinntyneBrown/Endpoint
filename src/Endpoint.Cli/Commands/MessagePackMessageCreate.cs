@@ -16,7 +16,6 @@ using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Cli.Commands;
 
-
 [Verb("message-pack-message-create")]
 public class MessagePackMessageCreateRequest : IRequest
 {

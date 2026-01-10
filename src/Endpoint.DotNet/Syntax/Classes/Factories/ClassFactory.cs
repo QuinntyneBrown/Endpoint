@@ -65,12 +65,12 @@ public class ClassFactory : IClassFactory
 
         foreach (var keyValuePair in keyValuePairs)
         {
-            model.Fields.Add(new ()
+            model.Fields.Add(new()
             {
                 Name = keyValuePair.Key,
                 Static = true,
                 AccessModifier = AccessModifier.Public,
-                Type = new (name),
+                Type = new(name),
                 DefaultValue = string.IsNullOrEmpty(keyValuePair.Value)
                 ? type == "int" ? $"new (1 << {numberOfEnums})" : $"new (nameof({keyValuePair.Key}))"
                 : type == "int" ? $"new ({keyValuePair.Value})" : $"new (\"{keyValuePair.Value}\")",
@@ -86,9 +86,9 @@ public class ClassFactory : IClassFactory
     {
         var model = new ClassModel(name);
 
-        model.Usings.Add(new ("System"));
+        model.Usings.Add(new("System"));
 
-        ConstructorModel constructor = new (model, model.Name)
+        ConstructorModel constructor = new(model, model.Name)
         {
             Params =
             [
@@ -100,15 +100,15 @@ public class ClassFactory : IClassFactory
             ],
         };
 
-        model.Fields.Add(new ()
+        model.Fields.Add(new()
         {
             Name = "_value",
             AccessModifier = AccessModifier.Private,
             ReadOnly = true,
-            Type = new (type),
+            Type = new(type),
         });
 
-        model.Methods.Add(new ()
+        model.Methods.Add(new()
         {
             ImplicitOperator = true,
             Name = type,
@@ -121,10 +121,10 @@ public class ClassFactory : IClassFactory
                     Type = new (name),
                 },
             ],
-            Body = new ($"return {name.ToCamelCase()}._value;"),
+            Body = new($"return {name.ToCamelCase()}._value;"),
         });
 
-        model.Methods.Add(new ()
+        model.Methods.Add(new()
         {
             ExplicitOperator = true,
             Name = name,
@@ -137,7 +137,7 @@ public class ClassFactory : IClassFactory
                     Type = new (type),
                 },
             ],
-            Body = new ($"return new {name}(value);"),
+            Body = new($"return new {name}(value);"),
         });
 
         model.Constructors.Add(constructor);
@@ -170,39 +170,39 @@ public class ClassFactory : IClassFactory
 
         var classModel = new ClassModel($"{model.Name}Controller");
 
-        classModel.Usings.Add(new ($"{rootNamesapce}.Core.AggregatesModel.{model.Name}Aggregate.Commands"));
+        classModel.Usings.Add(new($"{rootNamesapce}.Core.AggregatesModel.{model.Name}Aggregate.Commands"));
 
-        classModel.Usings.Add(new ($"{rootNamesapce}.Core.AggregatesModel.{model.Name}Aggregate.Queries"));
+        classModel.Usings.Add(new($"{rootNamesapce}.Core.AggregatesModel.{model.Name}Aggregate.Queries"));
 
-        classModel.Usings.Add(new ("System.Net"));
+        classModel.Usings.Add(new("System.Net"));
 
-        classModel.Usings.Add(new ("System.Threading.Tasks"));
+        classModel.Usings.Add(new("System.Threading.Tasks"));
 
-        classModel.Usings.Add(new ("MediatR"));
+        classModel.Usings.Add(new("MediatR"));
 
-        classModel.Usings.Add(new ("Microsoft.AspNetCore.Mvc"));
+        classModel.Usings.Add(new("Microsoft.AspNetCore.Mvc"));
 
-        classModel.Usings.Add(new ("System.Net.Mime"));
+        classModel.Usings.Add(new("System.Net.Mime"));
 
-        classModel.Usings.Add(new ("Swashbuckle.AspNetCore.Annotations"));
+        classModel.Usings.Add(new("Swashbuckle.AspNetCore.Annotations"));
 
-        classModel.Attributes.Add(new () { Type = AttributeType.ApiController, Name = nameof(AttributeType.ApiController) });
+        classModel.Attributes.Add(new() { Type = AttributeType.ApiController, Name = nameof(AttributeType.ApiController) });
 
-        classModel.Attributes.Add(new () { Type = AttributeType.ApiVersion, Name = nameof(AttributeType.ApiVersion), Template = "\"1.0\"" });
+        classModel.Attributes.Add(new() { Type = AttributeType.ApiVersion, Name = nameof(AttributeType.ApiVersion), Template = "\"1.0\"" });
 
-        classModel.Attributes.Add(new () { Type = AttributeType.Route, Name = nameof(AttributeType.Route), Template = "\"api/{version:apiVersion}/[controller]\"" });
+        classModel.Attributes.Add(new() { Type = AttributeType.Route, Name = nameof(AttributeType.Route), Template = "\"api/{version:apiVersion}/[controller]\"" });
 
-        classModel.Attributes.Add(new () { Type = AttributeType.Produces, Name = nameof(AttributeType.Produces), Template = "MediaTypeNames.Application.Json" });
+        classModel.Attributes.Add(new() { Type = AttributeType.Produces, Name = nameof(AttributeType.Produces), Template = "MediaTypeNames.Application.Json" });
 
-        classModel.Attributes.Add(new () { Type = AttributeType.Consumes, Name = nameof(AttributeType.Consumes), Template = "MediaTypeNames.Application.Json" });
+        classModel.Attributes.Add(new() { Type = AttributeType.Consumes, Name = nameof(AttributeType.Consumes), Template = "MediaTypeNames.Application.Json" });
 
         classModel.Fields.Add(FieldModel.Mediator);
 
         classModel.Fields.Add(FieldModel.LoggerOf(classModel.Name));
 
-        classModel.Constructors.Add(new (classModel, classModel.Name)
+        classModel.Constructors.Add(new(classModel, classModel.Name)
         {
-            Params = new ()
+            Params = new()
             {
                 ParamModel.Mediator,
                 ParamModel.LoggerOf(classModel.Name),
@@ -226,33 +226,33 @@ public class ClassFactory : IClassFactory
     {
         var classModel = new ClassModel($"{name}Controller");
 
-        classModel.Usings.Add(new ("System.Net"));
+        classModel.Usings.Add(new("System.Net"));
 
-        classModel.Usings.Add(new ("System.Threading.Tasks"));
+        classModel.Usings.Add(new("System.Threading.Tasks"));
 
-        classModel.Usings.Add(new ("MediatR"));
+        classModel.Usings.Add(new("MediatR"));
 
-        classModel.Usings.Add(new ("Microsoft.AspNetCore.Mvc"));
+        classModel.Usings.Add(new("Microsoft.AspNetCore.Mvc"));
 
-        classModel.Usings.Add(new ("System.Net.Mime"));
+        classModel.Usings.Add(new("System.Net.Mime"));
 
-        classModel.Usings.Add(new ("Swashbuckle.AspNetCore.Annotations"));
+        classModel.Usings.Add(new("Swashbuckle.AspNetCore.Annotations"));
 
-        classModel.Attributes.Add(new () { Type = AttributeType.ApiController, Name = nameof(AttributeType.ApiController) });
+        classModel.Attributes.Add(new() { Type = AttributeType.ApiController, Name = nameof(AttributeType.ApiController) });
 
-        classModel.Attributes.Add(new () { Type = AttributeType.ApiVersion, Name = nameof(AttributeType.ApiVersion), Template = "\"1.0\"" });
+        classModel.Attributes.Add(new() { Type = AttributeType.ApiVersion, Name = nameof(AttributeType.ApiVersion), Template = "\"1.0\"" });
 
-        classModel.Attributes.Add(new () { Type = AttributeType.Route, Name = nameof(AttributeType.Route), Template = "\"api/{version:apiVersion}/[controller]\"" });
+        classModel.Attributes.Add(new() { Type = AttributeType.Route, Name = nameof(AttributeType.Route), Template = "\"api/{version:apiVersion}/[controller]\"" });
 
-        classModel.Attributes.Add(new () { Type = AttributeType.Produces, Name = nameof(AttributeType.Produces), Template = "MediaTypeNames.Application.Json" });
+        classModel.Attributes.Add(new() { Type = AttributeType.Produces, Name = nameof(AttributeType.Produces), Template = "MediaTypeNames.Application.Json" });
 
-        classModel.Attributes.Add(new () { Type = AttributeType.Consumes, Name = nameof(AttributeType.Consumes), Template = "MediaTypeNames.Application.Json" });
+        classModel.Attributes.Add(new() { Type = AttributeType.Consumes, Name = nameof(AttributeType.Consumes), Template = "MediaTypeNames.Application.Json" });
 
         classModel.Fields.Add(FieldModel.Mediator);
 
         classModel.Fields.Add(FieldModel.LoggerOf(classModel.Name));
 
-        classModel.Constructors.Add(new (classModel, classModel.Name)
+        classModel.Constructors.Add(new(classModel, classModel.Name)
         {
             Params =
             [
@@ -264,7 +264,7 @@ public class ClassFactory : IClassFactory
         return classModel;
     }
 
-    public async Task<ClassModel> CreateEntityAsync(string name, List<KeyValuePair<string,string>> keyValuePairs)
+    public async Task<ClassModel> CreateEntityAsync(string name, List<KeyValuePair<string, string>> keyValuePairs)
     {
         var classModel = new ClassModel(name);
 
@@ -274,7 +274,7 @@ public class ClassFactory : IClassFactory
 
         foreach (var keyValuePair in keyValuePairs)
         {
-            properties.Add(new (classModel, AccessModifier.Public, new TypeModel(keyValuePair.Value), keyValuePair.Key, PropertyAccessorModel.GetSet));
+            properties.Add(new(classModel, AccessModifier.Public, new TypeModel(keyValuePair.Value), keyValuePair.Key, PropertyAccessorModel.GetSet));
 
             if (keyValuePair.Key == $"{name}Id")
             {
@@ -284,7 +284,7 @@ public class ClassFactory : IClassFactory
 
         if (!hasId)
         {
-            classModel.Properties.Add(new (classModel, AccessModifier.Public, new ("Guid"), $"{name}Id", PropertyAccessorModel.GetSet));
+            classModel.Properties.Add(new(classModel, AccessModifier.Public, new("Guid"), $"{name}Id", PropertyAccessorModel.GetSet));
         }
 
         foreach (var property in properties)
@@ -306,7 +306,7 @@ public class ClassFactory : IClassFactory
     {
         var model = new ClassModel($"Message");
 
-        model.Properties.Add(new (
+        model.Properties.Add(new(
             model,
             AccessModifier.Public,
             new TypeModel("string"),
@@ -316,7 +316,7 @@ public class ClassFactory : IClassFactory
             DefaultValue = "nameof(Message)",
         });
 
-        model.Properties.Add(new (
+        model.Properties.Add(new(
             model,
             AccessModifier.Public,
             new TypeModel("DateTimeOffset"),
@@ -333,7 +333,7 @@ public class ClassFactory : IClassFactory
     {
         var hubClassModel = new ClassModel($"{name}Hub");
 
-        hubClassModel.Implements.Add(new ("Hub")
+        hubClassModel.Implements.Add(new("Hub")
         {
             GenericTypeParameters =
             [
@@ -341,7 +341,7 @@ public class ClassFactory : IClassFactory
             ],
         });
 
-        hubClassModel.Usings.Add(new () { Name = "Microsoft.AspNetCore.SignalR" });
+        hubClassModel.Usings.Add(new() { Name = "Microsoft.AspNetCore.SignalR" });
 
         return hubClassModel;
     }
@@ -350,14 +350,14 @@ public class ClassFactory : IClassFactory
     {
         var interfaceModel = new InterfaceModel($"I{name}Hub");
 
-        interfaceModel.Methods.Add(new ()
+        interfaceModel.Methods.Add(new()
         {
             ParentType = interfaceModel,
             Interface = true,
-            ReturnType = new ("Task"),
+            ReturnType = new("Task"),
             AccessModifier = AccessModifier.Public,
             Name = "Message",
-            Params = new () { new () { Name = "message", Type = new ("string") } },
+            Params = new() { new() { Name = "message", Type = new("string") } },
         });
 
         return interfaceModel;
@@ -367,7 +367,7 @@ public class ClassFactory : IClassFactory
     {
         var model = await CreateWorkerAsync("MessageProducer");
 
-        model.Usings.Add(new () { Name = "System.Text.Json" });
+        model.Usings.Add(new() { Name = "System.Text.Json" });
 
         var hubContextType = new TypeModel("IHubContext")
         {
@@ -378,9 +378,9 @@ public class ClassFactory : IClassFactory
             ],
         };
 
-        model.Usings.Add(new () { Name = "Microsoft.AspNetCore.SignalR" });
+        model.Usings.Add(new() { Name = "Microsoft.AspNetCore.SignalR" });
 
-        model.Fields.Add(new ()
+        model.Fields.Add(new()
         {
             Type = hubContextType,
             Name = "_hubContext",
@@ -401,16 +401,15 @@ public class ClassFactory : IClassFactory
             .AppendDoubleLine("var json = JsonSerializer.Serialize(message);")
             .Append("await _hubContext.Clients.All.Message(json);");
 
-
         methodBodyBuilder.AppendLine(StringBuilderCache.GetStringAndRelease(expressionBuilder).Indent(1));
 
         methodBodyBuilder.AppendLine("await Task.Delay(1000, stoppingToken);".Indent(1));
 
         methodBodyBuilder.AppendLine("}");
 
-        model.Methods.First().Body = new (StringBuilderCache.GetStringAndRelease(methodBodyBuilder));
+        model.Methods.First().Body = new(StringBuilderCache.GetStringAndRelease(methodBodyBuilder));
 
-        model.Constructors.First().Params.Add(new ()
+        model.Constructors.First().Params.Add(new()
         {
             Type = hubContextType,
             Name = "hubContext",
@@ -425,40 +424,40 @@ public class ClassFactory : IClassFactory
 
         var classModel = new ClassModel(name);
 
-        classModel.Implements.Add(new (interfaceModel.Name));
+        classModel.Implements.Add(new(interfaceModel.Name));
 
-        return new (classModel, interfaceModel);
+        return new(classModel, interfaceModel);
     }
 
     public ClassModel CreateServiceBusMessageConsumer(string name, string messagesNamespace)
     {
         var classModel = new ClassModel(name);
 
-        classModel.Implements.Add(new ("BackgroundService"));
+        classModel.Implements.Add(new("BackgroundService"));
 
-        classModel.Usings.Add(new ("Messaging"));
+        classModel.Usings.Add(new("Messaging"));
 
-        classModel.Usings.Add(new ("Messaging.Udp"));
+        classModel.Usings.Add(new("Messaging.Udp"));
 
-        classModel.Usings.Add(new ("Microsoft.Extensions.DependencyInjection"));
+        classModel.Usings.Add(new("Microsoft.Extensions.DependencyInjection"));
 
-        classModel.Usings.Add(new ("Microsoft.Extensions.Hosting"));
+        classModel.Usings.Add(new("Microsoft.Extensions.Hosting"));
 
-        classModel.Usings.Add(new ("System.Text"));
+        classModel.Usings.Add(new("System.Text"));
 
-        classModel.Usings.Add(new ("Microsoft.Extensions.Logging"));
+        classModel.Usings.Add(new("Microsoft.Extensions.Logging"));
 
-        classModel.Usings.Add(new ("System.Threading.Tasks"));
+        classModel.Usings.Add(new("System.Threading.Tasks"));
 
-        classModel.Usings.Add(new ("System.Threading"));
+        classModel.Usings.Add(new("System.Threading"));
 
-        classModel.Usings.Add(new ("MediatR"));
+        classModel.Usings.Add(new("MediatR"));
 
-        classModel.Usings.Add(new ("System.Linq"));
+        classModel.Usings.Add(new("System.Linq"));
 
         var constructorModel = new ConstructorModel(classModel, classModel.Name);
 
-        foreach (var type in new TypeModel[] { TypeModel.LoggerOf("ServiceBusMessageConsumer"), new ("IServiceScopeFactory"), new ("IUdpClientFactory") })
+        foreach (var type in new TypeModel[] { TypeModel.LoggerOf("ServiceBusMessageConsumer"), new("IServiceScopeFactory"), new("IUdpClientFactory") })
         {
             var propName = type.Name switch
             {
@@ -468,23 +467,23 @@ public class ClassFactory : IClassFactory
                 _ => throw new NotImplementedException()
             };
 
-            classModel.Fields.Add(new ()
+            classModel.Fields.Add(new()
             {
                 Name = $"_{propName}",
                 Type = type,
             });
 
-            constructorModel.Params.Add(new ()
+            constructorModel.Params.Add(new()
             {
                 Name = propName,
                 Type = type,
             });
         }
 
-        classModel.Fields.Add(new ()
+        classModel.Fields.Add(new()
         {
             Name = $"_supportedMessageTypes",
-            Type = new ("string[]"),
+            Type = new("string[]"),
             DefaultValue = "new string[] { }",
         });
 
@@ -554,8 +553,8 @@ public class ClassFactory : IClassFactory
             Override = true,
             AccessModifier = AccessModifier.Protected,
             Async = true,
-            ReturnType = new ("Task"),
-            Body = new (string.Join(Environment.NewLine, methodBody)),
+            ReturnType = new("Task"),
+            Body = new(string.Join(Environment.NewLine, methodBody)),
         };
 
         method.Params.Add(ParamModel.CancellationToken);
@@ -573,7 +572,7 @@ public class ClassFactory : IClassFactory
 
         var methodParam = new ParamModel()
         {
-            Type = new ("IServiceCollection"),
+            Type = new("IServiceCollection"),
             Name = "services",
             ExtensionMethodParam = true,
         };
@@ -581,7 +580,7 @@ public class ClassFactory : IClassFactory
         var method = new MethodModel()
         {
             Name = $"Add{serviceSuffix}Services",
-            ReturnType = new ("void"),
+            ReturnType = new("void"),
             Static = true,
             Params = [methodParam],
         };
@@ -595,7 +594,6 @@ public class ClassFactory : IClassFactory
 
     public async Task<ClassModel> CreateRequestAsync(string name, string responseName)
     {
-
         throw new NotImplementedException();
     }
 
@@ -652,7 +650,7 @@ public class ClassFactory : IClassFactory
 
         model.Constructors = constructors;
 
-        model.Implements.Add(new ("BackgroundService"));
+        model.Implements.Add(new("BackgroundService"));
 
         model.Methods.Add(await _methodFactory.CreateWorkerExecuteAsync());
 
@@ -663,14 +661,14 @@ public class ClassFactory : IClassFactory
     {
         var model = new ClassModel(controllerName);
 
-        model.Attributes.Add(new (AttributeType.ApiController, null, null));
+        model.Attributes.Add(new(AttributeType.ApiController, null, null));
 
         return model;
     }
 
     private MethodModel CreateControllerMethod(ClassModel controller, EntityModel model, RouteType routeType)
     {
-        MethodModel methodModel = new ()
+        MethodModel methodModel = new()
         {
             ParentType = controller,
             Async = true,
@@ -716,7 +714,7 @@ public class ClassFactory : IClassFactory
 
                 methodModel.Attributes.Add(new SwaggerOperationAttributeModel($"Get {entityNamePascalCase} by id", $"Get {entityNamePascalCase} by id"));
 
-                methodModel.Attributes.Add(new ()
+                methodModel.Attributes.Add(new()
                 {
                     Name = "HttpGet",
                     Template = "\"{" + entityIdNameCamelCase + ":guid}\"",
@@ -770,7 +768,7 @@ public class ClassFactory : IClassFactory
 
                 methodModel.Attributes.Add(new SwaggerOperationAttributeModel($"Get {entityNamePascalCasePlural}", $"Get {entityNamePascalCasePlural}"));
 
-                methodModel.Attributes.Add(new ()
+                methodModel.Attributes.Add(new()
                 {
                     Name = "HttpGet",
                     Properties = new Dictionary<string, string>()
@@ -790,7 +788,7 @@ public class ClassFactory : IClassFactory
                     cancellationTokenParam,
                 ];
 
-                methodModel.Body = new ($"return await _mediator.Send(new Get{entityNamePascalCasePlural}Request(), cancellationToken);");
+                methodModel.Body = new($"return await _mediator.Send(new Get{entityNamePascalCasePlural}Request(), cancellationToken);");
 
                 break;
 
@@ -819,7 +817,7 @@ public class ClassFactory : IClassFactory
                     cancellationTokenParam,
                 ];
 
-                methodModel.Body = new ("return await _mediator.Send(request, cancellationToken);");
+                methodModel.Body = new("return await _mediator.Send(request, cancellationToken);");
 
                 break;
 
@@ -827,7 +825,7 @@ public class ClassFactory : IClassFactory
 
                 methodModel.Attributes.Add(new SwaggerOperationAttributeModel($"Update {entityNamePascalCase}", $"Update {entityNamePascalCase}"));
 
-                methodModel.Attributes.Add(new ()
+                methodModel.Attributes.Add(new()
                 {
                     Name = "HttpPut",
                     Properties = new Dictionary<string, string>()
@@ -848,13 +846,13 @@ public class ClassFactory : IClassFactory
                     cancellationTokenParam,
                 ];
 
-                methodModel.Body = new ("return await _mediator.Send(request, cancellationToken);");
+                methodModel.Body = new("return await _mediator.Send(request, cancellationToken);");
                 break;
 
             case RouteType.Delete:
                 methodModel.Attributes.Add(new SwaggerOperationAttributeModel($"Delete {entityNamePascalCase}", $"Delete {entityNamePascalCase}"));
 
-                methodModel.Attributes.Add(new ()
+                methodModel.Attributes.Add(new()
                 {
                     Name = "HttpDelete",
                     Template = "\"{" + entityIdNameCamelCase + ":guid}\"",
@@ -876,7 +874,7 @@ public class ClassFactory : IClassFactory
                     cancellationTokenParam,
                 ];
 
-                methodModel.Body = new (new System.Text.StringBuilder().AppendJoin(Environment.NewLine, new string[]
+                methodModel.Body = new(new System.Text.StringBuilder().AppendJoin(Environment.NewLine, new string[]
                 {
                     $"var request = new Delete{entityNamePascalCase}Request()" + " {" + $"{entityIdNamePascalCase} = {entityIdNameCamelCase}" + " };",
                     string.Empty,
@@ -893,9 +891,9 @@ public class ClassFactory : IClassFactory
     {
         var model = new ClassModel(requestName);
 
-        model.Implements.Add(new ("IRequest")
+        model.Implements.Add(new("IRequest")
         {
-            GenericTypeParameters = new () { new (responseName) },
+            GenericTypeParameters = new() { new(responseName) },
 
             Usings =
             [
@@ -912,25 +910,25 @@ public class ClassFactory : IClassFactory
     {
         var model = new ClassModel(name);
 
-        model.Usings.Add(new ("System"));
+        model.Usings.Add(new("System"));
 
-        model.Usings.Add(new ("MessagePack"));
+        model.Usings.Add(new("MessagePack"));
 
-        model.Attributes.Add(new ()
+        model.Attributes.Add(new()
         {
             Name = "MessagePackObject",
         });
 
         foreach (var typeName in implements)
         {
-            model.Implements.Add(new (typeName));
+            model.Implements.Add(new(typeName));
         }
 
         int propertyIndex = 0;
 
         foreach (var keyValue in keyValuePairs)
         {
-            model.Properties.Add(new (model, AccessModifier.Public, new () { Name = keyValue.Value }, keyValue.Key, [])
+            model.Properties.Add(new(model, AccessModifier.Public, new() { Name = keyValue.Value }, keyValue.Key, [])
             {
                 Attributes =
                 [

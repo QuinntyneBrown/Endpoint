@@ -32,7 +32,7 @@ public class UpdateRequestHandlerExpressionGenerationStrategy : ISyntaxGeneratio
             .Single(x => x.{{key.Name}} == request.{{key.Name}});
             """);
 
-        foreach(var property in model.Command.Aggregate.Properties.Where(x => !x.Key))
+        foreach (var property in model.Command.Aggregate.Properties.Where(x => !x.Key))
         {
             stringBuilder.AppendLine($"{model.Command.Aggregate.Name.ToCamelCase()}.{property.Name} = request.{property.Name};");
         }

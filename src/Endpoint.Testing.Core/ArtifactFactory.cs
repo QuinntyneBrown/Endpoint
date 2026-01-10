@@ -28,7 +28,7 @@ public class ArtifactFactory : IArtifactFactory
 
         var model = new SolutionModel(systemName, directory);
 
-        var projectModel = new Endpoint.DotNet.Artifacts.Projects.ProjectModel("webapi", $"{systemName}.Api",model.SrcDirectory);
+        var projectModel = new Endpoint.DotNet.Artifacts.Projects.ProjectModel("webapi", $"{systemName}.Api", model.SrcDirectory);
 
         model.Projects.Add(projectModel);
 

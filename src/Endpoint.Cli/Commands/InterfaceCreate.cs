@@ -49,16 +49,16 @@ public class InterfaceCreateRequestHandler : IRequestHandler<InterfaceCreateRequ
         {
             var model = new InterfaceModel(name);
 
-            model.Methods.Add(new ()
+            model.Methods.Add(new()
             {
                 ParentType = model,
                 Name = "Foo",
-                Body = new (string.Empty),
+                Body = new(string.Empty),
             });
 
             foreach (var typeName in request.Implements.FromCsv())
             {
-                model.Implements.Add(new (typeName));
+                model.Implements.Add(new(typeName));
             }
 
             await artifactGenerator.GenerateAsync(new CodeFileModel<InterfaceModel>(model, model.Usings, name, request.Directory, CSharp));

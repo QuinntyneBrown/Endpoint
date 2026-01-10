@@ -23,14 +23,14 @@ public class ToDtoExpressionGenerationStrategy : ISyntaxGenerationStrategy<ToDto
         var stringBuilder = new StringBuilder();
 
         stringBuilder.AppendLine($"return new {model.Aggregate.Name}Dto()");
-        
+
         stringBuilder.AppendLine("{");
 
-        foreach(var property in model.Aggregate.Properties)
+        foreach (var property in model.Aggregate.Properties)
         {
             stringBuilder.AppendLine($"{property.Name} = {model.Aggregate.Name.ToCamelCase()}.{property.Name},".Indent(1));
         }
-        
+
         stringBuilder.AppendLine("};");
 
         return stringBuilder.ToString();

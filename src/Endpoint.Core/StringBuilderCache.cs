@@ -21,22 +21,23 @@ public static class StringBuilderCache
     // Please do not change the type, the name, or the semantic usage of this member without understanding the implication for tools.
     // Get in touch with the diagnostics team if you have questions.
     [ThreadStatic]
-    private static StringBuilder? t_cachedInstance;
+    private static StringBuilder? cachedInstance;
 
     /// <summary>Get a StringBuilder for the specified capacity.</summary>
     /// <remarks>If a StringBuilder of an appropriate size is cached, it will be returned and the cache emptied.</remarks>
+    /// <returns></returns>
     public static StringBuilder Acquire(int capacity = DefaultCapacity)
     {
         if (capacity <= MaxBuilderSize)
         {
-            StringBuilder? sb = t_cachedInstance;
+            StringBuilder? sb = cachedInstance;
             if (sb != null)
             {
                 // Avoid stringbuilder block fragmentation by getting a new StringBuilder
                 // when the requested size is larger than the current capacity
                 if (capacity <= sb.Capacity)
                 {
-                    t_cachedInstance = null;
+                    cachedInstance = null;
                     sb.Clear();
                     return sb;
                 }
@@ -51,11 +52,12 @@ public static class StringBuilderCache
     {
         if (sb.Capacity <= MaxBuilderSize)
         {
-            t_cachedInstance = sb;
+            cachedInstance = sb;
         }
     }
 
     /// <summary>ToString() the stringbuilder, Release it to the cache, and return the resulting string.</summary>
+    /// <returns></returns>
     public static string GetStringAndRelease(StringBuilder sb)
     {
         string result = sb.ToString();

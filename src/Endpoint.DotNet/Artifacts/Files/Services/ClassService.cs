@@ -45,22 +45,22 @@ public class ClassService : IClassService
         _namespaceProvider = namespaceProvider;
     }
 
-    public async Task CreateAsync(string name, List<KeyValuePair<string,string>> keyValuePairs, List<string> implements, string directory)
+    public async Task CreateAsync(string name, List<KeyValuePair<string, string>> keyValuePairs, List<string> implements, string directory)
     {
         _logger.LogInformation("Create Class {name}", name);
 
         var @class = new ClassModel(name);
 
-        @class.Usings.Add(new ("System"));
+        @class.Usings.Add(new("System"));
 
         foreach (var keyValue in keyValuePairs)
         {
             @class.Properties.Add(new PropertyModel(@class, AccessModifier.Public, new TypeModel() { Name = keyValue.Value }, keyValue.Key, new List<PropertyAccessorModel>()));
         }
 
-        foreach ( var typeName in implements)
+        foreach (var typeName in implements)
         {
-            @class.Implements.Add(new (typeName));
+            @class.Implements.Add(new(typeName));
         }
 
         var classFile = new CodeFileModel<ClassModel>(
@@ -102,7 +102,6 @@ public class ClassService : IClassService
                         break;
                     }
                 }
-
             }
         }
 
@@ -164,9 +163,9 @@ public class ClassService : IClassService
 
             classModel.Methods.Add(fact);
 
-            classModel.Usings.Add(new ("Xunit"));
+            classModel.Usings.Add(new("Xunit"));
 
-            classModel.Usings.Add(new (_namespaceProvider.Get(Path.GetDirectoryName(classPath))));
+            classModel.Usings.Add(new(_namespaceProvider.Get(Path.GetDirectoryName(classPath))));
 
             classModel.UsingAs.Add(new UsingAsModel($"{_namespaceProvider.Get(Path.GetDirectoryName(classPath))}.{name}", name));
 

@@ -64,7 +64,7 @@ public class SpecFlowService : ISpecFlowService
             Name = "Binding",
         });
 
-        classModel.Usings.Add(new ("TechTalk.SpecFlow"));
+        classModel.Usings.Add(new("TechTalk.SpecFlow"));
 
         var fileModel = new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, directory, ".cs");
 

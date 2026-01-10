@@ -19,7 +19,7 @@ public class ControllerModel : ClassModel
     {
         Attributes.Add(new AttributeModel(AttributeType.ApiController, "ApiController", null));
 
-        Implements.Add(new ("ControllerBase"));
+        Implements.Add(new("ControllerBase"));
 
         Fields.Add(FieldModel.LoggerOf(Name));
 

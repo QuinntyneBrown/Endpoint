@@ -71,7 +71,6 @@ public class MethodSyntaxGenerationStrategy : ISyntaxGenerationStrategy<MethodMo
 
         if (model.Body == null)
         {
-
             builder.AppendLine();
             builder.AppendLine("{");
             builder.AppendLine("}");

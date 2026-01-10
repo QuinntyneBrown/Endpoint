@@ -7,10 +7,11 @@ using System;
 
 namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions.RequestHandlers;
 
-public class CreateRequestHandlerExpressionModel : ExpressionModel {
+public class CreateRequestHandlerExpressionModel : ExpressionModel
+{
 
     public CreateRequestHandlerExpressionModel(Command command)
-        :base(string.Empty)
+        : base(string.Empty)
     {
         Command = command;
     }

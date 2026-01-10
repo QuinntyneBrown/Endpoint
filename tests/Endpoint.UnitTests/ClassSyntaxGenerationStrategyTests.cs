@@ -28,8 +28,7 @@ public class ClassSyntaxGenerationStrategyTests
 
         services.AddLogging();
 
-        //services.AddCliServices();
-
+        // services.AddCliServices();
         var container = services.BuildServiceProvider();
 
         var syntaxGenerator = container.GetRequiredService<ISyntaxGenerator>();
@@ -57,8 +56,7 @@ public class ClassSyntaxGenerationStrategyTests
 
         services.AddLogging();
 
-        //services.AddCliServices();
-
+        // services.AddCliServices();
         var container = services.BuildServiceProvider();
 
         var syntaxGenerator = container.GetRequiredService<ISyntaxGenerator>();
@@ -100,8 +98,7 @@ public class ClassSyntaxGenerationStrategyTests
 
         services.AddLogging();
 
-        //services.AddCliServices();
-
+        // services.AddCliServices();
         var container = services.BuildServiceProvider();
 
         var syntaxGenerator = container.GetRequiredService<ISyntaxGenerator>();
@@ -147,7 +144,7 @@ public class ClassSyntaxGenerationStrategyTests
             },
         };
 
-        var result = await sut.GenerateAsync(classModel,default);
+        var result = await sut.GenerateAsync(classModel, default);
 
         Assert.Equal(expected, result);
     }

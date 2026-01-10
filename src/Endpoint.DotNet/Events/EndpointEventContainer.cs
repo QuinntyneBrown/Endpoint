@@ -3,7 +3,6 @@
 
 namespace Endpoint.DotNet.Events;
 
-public class EndpointEventContainer: IEndpointEventContainer
+public class EndpointEventContainer : IEndpointEventContainer
 {
-
 }

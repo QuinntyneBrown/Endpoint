@@ -27,8 +27,8 @@ public class IndexCreateRequestHandler : IRequestHandler<IndexCreateRequest>
     private readonly IArtifactGenerator _artifactGenerator;
 
     public IndexCreateRequestHandler(
-        ILogger<IndexCreateRequestHandler> logger, 
-        IFileFactory fileFactory, 
+        ILogger<IndexCreateRequestHandler> logger,
+        IFileFactory fileFactory,
         IArtifactGenerator artifactGenerator)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));

@@ -6,10 +6,11 @@ using Endpoint.DotNet.Syntax.Expressions;
 
 namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions;
 
-public class CommandRequestValidatorConstructorExpressionModel: ExpressionModel {
+public class CommandRequestValidatorConstructorExpressionModel : ExpressionModel
+{
 
     public CommandRequestValidatorConstructorExpressionModel(Command command)
-        :base(string.Empty)
+        : base(string.Empty)
     {
         Command = command;
     }

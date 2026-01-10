@@ -16,7 +16,7 @@ public class ContentFileArtifactGenerationStrategy : IArtifactGenerationStrategy
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
-    public async Task GenerateAsync( ContentFileModel model)
+    public async Task GenerateAsync(ContentFileModel model)
     {
         fileSystem.File.WriteAllText(model.Path, model.Content);
     }

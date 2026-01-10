@@ -99,7 +99,7 @@ public class ProjectAddRequestHandler : IRequestHandler<ProjectAddRequest>
 
             var projectDirectory = _fileSystem.Path.GetDirectoryName(projectPath);
 
-            _projectService.AddToSolution(new ()
+            _projectService.AddToSolution(new()
             {
                 Name = projectName,
                 Directory = projectDirectory,

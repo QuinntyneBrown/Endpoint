@@ -64,19 +64,19 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
 
         classModel.Properties.AddRange(properties);
 
-        classModel.Usings.Add(new ("MediatR"));
+        classModel.Usings.Add(new("MediatR"));
 
         var constructorModel = new ConstructorModel(classModel, classModel.Name);
 
         foreach (var property in properties)
         {
-            classModel.Fields.Add(new ()
+            classModel.Fields.Add(new()
             {
                 Name = $"_{namingConventionConverter.Convert(NamingConvention.CamelCase, property.Name)}",
                 Type = property.Type,
             });
 
-            constructorModel.Params.Add(new ()
+            constructorModel.Params.Add(new()
             {
                 Name = $"{namingConventionConverter.Convert(NamingConvention.CamelCase, property.Name)}",
                 Type = property.Type,
@@ -85,7 +85,7 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
 
         classModel.Constructors.Add(constructorModel);
 
-        classModel.Implements.Add(new ("IRequest"));
+        classModel.Implements.Add(new("IRequest"));
 
         var classFileModel = new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, directory, CSharp);
 
@@ -100,7 +100,7 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
 
         var classModel = new ClassModel(messageHandlerName);
 
-        classModel.Usings.Add(new () { Name = "MediatR" });
+        classModel.Usings.Add(new() { Name = "MediatR" });
 
         classModel.Fields = new List<FieldModel>()
         {
@@ -178,31 +178,31 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
             messagesNamespace = $"{projectNamespace.Split('.').First()}.Core.Messages";
         }
 
-        classModel.Implements.Add(new ("BackgroundService"));
+        classModel.Implements.Add(new("BackgroundService"));
 
-        classModel.Usings.Add(new ("Messaging"));
+        classModel.Usings.Add(new("Messaging"));
 
-        classModel.Usings.Add(new ("Messaging.Udp"));
+        classModel.Usings.Add(new("Messaging.Udp"));
 
-        classModel.Usings.Add(new ("Microsoft.Extensions.DependencyInjection"));
+        classModel.Usings.Add(new("Microsoft.Extensions.DependencyInjection"));
 
-        classModel.Usings.Add(new ("Microsoft.Extensions.Hosting"));
+        classModel.Usings.Add(new("Microsoft.Extensions.Hosting"));
 
-        classModel.Usings.Add(new ("System.Text"));
+        classModel.Usings.Add(new("System.Text"));
 
-        classModel.Usings.Add(new ("Microsoft.Extensions.Logging"));
+        classModel.Usings.Add(new("Microsoft.Extensions.Logging"));
 
-        classModel.Usings.Add(new ("System.Threading.Tasks"));
+        classModel.Usings.Add(new("System.Threading.Tasks"));
 
-        classModel.Usings.Add(new ("System.Threading"));
+        classModel.Usings.Add(new("System.Threading"));
 
-        classModel.Usings.Add(new ("MediatR"));
+        classModel.Usings.Add(new("MediatR"));
 
-        classModel.Usings.Add(new ("System.Linq"));
+        classModel.Usings.Add(new("System.Linq"));
 
         var constructorModel = new ConstructorModel(classModel, classModel.Name);
 
-        foreach (var type in new TypeModel[] { LoggerOf("ServiceBusMessageConsumer"), new ("IServiceScopeFactory"), new ("IUdpClientFactory") })
+        foreach (var type in new TypeModel[] { LoggerOf("ServiceBusMessageConsumer"), new("IServiceScopeFactory"), new("IUdpClientFactory") })
         {
             var propName = type.Name switch
             {
@@ -211,23 +211,23 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
                 "IServiceScopeFactory" => "serviceScopeFactory"
             };
 
-            classModel.Fields.Add(new ()
+            classModel.Fields.Add(new()
             {
                 Name = $"_{propName}",
                 Type = type,
             });
 
-            constructorModel.Params.Add(new ()
+            constructorModel.Params.Add(new()
             {
                 Name = propName,
                 Type = type,
             });
         }
 
-        classModel.Fields.Add(new ()
+        classModel.Fields.Add(new()
         {
             Name = $"_supportedMessageTypes",
-            Type = new ("string[]"),
+            Type = new("string[]"),
             DefaultValue = "new string[] { }",
         });
 
@@ -301,8 +301,8 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
             Override = true,
             AccessModifier = AccessModifier.Protected,
             Async = true,
-            ReturnType = new ("Task"),
-            Body = new (string.Join(Environment.NewLine, methodBody)),
+            ReturnType = new("Task"),
+            Body = new(string.Join(Environment.NewLine, methodBody)),
         };
 
         method.Params.Add(ParamModel.CancellationToken);
@@ -407,7 +407,7 @@ public class DomainDrivenDesignFileService : IDomainDrivenDesignFileService
 
             @class.Usings.AddRange(usingDirectives);
 
-            @class.Implements.Add(new () { Name = @interface.Name });
+            @class.Implements.Add(new() { Name = @interface.Name });
 
             var classFile = new CodeFileModel<ClassModel>(
                 @class,

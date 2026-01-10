@@ -71,7 +71,7 @@ public class MethodFactory : IMethodFactory
 
         methodModel.Attributes.Add(new SwaggerOperationAttributeModel(swaggerSummery, swaggerDescription));
 
-        methodModel.Attributes.Add(new ()
+        methodModel.Attributes.Add(new()
         {
             Name = "HttpGet",
             Template = template,
@@ -113,7 +113,7 @@ public class MethodFactory : IMethodFactory
             AccessModifier = AccessModifier.Protected,
             Body = new ExpressionModel(methodBodyBuilder.ToString()),
             Async = true,
-            ReturnType = new ("Task"),
+            ReturnType = new("Task"),
             Params = new List<ParamModel>
             {
                 new ()
@@ -132,7 +132,7 @@ public class MethodFactory : IMethodFactory
             Name = "ToDto",
             Static = true,
             ReturnType = new TypeModel($"{aggregate.Name}Dto"),
-            Params = new ()
+            Params = new()
             {
                 new ()
                 {
@@ -154,9 +154,9 @@ public class MethodFactory : IMethodFactory
             Name = "ToDtosAsync",
             Async = true,
             Static = true,
-            ReturnType = new ("Task")
+            ReturnType = new("Task")
             {
-                GenericTypeParameters = new ()
+                GenericTypeParameters = new()
                 {
                     new ("List")
                     {
@@ -167,7 +167,7 @@ public class MethodFactory : IMethodFactory
                     },
                 },
             },
-            Params = new ()
+            Params = new()
             {
                 new ()
                 {

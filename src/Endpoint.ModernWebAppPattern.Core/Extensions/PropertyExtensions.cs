@@ -8,7 +8,7 @@ namespace Endpoint.ModernWebAppPattern.Core.Extensions;
 using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 public static class PropertyExtensions
-{ 
+{
 
     public static TypeModel ToType(this Property property)
     {

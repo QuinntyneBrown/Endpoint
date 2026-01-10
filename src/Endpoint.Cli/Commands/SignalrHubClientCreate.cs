@@ -17,7 +17,6 @@ namespace Endpoint.Cli.Commands;
 
 using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
 
-
 [Verb("signalr-hub-client-create")]
 public class SignalRHubClientCreateRequest : IRequest
 {

@@ -5,7 +5,4 @@ namespace Endpoint.DotNet.Events;
 
 public interface IEndpointEventContainer
 {
-
-
 }
-

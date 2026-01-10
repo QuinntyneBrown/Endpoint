@@ -35,18 +35,18 @@ public class DbContextModel : ClassModel
             new ("Microsoft.EntityFrameworkCore"),
         });
 
-        Implements.Add(new ("DbContext"));
+        Implements.Add(new("DbContext"));
 
-        Implements.Add(new ($"I{name}"));
+        Implements.Add(new($"I{name}"));
 
         var ctor = new ConstructorModel(this, Name);
 
-        ctor.Params.Add(new ()
+        ctor.Params.Add(new()
         {
             Name = "options",
-            Type = new ("DbContextOptions")
+            Type = new("DbContextOptions")
             {
-                GenericTypeParameters = new ()
+                GenericTypeParameters = new()
                     {
                         new (Name),
                     },
@@ -59,14 +59,14 @@ public class DbContextModel : ClassModel
 
         foreach (var entity in entities)
         {
-            Properties.Add(new (
+            Properties.Add(new(
                 this,
                 AccessModifier.Public,
                 TypeModel.DbSetOf(entity.Name),
                 namingConventionConverter.Convert(NamingConvention.PascalCase, entity.Name, pluralize: true),
                 PropertyAccessorModel.GetPrivateSet));
 
-            Usings.Add(new ($"{serviceName}.Core.AggregatesModel.{entity.Name}Aggregate"));
+            Usings.Add(new($"{serviceName}.Core.AggregatesModel.{entity.Name}Aggregate"));
         }
 
         var onModelCreatingMethodBodyBuilder = new StringBuilder();
@@ -74,7 +74,7 @@ public class DbContextModel : ClassModel
         onModelCreatingMethodBodyBuilder.AppendLine(string.Empty);
         onModelCreatingMethodBodyBuilder.AppendLine("base.OnModelCreating(modelBuilder);");
 
-        MethodModel onModelCreatingMethod = new ()
+        MethodModel onModelCreatingMethod = new()
         {
             AccessModifier = AccessModifier.Protected,
             Name = "OnModelCreating",
@@ -95,13 +95,13 @@ public class DbContextModel : ClassModel
 
     public InterfaceModel ToInterface()
     {
-        InterfaceModel interfaceModel = new ($"I{Name}");
+        InterfaceModel interfaceModel = new($"I{Name}");
 
         interfaceModel.Usings = Usings;
 
         foreach (var prop in Properties)
         {
-            interfaceModel.Properties.Add(new (interfaceModel, prop.AccessModifier, prop.Type, prop.Name, prop.Accessors));
+            interfaceModel.Properties.Add(new(interfaceModel, prop.AccessModifier, prop.Type, prop.Name, prop.Accessors));
         }
 
         var saveChangesAsyncMethodModel = new MethodModel();

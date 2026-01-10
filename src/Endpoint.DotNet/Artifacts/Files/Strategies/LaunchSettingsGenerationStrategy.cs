@@ -7,6 +7,7 @@ using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;
+
 public class LaunchSettingsFileGenerationStrategy : FileGenerationStrategy, IArtifactGenerationStrategy<LaunchSettingsFileModel>
 {
     private readonly ITemplateProcessor templateProcessor;

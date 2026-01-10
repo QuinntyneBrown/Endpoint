@@ -3,11 +3,11 @@
 
 namespace Endpoint.DomainDrivenDesign.Core.Models;
 
-public class Command: Request
+public class Command : Request
 {
     public Command()
     {
-        
+
     }
 
     public string Name { get; set; } = string.Empty;

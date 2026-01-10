@@ -66,7 +66,7 @@ public class ProjectModel : ArtifactModel
 
     public List<FileModel> Files { get; init; } = new List<FileModel>();
 
-    public List<PackageModel> Packages { get; init; } = new ();
+    public List<PackageModel> Packages { get; init; } = new();
 
     public bool HasSecrets { get; init; }
 
@@ -80,7 +80,7 @@ public class ProjectModel : ArtifactModel
 
     public List<string> References { get; set; }
 
-    public List<string> NoWarn { get; set; } = new ()
+    public List<string> NoWarn { get; set; } = new()
     {
         "1998",
         "4014,",

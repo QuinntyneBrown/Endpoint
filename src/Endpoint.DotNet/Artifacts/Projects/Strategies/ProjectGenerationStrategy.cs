@@ -72,7 +72,9 @@ public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectMode
 
                 _fileSystem.Directory.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Controllers");
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         if (templateType == "worker")
@@ -81,7 +83,9 @@ public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectMode
             {
                 _fileSystem.File.Delete($"{model.Directory}{Path.DirectorySeparatorChar}Worker.cs");
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         foreach (var package in model.Packages)
@@ -123,7 +127,7 @@ public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectMode
             element.Add(new XElement("GenerateDocumentationFile", true));
         }
 
-        if(templateType == "webapi")
+        if (templateType == "webapi")
         {
             element.Add(new XElement("InvariantGlobalization", false));
         }

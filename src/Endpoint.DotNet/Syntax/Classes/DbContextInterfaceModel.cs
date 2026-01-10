@@ -20,12 +20,12 @@ public class DbContextInterfaceModel : ClassModel
 
         foreach (var entity in Entities)
         {
-            Properties.Add(new (
+            Properties.Add(new(
                 TypeModel.DbSetOf(entity.Name),
                 namingConventionConverter.Convert(NamingConvention.PascalCase, entity.Name, pluralize: true),
                 PropertyAccessorModel.Get));
 
-            Usings.Add(new ($"{serviceName}.Core.AggregatesModel.{entity.Name}Aggregate"));
+            Usings.Add(new($"{serviceName}.Core.AggregatesModel.{entity.Name}Aggregate"));
         }
     }
 

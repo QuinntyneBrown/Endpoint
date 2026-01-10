@@ -4,6 +4,7 @@
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Core.Artifacts;
+
 public class FileFactory : IFileFactory
 {
     private readonly ILogger<FileFactory> _logger;

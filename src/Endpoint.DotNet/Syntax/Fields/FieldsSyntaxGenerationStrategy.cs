@@ -50,7 +50,7 @@ public class FieldsSyntaxGenerationStrategy : ISyntaxGenerationStrategy<List<Fie
 
         builder.Append(await syntaxGenerator.GenerateAsync(model.AccessModifier));
 
-        if(model.Static)
+        if (model.Static)
         {
             builder.Append(" static");
         }

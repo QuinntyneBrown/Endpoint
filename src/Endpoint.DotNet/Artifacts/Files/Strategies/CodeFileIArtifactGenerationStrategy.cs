@@ -60,6 +60,6 @@ public abstract class CodeFileIArtifactGenerationStrategy<T> : IArtifactGenerati
 
         model.Body = StringBuilderCache.GetStringAndRelease(stringBuilder);
 
-        await _artifactGenerator.GenerateAsync(new FileModel(model.Name, model.Directory, model.Extension) {  Body = model.Body });
+        await _artifactGenerator.GenerateAsync(new FileModel(model.Name, model.Directory, model.Extension) { Body = model.Body });
     }
 }

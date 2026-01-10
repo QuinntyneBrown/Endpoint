@@ -17,7 +17,7 @@ namespace Endpoint.Cli.Commands;
 [Verb("mwa-data-create")]
 public class ModernWebAppDataCreateRequest : IRequest
 {
-    [Option('n', "name", Required = true )]
+    [Option('n', "name", Required = true)]
     public string ProductName { get; set; }
 
     [Option('b', "bounded-context-name", Required = true)]
@@ -142,6 +142,5 @@ public class ModernWebAppDataCreateRequestHandler : IRequestHandler<ModernWebApp
         });
 
         _fileSystem.File.WriteAllText(_fileSystem.Path.Combine(request.Directory, $"{request.ProductName.ToCamelCase()}.json"), json, System.Text.Encoding.UTF8);
-
     }
 }

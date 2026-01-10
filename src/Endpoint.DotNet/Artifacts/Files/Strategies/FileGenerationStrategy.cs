@@ -54,6 +54,6 @@ public class FileGenerationStrategy : IArtifactGenerationStrategy<FileModel>
             ? new StringBuilder().AppendJoin(Environment.NewLine, copyright, string.Empty, model.Body).ToString()
             : model.Body;
 
-        fileSystem.File.WriteAllText(model.Path, model.Path.EndsWith(".cs") ? raw : raw );
+        fileSystem.File.WriteAllText(model.Path, model.Path.EndsWith(".cs") ? raw : raw);
     }
 }

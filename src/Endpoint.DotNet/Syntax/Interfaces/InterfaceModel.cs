@@ -18,7 +18,6 @@ public class InterfaceModel : TypeDeclarationModel
     public InterfaceModel(string name)
         : base(name)
     {
-
     }
 
     public List<TypeModel> Implements { get; set; } = [];

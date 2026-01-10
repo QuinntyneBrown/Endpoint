@@ -26,7 +26,7 @@ public class CopyrightAddArtifactGenerationStrategy : IArtifactGenerationStrateg
         this.templateLocator = templateLocator ?? throw new ArgumentNullException(nameof(templateLocator));
     }
 
-    public async Task GenerateAsync( FileReferenceModel model)
+    public async Task GenerateAsync(FileReferenceModel model)
     {
         logger.LogInformation("Generating artifact for {0}.", model);
 

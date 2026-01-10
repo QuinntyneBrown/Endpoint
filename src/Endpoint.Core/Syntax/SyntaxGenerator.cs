@@ -7,7 +7,7 @@ namespace Endpoint.Core.Syntax;
 
 public class SyntaxGenerator : ISyntaxGenerator
 {
-    private static readonly ConcurrentDictionary<Type, SyntaxGenerationStrategyBase> _syntaxGenerators = new ();
+    private static readonly ConcurrentDictionary<Type, SyntaxGenerationStrategyBase> _syntaxGenerators = new();
 
     private readonly IServiceProvider _serviceProvider;
 
@@ -31,9 +31,9 @@ public class SyntaxGenerator : ISyntaxGenerator
 
             return handler.GenerateAsync(_serviceProvider, model, default);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            throw ex;
+            throw;
         }
     }
 }

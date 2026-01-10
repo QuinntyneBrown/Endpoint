@@ -2,8 +2,8 @@ namespace Endpoint.Internal;
 
 public readonly struct AsyncEventInvocator<TEventArgs>
 {
-    readonly Action<TEventArgs> _handler;
-    readonly Func<TEventArgs, Task> _asyncHandler;
+    private readonly Action<TEventArgs> _handler;
+    private readonly Func<TEventArgs, Task> _asyncHandler;
 
     public AsyncEventInvocator(Action<TEventArgs> handler, Func<TEventArgs, Task> asyncHandler)
     {

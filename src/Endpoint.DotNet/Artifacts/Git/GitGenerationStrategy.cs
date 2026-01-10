@@ -25,7 +25,7 @@ public class GitGenerationStrategy : IArtifactGenerationStrategy<GitModel>
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
-    public async Task GenerateAsync( GitModel model)
+    public async Task GenerateAsync(GitModel model)
     {
         logger.LogInformation("Generating Git Repository. {repositoryName}", model.RepositoryName);
 

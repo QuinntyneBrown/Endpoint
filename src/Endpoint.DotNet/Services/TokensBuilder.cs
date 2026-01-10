@@ -11,10 +11,10 @@ public class TokensBuilder
 {
     public TokensBuilder()
     {
-        Value = new ();
+        Value = new();
     }
 
-    private Dictionary<string, object> Value { get; set; } = new ();
+    private Dictionary<string, object> Value { get; set; } = new();
 
     public TokensBuilder With(string propertyName, string value)
         => With(propertyName, (SyntaxToken)value);

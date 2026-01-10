@@ -12,7 +12,8 @@ namespace Endpoint.ModernWebAppPattern.Core.Syntax;
 
 using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
-public class RequestHandlers : List<ClassModel> { 
+public class RequestHandlers : List<ClassModel>
+{
 
     public static RequestHandlers Create(string aggregateName, string productName, string boundedContextName = "")
     {

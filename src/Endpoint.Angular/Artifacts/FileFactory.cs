@@ -4,7 +4,7 @@
 
 namespace Endpoint.Angular.Artifacts;
 
-public class FileFactory: IFileFactory
+public class FileFactory : IFileFactory
 {
     private readonly ILogger<FileFactory> _logger;
     private readonly IFileSystem _fileSystem;
@@ -28,7 +28,7 @@ public class FileFactory: IFileFactory
 
         foreach (var path in _fileSystem.Directory.GetDirectories(directory))
         {
-            
+
             var files = _fileSystem.Directory.GetFiles(path);
 
             var fileNames = _fileSystem.Directory.GetFiles(path).Select(Path.GetFileNameWithoutExtension);

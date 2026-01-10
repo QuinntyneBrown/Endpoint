@@ -8,7 +8,7 @@ namespace Endpoint.ModernWebAppPattern.Core.Syntax.Expressions;
 
 public class ToDtoExpressionModel : ExpressionModel
 {
-    public ToDtoExpressionModel(AggregateModel aggregate) : 
+    public ToDtoExpressionModel(AggregateModel aggregate) :
         base(string.Empty)
     {
         Aggregate = aggregate;

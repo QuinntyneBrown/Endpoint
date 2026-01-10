@@ -11,7 +11,7 @@ public class FileSystemDataContextProvider : IDataContextProvider
 {
     private readonly ILogger<FileSystemDataContextProvider> _logger;
     private readonly IFileSystem _fileSystem;
-    private IDataContext _context = default !;
+    private IDataContext _context = default!;
 
     public FileSystemDataContextProvider(ILogger<FileSystemDataContextProvider> logger, IFileSystem fileSystem)
     {
@@ -41,7 +41,7 @@ public class FileSystemDataContextProvider : IDataContextProvider
         _logger.LogInformation("GetAsync");
 
         if (_context == null)
-        {            
+        {
             _context = JsonSerializer.Deserialize<DataContext>(jsonElement, new JsonSerializerOptions()
             {
                 PropertyNameCaseInsensitive = true

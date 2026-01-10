@@ -41,9 +41,9 @@ public class CommandService : ICommandService
     private bool IsUnix() => RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
     private Process UnixBash(string arguments, string workingDirectory)
-        => new ()
+        => new()
         {
-            StartInfo = new ()
+            StartInfo = new()
             {
                 WindowStyle = ProcessWindowStyle.Normal,
                 FileName = "bash",
@@ -53,9 +53,9 @@ public class CommandService : ICommandService
         };
 
     private Process WindowsCmd(string arguments, string workingDirectory)
-        => new ()
+        => new()
         {
-            StartInfo = new ()
+            StartInfo = new()
             {
                 WindowStyle = ProcessWindowStyle.Normal,
                 FileName = "cmd.exe",

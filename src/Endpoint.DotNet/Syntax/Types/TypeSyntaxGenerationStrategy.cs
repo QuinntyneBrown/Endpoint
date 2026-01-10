@@ -12,6 +12,7 @@ public class TypeSyntaxGenerationStrategy : ISyntaxGenerationStrategy<TypeModel>
 {
     private readonly ILogger<TypeSyntaxGenerationStrategy> logger;
     private readonly ISyntaxGenerator syntaxGenerator;
+
     public TypeSyntaxGenerationStrategy(
         ISyntaxGenerator syntaxGenerator,
         ILogger<TypeSyntaxGenerationStrategy> logger)

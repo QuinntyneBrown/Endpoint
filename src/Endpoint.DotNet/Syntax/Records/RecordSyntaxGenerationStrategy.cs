@@ -21,7 +21,7 @@ public class RecordSyntaxGenerationStrategy : ISyntaxGenerationStrategy<RecordMo
 
         var sb = StringBuilderCache.Acquire();
 
-        sb.AppendLine($"public record {model.Type switch { Struct => "struct", Class => "class" } } {model.Name}");
+        sb.AppendLine($"public record {model.Type switch { Struct => "struct", Class => "class" }} {model.Name}");
 
         sb.AppendLine("{");
 

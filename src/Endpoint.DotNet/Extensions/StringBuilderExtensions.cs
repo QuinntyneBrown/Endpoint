@@ -6,8 +6,8 @@ using Endpoint.DotNet.Syntax.Expressions;
 
 namespace Endpoint.DotNet.Extensions;
 
-public static class StringBuilderExtensions { 
-
+public static class StringBuilderExtensions
+{
     public static StringBuilder AppendDoubleLine(this StringBuilder builder, string value)
         => builder.AppendLine(value)
             .AppendLine();
@@ -16,5 +16,4 @@ public static class StringBuilderExtensions {
     {
         return new ExpressionModel(StringBuilderCache.GetStringAndRelease(builder));
     }
-
 }

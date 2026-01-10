@@ -11,9 +11,9 @@ public enum PropertyKind
     Guid,
 
     String,
-    
+
     Int,
-    
+
     Bool,
 
     Json,

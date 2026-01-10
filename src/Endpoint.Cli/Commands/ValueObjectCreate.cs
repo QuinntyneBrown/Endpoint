@@ -61,7 +61,7 @@ public class ValueObjectCreateRequestHandler : IRequestHandler<ValueObjectCreate
 
         if (string.IsNullOrEmpty(valueObjectDefinitionPath))
         {
-            var templateFileModel = new TemplatedFileModel("ValueObject", "ValueObject", request.Directory, ".cs", new ()
+            var templateFileModel = new TemplatedFileModel("ValueObject", "ValueObject", request.Directory, ".cs", new()
             {
                 { "Namespace", "System" },
             });
@@ -73,7 +73,7 @@ public class ValueObjectCreateRequestHandler : IRequestHandler<ValueObjectCreate
 
         @class.Implements.Add(new Endpoint.DotNet.Syntax.Types.TypeModel("ValueObject"));
 
-        @class.Usings.Add(new ("System"));
+        @class.Usings.Add(new("System"));
 
         var equalityMethod = new MethodModel
         {

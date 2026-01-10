@@ -3,11 +3,12 @@
 
 namespace Endpoint.ModernWebAppPattern.Core.Models;
 
-public class Microservice {
+public class Microservice
+{
 
     public Microservice()
     {
-        
+
     }
 
     public Microservice(string name, string boundedContextName, MicroseviceKind kind = MicroseviceKind.Api)

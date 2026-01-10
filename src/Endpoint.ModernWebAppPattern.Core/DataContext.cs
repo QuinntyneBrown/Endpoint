@@ -15,7 +15,7 @@ public class DataContext : DddDataContext, IDataContext
 
     public DataContext()
     {
-        
+
     }
 
     public List<Microservice> Microservices { get; set; } = [];

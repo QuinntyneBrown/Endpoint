@@ -20,7 +20,7 @@ namespace Endpoint.Cli.Commands;
 [Verb("enum-create")]
 public class EnumCreateRequest : IRequest
 {
-    [Option('n',"name")]
+    [Option('n', "name")]
     public string Name { get; set; }
 
     [Option('t', "type")]
@@ -38,7 +38,7 @@ public class EnumCreateRequestHandler : IRequestHandler<EnumCreateRequest>
     private readonly ILogger<EnumCreateRequestHandler> _logger;
     private readonly IClassFactory _classFactory;
     private readonly IArtifactGenerator _generator;
-    private static readonly string[] supportedTypes = [ "int", "string" ];
+    private static readonly string[] SupportedTypes = ["int", "string"];
 
     public EnumCreateRequestHandler(ILogger<EnumCreateRequestHandler> logger, IArtifactGenerator generator, IClassFactory classFactory)
     {
@@ -55,14 +55,14 @@ public class EnumCreateRequestHandler : IRequestHandler<EnumCreateRequest>
     {
         _logger.LogInformation("Handled: {0}", nameof(EnumCreateRequestHandler));
 
-        if (!supportedTypes.Contains(request.Type))
+        if (!SupportedTypes.Contains(request.Type))
         {
             throw new NotSupportedException();
         }
 
         var model = await _classFactory.CreateUserDefinedEnumAsync(request.Name, request.Type, request.Enums.ToKeyValuePairList());
 
-        CodeFileModel<ClassModel> classFile = new (
+        CodeFileModel<ClassModel> classFile = new(
             model,
             model.Usings,
             model.Name,

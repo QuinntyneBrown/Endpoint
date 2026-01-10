@@ -45,17 +45,17 @@ public class SyntaxFactoryGenerationTests
 
         var syntaxGenerator = container.GetRequiredService<ISyntaxGenerator>();
 
-        Query query = new ()
+        Query query = new()
         {
             Name = "GetFooById",
-            Aggregate = new ("Foo")
+            Aggregate = new("Foo")
             {
-                BoundedContext = new ("Foos"),
+                BoundedContext = new("Foos"),
             },
             Kind = RequestKind.GetById
         };
 
-        var syntaxModel = await syntaxFactory.ControllerGetByIdMethodCreateAsync(new (), query);
+        var syntaxModel = await syntaxFactory.ControllerGetByIdMethodCreateAsync(new(), query);
 
         // ACT
         string actual = await syntaxGenerator.GenerateAsync(syntaxModel);

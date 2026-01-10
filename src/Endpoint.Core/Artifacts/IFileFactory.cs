@@ -6,5 +6,4 @@ namespace Endpoint.Core.Artifacts;
 public interface IFileFactory
 {
     TemplatedFileModel CreateTemplate(string template, string name, string directory, string extension = ".cs", string filename = null, Dictionary<string, object> tokens = null);
-
 }

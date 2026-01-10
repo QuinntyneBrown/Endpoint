@@ -17,7 +17,7 @@ public class MethodModel : SyntaxModel
     {
         Params = [];
         Attributes = [];
-        ReturnType = new ("void");
+        ReturnType = new("void");
     }
 
     public TypeDeclarationModel ParentType { get; set; }

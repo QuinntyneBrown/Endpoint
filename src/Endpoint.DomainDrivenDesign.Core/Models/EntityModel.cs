@@ -7,7 +7,7 @@ public class EntityModel
 {
     public EntityModel()
     {
-        
+
     }
 
     public string Name { get; set; }

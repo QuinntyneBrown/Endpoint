@@ -10,7 +10,7 @@ namespace Endpoint.DotNet.Artifacts.Files.Strategies;
 
 public class ClassCodeFileArtifactGenerationStrategy : CodeFileIArtifactGenerationStrategy<ClassModel>
 {
-    public ClassCodeFileArtifactGenerationStrategy( IArtifactGenerator artifactGenerator, ISyntaxGenerator syntaxGenerator, IFileSystem fileSystem, INamespaceProvider namespaceProvider, ILogger<CodeFileIArtifactGenerationStrategy<ClassModel>> logger) 
+    public ClassCodeFileArtifactGenerationStrategy(IArtifactGenerator artifactGenerator, ISyntaxGenerator syntaxGenerator, IFileSystem fileSystem, INamespaceProvider namespaceProvider, ILogger<CodeFileIArtifactGenerationStrategy<ClassModel>> logger)
         : base(syntaxGenerator, fileSystem, namespaceProvider, artifactGenerator, logger)
     {
     }

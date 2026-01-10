@@ -6,7 +6,8 @@ using System.Text.Json.Serialization;
 namespace Endpoint.DomainDrivenDesign.Core.Models;
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum RequestKind { 
+public enum RequestKind
+{
 
     Get,
     GetById,

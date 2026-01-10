@@ -1,9 +1,9 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Threading;
 using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
-using System.Threading;
 
 namespace Endpoint.DotNet.Syntax.Structs;
 

@@ -21,7 +21,7 @@ using DbContextModel = Endpoint.ModernWebAppPattern.Core.Syntax.DbContextModel;
 [Verb("db-context-create")]
 public class DbContextCreateRequest : IRequest
 {
-    [Option('a',"aggregate")]
+    [Option('a', "aggregate")]
     public string AggregateName { get; set; }
 
     [Option('p', "product-name")]

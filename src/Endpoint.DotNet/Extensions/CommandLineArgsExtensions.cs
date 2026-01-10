@@ -6,8 +6,8 @@ using CommandLine;
 
 namespace Endpoint.DotNet.Extensions;
 
-public static class CommandLineArgsExtensions { 
-
+public static class CommandLineArgsExtensions
+{
     public static object ParseArguments(this string[] args)
     {
         var lastArg = args.First();
@@ -20,7 +20,7 @@ public static class CommandLineArgsExtensions {
         if (args.Length == 0)
         {
             args =
-                [Environment.GetEnvironmentVariable("ENDPOINT_DEFAULT", EnvironmentVariableTarget.Machine) !];
+                [Environment.GetEnvironmentVariable("ENDPOINT_DEFAULT", EnvironmentVariableTarget.Machine)!];
         }
 
         var parser = new Parser(with =>

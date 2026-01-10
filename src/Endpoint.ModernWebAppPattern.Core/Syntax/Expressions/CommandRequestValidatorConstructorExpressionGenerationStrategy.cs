@@ -26,7 +26,7 @@ public class CommandRequestValidatorConstructorExpressionGenerationStrategy : IS
 
         var properties = new List<Property>();
 
-        switch(model.Command.Kind)
+        switch (model.Command.Kind)
         {
             case RequestKind.Create:
                 properties.AddRange(model.Command.Aggregate.Properties.Where(x => !x.Key));
@@ -41,9 +41,9 @@ public class CommandRequestValidatorConstructorExpressionGenerationStrategy : IS
                 break;
         }
 
-        foreach ( var property in properties)
+        foreach (var property in properties)
         {
-            if(property.Kind == PropertyKind.String)
+            if (property.Kind == PropertyKind.String)
             {
                 stringBuilder.AppendLine($$"""
                 RuleFor(x => x.{{property.Name}}).NotNull().NotEmpty();

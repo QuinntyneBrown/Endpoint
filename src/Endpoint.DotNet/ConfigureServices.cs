@@ -35,8 +35,8 @@ public static class ConfigureServices
 {
     public static void AddDotNetServices(this IServiceCollection services)
     {
-        services.AddSingleton<IEndpointEventContainer,EndpointEventContainer>();
-        services.AddSingleton<IFullStackFactory,FullStackFactory>();
+        services.AddSingleton<IEndpointEventContainer, EndpointEventContainer>();
+        services.AddSingleton<IFullStackFactory, FullStackFactory>();
         services.AddSingleton<IDocumentFactory, DocumentFactory>();
         services.AddSingleton<IGitService, GitService>();
         services.AddSingleton<ICodeFormatterService, DotnetCodeFormatterService>();
@@ -90,12 +90,9 @@ public static class ConfigureServices
         services.AddSingleton<ISyntaxParser, SyntaxParser>();
         services.AddSingleton<Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory, Endpoint.DotNet.Artifacts.Files.Factories.FileFactory>();
 
-
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
 
         services.AddSyntaxGenerator(typeof(Endpoint.DotNet.Constants).Assembly);
         services.AddArifactGenerator(typeof(Endpoint.DotNet.Constants).Assembly);
     }
-
-
 }

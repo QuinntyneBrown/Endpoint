@@ -3,8 +3,8 @@
 
 namespace Endpoint.DotNet.Syntax.VisualStudio;
 
-public class ProjectModel {
-
+public class ProjectModel
+{
     public ProjectModel()
     {
         ProjectGuid = $"{{{Guid.NewGuid()}}}";

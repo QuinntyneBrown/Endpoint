@@ -53,7 +53,6 @@ public class ClassSyntaxGenerationStrategyTests
 
         services.AddLogging();
 
-
         var container = services.BuildServiceProvider();
 
         var syntaxGenerator = container.GetRequiredService<ISyntaxGenerator>();
@@ -140,7 +139,7 @@ public class ClassSyntaxGenerationStrategyTests
             },
         ];
 
-        var result = await sut.GenerateAsync(classModel,default);
+        var result = await sut.GenerateAsync(classModel, default);
 
         Assert.Equal(expected, result);
     }
@@ -189,7 +188,7 @@ public class ClassSyntaxGenerationStrategyTests
         var sut = ActivatorUtilities.CreateInstance<ClassSyntaxGenerationStrategy>(serviceProvider);
 
         // ACT
-        var actual = await sut.GenerateAsync(userDefinedTypeModel,default);
+        var actual = await sut.GenerateAsync(userDefinedTypeModel, default);
 
         // ASSERT
         Assert.Equal(expected.RemoveTrivia(), actual.RemoveTrivia());

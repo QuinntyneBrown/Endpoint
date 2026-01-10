@@ -12,13 +12,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
 
-
 [Verb("udp-service-bus-project-add")]
 public class UdpServiceBusProjectAddRequest : IRequest
 {
     [Option('n', "name", Required = false)]
     public string Name { get; set; } = "ServiceBus";
-
 
     [Option('d', Required = false)]
     public string Directory { get; set; } = System.Environment.CurrentDirectory;

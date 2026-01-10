@@ -1,9 +1,9 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Core.Services;
 

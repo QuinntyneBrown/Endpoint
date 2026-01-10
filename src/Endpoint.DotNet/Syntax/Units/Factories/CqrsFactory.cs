@@ -37,7 +37,7 @@ public class CqrsFactory : ICqrsFactory
     {
         logger.LogInformation("Creating Cqrs Query. {name}", aggregateName);
 
-        return new ()
+        return new()
         {
             Name = routeType.ToRequestName(namingConventionConverter),
 

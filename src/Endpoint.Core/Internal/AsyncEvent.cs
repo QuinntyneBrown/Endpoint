@@ -1,13 +1,14 @@
-using Microsoft.Build.Framework;
 using System.Collections.Generic;
+using Microsoft.Build.Framework;
 
 namespace Endpoint.Internal;
 
-public sealed class AsyncEvent<TEventArgs> where TEventArgs : EventArgs
+public sealed class AsyncEvent<TEventArgs>
+    where TEventArgs : EventArgs
 {
-    readonly List<AsyncEventInvocator<TEventArgs>> _handlers = new List<AsyncEventInvocator<TEventArgs>>();
+    private readonly List<AsyncEventInvocator<TEventArgs>> _handlers = new List<AsyncEventInvocator<TEventArgs>>();
 
-    ICollection<AsyncEventInvocator<TEventArgs>> _handlersForInvoke;
+    private ICollection<AsyncEventInvocator<TEventArgs>> _handlersForInvoke;
 
     public AsyncEvent()
     {
@@ -117,7 +118,7 @@ public sealed class AsyncEvent<TEventArgs> where TEventArgs : EventArgs
         }
         catch (Exception exception)
         {
-            //logger.Lo(exception, $"Error while invoking event with arguments of type {typeof(TEventArgs)}.");
+            // logger.Lo(exception, $"Error while invoking event with arguments of type {typeof(TEventArgs)}.");
         }
     }
 }

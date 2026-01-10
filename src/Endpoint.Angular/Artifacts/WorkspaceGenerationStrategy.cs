@@ -18,7 +18,7 @@ public class WorkspaceGenerationStrategy : IArtifactGenerationStrategy<Workspace
         this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
     }
 
-    public async Task GenerateAsync( WorkspaceModel model)
+    public async Task GenerateAsync(WorkspaceModel model)
     {
         logger.LogInformation("Generating Angular Workspace. {name}", model.Name);
 

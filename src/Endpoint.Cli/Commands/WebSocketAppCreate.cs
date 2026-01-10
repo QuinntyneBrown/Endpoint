@@ -19,7 +19,6 @@ namespace Endpoint.Cli.Commands;
 
 using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
 
-
 [Verb("ws-app-create")]
 public class WebSocketAppCreateRequest : IRequest
 {

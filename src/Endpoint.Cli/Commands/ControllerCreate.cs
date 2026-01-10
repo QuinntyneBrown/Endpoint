@@ -65,7 +65,7 @@ public class ControllerCreateRequestHandler : IRequestHandler<ControllerCreateRe
 
             request.BoundedContextName ??= request.EntityName.Pluralize();
 
-            var microservice = new Microservice($"{request.ProductName}.{request.BoundedContextName}.Api", request.BoundedContextName, MicroseviceKind.Api) 
+            var microservice = new Microservice($"{request.ProductName}.{request.BoundedContextName}.Api", request.BoundedContextName, MicroseviceKind.Api)
             {
                 ProductName = request.ProductName,
             };

@@ -1,20 +1,19 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Microsoft.Extensions.DependencyInjection;
-using Endpoint.DotNet.Syntax.Attributes.Strategies;
 using Endpoint.DotNet.Syntax.Attributes;
+using Endpoint.DotNet.Syntax.Attributes.Strategies;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Endpoint.DotNet.UnitTests.Syntax.Attributes;
 
-
-public class AttributeSyntaxGenerationStrategyTests {
-
+public class AttributeSyntaxGenerationStrategyTests
+{
     [Fact]
     public async Task AttributeSyntaxGenerationStrategy_returns_syntax_given_model()
     {
         // ARRANGE
-        var expected = "";
+        var expected = string.Empty;
 
         var model = new AttributeModel();
 
@@ -30,5 +29,4 @@ public class AttributeSyntaxGenerationStrategyTests {
         // ASSERT
         Assert.Equal(expected, actual);
     }
-
 }

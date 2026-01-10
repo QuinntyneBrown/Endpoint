@@ -88,7 +88,7 @@ public class FileFactory : IFileFactory
 
         classModel.Constructors.Add(new ConstructorModel(classModel, classModel.Name)
         {
-            Body = new ("Errors = new List<string>();"),
+            Body = new("Errors = new List<string>();"),
         });
 
         classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("List")
@@ -191,7 +191,7 @@ public class FileFactory : IFileFactory
             {
                 entities.Add(new EntityModel(folderName.Remove("Aggregate")));
 
-                usingDirectives.Add(new (namespaceProvider.Get(folder)));
+                usingDirectives.Add(new(namespaceProvider.Get(folder)));
             }
         }
 
@@ -214,24 +214,24 @@ public class FileFactory : IFileFactory
 
         @interface.Usings.Add(new("System.Net.Sockets"));
 
-        @interface.Properties.Add(new (
+        @interface.Properties.Add(new(
             @interface,
             AccessModifier.Internal,
-            new ("string"),
+            new("string"),
             "MulticastUrl",
             PropertyAccessorModel.GetSet)
         {
             ForceAccessModifier = true,
         });
 
-        @interface.Methods.Add(new ()
+        @interface.Methods.Add(new()
         {
             ParentType = @interface,
             AccessModifier = AccessModifier.Internal,
             ReturnType = new TypeModel("UdpClient"),
             Name = "Create",
             DefaultMethod = true,
-            Body = new ("""
+            Body = new("""
 UdpClient udpClient = null!;
 
 int i = 1;
@@ -263,7 +263,7 @@ return udpClient;
     {
         var @interface = new InterfaceModel("IMessageSender");
 
-        @interface.Implements.Add(new ("IUdpFactory"));
+        @interface.Implements.Add(new("IUdpFactory"));
 
         @interface.Methods.Add(new MethodModel()
         {
@@ -272,7 +272,7 @@ return udpClient;
             ReturnType = TypeModel.Task,
             Params =
             [
-                new ParamModel ()
+                new ParamModel()
                 {
                     Type = new TypeModel("T"),
                     Name = "message",
@@ -287,14 +287,13 @@ return udpClient;
     {
         var @interface = new InterfaceModel("IMessageReceiver");
 
-        @interface.Implements.Add(new ("IUdpFactory"));
+        @interface.Implements.Add(new("IUdpFactory"));
 
         return new CodeFileModel<InterfaceModel>(@interface, @interface.Usings, @interface.Name, directory, CSharp);
     }
 
     public async Task<FileModel> CreateUdpServiceBusMessageAsync(string directory)
     {
-
         List<KeyValuePair<string, string>> keyValuePairs = [
             new ("PayloadType", "Type"),
             new ("Payload", "byte[]")
@@ -315,7 +314,7 @@ return udpClient;
                 new () { Type = new TypeModel("Type"), Name = "message", },
                 new () { Type = new TypeModel("byte[]"), Name = "payload" },
             ],
-            Body = new ("""
+            Body = new("""
                 PayloadType = payloadType;
                 Payload = payload;
                 """),
@@ -328,7 +327,7 @@ return udpClient;
     {
         var @class = new ClassModel("MessageSender");
 
-        @class.Implements.Add(new ("IMessageSender"));
+        @class.Implements.Add(new("IMessageSender"));
 
         return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharp);
     }
@@ -337,7 +336,7 @@ return udpClient;
     {
         var @class = new ClassModel("MessageReceiver");
 
-        @class.Implements.Add(new ("IMessageReceiver"));
+        @class.Implements.Add(new("IMessageReceiver"));
 
         return new CodeFileModel<ClassModel>(@class, @class.Usings, @class.Name, directory, CSharp);
     }

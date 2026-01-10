@@ -30,7 +30,7 @@ public class PropertyFactory : IPropertyFactory
             case RequestType.Get:
                 var entityNamePascalCasePlural = namingConventionConverter.Convert(NamingConvention.PascalCase, entityName, pluralize: true);
 
-                model.Add(new (parent, Public, ListOf($"{entityName}Dto"), entityNamePascalCasePlural, GetSet));
+                model.Add(new(parent, Public, ListOf($"{entityName}Dto"), entityNamePascalCasePlural, GetSet));
                 break;
 
             default:

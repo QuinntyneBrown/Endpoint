@@ -13,7 +13,7 @@ public static class ConfigureServices
 {
     public static void AddCoreServices(this IServiceCollection services, Assembly assembly)
     {
-        services.AddSingleton<IUserInputService,UserInputService>();
+        services.AddSingleton<IUserInputService, UserInputService>();
         AddArifactGenerator(services, assembly);
         AddSyntaxGenerator(services, assembly);
     }

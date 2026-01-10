@@ -3,17 +3,16 @@
 
 using System.Collections.Generic;
 using System.IO;
+using Endpoint.Core.Artifacts.Abstractions;
+using Endpoint.Core.Internal;
 using Endpoint.DotNet.Artifacts.Files;
-
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Artifacts.Units;
-using Endpoint.Core.Internal;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Classes.Services;
 using MediatR;
-using Endpoint.Core.Artifacts.Abstractions;
 
 namespace Endpoint.DotNet.Artifacts.Solutions.Services;
 

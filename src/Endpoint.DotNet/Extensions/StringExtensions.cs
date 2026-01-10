@@ -38,7 +38,7 @@ public static class StringExtensions
         return commaSeparatedString.Split(',').ToList();
     }
 
-    public static List<KeyValuePair<string,string>> ToKeyValuePairList(this string input)
+    public static List<KeyValuePair<string, string>> ToKeyValuePairList(this string input)
     {
         if (string.IsNullOrEmpty(input))
         {

@@ -77,5 +77,4 @@ public static class StringExtensions
 
         return new Tuple<string, string>(parts[0], parts[1]);
     }
-
 }

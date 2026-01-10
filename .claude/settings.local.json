@@ -8,7 +8,9 @@
       "Bash(git rm:*)",
       "Bash(dotnet test:*)",
       "Bash(dotnet build:*)",
-      "Bash(Select-String -Pattern \"Passed!|Failed!\")"
+      "Bash(Select-String -Pattern \"Passed!|Failed!\")",
+      "Bash(dotnet format:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []

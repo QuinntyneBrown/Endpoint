@@ -5,7 +5,6 @@ namespace Endpoint.Core.Artifacts;
 
 public class FileModel : ArtifactModel
 {
-
     public FileModel(string name, string directory, string extension)
     {
         Name = name;

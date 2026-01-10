@@ -3,11 +3,12 @@
 
 namespace Endpoint.DomainDrivenDesign.Core.Models;
 
-public class Request {
+public class Request
+{
 
     public Request()
     {
-        
+
     }
 
     public RequestKind Kind { get; set; }

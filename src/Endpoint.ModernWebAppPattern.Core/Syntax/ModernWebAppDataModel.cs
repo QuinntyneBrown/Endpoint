@@ -5,7 +5,8 @@ using System;
 
 namespace Endpoint.ModernWebAppPattern.Core.Syntax;
 
-public class ModernWebAppDataModel {
+public class ModernWebAppDataModel
+{
 
 
     public string BoundedContextName { get; set; }

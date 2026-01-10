@@ -7,7 +7,6 @@ public class SolutionModel
 {
     public SolutionModel()
     {
-
     }
 
     public string FormatVersion { get; set; }

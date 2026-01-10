@@ -7,7 +7,7 @@ public class Property
 {
     public Property()
     {
-        
+
     }
 
     public Property(string name, PropertyKind kind)

@@ -1,22 +1,22 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using CommandLine;
-using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Humanizer;
+using CommandLine;
 using Endpoint.Core.Artifacts.Abstractions;
+using Humanizer;
+using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
 
 [Verb("ts-file-create")]
-public class TypeScriptFileCreateRequest : IRequest {
-    [Option('n',"name")]
+public class TypeScriptFileCreateRequest : IRequest
+{
+    [Option('n', "name")]
     public string Name { get; set; }
-
 
     [Option('d', Required = false)]
     public string Directory { get; set; } = System.Environment.CurrentDirectory;
@@ -27,6 +27,7 @@ public class TypeScriptFileCreateRequestHandler : IRequestHandler<TypeScriptFile
     private readonly ILogger<TypeScriptFileCreateRequestHandler> _logger;
     private readonly IArtifactGenerator _artifactGenerator;
     private readonly ICommandService _commandService;
+
     public TypeScriptFileCreateRequestHandler(ILogger<TypeScriptFileCreateRequestHandler> logger, IArtifactGenerator artifactGenerator, ICommandService commandService)
     {
         ArgumentNullException.ThrowIfNull(artifactGenerator);

@@ -17,10 +17,9 @@ public class SyntaxGenerationStrategyWrapperImplementation<T> : SyntaxGeneration
 
     public override async Task<string> GenerateAsync(T target, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
-
         var handlers = serviceProvider.GetService<IEnumerable<ISyntaxGenerationStrategy<T>>>();
 
-        var handler = handlers !
+        var handler = handlers!
             .Where(x => x.CanHandle(target!))
             .OrderByDescending(x => x.GetPriority())
             .First();

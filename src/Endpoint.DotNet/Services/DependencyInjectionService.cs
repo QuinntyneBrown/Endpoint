@@ -56,11 +56,11 @@ public class DependencyInjectionService : IDependencyInjectionService
     {
         var classModel = new ClassModel("ConfigureServices");
 
-        classModel.Usings.Add(new () { Name = namespaceProvider.Get(directory) });
+        classModel.Usings.Add(new() { Name = namespaceProvider.Get(directory) });
 
         var methodParam = new ParamModel()
         {
-            Type = new ("IServiceCollection"),
+            Type = new("IServiceCollection"),
             Name = "services",
             ExtensionMethodParam = true,
         };
@@ -68,9 +68,9 @@ public class DependencyInjectionService : IDependencyInjectionService
         var method = new MethodModel()
         {
             Name = $"Add{layer}Services",
-            ReturnType = new ("void"),
+            ReturnType = new("void"),
             Static = true,
-            Params = new () { methodParam },
+            Params = new() { methodParam },
         };
 
         classModel.Static = true;

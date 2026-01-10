@@ -56,5 +56,4 @@ public class CodeFileTests
 
         Assert.Equal(expected.RemoveTrivia(), actual.RemoveTrivia());
     }
-
 }

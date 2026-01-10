@@ -37,7 +37,9 @@ public class SolutionGenerationStrategy : IArtifactGenerationStrategy<SolutionMo
             {
                 _fileSystem.Directory.Delete(model.SolutionDirectory, true);
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         _fileSystem.Directory.CreateDirectory(model.SolutionDirectory);

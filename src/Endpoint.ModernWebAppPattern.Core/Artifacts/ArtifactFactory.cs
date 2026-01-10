@@ -120,21 +120,21 @@ public class ArtifactFactory : IArtifactFactory
 
         var modelsProject = await ModelsProjectCreateAsync(model.SrcDirectory, cancellationToken);
 
-        model.DependOns.Add(new (modelsProject, validationProject));
+        model.DependOns.Add(new(modelsProject, validationProject));
 
         model.Projects.Add(modelsProject);
 
         foreach (var microservice in context.Microservices)
         {
             var microserviceProject = await ApiProjectCreateAsync(microservice, model.SrcDirectory, cancellationToken);
-            
+
             model.Projects.Add(microserviceProject);
 
-            model.DependOns.Add(new (microserviceProject, modelsProject));
+            model.DependOns.Add(new(microserviceProject, modelsProject));
 
-            if(context.Messages.Count != 0)
+            if (context.Messages.Count != 0)
             {
-                model.DependOns.Add(new (microserviceProject, messagingProject));
+                model.DependOns.Add(new(microserviceProject, messagingProject));
             }
         }
 
@@ -168,9 +168,9 @@ public class ArtifactFactory : IArtifactFactory
 
         foreach (var boundedContext in context.BoundedContexts)
         {
-            var microservice =  context.Microservices.Single(x => x.BoundedContextName == boundedContext.Name);
+            var microservice = context.Microservices.Single(x => x.BoundedContextName == boundedContext.Name);
 
-            foreach(var aggregate in boundedContext.Aggregates)
+            foreach (var aggregate in boundedContext.Aggregates)
             {
                 model.Files.AddRange(await AggregateCreateAsync(context, aggregate, model.Directory, cancellationToken));
             }
@@ -214,14 +214,14 @@ public class ArtifactFactory : IArtifactFactory
             var aggregateNamespace = $"{context.ProductName}.Models.{aggregate.Name}";
 
             model.Files.Add(await ControllerCreateAsync(microservice, aggregate, controllersDirectory));
-            
-            foreach(var command in aggregate.Commands)
+
+            foreach (var command in aggregate.Commands)
             {
                 var commandHandlerModel = new ClassModel($"{command.Name}Handler");
 
                 commandHandlerModel.Implements.Add(new($"IRequestHandler<{command.Name}Request, {command.Name}Response>"));
-                
-                commandHandlerModel.Usings.Add(new ("MediatR"));
+
+                commandHandlerModel.Usings.Add(new("MediatR"));
 
                 commandHandlerModel.Usings.Add(new(aggregateNamespace));
 
@@ -231,7 +231,7 @@ public class ArtifactFactory : IArtifactFactory
                         new () { Name = "_context", Type = new ($"I{boundedContext.Name}DbContext") }
                     ];
 
-                commandHandlerModel.Constructors.Add(new (commandHandlerModel, commandHandlerModel.Name)
+                commandHandlerModel.Constructors.Add(new(commandHandlerModel, commandHandlerModel.Name)
                 {
                     Params =
                     [
@@ -261,7 +261,7 @@ public class ArtifactFactory : IArtifactFactory
                 model.Files.Add(new CodeFileModel<ClassModel>(commandHandlerModel, commandHandlerModel.Name, requestHandlersDirectory, CSharp) { Namespace = $"{microservice.Name}.RequestHandlers" });
             }
 
-            foreach(var query in aggregate.Queries)
+            foreach (var query in aggregate.Queries)
             {
                 var queryHandlerModel = new ClassModel($"{query.Name}Handler");
 
@@ -339,15 +339,15 @@ public class ArtifactFactory : IArtifactFactory
 
         files.Add(new CodeFileModel<ClassModel>(aggregateDtoModel, aggregateDtoModel.Name, aggregateDirectory, CSharp) { Namespace = aggregateNamespace });
 
-        foreach(var command in aggregate.Commands)
+        foreach (var command in aggregate.Commands)
         {
             files.Add(await CommandValidatorCreateAsync(command, aggregateDirectory));
 
-            var commandRequestClassModel = new ClassModel($"{command.Name}Request") {  Usings = [new ("MediatR")] };
+            var commandRequestClassModel = new ClassModel($"{command.Name}Request") { Usings = [new("MediatR")] };
 
-            commandRequestClassModel.Implements.Add(new ($"IRequest<{command.Name}Response>"));
+            commandRequestClassModel.Implements.Add(new($"IRequest<{command.Name}Response>"));
 
-            switch(command.Kind)
+            switch (command.Kind)
             {
                 case RequestKind.Create:
                     foreach (var property in aggregate.Properties.Where(x => !x.Key))
@@ -357,18 +357,18 @@ public class ArtifactFactory : IArtifactFactory
                     break;
 
                 case RequestKind.Update:
-                    foreach(var property in aggregate.Properties)
+                    foreach (var property in aggregate.Properties)
                     {
                         commandRequestClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, property.ToType(), property.Name, PropertyAccessorModel.GetSet));
                     }
-                    
+
                     break;
 
                 case RequestKind.Delete:
 
                     var keyProperty = aggregate.Properties.Single(x => x.Key);
 
-                    commandRequestClassModel.Properties.Add(new (commandRequestClassModel, AccessModifier.Public, keyProperty.ToType(), keyProperty.Name, PropertyAccessorModel.GetSet));
+                    commandRequestClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, keyProperty.ToType(), keyProperty.Name, PropertyAccessorModel.GetSet));
 
                     break;
             }
@@ -379,7 +379,7 @@ public class ArtifactFactory : IArtifactFactory
 
             switch (command.Kind)
             {
-                case RequestKind.Create:    
+                case RequestKind.Create:
                 case RequestKind.Update:
                     commandResponseClassModel.Properties.Add(new(commandRequestClassModel, AccessModifier.Public, new($"{command.Aggregate.Name}Dto?"), command.Aggregate.Name, PropertyAccessorModel.GetSet));
                     break;
@@ -392,9 +392,9 @@ public class ArtifactFactory : IArtifactFactory
         {
             var queryRequestClassModel = new ClassModel($"{query.Name}Request") { Usings = [new("MediatR")] }; ;
 
-            queryRequestClassModel.Implements.Add(new ($"IRequest<{query.Name}Response>"));
+            queryRequestClassModel.Implements.Add(new($"IRequest<{query.Name}Response>"));
 
-            switch(query.Kind)
+            switch (query.Kind)
             {
                 case RequestKind.GetById:
                     var keyProperty = aggregate.Properties.Single(x => x.Key);
@@ -446,7 +446,7 @@ public class ArtifactFactory : IArtifactFactory
 
         model.Usings.Add(new("Microsoft.EntityFrameworkCore"));
 
-        model.Constructors.Add(new (model, model.Name)
+        model.Constructors.Add(new(model, model.Name)
         {
             BaseParams =
             [
@@ -464,7 +464,7 @@ public class ArtifactFactory : IArtifactFactory
 
             model.Usings.Add(new(aggregateNamespace));
 
-            model.Properties.Add(new (model, AccessModifier.Public, TypeModel.DbSetOf(aggregate.Name), aggregate.Name.Pluralize(), PropertyAccessorModel.GetPrivateSet));
+            model.Properties.Add(new(model, AccessModifier.Public, TypeModel.DbSetOf(aggregate.Name), aggregate.Name.Pluralize(), PropertyAccessorModel.GetPrivateSet));
         }
 
         return new CodeFileModel<ClassModel>(model, model.Name, directory, CSharp) { Namespace = $"{microservice.Name}" };
@@ -482,7 +482,7 @@ public class ArtifactFactory : IArtifactFactory
 
             model.Usings.Add(new(aggregateNamespace));
 
-            model.Properties.Add(new (model, AccessModifier.Public, TypeModel.DbSetOf(aggregate.Name), aggregate.Name.Pluralize(), PropertyAccessorModel.GetPrivateSet));
+            model.Properties.Add(new(model, AccessModifier.Public, TypeModel.DbSetOf(aggregate.Name), aggregate.Name.Pluralize(), PropertyAccessorModel.GetPrivateSet));
         }
 
         model.Methods.Add(new()
@@ -525,11 +525,11 @@ public class ArtifactFactory : IArtifactFactory
             ],
         });
 
-        model.Attributes.Add(new (AttributeType.ApiController, "ApiController", []));
+        model.Attributes.Add(new(AttributeType.ApiController, "ApiController", []));
 
-        model.Attributes.Add(new (AttributeType.Route, $"Route(\"api/{aggregate.Name.ToLower().Pluralize()}\")", []));
+        model.Attributes.Add(new(AttributeType.Route, $"Route(\"api/{aggregate.Name.ToLower().Pluralize()}\")", []));
 
-        foreach(var command in aggregate.Commands)
+        foreach (var command in aggregate.Commands)
         {
             model.Methods.Add(command.Kind switch
             {
@@ -539,7 +539,7 @@ public class ArtifactFactory : IArtifactFactory
             });
         }
 
-        foreach(var query in aggregate.Queries)
+        foreach (var query in aggregate.Queries)
         {
             model.Methods.Add(query.Kind switch
             {
@@ -573,13 +573,13 @@ public class ArtifactFactory : IArtifactFactory
     {
         var model = new ProjectModel($"{productName}.Validation", directory);
 
-        model.Packages.Add(new ("FluentValidation", "11.10.0"));
+        model.Packages.Add(new("FluentValidation", "11.10.0"));
 
-        model.Packages.Add(new ("MediatR", "12.4.1"));
+        model.Packages.Add(new("MediatR", "12.4.1"));
 
-        model.Packages.Add(new ("FluentValidation.DependencyInjectionExtensions", "11.10.0"));
+        model.Packages.Add(new("FluentValidation.DependencyInjectionExtensions", "11.10.0"));
 
-        model.Files.Add(new ("ConfigureServices", model.Directory, CSharp)
+        model.Files.Add(new("ConfigureServices", model.Directory, CSharp)
         {
             Body = $$"""
             using FluentValidation;
@@ -600,7 +600,7 @@ public class ArtifactFactory : IArtifactFactory
             """
         });
 
-        model.Files.Add(new ("ConfigureServices", model.Directory, CSharp)
+        model.Files.Add(new("ConfigureServices", model.Directory, CSharp)
         {
             Body = $$"""
             using FluentValidation;
@@ -621,7 +621,7 @@ public class ArtifactFactory : IArtifactFactory
             """
         });
 
-        model.Files.Add(new ("ValidationBehavior", model.Directory, CSharp)
+        model.Files.Add(new("ValidationBehavior", model.Directory, CSharp)
         {
             Body = $$"""
             using FluentValidation;
@@ -666,7 +666,7 @@ public class ArtifactFactory : IArtifactFactory
             """
         });
 
-        model.Files.Add(new ("ResponseBase", model.Directory, CSharp)
+        model.Files.Add(new("ResponseBase", model.Directory, CSharp)
         {
             Body = $$"""
             namespace {{productName}}.Validation;
@@ -692,10 +692,10 @@ public class ArtifactFactory : IArtifactFactory
             Static = true
         };
 
-        model.Methods.Add(new ()
+        model.Methods.Add(new()
         {
             Static = true,
-            ReturnType = new ($"{aggregate.Name}Dto"),
+            ReturnType = new($"{aggregate.Name}Dto"),
             Name = "ToDto",
             Params =
             [

@@ -16,7 +16,6 @@ namespace Endpoint.Cli.Commands;
 
 using IFileFactory = Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory;
 
-
 [Verb("spec-create")]
 public class SpecCreateRequest : IRequest
 {

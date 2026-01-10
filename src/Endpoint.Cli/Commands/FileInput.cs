@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
 
-
 [Verb("file-input")]
 public class FileInputRequest : IRequest
 {
@@ -50,7 +49,7 @@ public class FileInputRequestHandler : IRequestHandler<FileInputRequest>
         await Task.Delay(5000);
         var open = true;
 
-        while(open && await _periodicTimer.WaitForNextTickAsync(cancellationToken))
+        while (open && await _periodicTimer.WaitForNextTickAsync(cancellationToken))
         {
             try
             {
@@ -64,7 +63,6 @@ public class FileInputRequestHandler : IRequestHandler<FileInputRequest>
             {
                 Console.WriteLine("Open");
             }
-
         }
 
         Console.WriteLine(temporaryFilePath);

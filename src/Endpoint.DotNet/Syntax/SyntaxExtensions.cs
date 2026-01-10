@@ -16,7 +16,7 @@ public static class SyntaxExtensions
 
         var propertyNameCamelCase = ((SyntaxToken)propertyName).CamelCase();
 
-        return new ()
+        return new()
         {
             { $"{propertyName}", token.Value },
             { $"{propertyNameCamelCase}PascalCase", token.PascalCase() },

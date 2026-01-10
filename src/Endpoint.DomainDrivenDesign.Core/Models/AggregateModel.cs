@@ -8,12 +8,12 @@ public class AggregateModel
 {
     public AggregateModel()
     {
-        
+
     }
 
     public AggregateModel(string name)
     {
-        Name = name;        
+        Name = name;
     }
 
     public string Name { get; set; }

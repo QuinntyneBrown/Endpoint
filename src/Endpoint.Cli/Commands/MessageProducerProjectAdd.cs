@@ -2,6 +2,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -9,15 +11,13 @@ using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Artifacts.Projects.Services;
-using Endpoint.DotNet.Syntax.Classes.Factories;
+using Endpoint.DotNet.Services;
 using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Classes.Factories;
+using Endpoint.DotNet.Syntax.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
-using Endpoint.DotNet.Syntax.Interfaces;
-using Endpoint.DotNet.Services;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Endpoint.Cli.Commands;
 
@@ -115,6 +115,5 @@ host.Run();
         _fileSystem.File.WriteAllLines(configureServicePath, configureServicesContent.ToArray());
 
         _fileSystem.File.WriteAllText(Path.Combine(model.Directory, "Program.cs"), program);
-
     }
 }

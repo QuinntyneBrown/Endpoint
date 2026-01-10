@@ -38,9 +38,9 @@ public class TypeModel : SyntaxModel
     }
 
     public static TypeModel DbSetOf(string entityName)
-        => new ("DbSet")
+        => new("DbSet")
         {
-            GenericTypeParameters = new ()
+            GenericTypeParameters = new()
                     {
                         new (entityName),
                     },

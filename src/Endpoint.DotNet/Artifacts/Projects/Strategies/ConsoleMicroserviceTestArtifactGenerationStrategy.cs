@@ -15,7 +15,7 @@ public class ConsoleMicroserviceTestArtifactGenerationStrategy : IArtifactGenera
         fileSytem = fileSystem;
     }
 
-    public async Task GenerateAsync( ConsoleMicroserviceProjectModel model)
+    public async Task GenerateAsync(ConsoleMicroserviceProjectModel model)
     {
         throw new NotImplementedException();
     }

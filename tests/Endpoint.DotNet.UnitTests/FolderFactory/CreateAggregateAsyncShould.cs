@@ -1,14 +1,13 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Microsoft.Extensions.DependencyInjection;
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Endpoint.DotNet.UnitTests.FolderFactory;
 
-
-public class CreateAggregateAsyncShould {
-
+public class CreateAggregateAsyncShould
+{
     [Fact]
     public async Task ReturnExpectedFolderStructure()
     {

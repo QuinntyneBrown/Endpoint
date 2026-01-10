@@ -19,6 +19,7 @@ public class CoreProjectEnsureArtifactGenerationStrategy : IArtifactGenerationSt
     private readonly IFileProvider fileProvider;
     private readonly ICommandService commandService;
     private readonly IArtifactGenerator artifactGenerator;
+
     public CoreProjectEnsureArtifactGenerationStrategy(
         IFileFactory fileFactory,
         IFileSystem fileSystem,
@@ -37,7 +38,7 @@ public class CoreProjectEnsureArtifactGenerationStrategy : IArtifactGenerationSt
     public bool CanHandle(object model)
         => true; // => model is ProjectReferenceModel && context.Command is CoreProjectEnsure;
 
-    public async Task GenerateAsync( ProjectReferenceModel model)
+    public async Task GenerateAsync(ProjectReferenceModel model)
     {
         logger.LogInformation("Generating artifact for {0}.", model);
 

@@ -1,10 +1,10 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Endpoint.Core.Artifacts.Abstractions;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Linq;
+using Endpoint.Core.Artifacts.Abstractions;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Services;
 
@@ -166,9 +166,9 @@ public class ProjectService : IProjectService
     {
         var model = new ProjectModel("classlib", name, directory);
 
-        model.Packages.Add(new ("Microsoft.Extensions.Logging.Abstractions", "8.0.0"));
+        model.Packages.Add(new("Microsoft.Extensions.Logging.Abstractions", "8.0.0"));
 
-        model.Packages.Add(new ("Microsoft.Extensions.Hosting.Abstractions", "8.0.0"));
+        model.Packages.Add(new("Microsoft.Extensions.Hosting.Abstractions", "8.0.0"));
 
         // var udpClientFactoryInterface = await fileFactory.CreateUdpClientFactoryInterfaceAsync(directory);
 
@@ -189,7 +189,6 @@ public class ProjectService : IProjectService
         // var udpClientFactoryInterface = await classFactory.CreateUdpClientFactoryInterface();
 
         // model.Files.Add(new CodeFileModel<ClassModel>() { });
-
         await AddProjectAsync(model);
     }
 }

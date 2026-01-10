@@ -1,10 +1,10 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Humanizer;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using Humanizer;
 
 namespace Endpoint.Core.Services;
 
@@ -75,6 +75,7 @@ public class NamingConventionConverter : INamingConventionConverter
                 {
                     value = value.ToLower();
                 }
+
                 value = FirstCharacterUpperAfterADash(value);
                 value = FirstCharacterUpperAfterASpace(value);
                 value = FirstCharacterUpperAfterUnderscore(value);

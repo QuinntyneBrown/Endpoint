@@ -9,10 +9,9 @@ namespace Endpoint.DotNet.Syntax.VisualStudio;
 
 // all here
 // https://github.com/dotnet/sdk/blob/d071d839caa2a56680f0499ed1e4329f62fb5f95/src/Cli/Microsoft.DotNet.Cli.Sln.Internal/SlnFile.cs
-
 public enum SlnSectionType
 {
     PreProcess,
 
-    PostProcess
+    PostProcess,
 }

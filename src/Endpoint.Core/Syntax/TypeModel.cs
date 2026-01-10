@@ -3,8 +3,8 @@
 
 namespace Endpoint.Core.Syntax;
 
-public class TypeModel {
-
+public class TypeModel
+{
     public TypeModel(string name)
     {
         Name = name;
