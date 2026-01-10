@@ -1,0 +1,572 @@
+@startuml Full Stack E-Commerce Platform
+
+!define MICROSERVICE(name) package name <<microservice>>
+!define FRONTEND(name) package name <<frontend>>
+!define AGGREGATE(name) class name <<aggregate>>
+!define ENTITY(name) class name <<entity>>
+!define VALUE_OBJECT(name) class name <<valueobject>>
+!define PAGE(name) class name <<page>>
+!define COMPONENT(name) class name <<component>>
+!define FORM(name) class name <<form>>
+!define LIST(name) class name <<list>>
+!define DETAIL(name) class name <<detail>>
+!define STORE(name) class name <<store>>
+!define API_CLIENT(name) class name <<api-client>>
+!define EFFECT(name) class name <<effect>>
+
+title Full Stack E-Commerce Platform
+footer Design 5: Full Stack Example
+
+skinparam packageStyle rectangle
+skinparam backgroundColor #FFFFFF
+
+' ========================================
+' BACKEND MICROSERVICES
+' ========================================
+
+MICROSERVICE(OrderService) #E3F2FD {
+    note as OrderApiNote
+        **API Endpoints:**
+        GET    /api/orders
+        GET    /api/orders/{id}
+        POST   /api/orders
+        PUT    /api/orders/{id}
+        DELETE /api/orders/{id}
+        POST   /api/orders/{id}/submit
+        POST   /api/orders/{id}/cancel
+    end note
+
+    AGGREGATE(Order) {
+        +Guid Id
+        +string OrderNumber
+        +Guid CustomerId
+        +OrderStatus Status
+        +List<OrderLine> Lines
+        +decimal TotalAmount
+        +DateTime CreatedAt
+        +DateTime? UpdatedAt
+        --
+        +AddLine(productId, quantity, price)
+        +RemoveLine(lineId)
+        +UpdateLineQuantity(lineId, quantity)
+        +Submit()
+        +Cancel(reason)
+    }
+
+    ENTITY(OrderLine) {
+        +Guid Id
+        +Guid ProductId
+        +string ProductName
+        +int Quantity
+        +decimal UnitPrice
+        +decimal LineTotal
+    }
+
+    VALUE_OBJECT(OrderStatus) {
+        +string Value
+        --
+        {static} +Draft
+        {static} +Submitted
+        {static} +Processing
+        {static} +Shipped
+        {static} +Delivered
+        {static} +Cancelled
+    }
+}
+
+MICROSERVICE(ProductService) #E8F5E9 {
+    note as ProductApiNote
+        **API Endpoints:**
+        GET    /api/products
+        GET    /api/products/{id}
+        GET    /api/products/category/{categoryId}
+        POST   /api/products
+        PUT    /api/products/{id}
+        DELETE /api/products/{id}
+    end note
+
+    AGGREGATE(Product) {
+        +Guid Id
+        +string Sku
+        +string Name
+        +string Description
+        +decimal Price
+        +Guid CategoryId
+        +List<string> ImageUrls
+        +bool IsActive
+        +int StockQuantity
+    }
+
+    ENTITY(Category) {
+        +Guid Id
+        +string Name
+        +string Description
+        +Guid? ParentCategoryId
+    }
+}
+
+MICROSERVICE(CustomerService) #FFF8E1 {
+    note as CustomerApiNote
+        **API Endpoints:**
+        GET    /api/customers
+        GET    /api/customers/{id}
+        GET    /api/customers/{id}/orders
+        POST   /api/customers
+        PUT    /api/customers/{id}
+    end note
+
+    AGGREGATE(Customer) {
+        +Guid Id
+        +string Email
+        +string FirstName
+        +string LastName
+        +string Phone
+        +Address BillingAddress
+        +Address ShippingAddress
+        +DateTime RegisteredAt
+    }
+
+    VALUE_OBJECT(Address) {
+        +string Street
+        +string City
+        +string State
+        +string PostalCode
+        +string Country
+    }
+}
+
+' ========================================
+' FRONTEND - ADMIN APPLICATION (ANGULAR)
+' ========================================
+
+FRONTEND(AdminApp) <<angular>> #FFE0B2 {
+    note as AdminNote
+        **Framework:** Angular 17+
+        **State:** NgRx Signal Store
+        **UI:** Angular Material
+        **Testing:** Jest + Cypress
+    end note
+
+    ' -------- Order Management --------
+    package "Order Feature" #FFCC80 {
+        STORE(OrderStore) {
+            +Signal<Order[]> orders
+            +Signal<Order | null> selectedOrder
+            +Signal<boolean> loading
+            +Signal<string | null> error
+            +Computed<number> totalOrders
+            +Computed<number> pendingOrders
+            --
+            +loadOrders()
+            +loadOrder(id: string)
+            +createOrder(request: CreateOrderRequest)
+            +updateOrder(id: string, request: UpdateOrderRequest)
+            +deleteOrder(id: string)
+            +submitOrder(id: string)
+            +cancelOrder(id: string, reason: string)
+        }
+
+        PAGE(OrderListPage) {
+            +OrderStore store
+            +Router router
+            --
+            +ngOnInit()
+            +onCreateClick()
+            +onEditClick(order: Order)
+            +onDeleteClick(order: Order)
+            +onViewClick(order: Order)
+        }
+
+        PAGE(OrderDetailPage) {
+            +OrderStore store
+            +ActivatedRoute route
+            --
+            +orderId: Signal<string>
+            +onBackClick()
+            +onEditClick()
+            +onSubmitClick()
+            +onCancelClick()
+        }
+
+        PAGE(OrderFormPage) {
+            +OrderStore store
+            +FormBuilder fb
+            +Router router
+            --
+            +orderForm: FormGroup
+            +isEditMode: boolean
+            +onSubmit()
+            +onCancel()
+            +onAddLine()
+            +onRemoveLine(index: number)
+        }
+
+        COMPONENT(OrderTable) <<list>> {
+            +@Input() orders: Order[]
+            +@Input() loading: boolean
+            +@Output() view: EventEmitter<Order>
+            +@Output() edit: EventEmitter<Order>
+            +@Output() delete: EventEmitter<Order>
+            --
+            +displayedColumns: string[]
+            +onSort(event: Sort)
+        }
+
+        COMPONENT(OrderStatusBadge) {
+            +@Input() status: OrderStatus
+            --
+            +getStatusColor(): string
+            +getStatusIcon(): string
+        }
+
+        COMPONENT(OrderLineTable) <<list>> {
+            +@Input() lines: OrderLine[]
+            +@Output() remove: EventEmitter<number>
+            --
+            +calculateTotal(): number
+        }
+
+        FORM(OrderForm) {
+            +@Input() order?: Order
+            +@Output() submit: EventEmitter<CreateOrderRequest>
+            +@Output() cancel: EventEmitter<void>
+            --
+            +form: FormGroup
+            +customers$: Observable<Customer[]>
+            +products$: Observable<Product[]>
+            +onSubmit()
+            +onAddLine()
+        }
+
+        API_CLIENT(OrderApiClient) {
+            -http: HttpClient
+            -baseUrl: string
+            --
+            +getOrders(): Observable<Order[]>
+            +getOrder(id: string): Observable<Order>
+            +createOrder(request: CreateOrderRequest): Observable<Order>
+            +updateOrder(id: string, request: UpdateOrderRequest): Observable<Order>
+            +deleteOrder(id: string): Observable<void>
+            +submitOrder(id: string): Observable<Order>
+            +cancelOrder(id: string, reason: string): Observable<Order>
+        }
+    }
+
+    ' -------- Product Management --------
+    package "Product Feature" #C8E6C9 {
+        STORE(ProductStore) {
+            +Signal<Product[]> products
+            +Signal<Category[]> categories
+            +Signal<Product | null> selectedProduct
+            +Signal<boolean> loading
+            --
+            +loadProducts()
+            +loadCategories()
+            +createProduct(request: CreateProductRequest)
+            +updateProduct(id: string, request: UpdateProductRequest)
+            +deleteProduct(id: string)
+        }
+
+        PAGE(ProductListPage) {
+            +ProductStore store
+            --
+            +onCreateClick()
+            +onEditClick(product: Product)
+            +onDeleteClick(product: Product)
+        }
+
+        PAGE(ProductFormPage) {
+            +ProductStore store
+            --
+            +productForm: FormGroup
+            +onSubmit()
+        }
+
+        COMPONENT(ProductCard) {
+            +@Input() product: Product
+            +@Output() edit: EventEmitter<void>
+            +@Output() delete: EventEmitter<void>
+        }
+
+        COMPONENT(ProductGrid) <<list>> {
+            +@Input() products: Product[]
+            +@Output() select: EventEmitter<Product>
+        }
+
+        API_CLIENT(ProductApiClient) {
+            +getProducts(): Observable<Product[]>
+            +getProduct(id: string): Observable<Product>
+            +getProductsByCategory(categoryId: string): Observable<Product[]>
+            +createProduct(request: CreateProductRequest): Observable<Product>
+            +updateProduct(id: string, request: UpdateProductRequest): Observable<Product>
+            +deleteProduct(id: string): Observable<void>
+        }
+    }
+
+    ' -------- Customer Management --------
+    package "Customer Feature" #E1BEE7 {
+        STORE(CustomerStore) {
+            +Signal<Customer[]> customers
+            +Signal<Customer | null> selectedCustomer
+            +Signal<Order[]> customerOrders
+            --
+            +loadCustomers()
+            +loadCustomer(id: string)
+            +loadCustomerOrders(id: string)
+            +createCustomer(request: CreateCustomerRequest)
+            +updateCustomer(id: string, request: UpdateCustomerRequest)
+        }
+
+        PAGE(CustomerListPage) {
+            +CustomerStore store
+        }
+
+        PAGE(CustomerDetailPage) {
+            +CustomerStore store
+            --
+            +customer: Signal<Customer>
+            +orders: Signal<Order[]>
+        }
+
+        COMPONENT(CustomerTable) <<list>> {
+            +@Input() customers: Customer[]
+            +@Output() select: EventEmitter<Customer>
+        }
+
+        FORM(CustomerForm) {
+            +@Input() customer?: Customer
+            +@Output() submit: EventEmitter<CreateCustomerRequest>
+        }
+
+        API_CLIENT(CustomerApiClient) {
+            +getCustomers(): Observable<Customer[]>
+            +getCustomer(id: string): Observable<Customer>
+            +getCustomerOrders(id: string): Observable<Order[]>
+            +createCustomer(request: CreateCustomerRequest): Observable<Customer>
+            +updateCustomer(id: string, request: UpdateCustomerRequest): Observable<Customer>
+        }
+    }
+
+    ' -------- Shared Components --------
+    package "Shared" #F5F5F5 {
+        COMPONENT(DataTable) {
+            +@Input() data: T[]
+            +@Input() columns: ColumnDef[]
+            +@Input() loading: boolean
+            +@Output() rowClick: EventEmitter<T>
+            +@Output() sort: EventEmitter<SortEvent>
+            +@Output() page: EventEmitter<PageEvent>
+        }
+
+        COMPONENT(ConfirmDialog) {
+            +@Input() title: string
+            +@Input() message: string
+            +@Output() confirm: EventEmitter<void>
+            +@Output() cancel: EventEmitter<void>
+        }
+
+        COMPONENT(LoadingSpinner) {
+            +@Input() loading: boolean
+            +@Input() message: string
+        }
+
+        COMPONENT(AddressForm) {
+            +@Input() address?: Address
+            +@Output() addressChange: EventEmitter<Address>
+        }
+    }
+}
+
+' ========================================
+' FRONTEND - CUSTOMER APPLICATION (REACT)
+' ========================================
+
+FRONTEND(CustomerApp) <<react>> #B3E5FC {
+    note as CustomerAppNote
+        **Framework:** React 18+
+        **State:** Redux Toolkit + RTK Query
+        **UI:** Tailwind CSS
+        **Testing:** Vitest + Playwright
+    end note
+
+    package "Shop Feature" #81D4FA {
+        class ProductListPage <<page>> {
+            +useProducts()
+            +useCategories()
+            --
+            +onAddToCart(product: Product)
+            +onFilterChange(categoryId: string)
+        }
+
+        class ProductDetailPage <<page>> {
+            +useProduct(id: string)
+            --
+            +onAddToCart()
+            +onQuantityChange(qty: number)
+        }
+
+        class CartPage <<page>> {
+            +useCart()
+            --
+            +onCheckout()
+            +onUpdateQuantity(itemId, qty)
+            +onRemoveItem(itemId)
+        }
+
+        class CheckoutPage <<page>> {
+            +useCart()
+            +useCreateOrder()
+            --
+            +onPlaceOrder()
+        }
+
+        class OrderHistoryPage <<page>> {
+            +useCustomerOrders()
+            --
+            +onViewOrder(orderId: string)
+        }
+    }
+
+    package "Hooks" #4FC3F7 {
+        class useProducts <<hook>> {
+            +data: Product[]
+            +isLoading: boolean
+            +error: Error | null
+        }
+
+        class useCart <<hook>> {
+            +items: CartItem[]
+            +total: number
+            +addItem(product, qty)
+            +removeItem(itemId)
+            +updateQuantity(itemId, qty)
+            +clearCart()
+        }
+
+        class useCreateOrder <<hook>> {
+            +mutate(request)
+            +isLoading: boolean
+            +error: Error | null
+        }
+    }
+
+    package "Components" #29B6F6 {
+        class ProductCard <<component>> {
+            +product: Product
+            +onAddToCart: () => void
+        }
+
+        class CartSummary <<component>> {
+            +items: CartItem[]
+            +total: number
+        }
+
+        class AddressFormReact <<component>> {
+            +address?: Address
+            +onChange: (address: Address) => void
+        }
+    }
+}
+
+' ========================================
+' SHARED TYPES (Generated from OpenAPI)
+' ========================================
+
+package "Shared Types (@myapp/shared-models)" <<typescript>> #FFF9C4 {
+    class Order <<interface>> {
+        +id: string
+        +orderNumber: string
+        +customerId: string
+        +status: OrderStatus
+        +lines: OrderLine[]
+        +totalAmount: number
+        +createdAt: Date
+        +updatedAt?: Date
+    }
+
+    class OrderLine <<interface>> {
+        +id: string
+        +productId: string
+        +productName: string
+        +quantity: number
+        +unitPrice: number
+        +lineTotal: number
+    }
+
+    class Product <<interface>> {
+        +id: string
+        +sku: string
+        +name: string
+        +description: string
+        +price: number
+        +categoryId: string
+        +imageUrls: string[]
+        +isActive: boolean
+        +stockQuantity: number
+    }
+
+    class Customer <<interface>> {
+        +id: string
+        +email: string
+        +firstName: string
+        +lastName: string
+        +phone: string
+        +billingAddress: Address
+        +shippingAddress: Address
+        +registeredAt: Date
+    }
+
+    class Address <<interface>> {
+        +street: string
+        +city: string
+        +state: string
+        +postalCode: string
+        +country: string
+    }
+
+    enum OrderStatus <<enum>> {
+        Draft
+        Submitted
+        Processing
+        Shipped
+        Delivered
+        Cancelled
+    }
+
+    class CreateOrderRequest <<interface>> {
+        +customerId: string
+        +lines: CreateOrderLineRequest[]
+    }
+
+    class CreateOrderLineRequest <<interface>> {
+        +productId: string
+        +quantity: number
+    }
+}
+
+' ========================================
+' RELATIONSHIPS
+' ========================================
+
+' Frontend to Backend
+AdminApp --> OrderService : HTTP/REST
+AdminApp --> ProductService : HTTP/REST
+AdminApp --> CustomerService : HTTP/REST
+CustomerApp --> ProductService : HTTP/REST
+CustomerApp --> OrderService : HTTP/REST
+CustomerApp --> CustomerService : HTTP/REST
+
+' Shared Types
+AdminApp ..> Order : uses
+AdminApp ..> Product : uses
+AdminApp ..> Customer : uses
+CustomerApp ..> Order : uses
+CustomerApp ..> Product : uses
+CustomerApp ..> Customer : uses
+
+' Internal relationships
+OrderApiClient --> Order : returns
+ProductApiClient --> Product : returns
+CustomerApiClient --> Customer : returns
+
+@enduml

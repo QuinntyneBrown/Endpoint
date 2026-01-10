@@ -1,0 +1,188 @@
+@startuml Full Stack Architecture
+
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+title Design 5: Full Stack Architecture\nEnd-to-End Solution Generation
+
+' PlantUML Input Layer
+package "PlantUML Input" #LightBlue {
+    rectangle "Microservice\nDefinitions" as MSInput
+    rectangle "Frontend App\nDefinitions" as FEInput
+    rectangle "API Endpoint\nSpec" as APIInput
+    rectangle "Component\nDefinitions" as CompInput
+    rectangle "Store\nDefinitions" as StoreInput
+}
+
+' Unified Parser
+package "Full Stack Parser" #LightGreen {
+    rectangle "BackendParser" as BEParser {
+        rectangle "Microservice Parser"
+        rectangle "Entity Parser"
+        rectangle "API Parser"
+    }
+
+    rectangle "FrontendParser" as FEParser {
+        rectangle "App Parser"
+        rectangle "Page Parser"
+        rectangle "Component Parser"
+        rectangle "Store Parser"
+    }
+
+    rectangle "RelationshipParser" as RelParser {
+        rectangle "API Consumer\nMapping"
+        rectangle "Type\nMapping"
+    }
+}
+
+' Model Layer
+package "Full Stack Models" #LightYellow {
+    rectangle "FullStackSolutionModel" as SolModel {
+        rectangle "BackendModel" as BE {
+            rectangle "MicroserviceModel[]"
+            rectangle "ApiEndpointModel[]"
+            rectangle "DtoModel[]"
+        }
+
+        rectangle "FrontendModel" as FE {
+            rectangle "FrontendAppModel[]"
+            rectangle "PageModel[]"
+            rectangle "ComponentModel[]"
+            rectangle "StoreModel[]"
+            rectangle "ApiClientModel[]"
+        }
+
+        rectangle "SharedModel" as Shared {
+            rectangle "TypeScriptModel[]"
+            rectangle "ApiContractModel[]"
+        }
+    }
+}
+
+' Generation Layer
+package "Code Generation" #LightCoral {
+    rectangle "BackendGenerator" as BEGen {
+        rectangle "API Generator"
+        rectangle "DTO Generator"
+        rectangle "OpenAPI Generator"
+    }
+
+    rectangle "FrontendGenerator" as FEGen {
+        rectangle "AngularGenerator" as AngGen {
+            rectangle "Component Gen"
+            rectangle "Service Gen"
+            rectangle "Store Gen"
+            rectangle "Module Gen"
+        }
+
+        rectangle "ReactGenerator" as ReactGen {
+            rectangle "Component Gen"
+            rectangle "Hook Gen"
+            rectangle "Store Gen"
+        }
+
+        rectangle "LitGenerator" as LitGen {
+            rectangle "Element Gen"
+            rectangle "Store Gen"
+        }
+    }
+
+    rectangle "SharedGenerator" as SharedGen {
+        rectangle "TypeScript Models"
+        rectangle "API Client"
+        rectangle "Validation"
+    }
+
+    rectangle "TestGenerator" as TestGen {
+        rectangle "Unit Tests"
+        rectangle "E2E Tests"
+        rectangle "API Tests"
+    }
+}
+
+' Output Layer
+package "Generated Solution" #LightGray {
+    folder "backend" as BackendOut {
+        folder "Services" as Svcs {
+            folder "OrderService.Api"
+            folder "InventoryService.Api"
+        }
+        file "docker-compose.yml"
+    }
+
+    folder "frontend" as FrontendOut {
+        folder "apps" as Apps {
+            folder "order-app" as OrderApp
+            folder "admin-app" as AdminApp
+        }
+        folder "libs" as Libs {
+            folder "shared-models"
+            folder "ui-components"
+        }
+    }
+
+    folder "e2e" as E2EOut {
+        folder "playwright"
+        folder "cypress"
+    }
+
+    file "nx.json" as NxConfig
+    file "package.json" as PkgJson
+}
+
+' Connections - Input to Parser
+MSInput --> BEParser
+FEInput --> FEParser
+APIInput --> BEParser
+CompInput --> FEParser
+StoreInput --> FEParser
+
+' Parser to Model
+BEParser --> BE
+FEParser --> FE
+RelParser --> Shared
+
+' Model to Generation
+BE --> BEGen
+FE --> FEGen
+Shared --> SharedGen
+SolModel --> TestGen
+
+' Generation to Output
+BEGen --> BackendOut
+AngGen --> OrderApp
+SharedGen --> Libs
+TestGen --> E2EOut
+
+' Framework selection
+note right of FEGen
+  Framework Selection:
+  - <<angular>> → AngularGenerator
+  - <<react>> → ReactGenerator
+  - <<lit>> → LitGenerator
+end note
+
+' API Contract Flow
+note bottom of Shared
+  API Contract Sync:
+  1. Backend generates OpenAPI spec
+  2. Shared models generated from spec
+  3. Frontend API client uses shared types
+end note
+
+legend right
+  |= PlantUML Stereotype |= Generated Artifact |
+  | <<microservice>> | .NET API Project |
+  | <<frontend>> | Frontend App |
+  | <<angular>> | Angular App |
+  | <<react>> | React App |
+  | <<lit>> | Lit Web Components |
+  | <<component>> | UI Component |
+  | <<page>> | Route/Page |
+  | <<store>> | State Management |
+  | <<api-client>> | HTTP Client |
+endlegend
+
+@enduml

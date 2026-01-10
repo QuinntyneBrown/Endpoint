@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2024-01-10T00:00:00.000Z" agent="Mozilla/5.0" version="22.1.0" type="device">
+  <diagram name="Full Stack Component Hierarchy" id="fullstack-hierarchy">
+    <mxGraphModel dx="1400" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Design 5: Full Stack Component Hierarchy" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Backend Section -->
+        <mxCell id="backendSection" value="Backend (ASP.NET Core + Aspire)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=30;horizontal=1;fillColor=#e3f2fd;strokeColor=#1976d2;rounded=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="550" height="400" as="geometry" />
+        </mxCell>
+
+        <!-- API Gateway -->
+        <mxCell id="gateway" value="API Gateway&#xa;(YARP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1976d2;fontSize=11;fontStyle=1;" vertex="1" parent="backendSection">
+          <mxGeometry x="200" y="50" width="150" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Microservices Row -->
+        <mxCell id="orderService" value="" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=25;horizontal=1;fillColor=#c8e6c9;strokeColor=#43a047;rounded=1;" vertex="1" parent="backendSection">
+          <mxGeometry x="20" y="120" width="160" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="osTitle" value="Order Service" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=11;" vertex="1" parent="orderService">
+          <mxGeometry x="30" y="5" width="100" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="osController" value="OrdersController" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="orderService">
+          <mxGeometry x="10" y="35" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="osCommands" value="Commands/Handlers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="orderService">
+          <mxGeometry x="10" y="70" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="osQueries" value="Queries/Handlers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="orderService">
+          <mxGeometry x="10" y="105" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="osDomain" value="Domain (Aggregates)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="orderService">
+          <mxGeometry x="10" y="140" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="osInfra" value="Infrastructure (EF Core)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="orderService">
+          <mxGeometry x="10" y="175" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="osOpenApi" value="OpenAPI Spec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff59d;strokeColor=#f9a825;fontSize=9;fontStyle=1;" vertex="1" parent="orderService">
+          <mxGeometry x="10" y="210" width="140" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="inventoryService" value="" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=25;horizontal=1;fillColor=#c8e6c9;strokeColor=#43a047;rounded=1;" vertex="1" parent="backendSection">
+          <mxGeometry x="200" y="120" width="160" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="isTitle" value="Inventory Service" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=11;" vertex="1" parent="inventoryService">
+          <mxGeometry x="25" y="5" width="110" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="isController" value="InventoryController" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="inventoryService">
+          <mxGeometry x="10" y="35" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="isCommands" value="Commands/Handlers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="inventoryService">
+          <mxGeometry x="10" y="70" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="isQueries" value="Queries/Handlers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="inventoryService">
+          <mxGeometry x="10" y="105" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="isDomain" value="Domain (Aggregates)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="inventoryService">
+          <mxGeometry x="10" y="140" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="isInfra" value="Infrastructure (EF Core)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="inventoryService">
+          <mxGeometry x="10" y="175" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="isOpenApi" value="OpenAPI Spec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff59d;strokeColor=#f9a825;fontSize=9;fontStyle=1;" vertex="1" parent="inventoryService">
+          <mxGeometry x="10" y="210" width="140" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="customerService" value="" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=25;horizontal=1;fillColor=#c8e6c9;strokeColor=#43a047;rounded=1;" vertex="1" parent="backendSection">
+          <mxGeometry x="380" y="120" width="160" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="csTitle" value="Customer Service" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=11;" vertex="1" parent="customerService">
+          <mxGeometry x="25" y="5" width="110" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="csController" value="CustomersController" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="customerService">
+          <mxGeometry x="10" y="35" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="csOther" value="..." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#a5d6a7;strokeColor=#43a047;fontSize=9;" vertex="1" parent="customerService">
+          <mxGeometry x="10" y="70" width="140" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="csOpenApi" value="OpenAPI Spec" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff59d;strokeColor=#f9a825;fontSize=9;fontStyle=1;" vertex="1" parent="customerService">
+          <mxGeometry x="10" y="210" width="140" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Gateway arrows -->
+        <mxCell id="gwToOs" value="" style="endArrow=classic;html=1;strokeWidth=1;" edge="1" parent="backendSection" source="gateway" target="orderService">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gwToIs" value="" style="endArrow=classic;html=1;strokeWidth=1;" edge="1" parent="backendSection" source="gateway" target="inventoryService">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gwToCs" value="" style="endArrow=classic;html=1;strokeWidth=1;" edge="1" parent="backendSection" source="gateway" target="customerService">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Frontend Section -->
+        <mxCell id="frontendSection" value="Frontend (Angular / React / Lit)" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=30;horizontal=1;fillColor=#fff3e0;strokeColor=#ef6c00;rounded=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="680" y="80" width="600" height="400" as="geometry" />
+        </mxCell>
+
+        <!-- Apps -->
+        <mxCell id="orderApp" value="" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=25;horizontal=1;fillColor=#ffe0b2;strokeColor=#ef6c00;rounded=1;" vertex="1" parent="frontendSection">
+          <mxGeometry x="20" y="50" width="270" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="oaTitle" value="Order App (Angular)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=11;" vertex="1" parent="orderApp">
+          <mxGeometry x="60" y="5" width="150" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Core Module -->
+        <mxCell id="coreModule" value="Core" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=20;horizontal=1;fillColor=#ffcc80;strokeColor=#ef6c00;rounded=1;fontSize=10;" vertex="1" parent="orderApp">
+          <mxGeometry x="10" y="30" width="120" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="apiClient" value="OrderApiClient" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="coreModule">
+          <mxGeometry x="5" y="25" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="store" value="OrderStore" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="coreModule">
+          <mxGeometry x="5" y="50" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="models" value="TypeScript Models" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="coreModule">
+          <mxGeometry x="5" y="75" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="guards" value="Auth Guards" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="coreModule">
+          <mxGeometry x="5" y="100" width="110" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Feature Module -->
+        <mxCell id="featureModule" value="Features/Orders" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=20;horizontal=1;fillColor=#ffcc80;strokeColor=#ef6c00;rounded=1;fontSize=10;" vertex="1" parent="orderApp">
+          <mxGeometry x="140" y="30" width="120" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="listPage" value="OrderListPage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="featureModule">
+          <mxGeometry x="5" y="25" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="detailPage" value="OrderDetailPage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="featureModule">
+          <mxGeometry x="5" y="50" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="createPage" value="OrderCreatePage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="featureModule">
+          <mxGeometry x="5" y="75" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="editPage" value="OrderEditPage" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="featureModule">
+          <mxGeometry x="5" y="100" width="110" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Components -->
+        <mxCell id="components" value="Components" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=20;horizontal=1;fillColor=#ffcc80;strokeColor=#ef6c00;rounded=1;fontSize=10;" vertex="1" parent="orderApp">
+          <mxGeometry x="10" y="170" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="table" value="OrderTable" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="components">
+          <mxGeometry x="5" y="25" width="75" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="form" value="OrderForm" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="components">
+          <mxGeometry x="85" y="25" width="75" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="card" value="OrderCard" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="components">
+          <mxGeometry x="165" y="25" width="75" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="status" value="StatusBadge" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="components">
+          <mxGeometry x="5" y="50" width="75" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="lineItem" value="LineItemRow" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffb74d;strokeColor=#ef6c00;fontSize=8;" vertex="1" parent="components">
+          <mxGeometry x="85" y="50" width="75" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Routing -->
+        <mxCell id="routing" value="Routing: /orders, /orders/:id, /orders/new" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff59d;strokeColor=#f9a825;fontSize=9;fontStyle=2;" vertex="1" parent="orderApp">
+          <mxGeometry x="10" y="260" width="250" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Shared Libs -->
+        <mxCell id="sharedLibs" value="" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=25;horizontal=1;fillColor=#e1bee7;strokeColor=#7b1fa2;rounded=1;" vertex="1" parent="frontendSection">
+          <mxGeometry x="310" y="50" width="270" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="slTitle" value="Shared Libraries (Nx Libs)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=11;" vertex="1" parent="sharedLibs">
+          <mxGeometry x="55" y="5" width="160" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Shared Models -->
+        <mxCell id="sharedModels" value="@myapp/shared-models" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=20;horizontal=1;fillColor=#ce93d8;strokeColor=#7b1fa2;rounded=1;fontSize=10;" vertex="1" parent="sharedLibs">
+          <mxGeometry x="10" y="30" width="250" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="orderModel" value="Order, OrderLine, OrderStatus" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ba68c8;strokeColor=#7b1fa2;fontSize=8;" vertex="1" parent="sharedModels">
+          <mxGeometry x="5" y="25" width="240" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="productModel" value="Product, Category, Price" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ba68c8;strokeColor=#7b1fa2;fontSize=8;" vertex="1" parent="sharedModels">
+          <mxGeometry x="5" y="50" width="240" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- UI Components -->
+        <mxCell id="uiComponents" value="@myapp/ui-components" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=20;horizontal=1;fillColor=#ce93d8;strokeColor=#7b1fa2;rounded=1;fontSize=10;" vertex="1" parent="sharedLibs">
+          <mxGeometry x="10" y="130" width="250" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="button" value="Button, Input, Select, Modal" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ba68c8;strokeColor=#7b1fa2;fontSize=8;" vertex="1" parent="uiComponents">
+          <mxGeometry x="5" y="25" width="240" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="dataTable" value="DataTable, Pagination, Filters" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ba68c8;strokeColor=#7b1fa2;fontSize=8;" vertex="1" parent="uiComponents">
+          <mxGeometry x="5" y="50" width="240" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Utils -->
+        <mxCell id="utilsLib" value="@myapp/utils" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=20;horizontal=1;fillColor=#ce93d8;strokeColor=#7b1fa2;rounded=1;fontSize=10;" vertex="1" parent="sharedLibs">
+          <mxGeometry x="10" y="230" width="250" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="utils" value="Validators, Formatters, Helpers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ba68c8;strokeColor=#7b1fa2;fontSize=8;" vertex="1" parent="utilsLib">
+          <mxGeometry x="5" y="25" width="240" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- API Contract Sync -->
+        <mxCell id="contractSync" value="API Contract Synchronization" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=30;horizontal=1;fillColor=#fff59d;strokeColor=#f9a825;rounded=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="520" width="1200" height="150" as="geometry" />
+        </mxCell>
+
+        <mxCell id="openApiSpec" value="OpenAPI&#xa;Specification&#xa;(swagger.json)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#fff176;strokeColor=#f9a825;" vertex="1" parent="contractSync">
+          <mxGeometry x="100" y="50" width="120" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="codeGen" value="Code&#xa;Generator&#xa;(NSwag/OpenAPI)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcc80;strokeColor=#ef6c00;fontSize=10;" vertex="1" parent="contractSync">
+          <mxGeometry x="320" y="60" width="120" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tsModels" value="TypeScript&#xa;Models" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;fontSize=10;" vertex="1" parent="contractSync">
+          <mxGeometry x="540" y="50" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tsClient" value="API&#xa;Client" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;fontSize=10;" vertex="1" parent="contractSync">
+          <mxGeometry x="540" y="95" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="validation" value="Validation&#xa;Rules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;fontSize=10;" vertex="1" parent="contractSync">
+          <mxGeometry x="660" y="60" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tests" value="API&#xa;Tests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#43a047;fontSize=10;" vertex="1" parent="contractSync">
+          <mxGeometry x="780" y="60" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e2e" value="E2E&#xa;Tests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#43a047;fontSize=10;" vertex="1" parent="contractSync">
+          <mxGeometry x="900" y="60" width="100" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Sync Arrows -->
+        <mxCell id="syncArrow1" value="" style="endArrow=classic;html=1;strokeWidth=2;fillColor=#f9a825;strokeColor=#f9a825;" edge="1" parent="contractSync" source="openApiSpec" target="codeGen">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="syncArrow2" value="" style="endArrow=classic;html=1;strokeWidth=2;fillColor=#7b1fa2;strokeColor=#7b1fa2;" edge="1" parent="contractSync" source="codeGen" target="tsModels">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="syncArrow3" value="" style="endArrow=classic;html=1;strokeWidth=2;fillColor=#7b1fa2;strokeColor=#7b1fa2;" edge="1" parent="contractSync" source="codeGen" target="tsClient">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="syncArrow4" value="" style="endArrow=classic;html=1;strokeWidth=2;fillColor=#7b1fa2;strokeColor=#7b1fa2;" edge="1" parent="contractSync" source="tsModels" target="validation">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="syncArrow5" value="" style="endArrow=classic;html=1;strokeWidth=2;fillColor=#43a047;strokeColor=#43a047;" edge="1" parent="contractSync" source="validation" target="tests">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="syncArrow6" value="" style="endArrow=classic;html=1;strokeWidth=2;fillColor=#43a047;strokeColor=#43a047;" edge="1" parent="contractSync" source="tests" target="e2e">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="syncNote" value="Automated sync on build: Backend OpenAPI → Frontend Types → Tests" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;" vertex="1" parent="contractSync">
+          <mxGeometry x="1020" y="60" width="160" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Backend to Frontend Connection -->
+        <mxCell id="beToFe" value="HTTP/JSON" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=3;fillColor=#1976d2;strokeColor=#1976d2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="630" y="280" as="sourcePoint" />
+            <mxPoint x="680" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="Legend" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=26;horizontal=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="80" y="700" width="400" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="legBe" value="Backend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#43a047;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="35" width="60" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legFe" value="Frontend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe0b2;strokeColor=#ef6c00;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="80" y="35" width="60" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legShared" value="Shared Libs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1bee7;strokeColor=#7b1fa2;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="150" y="35" width="70" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legContract" value="API Contract" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff59d;strokeColor=#f9a825;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="230" y="35" width="75" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legTests" value="Tests" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#43a047;fontSize=10;" vertex="1" parent="legend">
+          <mxGeometry x="315" y="35" width="60" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legNote" value="Full stack: Backend APIs + Frontend Apps + Shared Types + Tests" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontStyle=2;" vertex="1" parent="legend">
+          <mxGeometry x="10" y="65" width="380" height="25" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
