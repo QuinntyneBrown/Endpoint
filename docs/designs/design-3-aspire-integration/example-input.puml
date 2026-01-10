@@ -1,0 +1,278 @@
+@startuml Aspire Microservices Example
+
+!define MICROSERVICE(name) package name <<microservice>>
+!define WORKER(name) package name <<worker>>
+!define GATEWAY(name) package name <<gateway>>
+!define AGGREGATE(name) class name <<aggregate>>
+!define ENTITY(name) class name <<entity>>
+!define RESOURCE(name) database name
+!define CACHE(name) database name
+!define MESSAGEBUS(name) queue name
+
+title Aspire-Enabled E-Commerce Platform
+footer Design 3: Aspire Integration Example
+
+skinparam packageStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam databaseBackgroundColor #E8F5E9
+
+' ========================================
+' ASPIRE APPHOST CONFIGURATION
+' ========================================
+package "MyApp.AppHost" <<apphost>> #LightGray {
+    note as AppHostNote
+        Aspire Orchestrator
+        - Manages all services
+        - Configures resources
+        - Service discovery
+        - Health monitoring
+    end note
+}
+
+' ========================================
+' INFRASTRUCTURE RESOURCES
+' ========================================
+package "Infrastructure Resources" #LightBlue {
+
+    RESOURCE(PostgreSQL) <<postgres>> #E3F2FD {
+        database ordersdb
+        database inventorydb
+        database customersdb
+    }
+
+    CACHE(Redis) <<redis>> #FFEBEE {
+        database distributed_cache
+        database session_store
+    }
+
+    MESSAGEBUS(RabbitMQ) <<rabbitmq>> #FFF8E1 {
+        queue order_events
+        queue inventory_events
+        queue notification_events
+    }
+
+    RESOURCE(AzureStorage) <<azurestorage>> #E8EAF6 {
+        database blob_container
+        database file_uploads
+    }
+
+    RESOURCE(AzureKeyVault) <<keyvault>> #FCE4EC {
+        database secrets
+        database certificates
+    }
+}
+
+' ========================================
+' API GATEWAY
+' ========================================
+GATEWAY(ApiGateway) #FFF3E0 {
+    note as GatewayNote
+        YARP-based Gateway
+        - Route aggregation
+        - Authentication
+        - Rate limiting
+        - Load balancing
+    end note
+
+    class GatewayRoutes <<routes>> {
+        +/api/orders/* -> OrderService
+        +/api/inventory/* -> InventoryService
+        +/api/customers/* -> CustomerService
+    }
+}
+
+' ========================================
+' MICROSERVICES
+' ========================================
+MICROSERVICE(OrderService) #E3F2FD {
+    AGGREGATE(Order) {
+        +Guid Id
+        +Guid CustomerId
+        +OrderStatus Status
+        +List<OrderItem> Items
+        +decimal TotalAmount
+        --
+        +Create()
+        +Submit()
+        +Cancel()
+    }
+
+    ENTITY(OrderItem) {
+        +Guid ProductId
+        +int Quantity
+        +decimal UnitPrice
+    }
+
+    note as OrderDeps
+        Dependencies:
+        - ordersdb (PostgreSQL)
+        - distributed_cache (Redis)
+        - order_events (RabbitMQ)
+    end note
+}
+
+MICROSERVICE(InventoryService) #E8F5E9 {
+    AGGREGATE(Product) {
+        +Guid Id
+        +string Sku
+        +string Name
+        +int StockQuantity
+        +int ReservedQuantity
+        --
+        +Reserve(quantity)
+        +Release(quantity)
+    }
+
+    ENTITY(StockMovement) {
+        +Guid ProductId
+        +int Quantity
+        +MovementType Type
+    }
+
+    note as InvDeps
+        Dependencies:
+        - inventorydb (PostgreSQL)
+        - distributed_cache (Redis)
+        - inventory_events (RabbitMQ)
+    end note
+}
+
+MICROSERVICE(CustomerService) #FFF3E0 {
+    AGGREGATE(Customer) {
+        +Guid Id
+        +string Email
+        +string FirstName
+        +string LastName
+        +Address BillingAddress
+        --
+        +UpdateProfile()
+        +Deactivate()
+    }
+
+    note as CustDeps
+        Dependencies:
+        - customersdb (PostgreSQL)
+        - session_store (Redis)
+    end note
+}
+
+' ========================================
+' BACKGROUND WORKERS
+' ========================================
+WORKER(NotificationWorker) #FCE4EC {
+    class EmailProcessor <<processor>> {
+        +ProcessOrderConfirmation()
+        +ProcessShippingUpdate()
+        +ProcessPasswordReset()
+    }
+
+    class SmsProcessor <<processor>> {
+        +SendOtpCode()
+        +SendDeliveryAlert()
+    }
+
+    note as NotifDeps
+        Dependencies:
+        - notification_events (RabbitMQ)
+        - Azure Storage (templates)
+    end note
+}
+
+WORKER(ReportingWorker) #E8EAF6 {
+    class DailyReportGenerator <<processor>> {
+        +GenerateSalesReport()
+        +GenerateInventoryReport()
+    }
+
+    note as ReportDeps
+        Dependencies:
+        - All databases (read replicas)
+        - blob_container (Azure Storage)
+    end note
+}
+
+' ========================================
+' SERVICE DEPENDENCIES
+' ========================================
+
+' Gateway routes to services
+ApiGateway --> OrderService : /api/orders
+ApiGateway --> InventoryService : /api/inventory
+ApiGateway --> CustomerService : /api/customers
+
+' Database dependencies
+OrderService --> PostgreSQL : ordersdb
+InventoryService --> PostgreSQL : inventorydb
+CustomerService --> PostgreSQL : customersdb
+
+' Cache dependencies
+OrderService --> Redis : distributed_cache
+InventoryService --> Redis : distributed_cache
+CustomerService --> Redis : session_store
+
+' Message bus dependencies
+OrderService --> RabbitMQ : publishes/subscribes
+InventoryService --> RabbitMQ : publishes/subscribes
+NotificationWorker --> RabbitMQ : subscribes
+
+' Storage dependencies
+NotificationWorker --> AzureStorage : templates
+ReportingWorker --> AzureStorage : reports
+
+' Secrets
+OrderService ..> AzureKeyVault : secrets
+InventoryService ..> AzureKeyVault : secrets
+CustomerService ..> AzureKeyVault : secrets
+
+' ========================================
+' GENERATED APPHOST CONFIGURATION
+' ========================================
+note as GeneratedConfig
+**Generated Program.cs:**
+```
+var builder = DistributedApplication.CreateBuilder(args);
+
+// Resources
+var postgres = builder.AddPostgres("postgres").WithPgAdmin();
+var ordersDb = postgres.AddDatabase("ordersdb");
+var inventoryDb = postgres.AddDatabase("inventorydb");
+var customersDb = postgres.AddDatabase("customersdb");
+
+var redis = builder.AddRedis("redis").WithRedisCommander();
+var rabbitmq = builder.AddRabbitMQ("rabbitmq").WithManagementPlugin();
+var storage = builder.AddAzureStorage("storage");
+var keyvault = builder.AddAzureKeyVault("keyvault");
+
+// Services
+var orderService = builder.AddProject<Projects.OrderService_Api>("orderservice")
+    .WithReference(ordersDb)
+    .WithReference(redis)
+    .WithReference(rabbitmq)
+    .WithReference(keyvault);
+
+var inventoryService = builder.AddProject<Projects.InventoryService_Api>("inventoryservice")
+    .WithReference(inventoryDb)
+    .WithReference(redis)
+    .WithReference(rabbitmq);
+
+var customerService = builder.AddProject<Projects.CustomerService_Api>("customerservice")
+    .WithReference(customersDb)
+    .WithReference(redis);
+
+// Workers
+var notificationWorker = builder.AddProject<Projects.NotificationWorker>("notificationworker")
+    .WithReference(rabbitmq)
+    .WithReference(storage);
+
+// Gateway
+var gateway = builder.AddProject<Projects.ApiGateway>("gateway")
+    .WithReference(orderService)
+    .WithReference(inventoryService)
+    .WithReference(customerService)
+    .WithExternalHttpEndpoints();
+
+builder.Build().Run();
+```
+end note
+
+@enduml

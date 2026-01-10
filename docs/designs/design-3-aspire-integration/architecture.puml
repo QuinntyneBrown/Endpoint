@@ -1,0 +1,155 @@
+@startuml Aspire Integration Architecture
+
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+title Design 3: Aspire Integration Architecture\nCloud-Native Orchestration
+
+' PlantUML Input Layer
+package "PlantUML Input" #LightBlue {
+    rectangle "Microservice\nDefinitions" as MSDefs
+    rectangle "Resource\nDeclarations" as Resources
+    rectangle "Dependency\nMappings" as Deps
+    rectangle "Gateway\nConfig" as Gateway
+}
+
+' Parsing Layer
+package "Aspire Parser Extensions" #LightGreen {
+    rectangle "MicroserviceParser" as MSParser
+    rectangle "ResourceParser" as ResParser {
+        rectangle "PostgresParser"
+        rectangle "RedisParser"
+        rectangle "RabbitMQParser"
+        rectangle "OtherResourceParsers..."
+    }
+    rectangle "DependencyParser" as DepParser
+    rectangle "GatewayParser" as GwParser
+}
+
+' Model Layer
+package "Aspire Models" #LightYellow {
+    rectangle "AspireSolutionModel" as SolModel {
+        rectangle "AppHostModel" as AppHost
+        rectangle "ServiceDefaultsModel" as SvcDefaults
+        rectangle "MicroserviceModel[]" as Services
+        rectangle "ResourceModel[]" as ResourceModels
+    }
+
+    rectangle "ResourceModel" as ResMod {
+        rectangle "PostgresResource"
+        rectangle "RedisResource"
+        rectangle "RabbitMQResource"
+        rectangle "DatabaseReference[]"
+    }
+
+    rectangle "ServiceDependencyGraph" as DepGraph {
+        rectangle "Service -> Resource"
+        rectangle "Service -> Service"
+    }
+}
+
+' Generation Layer
+package "Aspire Code Generation" #LightCoral {
+    rectangle "AppHostGenerator" as AppHostGen {
+        rectangle "Program.cs Builder"
+        rectangle "Resource Wiring"
+        rectangle "Service References"
+    }
+
+    rectangle "ServiceDefaultsGenerator" as SvcDefaultsGen {
+        rectangle "Extensions.cs"
+        rectangle "OpenTelemetry Config"
+        rectangle "Health Checks"
+    }
+
+    rectangle "ServiceIntegrationGenerator" as SvcIntGen {
+        rectangle "Connection Strings"
+        rectangle "Service Discovery"
+        rectangle "Resilience Policies"
+    }
+
+    rectangle "InfrastructureGenerator" as InfraGen {
+        rectangle "Bicep Templates"
+        rectangle "Docker Compose"
+        rectangle "Kubernetes Manifests"
+    }
+}
+
+' Output Layer
+package "Generated Solution" #LightGray {
+    folder "MySolution.AppHost" as AppHostOut {
+        file "Program.cs" as AppProgram
+        file "appsettings.json" as AppSettings
+    }
+
+    folder "MySolution.ServiceDefaults" as SvcDefaultsOut {
+        file "Extensions.cs" as ExtFile
+    }
+
+    folder "Services" as ServicesOut {
+        folder "OrderService.Api" as OrderApi
+        folder "InventoryService.Api" as InvApi
+    }
+
+    folder "infra" as InfraOut {
+        file "main.bicep" as Bicep
+        file "docker-compose.yml" as Docker
+    }
+}
+
+' Connections
+MSDefs --> MSParser
+Resources --> ResParser
+Deps --> DepParser
+Gateway --> GwParser
+
+MSParser --> Services
+ResParser --> ResourceModels
+DepParser --> DepGraph
+GwParser --> Services
+
+SolModel --> AppHostGen
+SolModel --> SvcDefaultsGen
+Services --> SvcIntGen
+ResourceModels --> InfraGen
+
+AppHostGen --> AppHostOut
+SvcDefaultsGen --> SvcDefaultsOut
+SvcIntGen --> ServicesOut
+InfraGen --> InfraOut
+
+' Notes
+note right of AppHost
+  Aspire orchestrator that:
+  - Defines all resources
+  - Wires service dependencies
+  - Configures endpoints
+end note
+
+note right of SvcDefaults
+  Shared infrastructure:
+  - OpenTelemetry
+  - Health checks
+  - Service discovery
+  - HTTP resilience
+end note
+
+note bottom of InfraOut
+  Deployment artifacts:
+  - Azure Bicep for ACA
+  - Docker Compose for local
+  - K8s for container orchestration
+end note
+
+legend right
+  |= PlantUML Stereotype |= Aspire Resource |
+  | <<postgres>> | AddPostgres() |
+  | <<redis>> | AddRedis() |
+  | <<rabbitmq>> | AddRabbitMQ() |
+  | <<mongodb>> | AddMongoDB() |
+  | <<gateway>> | YARP Project |
+endlegend
+
+@enduml
