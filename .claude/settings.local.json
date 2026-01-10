@@ -5,7 +5,10 @@
       "Bash(git reset:*)",
       "Bash(git restore:*)",
       "Bash(git add:*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet build:*)",
+      "Bash(Select-String -Pattern \"Passed!|Failed!\")"
     ],
     "deny": [],
     "ask": []

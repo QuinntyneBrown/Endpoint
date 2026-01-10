@@ -70,10 +70,17 @@ public class NamingConventionConverter : INamingConventionConverter
         switch (to)
         {
             case NamingConvention.CamelCase:
+                // Handle ALL_CAPS with underscores
+                if (value.All(c => !char.IsLower(c)))
+                {
+                    value = value.ToLower();
+                }
                 value = FirstCharacterUpperAfterADash(value);
                 value = FirstCharacterUpperAfterASpace(value);
+                value = FirstCharacterUpperAfterUnderscore(value);
                 value = value.Replace("-", string.Empty);
                 value = value.Replace(" ", string.Empty);
+                value = value.Replace("_", string.Empty);
                 return value.First().ToString().ToLower() + value.Substring(1);
 
             case NamingConvention.PascalCase:
@@ -109,7 +116,8 @@ public class NamingConventionConverter : INamingConventionConverter
                 }
 
                 var startUnderscores = Regex.Match(value, @"^_+");
-                return startUnderscores + Regex.Replace(value, @"([a-z0-9])([A-Z])", "$1_$2").ToLower();
+                var valueWithoutLeadingUnderscores = value.TrimStart('_');
+                return startUnderscores + Regex.Replace(valueWithoutLeadingUnderscores, @"([a-z0-9])([A-Z])", "$1_$2").ToLower();
         }
 
         return value;
@@ -211,6 +219,39 @@ public class NamingConventionConverter : INamingConventionConverter
         foreach (char c in value.ToList())
         {
             if (c.ToString() == "-")
+            {
+                indexesOfTitleCharacter.Add(index + 1);
+            }
+
+            index++;
+        }
+
+        index = 0;
+        var sb = StringBuilderCache.Acquire();
+        foreach (char c in value.ToList())
+        {
+            if (indexesOfTitleCharacter.Any(x => x == index))
+            {
+                sb.Append(c.ToString().ToUpper());
+            }
+            else
+            {
+                sb.Append(c);
+            }
+
+            index++;
+        }
+
+        return StringBuilderCache.GetStringAndRelease(sb);
+    }
+
+    public string FirstCharacterUpperAfterUnderscore(string value)
+    {
+        List<int> indexesOfTitleCharacter = new List<int>();
+        int index = 0;
+        foreach (char c in value.ToList())
+        {
+            if (c == '_')
             {
                 indexesOfTitleCharacter.Add(index + 1);
             }

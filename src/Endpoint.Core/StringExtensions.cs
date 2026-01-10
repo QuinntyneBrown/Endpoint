@@ -10,8 +10,8 @@ public static class StringExtensions
 {
     public static string RemoveTrivia(this string value)
     {
-        return value.Remove(' ')
-            .Remove(Environment.NewLine);
+        return value.Replace(" ", string.Empty)
+            .Replace(Environment.NewLine, string.Empty);
     }
 
     public static string Indent(this string value, int indent, int spaces = 4)
@@ -35,12 +35,36 @@ public static class StringExtensions
         }
     }
 
-    public static string Remove(this string value, string item) => value.Replace(item, string.Empty);
+    public static string Remove(this string value, string item) => string.IsNullOrEmpty(item) ? value : value.Replace(item, string.Empty);
 
     public static string? GetResourceName(this string[] collection, string name)
-        => collection.SingleOrDefault(x => x.EndsWith(name)) == null ?
-            collection.SingleOrDefault(x => x.EndsWith($".{name}.txt"))
-            : collection.SingleOrDefault(x => x.EndsWith(name));
+    {
+        // First, try to find an exact match with a dot separator
+        var exactMatches = collection.Where(x => x.EndsWith($".{name}")).ToArray();
+        if (exactMatches.Length == 1)
+        {
+            return exactMatches[0];
+        }
+        else if (exactMatches.Length > 1)
+        {
+            // If multiple matches, return the shortest one (most specific)
+            return exactMatches.OrderBy(x => x.Length).First();
+        }
+
+        // If no exact match, try to find with .txt extension
+        var txtMatches = collection.Where(x => x.EndsWith($".{name}.txt")).ToArray();
+        if (txtMatches.Length == 1)
+        {
+            return txtMatches[0];
+        }
+        else if (txtMatches.Length > 1)
+        {
+            // If multiple matches, return the shortest one (most specific)
+            return txtMatches.OrderBy(x => x.Length).First();
+        }
+
+        return null;
+    }
 
     public static Tuple<string, string> GetNameAndType(this string value)
     {
