@@ -1,0 +1,135 @@
+@startuml Example Input - E-Commerce Microservices
+
+!define MICROSERVICE(name) package name <<microservice>>
+!define ENTITY(name) class name <<entity>>
+!define AGGREGATE(name) class name <<aggregate>>
+!define VALUE_OBJECT(name) class name <<valueobject>>
+
+title E-Commerce Microservices Example
+footer Design 1: Basic Architecture
+
+skinparam packageStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam classBackgroundColor #F8F8F8
+skinparam classBorderColor #333333
+skinparam stereotypeCBackgroundColor #ADD8E6
+
+MICROSERVICE(OrderService) #LightBlue {
+    AGGREGATE(Order) {
+        +Guid Id
+        +Guid CustomerId
+        +DateTime CreatedDate
+        +DateTime? CompletedDate
+        +OrderStatus Status
+        +List<OrderItem> Items
+        +decimal TotalAmount
+        --
+        +AddItem(productId, quantity, unitPrice)
+        +RemoveItem(orderItemId)
+        +Submit()
+        +Cancel()
+        +Complete()
+    }
+
+    ENTITY(OrderItem) {
+        +Guid Id
+        +Guid ProductId
+        +string ProductName
+        +int Quantity
+        +decimal UnitPrice
+        +decimal LineTotal
+    }
+
+    VALUE_OBJECT(OrderStatus) {
+        +string Value
+        --
+        {static} +Pending()
+        {static} +Submitted()
+        {static} +Processing()
+        {static} +Completed()
+        {static} +Cancelled()
+    }
+
+    VALUE_OBJECT(Money) {
+        +decimal Amount
+        +string Currency
+    }
+}
+
+MICROSERVICE(InventoryService) #LightGreen {
+    AGGREGATE(Product) {
+        +Guid Id
+        +string Sku
+        +string Name
+        +string Description
+        +decimal Price
+        +int StockQuantity
+        +int ReservedQuantity
+        +bool IsAvailable
+        --
+        +UpdatePrice(newPrice)
+        +ReserveStock(quantity)
+        +ReleaseStock(quantity)
+        +AdjustInventory(adjustment)
+    }
+
+    ENTITY(StockMovement) {
+        +Guid Id
+        +Guid ProductId
+        +int Quantity
+        +MovementType Type
+        +DateTime MovementDate
+        +string Reason
+    }
+
+    VALUE_OBJECT(MovementType) {
+        +string Value
+        --
+        {static} +Receipt()
+        {static} +Reservation()
+        {static} +Release()
+        {static} +Adjustment()
+    }
+}
+
+MICROSERVICE(CustomerService) #LightYellow {
+    AGGREGATE(Customer) {
+        +Guid Id
+        +string Email
+        +string FirstName
+        +string LastName
+        +Address BillingAddress
+        +Address ShippingAddress
+        +List<PaymentMethod> PaymentMethods
+        +bool IsActive
+        --
+        +UpdateProfile(firstName, lastName)
+        +AddPaymentMethod(paymentMethod)
+        +RemovePaymentMethod(paymentMethodId)
+        +Deactivate()
+    }
+
+    VALUE_OBJECT(Address) {
+        +string Street
+        +string City
+        +string State
+        +string PostalCode
+        +string Country
+    }
+
+    ENTITY(PaymentMethod) {
+        +Guid Id
+        +PaymentType Type
+        +string Last4Digits
+        +DateTime ExpiryDate
+        +bool IsDefault
+    }
+}
+
+' Relationships between services (for documentation only)
+note "Inter-service communication\nvia message bus" as N1
+OrderService .. N1
+InventoryService .. N1
+CustomerService .. N1
+
+@enduml

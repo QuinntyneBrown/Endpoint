@@ -1,0 +1,87 @@
+@startuml Basic Architecture - PlantUML to Microservices
+
+!define RECTANGLE class
+
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+title Design 1: Basic Architecture\nPlantUML to Clean Architecture Microservices
+
+package "Input Layer" #LightBlue {
+    [PlantUML Document] as PUML
+    note right of PUML
+        @startuml
+        package OrderService <<microservice>> {
+            class Order <<aggregate>> { }
+        }
+        @enduml
+    end note
+}
+
+package "Parsing Layer" #LightGreen {
+    [PlantUML Tokenizer] as Tokenizer
+    [Package Parser] as PackageParser
+    [Class Parser] as ClassParser
+    [Stereotype Detector] as StereoDetector
+
+    Tokenizer --> PackageParser
+    PackageParser --> ClassParser
+    ClassParser --> StereoDetector
+}
+
+package "Model Layer" #LightYellow {
+    [SolutionModel] as SolModel
+    [MicroserviceModel] as MicroModel
+    [ProjectModel] as ProjModel
+    [ClassModel] as ClsModel
+    [AggregateModel] as AggModel
+    [EntityModel] as EntModel
+    [ValueObjectModel] as VOModel
+
+    SolModel --> MicroModel
+    MicroModel --> ProjModel
+    MicroModel --> AggModel
+    MicroModel --> EntModel
+    MicroModel --> VOModel
+    ProjModel --> ClsModel
+}
+
+package "Generation Layer" #LightCoral {
+    [SolutionGenerationStrategy] as SolGen
+    [ProjectGenerationStrategy] as ProjGen
+    [ClassGenerationStrategy] as ClsGen
+    [TemplateProcessor] as Template
+
+    SolGen --> ProjGen
+    ProjGen --> ClsGen
+    ClsGen --> Template
+}
+
+package "Output Layer" #LightGray {
+    folder "Generated Solution" as Output {
+        folder "src" {
+            folder "OrderService.Domain" as Domain
+            folder "OrderService.Application" as App
+            folder "OrderService.Infrastructure" as Infra
+            folder "OrderService.Api" as Api
+        }
+    }
+}
+
+PUML --> Tokenizer : Parse
+StereoDetector --> SolModel : Build Models
+ClsModel --> SolGen : Generate
+Template --> Output : Write Files
+
+legend right
+    |= Layer |= Responsibility |
+    | Input | PlantUML source files |
+    | Parsing | Tokenize and extract structures |
+    | Model | In-memory representations |
+    | Generation | Code generation strategies |
+    | Output | Generated solution files |
+endlegend
+
+@enduml
