@@ -1,0 +1,126 @@
+@startuml Aspire Orchestration Architecture
+
+!theme plain
+skinparam backgroundColor white
+skinparam cloudStyle rectangle
+
+title .NET Aspire Distributed Application Architecture
+
+cloud "Aspire AppHost" {
+    component "DistributedApplication" as DA {
+        [Resource Orchestration]
+        [Service Discovery]
+        [Configuration]
+    }
+}
+
+package "Application Services" {
+    component "API Service" as API {
+        [Controllers]
+        [MediatR Handlers]
+        port "HTTP :5000" as apiHttp
+        port "HTTPS :5001" as apiHttps
+    }
+
+    component "Worker Service" as Worker {
+        [Background Jobs]
+        [Message Handlers]
+    }
+
+    component "Angular Frontend" as Angular {
+        [SPA Application]
+        port "HTTP :4200" as angularHttp
+    }
+}
+
+package "Infrastructure Resources" {
+    database "SQL Server" as SQL {
+        [ecommerce-db]
+        port ":1433" as sqlPort
+    }
+
+    database "Redis Cache" as Redis {
+        [Distributed Cache]
+        port ":6379" as redisPort
+    }
+
+    queue "RabbitMQ" as RabbitMQ {
+        [Message Broker]
+        port ":5672" as mqPort
+        port ":15672" as mqMgmt
+    }
+}
+
+package "Observability" {
+    component "OpenTelemetry" as OTel {
+        [Traces]
+        [Metrics]
+        [Logs]
+    }
+
+    component "Aspire Dashboard" as Dashboard {
+        [Resource Monitoring]
+        [Log Aggregation]
+        [Trace Visualization]
+        port ":18888" as dashPort
+    }
+}
+
+package "ServiceDefaults" {
+    component "Extensions" as Ext {
+        [AddServiceDefaults()]
+        [ConfigureOpenTelemetry()]
+        [AddDefaultHealthChecks()]
+        [MapDefaultEndpoints()]
+    }
+}
+
+' Orchestration relationships
+DA --> API : orchestrates
+DA --> Worker : orchestrates
+DA --> Angular : orchestrates
+DA --> SQL : provisions
+DA --> Redis : provisions
+DA --> RabbitMQ : provisions
+
+' Service connections
+API --> SQL : WithReference
+API --> Redis : WithReference
+API --> RabbitMQ : WithReference
+Worker --> SQL : WithReference
+Worker --> RabbitMQ : WithReference
+Angular --> API : WithReference
+
+' Observability
+API --> OTel : exports
+Worker --> OTel : exports
+OTel --> Dashboard : aggregates
+
+' ServiceDefaults
+API ..> Ext : uses
+Worker ..> Ext : uses
+
+note right of DA
+  Program.cs:
+  var builder = DistributedApplication.CreateBuilder();
+  var sql = builder.AddSqlServer("sql");
+  var api = builder.AddProject<API>("api")
+      .WithReference(sql);
+  builder.Build().Run();
+end note
+
+note bottom of Ext
+  Provides consistent:
+  - Health checks (/health, /alive)
+  - OpenTelemetry configuration
+  - Service discovery
+  - HTTP resilience
+end note
+
+legend right
+  |= Symbol |= Meaning |
+  | --> | Orchestration/Reference |
+  | ..> | Uses/Depends |
+endlegend
+
+@enduml

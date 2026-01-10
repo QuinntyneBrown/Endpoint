@@ -1,0 +1,112 @@
+@startuml N-Tier Solution Architecture
+
+!theme plain
+skinparam backgroundColor white
+skinparam packageStyle rectangle
+
+title N-Tier Clean Architecture Solution Structure
+
+package "Presentation Layer" <<Rectangle>> #lightblue {
+    component "Web API" as WebApi {
+        [Controllers]
+        [Middleware]
+        [Filters]
+    }
+    component "Angular SPA" as Angular {
+        [Components]
+        [Services]
+        [State (NgRx)]
+    }
+    component "gRPC Service" as Grpc
+}
+
+package "Application Layer" <<Rectangle>> #lightgreen {
+    component "Commands" as Cmd {
+        [CreateCommand]
+        [UpdateCommand]
+        [DeleteCommand]
+    }
+    component "Queries" as Qry {
+        [GetQuery]
+        [GetByIdQuery]
+        [SearchQuery]
+    }
+    component "Behaviors" as Bhv {
+        [ValidationBehavior]
+        [LoggingBehavior]
+        [TransactionBehavior]
+    }
+    component "DTOs & Mappings" as DTO
+}
+
+package "Domain Layer" <<Rectangle>> #lightyellow {
+    component "Aggregates" as Agg {
+        [AggregateRoot]
+        [Entities]
+    }
+    component "Value Objects" as VO {
+        [Money]
+        [Address]
+    }
+    component "Domain Events" as Events {
+        [OrderCreated]
+        [OrderCompleted]
+    }
+    component "Interfaces" as Interfaces {
+        [IRepository]
+        [IDomainService]
+    }
+}
+
+package "Infrastructure Layer" <<Rectangle>> #lightcoral {
+    component "Persistence" as Persist {
+        [DbContext]
+        [Configurations]
+        [Migrations]
+    }
+    component "Repositories" as Repos {
+        [OrderRepository]
+        [ProductRepository]
+    }
+    component "External Services" as External {
+        [EmailService]
+        [PaymentGateway]
+    }
+    component "Messaging" as Messaging {
+        [EventPublisher]
+        [MessageConsumer]
+    }
+}
+
+' Dependencies (following Clean Architecture)
+WebApi --> Cmd
+WebApi --> Qry
+Angular ..> WebApi : HTTP
+
+Cmd --> Agg
+Cmd --> Interfaces
+Qry --> Interfaces
+Bhv --> Cmd
+Bhv --> Qry
+
+Agg --> VO
+Agg --> Events
+
+Repos ..|> Interfaces
+Persist --> Agg
+External ..|> Interfaces
+Messaging --> Events
+
+note top of "Domain Layer"
+  Pure domain logic
+  No external dependencies
+  Framework agnostic
+end note
+
+note bottom of "Infrastructure Layer"
+  Implements interfaces
+  External integrations
+  Database access
+end note
+
+@enduml

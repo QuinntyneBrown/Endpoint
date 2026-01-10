@@ -1,0 +1,152 @@
+@startuml Angular Frontend Integration
+
+!theme plain
+skinparam backgroundColor white
+
+title Angular Frontend Generation Architecture
+
+package "PlantUML Models" {
+    class EntityModel {
+        +Name: string
+        +Properties: List
+    }
+    class CommandModel {
+        +Name: string
+        +Properties: List
+    }
+    class QueryModel {
+        +Name: string
+        +ResponseType: string
+    }
+}
+
+package "Type Mapping" {
+    class TypeScriptTypeMapper {
+        +MapCSharpType(type): string
+        +CreateComplexType(class): TSType
+    }
+}
+
+package "Angular Generation" {
+    package "API Client Library" {
+        class ApiService {
+            +getAll(): Observable<T[]>
+            +getById(id): Observable<T>
+            +create(dto): Observable<T>
+            +update(id, dto): Observable<T>
+            +delete(id): Observable<void>
+        }
+        class HttpInterceptors {
+            +AuthInterceptor
+            +ErrorInterceptor
+        }
+    }
+
+    package "Models Library" {
+        class TypeScriptInterface {
+            +export interface Entity
+            +properties with types
+        }
+        class RequestModels {
+            +CreateRequest
+            +UpdateRequest
+        }
+    }
+
+    package "State Library (NgRx)" {
+        class Actions {
+            +loadEntities
+            +loadEntitiesSuccess
+            +createEntity
+            +updateEntity
+            +deleteEntity
+        }
+        class Reducer {
+            +EntityState
+            +initialState
+            +on(action, state)
+        }
+        class Effects {
+            +load$: Observable
+            +create$: Observable
+        }
+        class Selectors {
+            +selectAll
+            +selectById
+            +selectLoading
+        }
+        class Facade {
+            +entities$: Observable
+            +load(): void
+            +create(dto): void
+        }
+    }
+
+    package "Feature Module" {
+        class ListComponent {
+            +items: Signal<T[]>
+            +loading: Signal<bool>
+            +onDelete(id): void
+        }
+        class DetailComponent {
+            +item: Signal<T>
+            +onEdit(): void
+        }
+        class FormComponent {
+            +form: FormGroup
+            +onSubmit(): void
+        }
+    }
+}
+
+package "Angular Workspace" {
+    folder "apps/webapp" {
+        [app.component.ts]
+        [app.routes.ts]
+        folder "features" {
+            [orders/]
+            [products/]
+        }
+    }
+    folder "libs" {
+        [api-client/]
+        [models/]
+        [state/]
+        [ui-components/]
+    }
+}
+
+EntityModel --> TypeScriptTypeMapper
+CommandModel --> TypeScriptTypeMapper
+QueryModel --> TypeScriptTypeMapper
+
+TypeScriptTypeMapper --> TypeScriptInterface
+TypeScriptTypeMapper --> RequestModels
+TypeScriptTypeMapper --> ApiService
+
+ApiService --> Effects
+Actions --> Reducer
+Effects --> Actions
+Reducer --> Selectors
+Facade --> Actions
+Facade --> Selectors
+
+Facade --> ListComponent
+Facade --> DetailComponent
+
+note right of TypeScriptTypeMapper
+  C# to TypeScript mapping:
+  - string -> string
+  - int/decimal -> number
+  - DateTime -> Date
+  - List<T> -> T[]
+  - Guid -> string
+end note
+
+note bottom of Facade
+  Facade provides clean API
+  for components to interact
+  with NgRx store
+end note
+
+@enduml

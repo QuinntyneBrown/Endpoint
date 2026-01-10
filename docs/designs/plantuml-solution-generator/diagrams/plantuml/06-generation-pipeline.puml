@@ -1,0 +1,103 @@
+@startuml Generation Pipeline
+
+!theme plain
+skinparam backgroundColor white
+
+title End-to-End Solution Generation Pipeline
+
+|Input|
+start
+:Read PlantUML File(s);
+:Load Configuration JSON;
+:Load Template Presets;
+
+|Parsing|
+:PlantUML Lexer;
+note right: Tokenize syntax
+:PlantUML Parser;
+note right: Build AST
+:Create PlantUmlDocument;
+
+|Analysis|
+:Semantic Analyzer;
+fork
+    :Resolve Types;
+fork again
+    :Detect Aggregates;
+fork again
+    :Analyze Relationships;
+fork again
+    :Build Dependency Graph;
+end fork
+:Validate Model;
+
+if (Validation Errors?) then (yes)
+    :Report Diagnostics;
+    stop
+else (no)
+endif
+
+:Create SemanticModel;
+
+|Transformation|
+:Architecture Pattern Selector;
+switch (Template)
+case (Clean Architecture)
+    :Create Layer Models;
+case (Microservices)
+    :Create Service Models;
+case (Vertical Slice)
+    :Create Feature Models;
+case (Modular)
+    :Create Module Models;
+endswitch
+
+:Apply Configuration Options;
+fork
+    if (Include Angular?) then (yes)
+        :Create Angular Models;
+    endif
+fork again
+    if (Use Aspire?) then (yes)
+        :Create Aspire Models;
+    endif
+fork again
+    if (Include Docker?) then (yes)
+        :Create Docker Models;
+    endif
+end fork
+
+:Create Generation Plan;
+
+|Generation|
+:Execute Generators;
+fork
+    :Generate Solution File;
+fork again
+    :Generate Projects;
+fork again
+    :Generate Source Files;
+fork again
+    :Generate Configuration;
+end fork
+
+|Post-Processing|
+:Format Generated Code;
+:Install NuGet Packages;
+:Resolve Project References;
+
+if (Verify Build?) then (yes)
+    :Run dotnet build;
+    if (Build Success?) then (yes)
+    else (no)
+        :Report Build Errors;
+        stop
+    endif
+endif
+
+|Output|
+:Write Files to Disk;
+:Generate Summary Report;
+stop
+
+@enduml

@@ -1,0 +1,102 @@
+@startuml Parser Architecture
+
+!theme plain
+skinparam backgroundColor white
+skinparam componentStyle rectangle
+
+title PlantUML Parser & Solution Generator Architecture
+
+package "Input Layer" {
+    [PlantUML File] as PUML
+    [Configuration JSON] as Config
+    [Template Presets] as Templates
+}
+
+package "Parsing Pipeline" {
+    component "PlantUmlLexer" as Lexer {
+        [Tokenize]
+    }
+    component "PlantUmlParser" as Parser {
+        [Build AST]
+    }
+    component "SemanticAnalyzer" as Analyzer {
+        [Type Resolution]
+        [Validation]
+    }
+}
+
+package "AST Models" {
+    class PlantUmlDocument {
+        +Title: string
+        +Namespaces: List
+        +Classes: List
+        +Interfaces: List
+        +Relationships: List
+    }
+
+    class PlantUmlClass {
+        +Name: string
+        +Stereotypes: List
+        +Fields: List
+        +Methods: List
+        +Properties: List
+    }
+
+    class PlantUmlRelationship {
+        +SourceClass: string
+        +TargetClass: string
+        +Type: RelationshipType
+    }
+}
+
+package "Semantic Model" {
+    class SemanticModel {
+        +Types: Dictionary
+        +InheritanceChains: List
+        +BoundedContexts: List
+        +AggregateRoots: List
+        +DependencyGraph: Graph
+    }
+}
+
+package "Solution Generation" {
+    component "SolutionModelFactory" as SolFactory {
+        [Map to Projects]
+        [Configure Layers]
+    }
+
+    component "ArtifactGenerator" as ArtGen {
+        [Generate Files]
+        [Run Commands]
+    }
+}
+
+PUML --> Lexer
+Config --> SolFactory
+Templates --> SolFactory
+
+Lexer --> Parser : Token Stream
+Parser --> PlantUmlDocument
+PlantUmlDocument --> Analyzer
+Analyzer --> SemanticModel
+
+SemanticModel --> SolFactory
+SolFactory --> ArtGen
+
+note right of Lexer
+  Tokenizes PlantUML syntax:
+  - Keywords (class, interface)
+  - Modifiers (+, -, #)
+  - Relationships (<|--, *--)
+  - Stereotypes (<<aggregate>>)
+end note
+
+note right of Analyzer
+  Validates and enriches:
+  - Resolve type references
+  - Detect circular dependencies
+  - Identify aggregate roots
+  - Build dependency graph
+end note
+
+@enduml

@@ -1,0 +1,208 @@
+@startuml ECommerce Domain Model Example
+
+!theme plain
+skinparam backgroundColor white
+
+title Example PlantUML Input - ECommerce Domain
+
+' Stereotypes for code generation hints
+!define AGGREGATE <<aggregate>>
+!define ENTITY <<entity>>
+!define VALUE_OBJECT <<value-object>>
+!define EVENT <<event>>
+!define COMMAND <<command>>
+!define QUERY <<query>>
+!define SERVICE <<service>>
+!define REPOSITORY <<repository>>
+
+package "Orders" <<bounded-context>> {
+
+    class Order AGGREGATE {
+        + id: Guid
+        + customerId: Guid
+        + orderNumber: string
+        + status: OrderStatus
+        + items: List<OrderItem>
+        + shippingAddress: Address
+        + billingAddress: Address
+        + totalAmount: Money
+        + createdAt: DateTime
+        + updatedAt: DateTime
+        --
+        + AddItem(product, quantity): void
+        + RemoveItem(itemId): void
+        + UpdateStatus(status): void
+        + CalculateTotal(): Money
+    }
+
+    class OrderItem ENTITY {
+        + id: Guid
+        + productId: Guid
+        + productName: string
+        + quantity: int
+        + unitPrice: Money
+        + discount: Money
+        --
+        + CalculateSubtotal(): Money
+    }
+
+    class Address VALUE_OBJECT {
+        + street: string
+        + city: string
+        + state: string
+        + country: string
+        + postalCode: string
+    }
+
+    class Money VALUE_OBJECT {
+        + amount: decimal
+        + currency: string
+        --
+        + Add(other: Money): Money
+        + Subtract(other: Money): Money
+    }
+
+    enum OrderStatus {
+        Pending
+        Confirmed
+        Processing
+        Shipped
+        Delivered
+        Cancelled
+    }
+
+    ' Commands
+    class CreateOrderCommand COMMAND {
+        + customerId: Guid
+        + items: List<OrderItemDto>
+        + shippingAddress: AddressDto
+    }
+
+    class UpdateOrderStatusCommand COMMAND {
+        + orderId: Guid
+        + newStatus: OrderStatus
+    }
+
+    ' Queries
+    class GetOrderByIdQuery QUERY {
+        + orderId: Guid
+    }
+
+    class GetOrdersByCustomerQuery QUERY {
+        + customerId: Guid
+        + page: int
+        + pageSize: int
+    }
+
+    ' Events
+    class OrderCreatedEvent EVENT {
+        + orderId: Guid
+        + customerId: Guid
+        + totalAmount: decimal
+        + createdAt: DateTime
+    }
+
+    class OrderStatusChangedEvent EVENT {
+        + orderId: Guid
+        + previousStatus: OrderStatus
+        + newStatus: OrderStatus
+        + changedAt: DateTime
+    }
+
+    ' Repository interface
+    interface IOrderRepository REPOSITORY {
+        + GetByIdAsync(id: Guid): Task<Order>
+        + GetByCustomerAsync(customerId: Guid): Task<List<Order>>
+        + AddAsync(order: Order): Task
+        + UpdateAsync(order: Order): Task
+    }
+
+    ' Relationships
+    Order *-- "1..*" OrderItem : contains
+    Order *-- "1" Address : shippingAddress
+    Order *-- "1" Address : billingAddress
+    Order *-- "1" Money : totalAmount
+    OrderItem *-- "1" Money : unitPrice
+    OrderItem *-- "1" Money : discount
+    Order --> OrderStatus
+
+    Order ..> OrderCreatedEvent : raises
+    Order ..> OrderStatusChangedEvent : raises
+}
+
+package "Catalog" <<bounded-context>> {
+
+    class Product AGGREGATE {
+        + id: Guid
+        + sku: string
+        + name: string
+        + description: string
+        + price: Money
+        + category: Category
+        + stockQuantity: int
+        + isActive: bool
+        --
+        + UpdatePrice(newPrice: Money): void
+        + AdjustStock(quantity: int): void
+    }
+
+    class Category ENTITY {
+        + id: Guid
+        + name: string
+        + parentCategoryId: Guid?
+    }
+
+    class GetProductByIdQuery QUERY {
+        + productId: Guid
+    }
+
+    class SearchProductsQuery QUERY {
+        + searchTerm: string
+        + categoryId: Guid?
+        + minPrice: decimal?
+        + maxPrice: decimal?
+        + page: int
+        + pageSize: int
+    }
+
+    class ReserveStockCommand COMMAND {
+        + productId: Guid
+        + quantity: int
+        + orderId: Guid
+    }
+
+    class StockReservedEvent EVENT {
+        + productId: Guid
+        + orderId: Guid
+        + quantity: int
+        + reservedAt: DateTime
+    }
+
+    Product *-- Money : price
+    Product --> Category
+
+    Product ..> StockReservedEvent : raises
+}
+
+' Cross-bounded context relationships
+OrderCreatedEvent ..> ReserveStockCommand : triggers
+StockReservedEvent ..> OrderStatusChangedEvent : triggers
+
+note as N1
+  This PlantUML diagram generates:
+  - 2 Microservices (Orders, Catalog)
+  - Domain entities with relationships
+  - CQRS commands and queries
+  - Domain events for messaging
+  - Repository interfaces
+
+  Stereotypes control generation:
+  - <<aggregate>> -> AggregateRoot base
+  - <<entity>> -> Entity base
+  - <<value-object>> -> IEquatable
+  - <<command>> -> IRequest<T>
+  - <<query>> -> IRequest<T>
+  - <<event>> -> INotification
+end note
+
+@enduml

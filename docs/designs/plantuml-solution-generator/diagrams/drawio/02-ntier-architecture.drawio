@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2024-01-01T00:00:00.000Z" agent="Mozilla/5.0" version="21.0.0" type="device">
+  <diagram name="N-Tier Architecture" id="ntier-arch">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1000" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="N-Tier Clean Architecture Solution Structure" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Presentation Layer -->
+        <mxCell id="presentation" value="Presentation Layer" style="swimlane;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1000" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="webapi" value="Web API&#xa;&#xa;Controllers&#xa;Middleware&#xa;Filters" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="presentation">
+          <mxGeometry x="40" y="40" width="120" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="angular" value="Angular SPA&#xa;&#xa;Components&#xa;Services&#xa;NgRx State" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="presentation">
+          <mxGeometry x="200" y="40" width="120" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="grpc" value="gRPC Service&#xa;&#xa;Proto Defs&#xa;Services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="presentation">
+          <mxGeometry x="360" y="40" width="120" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="graphql" value="GraphQL&#xa;&#xa;Schema&#xa;Resolvers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="presentation">
+          <mxGeometry x="520" y="40" width="120" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Application Layer -->
+        <mxCell id="application" value="Application Layer" style="swimlane;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="1000" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="commands" value="Commands&#xa;&#xa;CreateCommand&#xa;UpdateCommand&#xa;DeleteCommand" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="application">
+          <mxGeometry x="40" y="40" width="140" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="queries" value="Queries&#xa;&#xa;GetQuery&#xa;GetByIdQuery&#xa;SearchQuery" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="application">
+          <mxGeometry x="220" y="40" width="140" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="behaviors" value="Behaviors&#xa;&#xa;ValidationBehavior&#xa;LoggingBehavior&#xa;TransactionBehavior" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="application">
+          <mxGeometry x="400" y="40" width="160" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dtos" value="DTOs &amp; Mappings&#xa;&#xa;AutoMapper&#xa;Profiles" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="application">
+          <mxGeometry x="600" y="40" width="140" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Domain Layer -->
+        <mxCell id="domain" value="Domain Layer" style="swimlane;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="1000" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="aggregates" value="Aggregates&#xa;&#xa;AggregateRoot&#xa;Entities" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="domain">
+          <mxGeometry x="40" y="40" width="120" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="valueobjects" value="Value Objects&#xa;&#xa;Money&#xa;Address&#xa;DateRange" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="domain">
+          <mxGeometry x="200" y="40" width="120" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="events" value="Domain Events&#xa;&#xa;OrderCreated&#xa;OrderCompleted&#xa;PaymentReceived" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="domain">
+          <mxGeometry x="360" y="40" width="140" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="interfaces" value="Interfaces&#xa;&#xa;IRepository&lt;T&gt;&#xa;IDomainService&#xa;IUnitOfWork" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="domain">
+          <mxGeometry x="540" y="40" width="140" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="enums" value="Enumerations&#xa;&#xa;OrderStatus&#xa;PaymentType" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="domain">
+          <mxGeometry x="720" y="40" width="120" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Infrastructure Layer -->
+        <mxCell id="infrastructure" value="Infrastructure Layer" style="swimlane;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="40" y="560" width="1000" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="persistence" value="Persistence&#xa;&#xa;DbContext&#xa;Configurations&#xa;Migrations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="infrastructure">
+          <mxGeometry x="40" y="40" width="130" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="repositories" value="Repositories&#xa;&#xa;OrderRepository&#xa;ProductRepository&#xa;CustomerRepository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="infrastructure">
+          <mxGeometry x="200" y="40" width="150" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="external" value="External Services&#xa;&#xa;EmailService&#xa;PaymentGateway&#xa;NotificationService" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="infrastructure">
+          <mxGeometry x="380" y="40" width="150" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="messaging" value="Messaging&#xa;&#xa;EventPublisher&#xa;MessageConsumer&#xa;RabbitMQ/ServiceBus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="infrastructure">
+          <mxGeometry x="560" y="40" width="160" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="caching" value="Caching&#xa;&#xa;Redis&#xa;MemoryCache&#xa;DistributedCache" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="infrastructure">
+          <mxGeometry x="750" y="40" width="130" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Testing Layer -->
+        <mxCell id="testing" value="Testing Layer" style="swimlane;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;startSize=30;" vertex="1" parent="1">
+          <mxGeometry x="40" y="720" width="1000" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="unit-tests" value="Unit Tests&#xa;(xUnit + NSubstitute)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="testing">
+          <mxGeometry x="40" y="40" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="integration-tests" value="Integration Tests&#xa;(TestContainers)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="testing">
+          <mxGeometry x="220" y="40" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="arch-tests" value="Architecture Tests&#xa;(NetArchTest)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="testing">
+          <mxGeometry x="400" y="40" width="150" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e2e-tests" value="E2E Tests&#xa;(Playwright)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="testing">
+          <mxGeometry x="580" y="40" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Dependency Arrows -->
+        <mxCell id="dep1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="presentation" target="application">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dep2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="application" target="domain">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dep3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeWidth=2;strokeColor=#666666;" edge="1" parent="1" source="infrastructure" target="domain">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1060" y="630" />
+              <mxPoint x="1060" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Notes -->
+        <mxCell id="note1" value="Pure Domain Logic&#xa;No External Dependencies" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;size=15;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="880" y="400" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="note2" value="Implements Domain&#xa;Interfaces" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#f8cecc;strokeColor=#b85450;size=15;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="920" y="560" width="120" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

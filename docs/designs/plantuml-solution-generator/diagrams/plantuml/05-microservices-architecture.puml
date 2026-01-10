@@ -1,0 +1,148 @@
+@startuml Microservices Architecture
+
+!theme plain
+skinparam backgroundColor white
+
+title Message-Based Microservices Architecture
+
+package "API Gateway" {
+    component "YARP Gateway" as Gateway {
+        [Route Management]
+        [Load Balancing]
+        [Auth Forwarding]
+    }
+}
+
+package "Orders Microservice" <<bounded context>> #lightblue {
+    component "Orders.Api" as OrdersApi {
+        [OrdersController]
+        port "HTTP" as oHttp
+    }
+    component "Orders.Application" as OrdersApp {
+        [CreateOrderHandler]
+        [GetOrderHandler]
+        [OrderCreatedEventHandler]
+    }
+    component "Orders.Domain" as OrdersDomain {
+        [Order : AggregateRoot]
+        [OrderItem : Entity]
+        [Money : ValueObject]
+    }
+    component "Orders.Infrastructure" as OrdersInfra {
+        [OrderRepository]
+        [OrdersDbContext]
+    }
+    database "Orders DB" as OrdersDB
+
+    OrdersApi --> OrdersApp
+    OrdersApp --> OrdersDomain
+    OrdersApp --> OrdersInfra
+    OrdersInfra --> OrdersDB
+}
+
+package "Inventory Microservice" <<bounded context>> #lightgreen {
+    component "Inventory.Api" as InventoryApi {
+        [ProductsController]
+        port "HTTP" as iHttp
+    }
+    component "Inventory.Application" as InventoryApp {
+        [ReserveStockHandler]
+        [StockReservedEventHandler]
+    }
+    component "Inventory.Domain" as InventoryDomain {
+        [Product : AggregateRoot]
+        [StockLevel : ValueObject]
+    }
+    component "Inventory.Infrastructure" as InventoryInfra {
+        [ProductRepository]
+        [InventoryDbContext]
+    }
+    database "Inventory DB" as InventoryDB
+
+    InventoryApi --> InventoryApp
+    InventoryApp --> InventoryDomain
+    InventoryApp --> InventoryInfra
+    InventoryInfra --> InventoryDB
+}
+
+package "Notifications Microservice" <<bounded context>> #lightyellow {
+    component "Notifications.Worker" as NotifWorker {
+        [EmailNotificationHandler]
+        [SmsNotificationHandler]
+    }
+    component "Notifications.Infrastructure" as NotifInfra {
+        [EmailService]
+        [SmsService]
+    }
+
+    NotifWorker --> NotifInfra
+}
+
+package "Shared Kernel" #lightgray {
+    component "Events" as SharedEvents {
+        [OrderCreatedEvent]
+        [StockReservedEvent]
+        [PaymentCompletedEvent]
+    }
+    component "Commands" as SharedCmds {
+        [ReserveStockCommand]
+        [SendNotificationCommand]
+    }
+    component "Common" as Common {
+        [IMessage]
+        [IEvent]
+        [ICommand]
+    }
+}
+
+queue "Message Bus (RabbitMQ)" as MessageBus {
+    [orders.created]
+    [stock.reserved]
+    [notifications]
+}
+
+cloud "Aspire AppHost" as Aspire {
+    [Orchestration]
+}
+
+' Gateway routing
+Gateway --> OrdersApi : /api/orders
+Gateway --> InventoryApi : /api/products
+
+' Event flows
+OrdersApp ..> MessageBus : publish OrderCreatedEvent
+MessageBus ..> InventoryApp : consume OrderCreatedEvent
+InventoryApp ..> MessageBus : publish StockReservedEvent
+MessageBus ..> NotifWorker : consume StockReservedEvent
+
+' Shared kernel dependencies
+OrdersApp ..> SharedEvents
+InventoryApp ..> SharedEvents
+NotifWorker ..> SharedEvents
+OrdersApp ..> SharedCmds
+InventoryApp ..> SharedCmds
+
+' Aspire orchestration
+Aspire --> Gateway
+Aspire --> OrdersApi
+Aspire --> InventoryApi
+Aspire --> NotifWorker
+Aspire --> MessageBus
+
+note right of MessageBus
+  Message Flow:
+  1. OrderCreatedEvent published
+  2. Inventory reserves stock
+  3. StockReservedEvent published
+  4. Notification sent to customer
+end note
+
+note bottom of "Shared Kernel"
+  Contains only:
+  - Contracts (Events, Commands)
+  - Common interfaces
+  - Shared value objects
+  NO business logic
+end note
+
+@enduml
