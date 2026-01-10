@@ -1,0 +1,461 @@
+@startuml DDD Bounded Contexts Example
+
+!define CONTEXT(name) package name <<context>>
+!define AGGREGATE(name) class name <<aggregate>>
+!define ENTITY(name) class name <<entity>>
+!define VALUE_OBJECT(name) class name <<valueobject>>
+!define DOMAIN_SERVICE(name) class name <<service>>
+!define DOMAIN_EVENT(name) class name <<domain-event>>
+!define REPOSITORY(name) interface name <<repository>>
+!define FACTORY(name) class name <<factory>>
+!define ACL(name) class name <<anticorruption-layer>>
+!define SPECIFICATION(name) class name <<specification>>
+
+title Domain-Driven Design - E-Commerce Platform
+footer Design 4: DDD-Focused Example
+
+skinparam packageStyle rectangle
+skinparam backgroundColor #FFFFFF
+
+' ========================================
+' CONTEXT MAP (Strategic Design)
+' ========================================
+package "Strategic Design - Context Map" <<strategic>> #F5F5F5 {
+    note as ContextMap
+        **Bounded Context Relationships:**
+
+        [Order Context] <--> [Inventory Context]
+            Relationship: Partnership
+            Integration: Shared Events
+
+        [Order Context] --> [Shipping Context]
+            Relationship: Customer-Supplier
+            Integration: Downstream Consumer
+
+        [Order Context] --> [Payment Context]
+            Relationship: Conformist
+            Integration: External API
+
+        [Customer Context] --> [Order Context]
+            Relationship: Open Host Service
+            Integration: Published Language
+
+        [Inventory Context] <..> [Catalog Context]
+            Relationship: Anti-Corruption Layer
+            Integration: External Catalog System
+    end note
+}
+
+' ========================================
+' ORDER CONTEXT (Core Domain)
+' ========================================
+CONTEXT(OrderContext) #E3F2FD {
+    note "Core Domain\nStrategic Importance: High" as OrderNote
+
+    ' ---------- Aggregate: Order ----------
+    AGGREGATE(Order) {
+        <<identity>>
+        -OrderId _id
+        -CustomerId _customerId
+        -OrderStatus _status
+        -Money _totalAmount
+        -List<OrderLine> _lines
+        -List<IDomainEvent> _domainEvents
+        ==invariants==
+        #Must have at least one line to submit
+        #Cannot modify after submission
+        #Total must match line calculations
+        ==behavior==
+        +{static} Create(customerId): Order
+        +AddLine(productId, quantity, unitPrice)
+        +RemoveLine(orderLineId)
+        +UpdateLineQuantity(orderLineId, quantity)
+        +ApplyDiscount(discount)
+        +Submit()
+        +Cancel(reason)
+        +MarkAsPaid()
+    }
+
+    ENTITY(OrderLine) {
+        -OrderLineId _id
+        -ProductId _productId
+        -Quantity _quantity
+        -Money _unitPrice
+        -Money _discount
+        --
+        +GetLineTotal(): Money
+        +IncreaseQuantity(amount)
+        +DecreaseQuantity(amount)
+        +ApplyDiscount(discount)
+    }
+
+    ' ---------- Value Objects ----------
+    VALUE_OBJECT(OrderId) {
+        +Guid Value
+        ==
+        +{static} New(): OrderId
+        +{static} From(guid): OrderId
+        +ToString(): string
+    }
+
+    VALUE_OBJECT(Money) {
+        +decimal Amount
+        +Currency Currency
+        ==
+        +{static} Zero: Money
+        +{static} Create(amount, currency): Money
+        +Add(other): Money
+        +Subtract(other): Money
+        +Multiply(factor): Money
+        +IsPositive(): bool
+        +operator +(a, b): Money
+        +operator -(a, b): Money
+    }
+
+    VALUE_OBJECT(OrderStatus) {
+        +string Value
+        ==
+        +{static} Draft: OrderStatus
+        +{static} Submitted: OrderStatus
+        +{static} Paid: OrderStatus
+        +{static} Shipped: OrderStatus
+        +{static} Delivered: OrderStatus
+        +{static} Cancelled: OrderStatus
+        +CanTransitionTo(status): bool
+    }
+
+    VALUE_OBJECT(Quantity) {
+        +int Value
+        ==
+        +{static} Create(value): Quantity
+        +Add(other): Quantity
+        +Subtract(other): Quantity
+        +IsAvailable(required): bool
+    }
+
+    VALUE_OBJECT(Discount) {
+        +decimal Percentage
+        +Money MaxAmount
+        ==
+        +Apply(money): Money
+        +IsValid(): bool
+    }
+
+    ' ---------- Domain Events ----------
+    DOMAIN_EVENT(OrderCreated) {
+        +OrderId OrderId
+        +CustomerId CustomerId
+        +DateTime CreatedAt
+    }
+
+    DOMAIN_EVENT(OrderLineAdded) {
+        +OrderId OrderId
+        +OrderLineId LineId
+        +ProductId ProductId
+        +Quantity Quantity
+    }
+
+    DOMAIN_EVENT(OrderSubmitted) {
+        +OrderId OrderId
+        +CustomerId CustomerId
+        +Money TotalAmount
+        +List<OrderLineSnapshot> Lines
+        +DateTime SubmittedAt
+    }
+
+    DOMAIN_EVENT(OrderCancelled) {
+        +OrderId OrderId
+        +string Reason
+        +DateTime CancelledAt
+    }
+
+    DOMAIN_EVENT(OrderPaid) {
+        +OrderId OrderId
+        +PaymentId PaymentId
+        +Money Amount
+    }
+
+    ' ---------- Repository ----------
+    REPOSITORY(IOrderRepository) {
+        +GetByIdAsync(orderId): Order
+        +GetByCustomerIdAsync(customerId): List<Order>
+        +SaveAsync(order): void
+        +DeleteAsync(order): void
+        +ExistsAsync(orderId): bool
+    }
+
+    ' ---------- Factory ----------
+    FACTORY(OrderFactory) {
+        +Create(customerId): Order
+        +CreateWithLines(customerId, lines): Order
+        +Reconstitute(snapshot): Order
+    }
+
+    ' ---------- Domain Service ----------
+    DOMAIN_SERVICE(OrderPricingService) {
+        +CalculateTotal(order): Money
+        +ApplyPromotions(order, promotions): void
+        +ValidatePricing(order): bool
+    }
+
+    ' ---------- Specification ----------
+    SPECIFICATION(OrderReadyForShipmentSpec) {
+        +IsSatisfiedBy(order): bool
+    }
+
+    SPECIFICATION(OrderCancellableSpec) {
+        +IsSatisfiedBy(order): bool
+    }
+}
+
+' ========================================
+' INVENTORY CONTEXT (Supporting Domain)
+' ========================================
+CONTEXT(InventoryContext) #E8F5E9 {
+    note "Supporting Domain\nStrategic Importance: Medium" as InvNote
+
+    AGGREGATE(StockItem) {
+        <<identity>>
+        -StockItemId _id
+        -ProductId _productId
+        -Quantity _available
+        -Quantity _reserved
+        -List<Reservation> _reservations
+        ==invariants==
+        #Available >= 0
+        #Reserved <= Available + Reserved
+        ==behavior==
+        +Reserve(quantity, correlationId): Reservation
+        +Release(correlationId)
+        +ConfirmReservation(correlationId)
+        +Replenish(quantity)
+        +GetAvailableQuantity(): Quantity
+    }
+
+    ENTITY(Reservation) {
+        -ReservationId _id
+        -string _correlationId
+        -Quantity _quantity
+        -DateTime _expiresAt
+        -ReservationStatus _status
+        --
+        +IsExpired(): bool
+        +Confirm()
+        +Cancel()
+    }
+
+    VALUE_OBJECT(StockItemId) {
+        +Guid Value
+    }
+
+    VALUE_OBJECT(ReservationStatus) {
+        +string Value
+        ==
+        +{static} Pending
+        +{static} Confirmed
+        +{static} Released
+        +{static} Expired
+    }
+
+    DOMAIN_EVENT(StockReserved) {
+        +StockItemId StockItemId
+        +string CorrelationId
+        +Quantity Quantity
+    }
+
+    DOMAIN_EVENT(StockReleased) {
+        +StockItemId StockItemId
+        +string CorrelationId
+        +Quantity Quantity
+    }
+
+    DOMAIN_EVENT(StockReplenished) {
+        +StockItemId StockItemId
+        +Quantity Quantity
+        +Quantity NewTotal
+    }
+
+    REPOSITORY(IStockItemRepository) {
+        +GetByProductIdAsync(productId): StockItem
+        +SaveAsync(stockItem): void
+        +GetLowStockItemsAsync(threshold): List<StockItem>
+    }
+
+    ' Anti-Corruption Layer for external catalog
+    ACL(CatalogContextAdapter) {
+        -ICatalogApiClient _catalogClient
+        --
+        +GetProductInfo(productId): ProductInfo
+        +TranslateToInternalModel(externalProduct): ProductId
+        +SyncProductCatalog(): void
+    }
+}
+
+' ========================================
+' SHIPPING CONTEXT (Supporting Domain)
+' ========================================
+CONTEXT(ShippingContext) #FFF8E1 {
+    note "Supporting Domain\nStrategic Importance: Medium" as ShipNote
+
+    AGGREGATE(Shipment) {
+        <<identity>>
+        -ShipmentId _id
+        -OrderId _orderId
+        -Address _origin
+        -Address _destination
+        -ShipmentStatus _status
+        -CarrierId _carrierId
+        -TrackingNumber _tracking
+        -List<ShipmentEvent> _events
+        ==behavior==
+        +Schedule(carrier, estimatedDelivery)
+        +PickUp()
+        +UpdateLocation(location)
+        +Deliver()
+        +FailDelivery(reason)
+    }
+
+    ENTITY(ShipmentEvent) {
+        -DateTime _timestamp
+        -string _description
+        -Location _location
+    }
+
+    VALUE_OBJECT(Address) {
+        +string Street
+        +string City
+        +string State
+        +string PostalCode
+        +string Country
+        ==
+        +Validate(): bool
+        +Format(): string
+        +GetGeoCoordinates(): GeoCoordinates
+    }
+
+    VALUE_OBJECT(TrackingNumber) {
+        +string Value
+        +CarrierId Carrier
+        ==
+        +{static} Generate(carrier): TrackingNumber
+        +GetTrackingUrl(): string
+    }
+
+    VALUE_OBJECT(ShipmentStatus) {
+        +{static} Pending
+        +{static} Scheduled
+        +{static} PickedUp
+        +{static} InTransit
+        +{static} OutForDelivery
+        +{static} Delivered
+        +{static} Failed
+    }
+
+    DOMAIN_EVENT(ShipmentScheduled) {
+        +ShipmentId ShipmentId
+        +OrderId OrderId
+        +DateTime EstimatedDelivery
+    }
+
+    DOMAIN_EVENT(ShipmentDelivered) {
+        +ShipmentId ShipmentId
+        +OrderId OrderId
+        +DateTime DeliveredAt
+        +string ReceivedBy
+    }
+
+    REPOSITORY(IShipmentRepository) {
+        +GetByOrderIdAsync(orderId): Shipment
+        +GetPendingShipmentsAsync(): List<Shipment>
+        +SaveAsync(shipment): void
+    }
+}
+
+' ========================================
+' CUSTOMER CONTEXT (Generic Domain)
+' ========================================
+CONTEXT(CustomerContext) #FCE4EC {
+    note "Generic Domain\nStrategic Importance: Low\nPublishes Open Host Service" as CustNote
+
+    AGGREGATE(Customer) {
+        <<identity>>
+        -CustomerId _id
+        -Email _email
+        -PersonName _name
+        -Address _billingAddress
+        -Address _shippingAddress
+        -CustomerStatus _status
+        ==behavior==
+        +Register(email, name)
+        +UpdateProfile(name)
+        +UpdateAddresses(billing, shipping)
+        +Deactivate()
+    }
+
+    VALUE_OBJECT(CustomerId) {
+        +Guid Value
+    }
+
+    VALUE_OBJECT(Email) {
+        +string Value
+        ==
+        +Validate(): bool
+        +GetDomain(): string
+    }
+
+    VALUE_OBJECT(PersonName) {
+        +string FirstName
+        +string LastName
+        ==
+        +GetFullName(): string
+    }
+
+    DOMAIN_EVENT(CustomerRegistered) {
+        +CustomerId CustomerId
+        +Email Email
+        +DateTime RegisteredAt
+    }
+
+    REPOSITORY(ICustomerRepository) {
+        +GetByIdAsync(customerId): Customer
+        +GetByEmailAsync(email): Customer
+        +SaveAsync(customer): void
+    }
+
+    ' Open Host Service - Published Language
+    package "Open Host Service" <<ohs>> #F8BBD0 {
+        class CustomerDto <<published-language>> {
+            +Guid Id
+            +string Email
+            +string FullName
+            +AddressDto BillingAddress
+            +AddressDto ShippingAddress
+        }
+
+        interface ICustomerQueryService <<published-language>> {
+            +GetCustomerById(id): CustomerDto
+            +GetCustomerByEmail(email): CustomerDto
+        }
+    }
+}
+
+' ========================================
+' CONTEXT RELATIONSHIPS
+' ========================================
+
+' Partnership
+OrderContext <--> InventoryContext : Partnership\n(Shared Events)
+
+' Customer-Supplier
+OrderContext --> ShippingContext : Customer-Supplier\n(Downstream)
+
+' Open Host Service
+CustomerContext -|> OrderContext : Open Host Service\n(Published Language)
+
+' Anti-Corruption Layer
+InventoryContext ..> CatalogContextAdapter : uses ACL
+
+' Shared Kernel (conceptual)
+note "Shared Kernel:\n- Money value object\n- Address value object\n- Common domain events" as SharedKernelNote
+
+@enduml

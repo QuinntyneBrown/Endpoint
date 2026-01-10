@@ -1,0 +1,177 @@
+@startuml DDD Context Map
+
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam packageStyle rectangle
+
+title Design 4: DDD Context Map\nStrategic Design with Bounded Contexts
+
+' Define stereotypes for context types
+!define CORE_DOMAIN(name) package name <<core>> #E3F2FD
+!define SUPPORTING_DOMAIN(name) package name <<supporting>> #E8F5E9
+!define GENERIC_DOMAIN(name) package name <<generic>> #FFF3E0
+
+' PlantUML Input Processing
+package "PlantUML Input" #LightGray {
+    rectangle "Bounded Context\nDefinitions" as CtxDef
+    rectangle "Aggregate\nRoots" as AggDef
+    rectangle "Value\nObjects" as VODef
+    rectangle "Context\nMappings" as MapDef
+}
+
+' Parsing Layer
+package "DDD Parser Extensions" #LightGreen {
+    rectangle "BoundedContextParser" as CtxParser {
+        rectangle "Package Parser"
+        rectangle "Stereotype Detector"
+    }
+    rectangle "TacticalPatternParser" as TacParser {
+        rectangle "Aggregate Parser"
+        rectangle "Entity Parser"
+        rectangle "ValueObject Parser"
+        rectangle "Domain Event Parser"
+    }
+    rectangle "ContextMappingParser" as MapParser {
+        rectangle "Relationship Parser"
+        rectangle "ACL Detector"
+        rectangle "OHS Detector"
+    }
+}
+
+' Model Layer
+package "DDD Models" #LightYellow {
+    rectangle "ContextMapModel" as CtxMapModel {
+        rectangle "BoundedContextModel[]" as Contexts
+        rectangle "ContextRelationship[]" as Relations
+    }
+
+    rectangle "BoundedContextModel" as CtxModel {
+        rectangle "ContextType" as CtxType
+        rectangle "AggregateModel[]" as Aggs
+        rectangle "DomainEventModel[]" as Events
+    }
+
+    rectangle "AggregateModel" as AggModel {
+        rectangle "Identity" as Id
+        rectangle "EntityModel[]" as Entities
+        rectangle "ValueObjectModel[]" as VOs
+        rectangle "InvariantModel[]" as Invs
+    }
+
+    rectangle "ContextRelationship" as RelModel {
+        rectangle "Upstream Context"
+        rectangle "Downstream Context"
+        rectangle "MappingType"
+    }
+}
+
+' Generation Layer
+package "DDD Code Generation" #LightCoral {
+    rectangle "SharedKernelGenerator" as SharedGen {
+        rectangle "IAggregateRoot"
+        rectangle "IEntity"
+        rectangle "ValueObject<T>"
+        rectangle "IDomainEvent"
+    }
+
+    rectangle "BoundedContextGenerator" as CtxGen {
+        rectangle "Domain Layer" as DomainGen
+        rectangle "Application Layer" as AppGen
+        rectangle "Infrastructure Layer" as InfraGen
+        rectangle "API Layer" as ApiGen
+    }
+
+    rectangle "AggregateGenerator" as AggGen {
+        rectangle "Private Setters"
+        rectangle "Factory Methods"
+        rectangle "Invariant Guards"
+        rectangle "Event Publishing"
+    }
+
+    rectangle "ContextMappingGenerator" as MapGen {
+        rectangle "ACL Generator"
+        rectangle "OHS Generator"
+        rectangle "Shared Kernel Linker"
+    }
+}
+
+' Output
+package "Generated Solution" #LightGray {
+    folder "SharedKernel" as SK {
+        file "IAggregateRoot.cs"
+        file "ValueObject.cs"
+    }
+
+    folder "Contexts" as Ctxs {
+        folder "OrderContext" as OC {
+            folder "Domain" as OCD
+            folder "Application" as OCA
+            folder "Infrastructure" as OCI
+            folder "Api" as OCAPI
+        }
+        folder "InventoryContext" as IC
+        folder "ShippingContext" as SC
+    }
+}
+
+' Connections
+CtxDef --> CtxParser
+AggDef --> TacParser
+VODef --> TacParser
+MapDef --> MapParser
+
+CtxParser --> Contexts
+TacParser --> Aggs
+MapParser --> Relations
+
+CtxMapModel --> SharedGen
+CtxModel --> CtxGen
+AggModel --> AggGen
+RelModel --> MapGen
+
+SharedGen --> SK
+CtxGen --> Ctxs
+AggGen --> OCD
+MapGen --> OCI
+
+' Notes
+note right of CtxType
+  Context Types:
+  - Core Domain
+  - Supporting Domain
+  - Generic Domain
+end note
+
+note right of RelModel
+  Mapping Types:
+  - Partnership
+  - Customer-Supplier
+  - Conformist
+  - Anti-Corruption Layer
+  - Open Host Service
+  - Published Language
+end note
+
+note bottom of Invs
+  Business Rules enforced in
+  aggregate methods:
+  - Order must have items
+  - Quantity must be positive
+  - Cannot modify submitted order
+end note
+
+legend right
+  |= PlantUML Stereotype |= DDD Pattern |
+  | <<context>> | Bounded Context |
+  | <<aggregate>> | Aggregate Root |
+  | <<entity>> | Entity |
+  | <<valueobject>> | Value Object |
+  | <<service>> | Domain Service |
+  | <<repository>> | Repository |
+  | <<factory>> | Factory |
+  | <<acl>> | Anti-Corruption Layer |
+endlegend
+
+@enduml
