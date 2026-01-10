@@ -13,6 +13,6 @@
     <Folder Include="Extensions\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Endpoint.Core\Endpoint.Core.csproj" />
+    <ProjectReference Include="..\Endpoint.Core\Endpoint.Core.csproj" />
   </ItemGroup>
 </Project>

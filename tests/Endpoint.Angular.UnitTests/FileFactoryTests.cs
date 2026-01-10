@@ -1,19 +1,21 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Endpoint.Angular.Artifacts;
+
 namespace Endpoint.Angular.UnitTests;
 
 public class FileFactoryTests
 {
-    private readonly Mock<ILogger<FileFactory>> _mockLogger;
+    private readonly Mock<ILogger<Artifacts.FileFactory>> _mockLogger;
     private readonly MockFileSystem _mockFileSystem;
-    private readonly FileFactory _sut;
+    private readonly Artifacts.FileFactory _sut;
 
     public FileFactoryTests()
     {
-        _mockLogger = new Mock<ILogger<FileFactory>>();
+        _mockLogger = new Mock<ILogger<Artifacts.FileFactory>>();
         _mockFileSystem = new MockFileSystem();
-        _sut = new FileFactory(_mockLogger.Object, _mockFileSystem);
+        _sut = new Artifacts.FileFactory(_mockLogger.Object, _mockFileSystem);
     }
 
     #region Constructor Tests
@@ -22,21 +24,21 @@ public class FileFactoryTests
     public void Constructor_WithNullLogger_ShouldThrowArgumentNullException()
     {
         // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new FileFactory(null!, _mockFileSystem));
+        Assert.Throws<ArgumentNullException>(() => new Artifacts.FileFactory(null!, _mockFileSystem));
     }
 
     [Fact]
     public void Constructor_WithNullFileSystem_ShouldThrowArgumentNullException()
     {
         // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new FileFactory(_mockLogger.Object, null!));
+        Assert.Throws<ArgumentNullException>(() => new Artifacts.FileFactory(_mockLogger.Object, null!));
     }
 
     [Fact]
     public void Constructor_WithValidParameters_ShouldNotThrow()
     {
         // Arrange & Act
-        var exception = Record.Exception(() => new FileFactory(_mockLogger.Object, _mockFileSystem));
+        var exception = Record.Exception(() => new Artifacts.FileFactory(_mockLogger.Object, _mockFileSystem));
 
         // Assert
         Assert.Null(exception);

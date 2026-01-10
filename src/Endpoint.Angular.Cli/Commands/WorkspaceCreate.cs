@@ -3,7 +3,7 @@
 
 using CommandLine;
 using Endpoint.Angular.Artifacts;
-using Endpoint.Core.Artifacts;
+using Endpoint.Core.Artifacts.Abstractions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;

@@ -7,7 +7,7 @@
     <NoWarn>1998,4014,,SA1101,SA1600,,SA1200,SA1633,1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Endpoint.Angular\Endpoint.Angular.csproj" />
-    <ProjectReference Include="..\..\Endpoint.DotNet\Endpoint.DotNet.csproj" />
+    <ProjectReference Include="..\Endpoint.Angular\Endpoint.Angular.csproj" />
+    <ProjectReference Include="..\Endpoint.DotNet\Endpoint.DotNet.csproj" />
   </ItemGroup>
 </Project>
