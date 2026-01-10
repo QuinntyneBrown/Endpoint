@@ -18,7 +18,8 @@
       "Bash(dotnet run)",
       "Bash(Select-String -Pattern \"Creating|Error|exception\" -CaseSensitive:$false)",
       "Bash(tree:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []
