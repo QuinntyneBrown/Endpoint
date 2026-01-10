@@ -7,7 +7,7 @@ namespace Endpoint.ModernWebAppPattern;
 
 using Microservice = Models.Microservice;
 
-using DddDataContext = DomainDrivenDesign.Core.DataContext;
+using DddDataContext = DomainDrivenDesign.DataContext;
 
 public class DataContext : DddDataContext, IDataContext
 {

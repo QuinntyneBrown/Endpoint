@@ -75,7 +75,7 @@ public class ModernWebAppCreateRequestHandler : IRequestHandler<ModernWebAppCrea
         {
             var (_, dddDataContext) = AggregateModel.Create("ToDo", request.Name);
 
-            var dataContext = new ModernWebAppPattern.Core.DataContext
+            var dataContext = new ModernWebAppPattern.DataContext
             {
                 ProductName = dddDataContext.ProductName,
 
