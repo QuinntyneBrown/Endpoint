@@ -1,0 +1,323 @@
+@startuml Event-Driven Microservices Example
+
+!define MICROSERVICE(name) package name <<microservice>>
+!define AGGREGATE(name) class name <<aggregate>>
+!define ENTITY(name) class name <<entity>>
+!define VALUE_OBJECT(name) class name <<valueobject>>
+!define DOMAIN_EVENT(name) class name <<domain-event>>
+!define INTEGRATION_EVENT(name) class name <<integration-event>>
+!define COMMAND(name) class name <<command>>
+!define SAGA(name) class name <<saga>>
+
+title Event-Driven E-Commerce Platform
+footer Design 2: Event-Driven Architecture Example
+
+skinparam packageStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam stereotypeCBackgroundColor #ADD8E6
+
+' ========================================
+' ORDER SERVICE
+' ========================================
+MICROSERVICE(OrderService) #LightBlue {
+
+    AGGREGATE(Order) {
+        +Guid Id
+        +Guid CustomerId
+        +OrderStatus Status
+        +List<OrderItem> Items
+        +decimal TotalAmount
+        +DateTime CreatedAt
+        --
+        +Create(customerId, items)
+        +Submit()
+        +MarkAsProcessing()
+        +Complete()
+        +Cancel(reason)
+    }
+
+    ENTITY(OrderItem) {
+        +Guid Id
+        +Guid ProductId
+        +int Quantity
+        +decimal UnitPrice
+    }
+
+    VALUE_OBJECT(OrderStatus) {
+        +string Value
+        --
+        {static} +Pending
+        {static} +Submitted
+        {static} +Processing
+        {static} +Completed
+        {static} +Cancelled
+    }
+
+    ' Commands
+    COMMAND(CreateOrderCommand) {
+        +Guid CustomerId
+        +List<OrderItemDto> Items
+    }
+
+    COMMAND(SubmitOrderCommand) {
+        +Guid OrderId
+    }
+
+    COMMAND(CancelOrderCommand) {
+        +Guid OrderId
+        +string Reason
+    }
+
+    ' Domain Events
+    DOMAIN_EVENT(OrderCreatedEvent) {
+        +Guid OrderId
+        +Guid CustomerId
+        +DateTime CreatedAt
+    }
+
+    DOMAIN_EVENT(OrderSubmittedEvent) {
+        +Guid OrderId
+        +decimal TotalAmount
+        +List<OrderItemDto> Items
+    }
+
+    DOMAIN_EVENT(OrderCompletedEvent) {
+        +Guid OrderId
+        +DateTime CompletedAt
+    }
+
+    DOMAIN_EVENT(OrderCancelledEvent) {
+        +Guid OrderId
+        +string Reason
+    }
+
+    ' Integration Events (Published)
+    INTEGRATION_EVENT(OrderSubmittedIntegrationEvent) {
+        +Guid OrderId
+        +Guid CustomerId
+        +List<OrderItemDto> Items
+        +decimal TotalAmount
+    }
+
+    INTEGRATION_EVENT(OrderCancelledIntegrationEvent) {
+        +Guid OrderId
+        +List<ReservationReleaseItem> ItemsToRelease
+    }
+
+    ' Saga
+    SAGA(OrderProcessingSaga) {
+        +Guid OrderId
+        +SagaState CurrentState
+        +bool InventoryReserved
+        +bool PaymentProcessed
+        --
+        +Handle(OrderSubmittedEvent)
+        +Handle(InventoryReservedEvent)
+        +Handle(InventoryReservationFailedEvent)
+        +Handle(PaymentCompletedEvent)
+        +Handle(PaymentFailedEvent)
+        +CompensateInventory()
+        +CompensatePayment()
+    }
+}
+
+' ========================================
+' INVENTORY SERVICE
+' ========================================
+MICROSERVICE(InventoryService) #LightGreen {
+
+    AGGREGATE(Product) {
+        +Guid Id
+        +string Sku
+        +string Name
+        +int StockQuantity
+        +int ReservedQuantity
+        +int AvailableQuantity
+        --
+        +Reserve(quantity, orderId)
+        +Release(quantity, orderId)
+        +ConfirmReservation(orderId)
+    }
+
+    ENTITY(StockReservation) {
+        +Guid Id
+        +Guid ProductId
+        +Guid OrderId
+        +int Quantity
+        +ReservationStatus Status
+        +DateTime ExpiresAt
+    }
+
+    ' Commands
+    COMMAND(ReserveInventoryCommand) {
+        +Guid OrderId
+        +List<ReservationItem> Items
+    }
+
+    COMMAND(ReleaseInventoryCommand) {
+        +Guid OrderId
+        +List<ReleaseItem> Items
+    }
+
+    COMMAND(ConfirmReservationCommand) {
+        +Guid OrderId
+    }
+
+    ' Domain Events
+    DOMAIN_EVENT(StockReservedEvent) {
+        +Guid ProductId
+        +Guid OrderId
+        +int Quantity
+    }
+
+    DOMAIN_EVENT(StockReleasedEvent) {
+        +Guid ProductId
+        +Guid OrderId
+        +int Quantity
+    }
+
+    ' Integration Events
+    INTEGRATION_EVENT(InventoryReservedEvent) {
+        +Guid OrderId
+        +bool Success
+        +List<ReservedItem> Items
+    }
+
+    INTEGRATION_EVENT(InventoryReservationFailedEvent) {
+        +Guid OrderId
+        +string Reason
+        +List<FailedItem> FailedItems
+    }
+
+    INTEGRATION_EVENT(InventoryReleasedEvent) {
+        +Guid OrderId
+        +List<ReleasedItem> Items
+    }
+}
+
+' ========================================
+' PAYMENT SERVICE
+' ========================================
+MICROSERVICE(PaymentService) #LightYellow {
+
+    AGGREGATE(Payment) {
+        +Guid Id
+        +Guid OrderId
+        +Guid CustomerId
+        +decimal Amount
+        +PaymentStatus Status
+        +string TransactionId
+        --
+        +Process()
+        +Refund()
+    }
+
+    ' Commands
+    COMMAND(ProcessPaymentCommand) {
+        +Guid OrderId
+        +Guid CustomerId
+        +decimal Amount
+        +PaymentMethodDto PaymentMethod
+    }
+
+    COMMAND(RefundPaymentCommand) {
+        +Guid PaymentId
+        +decimal Amount
+        +string Reason
+    }
+
+    ' Domain Events
+    DOMAIN_EVENT(PaymentProcessedEvent) {
+        +Guid PaymentId
+        +Guid OrderId
+        +decimal Amount
+        +string TransactionId
+    }
+
+    DOMAIN_EVENT(PaymentRefundedEvent) {
+        +Guid PaymentId
+        +decimal Amount
+    }
+
+    ' Integration Events
+    INTEGRATION_EVENT(PaymentCompletedEvent) {
+        +Guid OrderId
+        +Guid PaymentId
+        +decimal Amount
+        +string TransactionId
+    }
+
+    INTEGRATION_EVENT(PaymentFailedEvent) {
+        +Guid OrderId
+        +string Reason
+        +string ErrorCode
+    }
+
+    INTEGRATION_EVENT(PaymentRefundedIntegrationEvent) {
+        +Guid OrderId
+        +Guid PaymentId
+        +decimal RefundedAmount
+    }
+}
+
+' ========================================
+' NOTIFICATION SERVICE
+' ========================================
+MICROSERVICE(NotificationService) #LightCoral {
+
+    AGGREGATE(Notification) {
+        +Guid Id
+        +Guid CustomerId
+        +NotificationType Type
+        +string Subject
+        +string Body
+        +NotificationStatus Status
+        +DateTime SentAt
+        --
+        +Send()
+        +MarkAsDelivered()
+        +MarkAsFailed(reason)
+    }
+
+    ' Commands
+    COMMAND(SendEmailNotificationCommand) {
+        +Guid CustomerId
+        +string Subject
+        +string Body
+        +string TemplateName
+        +Dictionary<string, object> TemplateData
+    }
+
+    COMMAND(SendSmsNotificationCommand) {
+        +Guid CustomerId
+        +string Message
+    }
+
+    ' Event Handlers (subscribes to these)
+    note "Subscribes to:\n- OrderCompletedEvent\n- OrderCancelledEvent\n- PaymentCompletedEvent\n- PaymentFailedEvent" as NotificationNote
+    Notification .. NotificationNote
+}
+
+' ========================================
+' EVENT FLOW RELATIONSHIPS
+' ========================================
+
+' Order to Inventory flow
+OrderSubmittedIntegrationEvent ..> ReserveInventoryCommand : "triggers"
+InventoryReservedEvent ..> OrderProcessingSaga : "handled by"
+InventoryReservationFailedEvent ..> OrderProcessingSaga : "handled by"
+
+' Order to Payment flow
+InventoryReservedEvent ..> ProcessPaymentCommand : "triggers (via saga)"
+PaymentCompletedEvent ..> OrderProcessingSaga : "handled by"
+PaymentFailedEvent ..> OrderProcessingSaga : "handled by"
+
+' Compensation flows
+OrderCancelledIntegrationEvent ..> ReleaseInventoryCommand : "triggers"
+PaymentFailedEvent ..> ReleaseInventoryCommand : "triggers (compensation)"
+
+' Notification flows
+OrderCompletedEvent ..> SendEmailNotificationCommand : "triggers"
+PaymentFailedEvent ..> SendEmailNotificationCommand : "triggers"
+
+@enduml

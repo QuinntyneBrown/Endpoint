@@ -1,0 +1,134 @@
+@startuml Event-Driven Architecture
+
+skinparam backgroundColor #FEFEFE
+skinparam componentStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam rectangleBackgroundColor #F8F8F8
+
+title Design 2: Event-Driven Architecture\nMessage-Based Microservices with Sagas
+
+' PlantUML Input
+package "PlantUML Input" #LightBlue {
+    rectangle "Microservices\nDefinition" as MSDef
+    rectangle "Events\n& Commands" as Events
+    rectangle "Saga\nDefinitions" as Sagas
+    rectangle "Message Flow\nRelationships" as Flow
+}
+
+' Parsing Layer
+package "Parsing Layer" #LightGreen {
+    rectangle "MicroservicePlantUmlParser" as MSParser
+    rectangle "EventPlantUmlParser" as EventParser
+    rectangle "CommandPlantUmlParser" as CmdParser
+    rectangle "SagaPlantUmlParser" as SagaParser
+    rectangle "RelationshipParser" as RelParser
+}
+
+' Model Layer
+package "Model Layer" #LightYellow {
+    rectangle "SolutionModel" as SolModel {
+        rectangle "MicroserviceModel[]" as MSModel
+    }
+
+    rectangle "MicroserviceModel" as SingleMS {
+        rectangle "AggregateModel[]" as AggModels
+        rectangle "DomainEventModel[]" as DomainEvents
+        rectangle "IntegrationEventModel[]" as IntEvents
+        rectangle "CommandModel[]" as Commands
+        rectangle "SagaModel[]" as SagaModels
+    }
+
+    rectangle "MessageFlowModel" as MsgFlow {
+        rectangle "Publishers" as Pubs
+        rectangle "Subscribers" as Subs
+        rectangle "Event->Command\nMappings" as Mappings
+    }
+}
+
+' Generation Layer
+package "Generation Layer" #LightCoral {
+    rectangle "SolutionGenerationStrategy" as SolGen
+    rectangle "MicroserviceGenerationStrategy" as MSGen
+    rectangle "EventBusGenerationStrategy" as EventBusGen
+    rectangle "SagaGenerationStrategy" as SagaGen
+    rectangle "ContractGenerationStrategy" as ContractGen
+    rectangle "DockerComposeGenerator" as DockerGen
+}
+
+' Output Layer
+package "Generated Output" #LightGray {
+    folder "Solution" as Output {
+        folder "BuildingBlocks" as BB {
+            folder "EventBus" as EB
+            folder "Sagas" as SagaLib
+        }
+        folder "Services" as Svcs {
+            folder "OrderService" as OS
+            folder "InventoryService" as IS
+            folder "..." as More
+        }
+        folder "Contracts" as Contracts
+        file "docker-compose.yml" as Docker
+    }
+}
+
+' Connections - Input to Parsing
+MSDef --> MSParser
+Events --> EventParser
+Events --> CmdParser
+Sagas --> SagaParser
+Flow --> RelParser
+
+' Parsing to Model
+MSParser --> SolModel
+EventParser --> IntEvents
+CmdParser --> Commands
+SagaParser --> SagaModels
+RelParser --> MsgFlow
+
+' Model to Generation
+SolModel --> SolGen
+SingleMS --> MSGen
+IntEvents --> EventBusGen
+SagaModels --> SagaGen
+MsgFlow --> ContractGen
+MsgFlow --> DockerGen
+
+' Generation to Output
+SolGen --> Output
+MSGen --> Svcs
+EventBusGen --> EB
+SagaGen --> SagaLib
+ContractGen --> Contracts
+DockerGen --> Docker
+
+' Notes
+note right of Events
+  <<domain-event>>
+  <<integration-event>>
+  <<command>>
+end note
+
+note right of Sagas
+  <<saga>>
+  +Handle() methods
+  +Compensate() methods
+end note
+
+note bottom of Docker
+  Contains:
+  - RabbitMQ
+  - MongoDB (saga state)
+  - Service containers
+end note
+
+legend right
+  |= Stereotype |= Purpose |
+  | <<domain-event>> | Internal aggregate events |
+  | <<integration-event>> | Cross-service communication |
+  | <<command>> | Action requests |
+  | <<saga>> | Distributed transactions |
+endlegend
+
+@enduml
