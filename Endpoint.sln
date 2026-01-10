@@ -21,7 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domains", "Domains", "{D1E1
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DomainDrivenDesign", "DomainDrivenDesign", "{B7D58D5A-5E09-457D-B2A9-6D5CC35D6ACD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.DomainDrivenDesign.Core", "src\Domains\DomainDrivenDesign\Endpoint.DomainDrivenDesign.Core\Endpoint.DomainDrivenDesign.Core.csproj", "{1866C57E-09EC-41DF-BBC5-4537ABB06F6E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.DomainDrivenDesign.Core", "src\Endpoint.DomainDrivenDesign.Core\Endpoint.DomainDrivenDesign.Core.csproj", "{1866C57E-09EC-41DF-BBC5-4537ABB06F6E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.DotNet", "src\Endpoint.DotNet\Endpoint.DotNet.csproj", "{B750D925-1AE1-4D63-BAE5-BAA944225EA6}"
 EndProject
@@ -37,17 +37,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PhysicalTopologies", "Physi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ModernWebAppPattern", "ModernWebAppPattern", "{E461FA93-8C80-446D-9734-8957DA6321C8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.ModernWebAppPattern.Core", "src\PhysicalTopologies\ModernWebAppPattern\Endpoint.ModernWebAppPattern.Core\Endpoint.ModernWebAppPattern.Core.csproj", "{24D3334D-8D8A-48F1-A4B2-A2ED695AA262}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.ModernWebAppPattern.Core", "src\Endpoint.ModernWebAppPattern.Core\Endpoint.ModernWebAppPattern.Core.csproj", "{24D3334D-8D8A-48F1-A4B2-A2ED695AA262}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.React", "src\Endpoint.React\Endpoint.React.csproj", "{89C998E8-AF78-49C1-9A12-3F2F6A3C6CFD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MinimalApi", "MinimalApi", "{8C0195B0-BBC9-4D79-9D2D-4D006F3756BC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.MinimalApi.Core", "src\PhysicalTopologies\MinimalApi\Endpoint.MinimalApi.Core\Endpoint.MinimalApi.Core.csproj", "{887CA161-0AA2-4093-BB4C-4B1DFC7B8D56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.MinimalApi.Core", "src\Endpoint.MinimalApi.Core\Endpoint.MinimalApi.Core.csproj", "{887CA161-0AA2-4093-BB4C-4B1DFC7B8D56}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{DF4A5164-983E-4240-BFC0-B5F0BBEA8014}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.Testing.Core", "src\Testing\Endpoint.Testing.Core\Endpoint.Testing.Core.csproj", "{28561C78-5B50-4C69-9954-F6672AB49DCA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.Testing.Core", "src\Endpoint.Testing.Core\Endpoint.Testing.Core.csproj", "{28561C78-5B50-4C69-9954-F6672AB49DCA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Endpoint.ModernWebAppPlatform.Core.Tests", "tests\Endpoint.ModernWebAppPlatform.Core.Tests\Endpoint.ModernWebAppPlatform.Core.Tests.csproj", "{1414A8E6-4906-410D-9242-E23305BEFF4F}"
 EndProject

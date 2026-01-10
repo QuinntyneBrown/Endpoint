@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Domains/DomainDrivenDesign/Endpoint.DomainDrivenDesign.Core/Endpoint.DomainDrivenDesign.Core.csproj" />
+    <ProjectReference Include="../../src/Endpoint.DomainDrivenDesign.Core/Endpoint.DomainDrivenDesign.Core.csproj" />
   </ItemGroup>
 
 </Project>

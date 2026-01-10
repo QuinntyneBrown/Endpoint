@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/PhysicalTopologies/MinimalApi/Endpoint.MinimalApi.Core/Endpoint.MinimalApi.Core.csproj" />
+    <ProjectReference Include="../../src/Endpoint.MinimalApi.Core/Endpoint.MinimalApi.Core.csproj" />
   </ItemGroup>
 
 </Project>

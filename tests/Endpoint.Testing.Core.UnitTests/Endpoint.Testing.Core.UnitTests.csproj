@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Testing\Endpoint.Testing.Core\Endpoint.Testing.Core.csproj" />
+    <ProjectReference Include="..\..\src\Endpoint.Testing.Core\Endpoint.Testing.Core.csproj" />
   </ItemGroup>
 
 </Project>
