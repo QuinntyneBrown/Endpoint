@@ -68,19 +68,38 @@ The generator supports:
 
 ```
 src/
-├── Endpoint.Cli/              # Main CLI application
-├── Endpoint.Core/             # Core generation engine
-├── Endpoint.DotNet/           # .NET-specific generators
-├── Endpoint.Angular/          # Angular generators
-├── Endpoint.React/            # React generators
-├── Endpoint.Lit/              # Lit component generators
-├── Endpoint.Rx/               # Reactive extensions support
-├── Domains/
-│   └── DomainDrivenDesign/    # DDD patterns and templates
-├── PhysicalTopologies/
-│   ├── MinimalApi/            # Minimal API templates
-│   └── ModernWebAppPattern/   # Modern web app templates
-└── Testing/                   # Test generation utilities
+├── Endpoint.Cli/                        # Main CLI application
+├── Endpoint.Core/                       # Core generation engine
+├── Endpoint.DotNet/                     # .NET-specific generators
+├── Endpoint.Angular/                    # Angular generators
+├── Endpoint.Angular.Cli/                # Angular CLI integration
+├── Endpoint.React/                      # React generators
+├── Endpoint.Lit/                        # Lit component generators
+├── Endpoint.Rx/                         # Reactive extensions support
+├── Endpoint.DomainDrivenDesign.Core/    # DDD patterns and templates
+├── Endpoint.MinimalApi.Core/            # Minimal API templates
+├── Endpoint.ModernWebAppPattern.Core/   # Modern web app templates
+└── Endpoint.Testing.Core/               # Test generation utilities
+
+tests/
+├── Endpoint.UnitTests/
+├── Endpoint.Core.UnitTests/
+├── Endpoint.DotNet.UnitTests/
+├── Endpoint.Angular.UnitTests/
+├── Endpoint.Angular.Cli.UnitTests/
+├── Endpoint.React.UnitTests/
+├── Endpoint.Lit.UnitTests/
+├── Endpoint.DomainDrivenDesign.Core.UnitTests/
+├── Endpoint.MinimalApi.Core.UnitTests/
+├── Endpoint.ModernWebAppPlatform.Core.Tests/
+└── Endpoint.Testing.Core.UnitTests/
+
+playground/
+└── FullStackSolution/         # Example/testing workspace
+
+docs/                          # Documentation (empty - to be populated)
+infra/                         # Infrastructure configuration (empty)
+tools/                         # Build and development tools (empty)
 ```
 
 ## CLI Commands
