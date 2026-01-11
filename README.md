@@ -5,13 +5,14 @@ A powerful template-based design-time code generator for .NET applications. Endp
 ## Features
 
 - **Multi-Framework Support**: Generate code for .NET 10+ applications
-- **Domain-Driven Design**: Built-in support for DDD patterns and architectures
+- **Domain-Driven Design**: Built-in support for DDD patterns including aggregates, entities, value objects, and bounded contexts
 - **Physical Topologies**: Pre-configured templates for common application patterns
   - Modern Web App Pattern
-  - Minimal API Pattern
-- **Frontend Integration**: Generate Angular, React, and Lit components
-- **Testing Support**: Automated test generation and scaffolding
-- **Reactive Extensions**: Built-in Rx support for reactive programming patterns
+  - Microservices Pattern
+  - Worker Services
+- **PlantUML Integration**: Generate complete solutions from PlantUML class diagrams and sequence diagrams
+- **Frontend Integration**: Generate Angular projects and components
+- **OpenAPI Support**: Generate OpenAPI specifications from existing .NET solutions
 - **CLI-First Design**: Comprehensive command-line interface for all operations
 
 ## Give a Star!
@@ -34,19 +35,24 @@ dotnet tool install -g Endpoint.Cli
 
 ### Quick Start
 
-1. Create a new project using a template:
+1. Create a DDD application with a bounded context:
 ```bash
-endpoint create --template minimal-api --name MyProject
+endpoint ddd-app-create -n MyProduct -b Orders -a Order -p "Title:string,Quantity:int"
 ```
 
-2. Generate domain entities:
+2. Or create a solution from a PlantUML sequence diagram:
 ```bash
-endpoint generate entity --name Customer --domain Sales
+endpoint solution-create-from-sequence -n MyMicroservices
 ```
 
-3. Generate a complete CRUD API:
+3. Add entities to your project:
 ```bash
-endpoint generate crud --entity Customer --endpoints all
+endpoint entity-create -n Customer -p "CustomerId:Guid,Name:string,Email:string"
+```
+
+4. Generate a controller for your entity:
+```bash
+endpoint controller-create -n CustomersController -e Customer
 ```
 
 ## How Does Endpoint Work?
@@ -68,154 +74,153 @@ The generator supports:
 
 ```
 src/
-├── Endpoint/                            # Core generation engine
-├── Endpoint.Cli/                        # Main CLI application
-├── Endpoint.DotNet/                     # .NET-specific generators
-├── Endpoint.Angular/                    # Angular generators
-├── Endpoint.Angular.Cli/                # Angular CLI integration
-├── Endpoint.React/                      # React generators
-├── Endpoint.Lit/                        # Lit component generators
-├── Endpoint.Rx/                         # Reactive extensions support
-├── Endpoint.DomainDrivenDesign/         # DDD patterns and templates
-├── Endpoint.MinimalApi/                 # Minimal API templates
-├── Endpoint.ModernWebAppPattern/        # Modern web app pattern implementation
-├── Endpoint.ModernWebAppPattern.Core/   # Modern web app core templates
-└── Endpoint.Testing/                    # Test generation utilities
+├── Endpoint/                       # Core generation engine
+├── Endpoint.Cli/                   # Main CLI application
+├── Endpoint.DotNet/                # .NET-specific generators
+├── Endpoint.Angular/               # Angular generators
+├── Endpoint.DomainDrivenDesign/    # DDD patterns and templates
+├── Endpoint.ModernWebAppPattern/   # Modern web app pattern implementation
+└── Endpoint.Testing/               # Test generation utilities
 
 tests/
 ├── Endpoint.UnitTests/
-├── Endpoint.Core.UnitTests/
 ├── Endpoint.Cli.UnitTests/
 ├── Endpoint.DotNet.UnitTests/
 ├── Endpoint.Angular.UnitTests/
-├── Endpoint.Angular.Cli.UnitTests/
 ├── Endpoint.React.UnitTests/
-├── Endpoint.Lit.UnitTests/
 ├── Endpoint.DomainDrivenDesign.UnitTests/
-├── Endpoint.DomainDrivenDesign.Core.UnitTests/
 ├── Endpoint.MinimalApi.UnitTests/
-├── Endpoint.MinimalApi.Core.UnitTests/
 ├── Endpoint.ModernWebAppPattern.UnitTests/
 ├── Endpoint.ModernWebAppPlatform.Core.Tests/
-├── Endpoint.Testing.UnitTests/
-└── Endpoint.Testing.Core.UnitTests/
+└── Endpoint.Testing.UnitTests/
 
 playground/
-├── DddSolution/               # DDD example workspace
-├── EventDrivenMicroservices/  # Event-driven microservices example
-├── FullStackSolution/         # Full-stack example workspace
-├── Sample/                    # Sample project workspace
-└── SolutionFromPlantuml/      # PlantUML-based generation example
-
-docs/                          # Documentation
-eng/                           # Engineering scripts
-infra/                         # Infrastructure configuration
-tools/                         # Build and development tools
+├── DddSolution/                  # DDD example workspace
+├── EventDrivenMicroservices/     # Event-driven microservices example
+├── FullStackSolution/            # Full-stack example workspace
+├── Sample/                       # Sample project workspace
+├── SolutionCreateFromSequence/   # Sequence diagram-based generation example
+└── SolutionFromPlantuml/         # PlantUML-based generation example
 ```
 
 ## CLI Commands
 
+### Solution & Project Commands
+
+```bash
+# Create a new solution with a project
+endpoint solution-create -n <SolutionName> -t <ProjectType>
+
+# Create a DDD application with bounded contexts and aggregates
+endpoint ddd-app-create -n <ProductName> -b <BoundedContext> -a <Aggregate> -p <Properties>
+
+# Create a Modern Web App Pattern solution
+endpoint mwa-create -n <Name> [-p <PathToJsonConfig>]
+
+# Create solution from PlantUML class diagram
+endpoint solution-create-from-plantuml -n <Name> -s <SourcePath>
+
+# Create solution from PlantUML sequence diagram
+endpoint solution-create-from-sequence -n <Name>
+
+# Add a project to a solution
+endpoint project-add -n <ProjectName> -t <ProjectType> [-f <FolderName>] [-r <References>]
+
+# Remove a project from solution
+endpoint project-remove -n <ProjectName>
+
+# Move a project to a different folder
+endpoint project-move -n <ProjectName> -f <FolderName>
+```
+
+### DDD & Entity Commands
+
+```bash
+# Create a domain entity with properties
+endpoint entity-create -n <EntityName> -p <Properties>
+
+# Create a value object
+endpoint value-object-create -n <Name> -p <Properties>
+
+# Create an aggregate
+endpoint aggregate-create -n <AggregateName> -p <ProductName>
+
+# Create a DbContext from aggregate model
+endpoint db-context-create-from-aggregate-model -n <Name>
+
+# Create a DbContext
+endpoint db-context-create -n <Name> [-e <Entities>]
+```
+
 ### Code Generation Commands
 
 ```bash
-# Generate a domain entity
-endpoint generate entity --name <EntityName> --domain <DomainName>
+# Create a class
+endpoint class-create -n <ClassName> [-p <Properties>]
 
-# Generate a value object
-endpoint generate valueobject --name <Name> --domain <DomainName>
+# Create an interface
+endpoint interface-create -n <InterfaceName>
 
-# Generate an aggregate root
-endpoint generate aggregate --name <Name> --domain <DomainName>
+# Create a class and interface pair
+endpoint class-and-interface-create -n <Name>
 
-# Generate a repository
-endpoint generate repository --entity <EntityName>
+# Create a controller
+endpoint controller-create -n <ControllerName> -e <EntityName>
 
-# Generate a service
-endpoint generate service --name <ServiceName>
+# Create request handlers
+endpoint request-handlers-create -n <Name> -e <EntityName>
+
+# Create a worker service
+endpoint worker-create -n <Name>
+
+# Create an enum
+endpoint enum-create -n <EnumName> -t <Type>
+
+# Create a record
+endpoint record-create -n <RecordName> -p <Properties>
 ```
 
-### File Generation Commands
+### PlantUML Commands
 
 ```bash
-# Generate a single file from template
-endpoint file create --template <TemplateName> --output <FilePath>
+# Create classes from PlantUML
+endpoint class-from-plantuml-create -s <SourcePath>
 
-# List available templates
-endpoint file templates
+# Validate PlantUML solution
+endpoint solution-plantuml-validate -s <SourcePath>
 
-# Generate configuration files
-endpoint file config --type <ConfigType>
+# Create image from PlantUML
+endpoint puml-image-create -s <SourceFile>
 ```
 
-### ASP.NET Core Solution / Project Generation Commands
+### OpenAPI Commands
 
 ```bash
-# Create a new solution
-endpoint solution create --name <SolutionName> --pattern <PatternType>
-
-# Add a new project to solution
-endpoint project add --type <ProjectType> --name <ProjectName>
-
-# Generate minimal API endpoints
-endpoint api minimal --resource <ResourceName>
-
-# Generate controllers
-endpoint api controller --name <ControllerName>
-
-# Generate middleware
-endpoint generate middleware --name <MiddlewareName>
-```
-
-### Angular Workspace / Project Generation Commands
-
-```bash
-# Create Angular workspace
-endpoint angular workspace --name <WorkspaceName>
-
-# Generate Angular component
-endpoint angular component --name <ComponentName>
-
-# Generate Angular service
-endpoint angular service --name <ServiceName>
-
-# Generate Angular module
-endpoint angular module --name <ModuleName>
-```
-
-### React Project Generation Commands
-
-```bash
-# Create React application
-endpoint react create --name <AppName>
-
-# Generate React component
-endpoint react component --name <ComponentName>
-
-# Generate React hook
-endpoint react hook --name <HookName>
-```
-
-### Fullstack Generation Commands
-
-```bash
-# Generate fullstack feature (API + Frontend)
-endpoint fullstack feature --name <FeatureName> --frontend <angular|react>
-
-# Generate complete CRUD (Backend + Frontend)
-endpoint fullstack crud --entity <EntityName> --frontend <angular|react>
+# Generate OpenAPI specification from .NET solution
+endpoint open-api -s <SolutionPath> [-o <OutputPath>]
 ```
 
 ### Git Commands
 
 ```bash
-# Initialize repository with standard structure
-endpoint git init
+# Create a git repository
+endpoint git-create
 
-# Create feature branch with standard naming
-endpoint git feature --name <FeatureName>
+# Create a .gitignore file
+endpoint gitignore-create
+```
 
-# Generate .gitignore for project type
-endpoint git ignore --type <ProjectType>
+### Utility Commands
+
+```bash
+# Add copyright headers to files
+endpoint copyright-add
+
+# Create an .editorconfig file
+endpoint editorconfig-create
+
+# Create a README file
+endpoint readme-create -n <Name>
 ```
 
 ## Contributing
@@ -237,17 +242,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ### Q: What versions of .NET does Endpoint support?
 A: Endpoint currently targets .NET 10 and later versions.
 
-### Q: Can I create custom templates?
-A: Yes! Endpoint supports custom templates. Place your templates in the `templates` directory and reference them using the `--template` parameter.
+### Q: Can I generate solutions from PlantUML diagrams?
+A: Yes! Endpoint supports both PlantUML class diagrams and sequence diagrams for solution generation using the `solution-create-from-plantuml` and `solution-create-from-sequence` commands.
 
 ### Q: Does Endpoint modify existing code?
-A: Endpoint can both generate new code and update existing files when using incremental generation modes. Always use version control when working with code generators.
+A: Endpoint can both generate new code and update existing files. Always use version control when working with code generators.
 
 ### Q: What frontend frameworks are supported?
-A: Currently supports Angular, React, and Lit components.
+A: Currently supports Angular project and component generation.
 
 ### Q: Can I use Endpoint in CI/CD pipelines?
 A: Yes, Endpoint is designed to work in automated environments and can be integrated into your CI/CD workflows.
 
 ### Q: How do I extend Endpoint with custom generators?
-A: You can create custom generators by implementing the core generator abstractions in the `Endpoint.Core` library and registering them with the CLI.
+A: You can create custom generators by implementing the core generator abstractions in the `Endpoint` library and registering them with the CLI.
