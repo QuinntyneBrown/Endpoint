@@ -25,8 +25,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Endpoint.Testing\Endpoint.Testing.csproj" />
-  </ItemGroup>
-
 </Project>

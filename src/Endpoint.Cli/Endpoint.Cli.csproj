@@ -53,7 +53,6 @@
     <ProjectReference Include="..\Endpoint.Angular\Endpoint.Angular.csproj" />
     <ProjectReference Include="..\Endpoint.DotNet\Endpoint.DotNet.csproj" />
     <ProjectReference Include="..\Endpoint.ModernWebAppPattern\Endpoint.ModernWebAppPattern.csproj" />
-    <ProjectReference Include="..\Endpoint.Testing\Endpoint.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>
