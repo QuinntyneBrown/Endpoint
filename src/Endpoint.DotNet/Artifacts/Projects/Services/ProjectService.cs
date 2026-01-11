@@ -3,8 +3,11 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Endpoint.Artifacts.Abstractions;
+using Endpoint.DotNet.Syntax.VisualStudio;
 
 namespace Endpoint.DotNet.Artifacts.Projects.Services;
 
@@ -56,6 +59,10 @@ public class ProjectService : IProjectService
         {
             commandService.Start($"dotnet sln {solutionName} add {model.Path}", solutionDirectory);
         }
+        else if (model.Extension == ".esproj")
+        {
+            AddTypeScriptProjectToSolution(solution, solutionDirectory, model);
+        }
         else
         {
             var lines = new List<string>();
@@ -81,6 +88,187 @@ public class ProjectService : IProjectService
 
             fileSystem.File.WriteAllLines(solution, lines.ToArray());
         }
+    }
+
+    private void AddTypeScriptProjectToSolution(string solutionPath, string solutionDirectory, ProjectModel model)
+    {
+        var lines = fileSystem.File.ReadAllLines(solutionPath).ToList();
+        var projectGuid = $"{{{Guid.NewGuid().ToString().ToUpper()}}}";
+        var relativePath = model.Path.Replace($"{solutionDirectory}{Path.DirectorySeparatorChar}", string.Empty);
+
+        // Find the solution folder GUID if project is in a subfolder (e.g., "src")
+        string solutionFolderGuid = null;
+        var pathParts = relativePath.Split(Path.DirectorySeparatorChar);
+        if (pathParts.Length > 2)
+        {
+            var folderName = pathParts[0];
+            solutionFolderGuid = FindSolutionFolderGuid(lines, folderName);
+        }
+
+        // Build the project entry
+        var projectEntry = new List<string>
+        {
+            $"Project(\"{ProjectTypeGuids.TypeScriptProjectTypeGuid}\") = \"{model.Name}\", \"{relativePath}\", \"{projectGuid}\"",
+            "EndProject",
+        };
+
+        // Find where to insert the project entry (after the last EndProject before Global)
+        var insertProjectIndex = FindLastProjectEndIndex(lines);
+        if (insertProjectIndex == -1)
+        {
+            // Fallback: insert after MinimumVisualStudioVersion
+            insertProjectIndex = lines.FindIndex(l => l.StartsWith("MinimumVisualStudioVersion"));
+        }
+
+        lines.InsertRange(insertProjectIndex + 1, projectEntry);
+
+        // Get configuration platforms from the solution
+        var configPlatforms = GetSolutionConfigurationPlatforms(lines);
+
+        // Build project configuration platform entries
+        var configEntries = BuildTypeScriptProjectConfigurationEntries(projectGuid, configPlatforms);
+
+        // Find and insert into ProjectConfigurationPlatforms section
+        var configSectionEndIndex = FindGlobalSectionEndIndex(lines, "ProjectConfigurationPlatforms");
+        if (configSectionEndIndex != -1)
+        {
+            lines.InsertRange(configSectionEndIndex, configEntries);
+        }
+
+        // If project is in a solution folder, add to NestedProjects section
+        if (!string.IsNullOrEmpty(solutionFolderGuid))
+        {
+            var nestedEntry = $"\t\t{projectGuid} = {solutionFolderGuid}";
+            var nestedSectionEndIndex = FindGlobalSectionEndIndex(lines, "NestedProjects");
+            if (nestedSectionEndIndex != -1)
+            {
+                lines.Insert(nestedSectionEndIndex, nestedEntry);
+            }
+        }
+
+        fileSystem.File.WriteAllLines(solutionPath, lines.ToArray());
+    }
+
+    private string FindSolutionFolderGuid(List<string> lines, string folderName)
+    {
+        var solutionFolderPattern = new Regex(
+            $@"Project\(""{Regex.Escape(ProjectTypeGuids.SolutionFolderGuid)}""\)\s*=\s*""{Regex.Escape(folderName)}"",\s*""{Regex.Escape(folderName)}"",\s*""({{[A-F0-9-]+}})""",
+            RegexOptions.IgnoreCase);
+
+        foreach (var line in lines)
+        {
+            var match = solutionFolderPattern.Match(line);
+            if (match.Success)
+            {
+                return match.Groups[1].Value;
+            }
+        }
+
+        return null;
+    }
+
+    private int FindLastProjectEndIndex(List<string> lines)
+    {
+        var lastEndProjectIndex = -1;
+        for (int i = 0; i < lines.Count; i++)
+        {
+            if (lines[i].Trim() == "EndProject")
+            {
+                lastEndProjectIndex = i;
+            }
+
+            if (lines[i].Trim() == "Global")
+            {
+                break;
+            }
+        }
+
+        return lastEndProjectIndex;
+    }
+
+    private List<string> GetSolutionConfigurationPlatforms(List<string> lines)
+    {
+        var platforms = new List<string>();
+        var inSection = false;
+
+        foreach (var line in lines)
+        {
+            if (line.Contains("GlobalSection(SolutionConfigurationPlatforms)"))
+            {
+                inSection = true;
+                continue;
+            }
+
+            if (inSection)
+            {
+                if (line.Contains("EndGlobalSection"))
+                {
+                    break;
+                }
+
+                var trimmed = line.Trim();
+                if (!string.IsNullOrEmpty(trimmed))
+                {
+                    var parts = trimmed.Split('=');
+                    if (parts.Length > 0)
+                    {
+                        platforms.Add(parts[0].Trim());
+                    }
+                }
+            }
+        }
+
+        // If no platforms found, use defaults
+        if (platforms.Count == 0)
+        {
+            platforms = new List<string>
+            {
+                "Debug|Any CPU",
+                "Debug|x64",
+                "Debug|x86",
+                "Release|Any CPU",
+                "Release|x64",
+                "Release|x86",
+            };
+        }
+
+        return platforms;
+    }
+
+    private List<string> BuildTypeScriptProjectConfigurationEntries(string projectGuid, List<string> configPlatforms)
+    {
+        var entries = new List<string>();
+
+        foreach (var platform in configPlatforms)
+        {
+            var configName = platform.Split('|')[0];
+            entries.Add($"\t\t{projectGuid}.{platform}.ActiveCfg = {configName}|Any CPU");
+            entries.Add($"\t\t{projectGuid}.{platform}.Build.0 = {configName}|Any CPU");
+            entries.Add($"\t\t{projectGuid}.{platform}.Deploy.0 = {configName}|Any CPU");
+        }
+
+        return entries;
+    }
+
+    private int FindGlobalSectionEndIndex(List<string> lines, string sectionName)
+    {
+        var inSection = false;
+
+        for (int i = 0; i < lines.Count; i++)
+        {
+            if (lines[i].Contains($"GlobalSection({sectionName})"))
+            {
+                inSection = true;
+                continue;
+            }
+
+            if (inSection && lines[i].Contains("EndGlobalSection"))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     public async Task AddEndpointPostBuildTargetElement(string csprojFilePath)
