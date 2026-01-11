@@ -19,8 +19,8 @@ public class SolutionPlantumlValidateRequest : IRequest
     [Option('n', "name", Required = false, HelpText = "Optional name for the validation report.")]
     public string Name { get; set; }
 
-    [Option('p', "plant-uml-source-path", Required = true, HelpText = "Path to the directory containing PlantUML files.")]
-    public string PlantUmlSourcePath { get; set; }
+    [Option('p', "plant-uml-source-path", Required = false, HelpText = "Path to the directory containing PlantUML files.")]
+    public string PlantUmlSourcePath { get; set; } = Environment.CurrentDirectory;
 
     [Option('d', "directory", Required = false, HelpText = "Directory where the validation report will be saved.")]
     public string Directory { get; set; } = Environment.CurrentDirectory;
