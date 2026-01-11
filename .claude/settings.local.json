@@ -21,7 +21,8 @@
       "Bash(cat:*)",
       "Bash(mkdir:*)",
       "Bash(del \"playground\\EventDrivenMicroservices\\run.bat\")",
-      "Bash(./event-driven-microservices.bat)"
+      "Bash(./event-driven-microservices.bat)",
+      "Bash(git log:*)"
     ],
     "deny": [],
     "ask": []

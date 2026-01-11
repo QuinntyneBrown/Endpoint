@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Fields;
 using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
@@ -35,16 +36,16 @@ public class FieldModelTests
     }
 
     [Fact]
-    public void FieldModel_ShouldSetReadonly()
+    public void FieldModel_ShouldSetReadOnly()
     {
         // Arrange
         var field = new FieldModel
         {
-            Readonly = true,
+            ReadOnly = true,
         };
 
         // Act & Assert
-        Assert.True(field.Readonly);
+        Assert.True(field.ReadOnly);
     }
 
     [Fact]
