@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Services;
@@ -77,15 +78,15 @@ public class ClassService : IClassService
     {
         _logger.LogInformation("Create Unit Test for {name}", name);
 
-        var projectDirectory = Path.GetDirectoryName(_fileProvider.Get("*.csproj", directory));
+        var projectDirectory = _fileSystem.Path.GetDirectoryName(_fileProvider.Get("*.csproj", directory));
 
-        var slnDirectory = Path.GetDirectoryName(_fileProvider.Get("*.sln", directory));
+        var slnDirectory = _fileSystem.Path.GetDirectoryName(_fileProvider.Get("*.sln", directory));
 
-        var classPath = Directory.GetFiles(slnDirectory, $"{name}.cs", SearchOption.AllDirectories).FirstOrDefault();
+        var classPath = _fileSystem.Directory.GetFiles(slnDirectory, $"{name}.cs", SearchOption.AllDirectories).FirstOrDefault();
 
         if (classPath == null)
         {
-            foreach (var path in Directory.GetFiles(Path.GetDirectoryName(projectDirectory), "*.cs", SearchOption.AllDirectories))
+            foreach (var path in _fileSystem.Directory.GetFiles(_fileSystem.Path.GetDirectoryName(projectDirectory), "*.cs", SearchOption.AllDirectories))
             {
                 var supportedDeclarations = new string[]
                 {
@@ -107,7 +108,7 @@ public class ClassService : IClassService
 
         if (classPath == null)
         {
-            foreach (var path in Directory.GetFiles(Path.GetDirectoryName(Path.GetDirectoryName(projectDirectory)), "*.cs", SearchOption.AllDirectories))
+            foreach (var path in _fileSystem.Directory.GetFiles(_fileSystem.Path.GetDirectoryName(_fileSystem.Path.GetDirectoryName(projectDirectory)), "*.cs", SearchOption.AllDirectories))
             {
                 var supportedDeclarations = new string[]
                 {
@@ -127,7 +128,7 @@ public class ClassService : IClassService
             }
         }
 
-        _fileSystem.Directory.CreateDirectory($"{projectDirectory}{Path.DirectorySeparatorChar}{name}");
+        _fileSystem.Directory.CreateDirectory($"{projectDirectory}{_fileSystem.Path.DirectorySeparatorChar}{name}");
 
         foreach (var methodModel in Parse(name, classPath))
         {
@@ -165,11 +166,11 @@ public class ClassService : IClassService
 
             classModel.Usings.Add(new("Xunit"));
 
-            classModel.Usings.Add(new(_namespaceProvider.Get(Path.GetDirectoryName(classPath))));
+            classModel.Usings.Add(new(_namespaceProvider.Get(_fileSystem.Path.GetDirectoryName(classPath))));
 
-            classModel.UsingAs.Add(new UsingAsModel($"{_namespaceProvider.Get(Path.GetDirectoryName(classPath))}.{name}", name));
+            classModel.UsingAs.Add(new UsingAsModel($"{_namespaceProvider.Get(_fileSystem.Path.GetDirectoryName(classPath))}.{name}", name));
 
-            await _artifactGenerator.GenerateAsync(new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, $"{projectDirectory}{Path.DirectorySeparatorChar}{name}", ".cs"));
+            await _artifactGenerator.GenerateAsync(new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, $"{projectDirectory}{_fileSystem.Path.DirectorySeparatorChar}{name}", ".cs"));
         }
     }
 

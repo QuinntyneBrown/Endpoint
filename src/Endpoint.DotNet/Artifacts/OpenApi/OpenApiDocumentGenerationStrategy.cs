@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Endpoint.Artifacts.Abstractions;
 using Microsoft.CodeAnalysis;
@@ -51,10 +52,10 @@ public class OpenApiDocumentGenerationStrategy : IArtifactGenerationStrategy<Ope
             },
         };
 
-        var csFiles = Directory.GetFiles(model.SolutionDirectory, "*.cs", SearchOption.AllDirectories)
-            .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
-                        !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
-                        !f.Contains($"{Path.DirectorySeparatorChar}node_modules{Path.DirectorySeparatorChar}"))
+        var csFiles = fileSystem.Directory.GetFiles(model.SolutionDirectory, "*.cs", SearchOption.AllDirectories)
+            .Where(f => !f.Contains($"{fileSystem.Path.DirectorySeparatorChar}obj{fileSystem.Path.DirectorySeparatorChar}") &&
+                        !f.Contains($"{fileSystem.Path.DirectorySeparatorChar}bin{fileSystem.Path.DirectorySeparatorChar}") &&
+                        !f.Contains($"{fileSystem.Path.DirectorySeparatorChar}node_modules{fileSystem.Path.DirectorySeparatorChar}"))
             .ToList();
 
         logger.LogInformation("Found {count} C# files to analyze", csFiles.Count);
@@ -63,7 +64,7 @@ public class OpenApiDocumentGenerationStrategy : IArtifactGenerationStrategy<Ope
         {
             try
             {
-                var sourceCode = await File.ReadAllTextAsync(csFile);
+                var sourceCode = await fileSystem.File.ReadAllTextAsync(csFile);
                 var syntaxTree = CSharpSyntaxTree.ParseText(sourceCode);
                 var root = await syntaxTree.GetRootAsync();
 

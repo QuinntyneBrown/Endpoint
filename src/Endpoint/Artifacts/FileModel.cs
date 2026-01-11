@@ -1,16 +1,21 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.IO.Abstractions;
+
 namespace Endpoint.Artifacts;
 
 public class FileModel : ArtifactModel
 {
-    public FileModel(string name, string directory, string extension)
+    private readonly IFileSystem _fileSystem;
+
+    public FileModel(string name, string directory, string extension, IFileSystem? fileSystem = null)
     {
+        _fileSystem = fileSystem ?? new FileSystem();
         Name = name;
         Directory = directory;
         Extension = extension;
-        Path = System.IO.Path.Combine(Directory, $"{Name}{Extension}");
+        Path = _fileSystem.Path.Combine(Directory, $"{Name}{Extension}");
     }
 
     public string Body { get; set; }

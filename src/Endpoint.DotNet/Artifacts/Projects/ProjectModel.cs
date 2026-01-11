@@ -2,17 +2,19 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
-using static System.IO.Path;
 
 namespace Endpoint.DotNet.Artifacts.Projects;
 
 public class ProjectModel : ArtifactModel
 {
-    public ProjectModel(string dotNetProjectType, string name, string parentDirectory, List<string> references = null)
+    private readonly IFileSystem _fileSystem;
+
+    public ProjectModel(string dotNetProjectType, string name, string parentDirectory, List<string> references = null, IFileSystem? fileSystem = null)
         : this(
             dotNetProjectType switch
             {
@@ -22,32 +24,35 @@ public class ProjectModel : ArtifactModel
                 "worker" => DotNetProjectType.Worker,
                 "xunit" => DotNetProjectType.XUnit,
                 _ => DotNetProjectType.Console
-            }, name, parentDirectory, references)
+            }, name, parentDirectory, references, fileSystem)
     {
         Packages = [];
     }
 
-    public ProjectModel(DotNetProjectType dotNetProjectType, string name, string parentDirectory, List<string> references = null)
+    public ProjectModel(DotNetProjectType dotNetProjectType, string name, string parentDirectory, List<string> references = null, IFileSystem? fileSystem = null)
     {
+        _fileSystem = fileSystem ?? new FileSystem();
         DotNetProjectType = dotNetProjectType;
         Name = name;
         Extension = dotNetProjectType == DotNetProjectType.TypeScriptStandalone ? ".esproj" : ".csproj";
-        Directory = Combine(parentDirectory, name);
+        Directory = _fileSystem.Path.Combine(parentDirectory, name);
         References = references ?? [];
         Packages = [];
     }
 
-    public ProjectModel(string name, string parentDirectory)
+    public ProjectModel(string name, string parentDirectory, IFileSystem? fileSystem = null)
     {
+        _fileSystem = fileSystem ?? new FileSystem();
         DotNetProjectType = DotNetProjectType.ClassLib;
         Name = name;
-        Directory = Combine(parentDirectory, name);
+        Directory = _fileSystem.Path.Combine(parentDirectory, name);
         References = [];
         Packages = [];
     }
 
     public ProjectModel()
     {
+        _fileSystem = new FileSystem();
         References = [];
         Packages = [];
     }
@@ -56,7 +61,7 @@ public class ProjectModel : ArtifactModel
 
     public string Directory { get; init; }
 
-    public string Path => Combine(Directory, $"{Name}{Extension}");
+    public string Path => _fileSystem.Path.Combine(Directory, $"{Name}{Extension}");
 
     public string Namespace => Name;
 
@@ -94,7 +99,7 @@ public class ProjectModel : ArtifactModel
 
     public string GetApplicationUrl(IFileSystem fileSystem)
     {
-        var launchSettingsPath = System.IO.Path.Combine(Directory, "Properties", "launchSettings.json");
+        var launchSettingsPath = fileSystem.Path.Combine(Directory, "Properties", "launchSettings.json");
 
         var json = JsonSerializer.Deserialize<JsonNode>(fileSystem.File.ReadAllText(launchSettingsPath));
 

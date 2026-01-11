@@ -1,15 +1,18 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 namespace Endpoint.DotNet.Services;
 
 public class NamespaceProvider : INamespaceProvider
 {
-    public NamespaceProvider()
+    private readonly IFileSystem _fileSystem;
+
+    public NamespaceProvider(IFileSystem fileSystem)
     {
+        _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
     public string Get(string directory, int depth = 0)
@@ -19,25 +22,25 @@ public class NamespaceProvider : INamespaceProvider
             return "NamespaceNotFound";
         }
 
-        var parts = directory.Split(Path.DirectorySeparatorChar);
+        var parts = directory.Split(_fileSystem.Path.DirectorySeparatorChar);
 
         if (parts.Length <= depth)
         {
             return "NamespaceNotFound";
         }
 
-        var path = string.Join(Path.DirectorySeparatorChar, parts.Take(parts.Length - depth));
+        var path = string.Join(_fileSystem.Path.DirectorySeparatorChar, parts.Take(parts.Length - depth));
 
         // Check if directory exists before trying to enumerate files
         string? projectFile = null;
-        if (Directory.Exists(path))
+        if (_fileSystem.Directory.Exists(path))
         {
-            projectFile = Directory.GetFiles(path, "*.csproj").FirstOrDefault();
+            projectFile = _fileSystem.Directory.GetFiles(path, "*.csproj").FirstOrDefault();
         }
 
         if (!string.IsNullOrEmpty(projectFile))
         {
-            var rootNamespace = Path.GetFileNameWithoutExtension(projectFile);
+            var rootNamespace = _fileSystem.Path.GetFileNameWithoutExtension(projectFile);
 
             if (depth > 0)
             {

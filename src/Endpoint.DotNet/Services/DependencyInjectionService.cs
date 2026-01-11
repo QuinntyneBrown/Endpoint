@@ -1,7 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using Endpoint.Artifacts.Abstractions;
@@ -160,11 +160,11 @@ public class DependencyInjectionService : IDependencyInjectionService
 
         var projectPath = fileProvider.Get("*.csproj", directory);
 
-        var projectDirectory = Path.GetDirectoryName(projectPath);
+        var projectDirectory = fileSystem.Path.GetDirectoryName(projectPath);
 
-        var projectSuffix = Path.GetFileNameWithoutExtension(projectPath).Split('.').Last();
+        var projectSuffix = fileSystem.Path.GetFileNameWithoutExtension(projectPath).Split('.').Last();
 
-        var configureServicesFilePath = Path.Combine(projectDirectory, "ConfigureServices.cs");
+        var configureServicesFilePath = fileSystem.Path.Combine(projectDirectory, "ConfigureServices.cs");
 
         if (path == Endpoint.Constants.FileNotFound)
         {
