@@ -51,23 +51,22 @@ public class AngularStandaloneProjectArtifactGenerationStrategy : IArtifactGener
     {
         logger.LogInformation("Generating Angular workspace for project {name}", model.Name);
 
-        // Create the parent directory if it doesn't exist
-        var parentDirectory = System.IO.Path.GetDirectoryName(model.Directory);
-        if (!string.IsNullOrEmpty(parentDirectory) && !fileSystem.Directory.Exists(parentDirectory))
+        // Create the project directory if it doesn't exist (each Angular project gets its own workspace)
+        if (!fileSystem.Directory.Exists(model.Directory))
         {
-            fileSystem.Directory.CreateDirectory(parentDirectory);
+            fileSystem.Directory.CreateDirectory(model.Directory);
         }
 
         // Convert project name to kebab-case
         var kebabCaseProjectName = model.Name.Kebaberize();
 
-        // Create Angular workspace without initial application
-        logger.LogInformation("Creating Angular workspace: ng new {projectName} --no-create-application --directory ./", model.Name);
-        commandService.Start($"ng new {model.Name} --no-create-application --directory ./", parentDirectory);
+        // Create Angular workspace without initial application in the project's own directory
+        logger.LogInformation("Creating Angular workspace: ng new {projectName} --no-create-application --directory ./ --defaults", model.Name);
+        commandService.Start($"ng new {model.Name} --no-create-application --directory ./ --defaults", model.Directory);
 
-        // Create the single application with kebab-case name
-        logger.LogInformation("Creating Angular application: ng g application {kebabCaseProjectName}", kebabCaseProjectName);
-        commandService.Start($"ng g application {kebabCaseProjectName}", model.Directory);
+        // Create the single application with kebab-case name (run from workspace root where angular.json is located)
+        logger.LogInformation("Creating Angular application: ng g application {kebabCaseProjectName} --defaults", kebabCaseProjectName);
+        commandService.Start($"ng g application {kebabCaseProjectName} --defaults", model.Directory);
 
         // Generate the .esproj file
         var template = string.Join(Environment.NewLine, templateLocator.Get("EsProj"));
@@ -75,12 +74,6 @@ public class AngularStandaloneProjectArtifactGenerationStrategy : IArtifactGener
         var result = templateProcessor.Process(template, new TokensBuilder()
             .With("projectName", model.Name)
             .Build());
-
-        // Ensure the project directory exists before writing the file
-        if (!fileSystem.Directory.Exists(model.Directory))
-        {
-            fileSystem.Directory.CreateDirectory(model.Directory);
-        }
 
         fileSystem.File.WriteAllText(model.Path, result);
     }
