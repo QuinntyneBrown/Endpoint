@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
