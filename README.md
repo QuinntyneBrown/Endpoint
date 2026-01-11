@@ -68,38 +68,49 @@ The generator supports:
 
 ```
 src/
+├── Endpoint/                            # Core generation engine
 ├── Endpoint.Cli/                        # Main CLI application
-├── Endpoint.Core/                       # Core generation engine
 ├── Endpoint.DotNet/                     # .NET-specific generators
 ├── Endpoint.Angular/                    # Angular generators
 ├── Endpoint.Angular.Cli/                # Angular CLI integration
 ├── Endpoint.React/                      # React generators
 ├── Endpoint.Lit/                        # Lit component generators
 ├── Endpoint.Rx/                         # Reactive extensions support
-├── Endpoint.DomainDrivenDesign.Core/    # DDD patterns and templates
-├── Endpoint.MinimalApi.Core/            # Minimal API templates
-├── Endpoint.ModernWebAppPattern.Core/   # Modern web app templates
-└── Endpoint.Testing.Core/               # Test generation utilities
+├── Endpoint.DomainDrivenDesign/         # DDD patterns and templates
+├── Endpoint.MinimalApi/                 # Minimal API templates
+├── Endpoint.ModernWebAppPattern/        # Modern web app pattern implementation
+├── Endpoint.ModernWebAppPattern.Core/   # Modern web app core templates
+└── Endpoint.Testing/                    # Test generation utilities
 
 tests/
 ├── Endpoint.UnitTests/
 ├── Endpoint.Core.UnitTests/
+├── Endpoint.Cli.UnitTests/
 ├── Endpoint.DotNet.UnitTests/
 ├── Endpoint.Angular.UnitTests/
 ├── Endpoint.Angular.Cli.UnitTests/
 ├── Endpoint.React.UnitTests/
 ├── Endpoint.Lit.UnitTests/
+├── Endpoint.DomainDrivenDesign.UnitTests/
 ├── Endpoint.DomainDrivenDesign.Core.UnitTests/
+├── Endpoint.MinimalApi.UnitTests/
 ├── Endpoint.MinimalApi.Core.UnitTests/
+├── Endpoint.ModernWebAppPattern.UnitTests/
 ├── Endpoint.ModernWebAppPlatform.Core.Tests/
+├── Endpoint.Testing.UnitTests/
 └── Endpoint.Testing.Core.UnitTests/
 
 playground/
-└── FullStackSolution/         # Example/testing workspace
+├── DddSolution/               # DDD example workspace
+├── EventDrivenMicroservices/  # Event-driven microservices example
+├── FullStackSolution/         # Full-stack example workspace
+├── Sample/                    # Sample project workspace
+└── SolutionFromPlantuml/      # PlantUML-based generation example
 
-docs/                          # Documentation (empty - to be populated)
-infra/                         # Infrastructure configuration (empty)
-tools/                         # Build and development tools (empty)
+docs/                          # Documentation
+eng/                           # Engineering scripts
+infra/                         # Infrastructure configuration
+tools/                         # Build and development tools
 ```
 
 ## CLI Commands
