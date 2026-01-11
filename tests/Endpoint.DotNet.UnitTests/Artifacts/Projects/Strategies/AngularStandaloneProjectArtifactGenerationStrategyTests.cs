@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts.Projects;
@@ -64,8 +65,9 @@ public class AngularStandaloneProjectArtifactGenerationStrategyTests
         // Arrange
         var fileSystem = new MockFileSystem();
         var commandService = new RecordingCommandService();
-        
+
         var projectModel = new ProjectModel(DotNetProjectType.TypeScriptStandalone, "MyAngularApp", "/tmp/src");
+        var expectedDirectory = Path.Combine("/tmp/src", "MyAngularApp");
 
         var sut = new AngularStandaloneProjectArtifactGenerationStrategy(
             NullLogger<AngularStandaloneProjectArtifactGenerationStrategy>.Instance,
@@ -81,15 +83,15 @@ public class AngularStandaloneProjectArtifactGenerationStrategyTests
         // Verify ng new command was called with correct parameters
         Assert.Contains(
             commandService.RecordedCommands,
-            cmd => cmd.Command == "ng new MyAngularApp --no-create-application --directory ./" && cmd.WorkingDirectory == "/tmp/src");
+            cmd => cmd.Command == "ng new MyAngularApp --no-create-application --directory ./ --defaults" && cmd.WorkingDirectory == expectedDirectory);
 
         // Verify ng g application command was called with kebab-case project name
         Assert.Contains(
             commandService.RecordedCommands,
-            cmd => cmd.Command == "ng g application my-angular-app" && cmd.WorkingDirectory == "/tmp/src/MyAngularApp");
+            cmd => cmd.Command == "ng g application my-angular-app --defaults" && cmd.WorkingDirectory == expectedDirectory);
 
         // Verify .esproj file was written
-        Assert.True(fileSystem.File.Exists("/tmp/src/MyAngularApp/MyAngularApp.esproj"));
+        Assert.True(fileSystem.File.Exists(Path.Combine(expectedDirectory, "MyAngularApp.esproj")));
     }
 
     [Fact]
@@ -213,6 +215,6 @@ public class AngularStandaloneProjectArtifactGenerationStrategyTests
         // Assert
         Assert.Contains(
             commandService.RecordedCommands,
-            cmd => cmd.Command == $"ng g application {expectedKebabCase}");
+            cmd => cmd.Command == $"ng g application {expectedKebabCase} --defaults");
     }
 }
