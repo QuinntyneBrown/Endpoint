@@ -186,4 +186,209 @@ public class SolutionFactoryTests
         Assert.Equal("MySolution", result.Name);
         Assert.Empty(result.Projects);
     }
+
+    [Fact]
+    public async Task Create_WithMicroserviceProjectType_CreatesThreeProjects()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDotNetServices();
+        services.AddSingleton<IContext>(new StubContext());
+
+        var serviceProvider = services.BuildServiceProvider();
+        var sut = serviceProvider.GetRequiredService<ISolutionFactory>();
+
+        // Act
+        var result = await sut.Create("MySolution", "MyService", "microservice", "src", "/tmp");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("MySolution", result.Name);
+        Assert.Equal(3, result.Projects.Count);
+    }
+
+    [Fact]
+    public async Task Create_WithMicroserviceProjectType_CreatesApiProject()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDotNetServices();
+        services.AddSingleton<IContext>(new StubContext());
+
+        var serviceProvider = services.BuildServiceProvider();
+        var sut = serviceProvider.GetRequiredService<ISolutionFactory>();
+
+        // Act
+        var result = await sut.Create("MySolution", "MyService", "microservice", "src", "/tmp");
+
+        // Assert
+        var apiProject = result.Projects.FirstOrDefault(p => p.Name == "MyService.Api");
+        Assert.NotNull(apiProject);
+        Assert.Equal("MyService.Api", apiProject.Name);
+        Assert.Equal(DotNetProjectType.WebApi, apiProject.DotNetProjectType);
+        Assert.Equal(".csproj", apiProject.Extension);
+    }
+
+    [Fact]
+    public async Task Create_WithMicroserviceProjectType_CreatesCoreProject()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDotNetServices();
+        services.AddSingleton<IContext>(new StubContext());
+
+        var serviceProvider = services.BuildServiceProvider();
+        var sut = serviceProvider.GetRequiredService<ISolutionFactory>();
+
+        // Act
+        var result = await sut.Create("MySolution", "MyService", "microservice", "src", "/tmp");
+
+        // Assert
+        var coreProject = result.Projects.FirstOrDefault(p => p.Name == "MyService.Core");
+        Assert.NotNull(coreProject);
+        Assert.Equal("MyService.Core", coreProject.Name);
+        Assert.Equal(DotNetProjectType.ClassLib, coreProject.DotNetProjectType);
+        Assert.Equal(".csproj", coreProject.Extension);
+    }
+
+    [Fact]
+    public async Task Create_WithMicroserviceProjectType_CreatesInfrastructureProject()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDotNetServices();
+        services.AddSingleton<IContext>(new StubContext());
+
+        var serviceProvider = services.BuildServiceProvider();
+        var sut = serviceProvider.GetRequiredService<ISolutionFactory>();
+
+        // Act
+        var result = await sut.Create("MySolution", "MyService", "microservice", "src", "/tmp");
+
+        // Assert
+        var infrastructureProject = result.Projects.FirstOrDefault(p => p.Name == "MyService.Infrastructure");
+        Assert.NotNull(infrastructureProject);
+        Assert.Equal("MyService.Infrastructure", infrastructureProject.Name);
+        Assert.Equal(DotNetProjectType.ClassLib, infrastructureProject.DotNetProjectType);
+        Assert.Equal(".csproj", infrastructureProject.Extension);
+    }
+
+    [Fact]
+    public async Task Create_WithMicroserviceProjectType_SetsUpCorrectDependencies()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDotNetServices();
+        services.AddSingleton<IContext>(new StubContext());
+
+        var serviceProvider = services.BuildServiceProvider();
+        var sut = serviceProvider.GetRequiredService<ISolutionFactory>();
+
+        // Act
+        var result = await sut.Create("MySolution", "MyService", "microservice", "src", "/tmp");
+
+        // Assert
+        Assert.Equal(2, result.DependOns.Count);
+
+        var infrastructureDependency = result.DependOns.FirstOrDefault(d =>
+            d.Client.Name == "MyService.Infrastructure" &&
+            d.Service.Name == "MyService.Core");
+        Assert.NotNull(infrastructureDependency);
+
+        var apiDependency = result.DependOns.FirstOrDefault(d =>
+            d.Client.Name == "MyService.Api" &&
+            d.Service.Name == "MyService.Infrastructure");
+        Assert.NotNull(apiDependency);
+    }
+
+    [Fact]
+    public async Task Create_WithMicroserviceProjectType_CaseInsensitive()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDotNetServices();
+        services.AddSingleton<IContext>(new StubContext());
+
+        var serviceProvider = services.BuildServiceProvider();
+        var sut = serviceProvider.GetRequiredService<ISolutionFactory>();
+
+        // Act
+        var result = await sut.Create("MySolution", "MyService", "MICROSERVICE", "src", "/tmp");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Projects.Count);
+    }
+
+    [Fact]
+    public async Task Create_WithMicroserviceProjectType_CoreProjectHasExpectedPackages()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDotNetServices();
+        services.AddSingleton<IContext>(new StubContext());
+
+        var serviceProvider = services.BuildServiceProvider();
+        var sut = serviceProvider.GetRequiredService<ISolutionFactory>();
+
+        // Act
+        var result = await sut.Create("MySolution", "MyService", "microservice", "src", "/tmp");
+
+        // Assert
+        var coreProject = result.Projects.FirstOrDefault(p => p.Name == "MyService.Core");
+        Assert.NotNull(coreProject);
+        Assert.Contains(coreProject.Packages, p => p.Name == "MediatR");
+        Assert.Contains(coreProject.Packages, p => p.Name == "FluentValidation");
+    }
+
+    [Fact]
+    public async Task Create_WithMicroserviceProjectType_InfrastructureProjectHasExpectedPackages()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDotNetServices();
+        services.AddSingleton<IContext>(new StubContext());
+
+        var serviceProvider = services.BuildServiceProvider();
+        var sut = serviceProvider.GetRequiredService<ISolutionFactory>();
+
+        // Act
+        var result = await sut.Create("MySolution", "MyService", "microservice", "src", "/tmp");
+
+        // Assert
+        var infrastructureProject = result.Projects.FirstOrDefault(p => p.Name == "MyService.Infrastructure");
+        Assert.NotNull(infrastructureProject);
+        Assert.Contains(infrastructureProject.Packages, p => p.Name == "Microsoft.EntityFrameworkCore.Tools");
+        Assert.Contains(infrastructureProject.Packages, p => p.Name == "Microsoft.EntityFrameworkCore.SqlServer");
+    }
+
+    [Fact]
+    public async Task Create_WithMicroserviceProjectType_ApiProjectHasExpectedPackages()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDotNetServices();
+        services.AddSingleton<IContext>(new StubContext());
+
+        var serviceProvider = services.BuildServiceProvider();
+        var sut = serviceProvider.GetRequiredService<ISolutionFactory>();
+
+        // Act
+        var result = await sut.Create("MySolution", "MyService", "microservice", "src", "/tmp");
+
+        // Assert
+        var apiProject = result.Projects.FirstOrDefault(p => p.Name == "MyService.Api");
+        Assert.NotNull(apiProject);
+        Assert.Contains(apiProject.Packages, p => p.Name == "Swashbuckle.AspNetCore");
+        Assert.Contains(apiProject.Packages, p => p.Name == "Serilog");
+    }
 }

@@ -30,9 +30,27 @@ public class SolutionFactory : ISolutionFactory
     {
         var model = new SolutionModel(name, directory);
 
-        var project = await projectFactory.Create(dotNetProjectTypeName, projectName, model.SrcDirectory);
+        if (dotNetProjectTypeName?.ToLower() == "microservice")
+        {
+            // Create three projects for microservice architecture
+            var coreProject = await projectFactory.CreateCore(projectName, model.SrcDirectory);
+            var infrastructureProject = await projectFactory.CreateInfrastructure(projectName, model.SrcDirectory);
+            var apiProject = await projectFactory.CreateApi(projectName, model.SrcDirectory);
 
-        model.Projects.Add(project);
+            model.Projects.Add(apiProject);
+            model.Projects.Add(coreProject);
+            model.Projects.Add(infrastructureProject);
+
+            // Set up project dependencies
+            model.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+            model.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
+        }
+        else
+        {
+            var project = await projectFactory.Create(dotNetProjectTypeName, projectName, model.SrcDirectory);
+
+            model.Projects.Add(project);
+        }
 
         return model;
     }
