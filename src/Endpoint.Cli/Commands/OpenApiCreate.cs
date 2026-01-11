@@ -80,7 +80,9 @@ public class OpenApiCreateRequestHandler : IRequestHandler<OpenApiCreateRequest>
         };
 
         var csFiles = System.IO.Directory.GetFiles(solutionDirectory, "*.cs", SearchOption.AllDirectories)
-            .Where(f => !f.Contains("\\obj\\") && !f.Contains("\\bin\\") && !f.Contains("\\node_modules\\"))
+            .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") &&
+                        !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") &&
+                        !f.Contains($"{Path.DirectorySeparatorChar}node_modules{Path.DirectorySeparatorChar}"))
             .ToList();
 
         _logger.LogInformation("Found {count} C# files to analyze", csFiles.Count);
@@ -163,7 +165,7 @@ public class OpenApiCreateRequestHandler : IRequestHandler<OpenApiCreateRequest>
 
         if (routeAttribute?.ArgumentList?.Arguments.Count > 0)
         {
-            var routeArg = routeAttribute.ArgumentList.Arguments[0].ToString().Trim('"');
+            var routeArg = routeAttribute.ArgumentList.Arguments[0].ToString().Trim('"', '\'');
             return routeArg.Replace("[controller]", controllerName.ToLowerInvariant());
         }
 
@@ -189,7 +191,7 @@ public class OpenApiCreateRequestHandler : IRequestHandler<OpenApiCreateRequest>
         var operation = new OpenApiOperation
         {
             Summary = GetMethodSummary(method),
-            Description = GetMethodDescription(method),
+            Description = GetMethodSummary(method),
             Responses = new OpenApiResponses
             {
                 ["200"] = new OpenApiResponse
@@ -215,16 +217,48 @@ public class OpenApiCreateRequestHandler : IRequestHandler<OpenApiCreateRequest>
             var paramName = param.Identifier.Text;
             var paramType = param.Type?.ToString() ?? "string";
 
-            operation.Parameters.Add(new OpenApiParameter
+            var fromBodyAttr = param.AttributeLists
+                .SelectMany(al => al.Attributes)
+                .Any(a => a.Name.ToString().Contains("FromBody"));
+
+            var fromRouteAttr = param.AttributeLists
+                .SelectMany(al => al.Attributes)
+                .Any(a => a.Name.ToString().Contains("FromRoute"));
+
+            var isInRoute = fullPath.Contains($"{{{paramName}}}");
+
+            if (fromBodyAttr)
             {
-                Name = paramName,
-                In = ParameterLocation.Query,
-                Required = false,
-                Schema = new OpenApiSchema
+                operation.RequestBody = new OpenApiRequestBody
                 {
-                    Type = MapCSharpTypeToOpenApiType(paramType),
-                },
-            });
+                    Content = new Dictionary<string, OpenApiMediaType>
+                    {
+                        ["application/json"] = new OpenApiMediaType
+                        {
+                            Schema = new OpenApiSchema
+                            {
+                                Type = MapCSharpTypeToOpenApiType(paramType),
+                            },
+                        },
+                    },
+                };
+            }
+            else
+            {
+                var paramLocation = (fromRouteAttr || isInRoute) ? ParameterLocation.Path : ParameterLocation.Query;
+                var isRequired = paramLocation == ParameterLocation.Path;
+
+                operation.Parameters.Add(new OpenApiParameter
+                {
+                    Name = paramName,
+                    In = paramLocation,
+                    Required = isRequired,
+                    Schema = new OpenApiSchema
+                    {
+                        Type = MapCSharpTypeToOpenApiType(paramType),
+                    },
+                });
+            }
         }
 
         SetOperation(document.Paths[fullPath], httpMethod.Value, operation);
@@ -276,7 +310,7 @@ public class OpenApiCreateRequestHandler : IRequestHandler<OpenApiCreateRequest>
             var firstArg = routeAttribute.ArgumentList.Arguments[0];
             var route = firstArg.ToString().Trim('"', '\'');
 
-            if (!route.StartsWith("\"") && !string.IsNullOrWhiteSpace(route))
+            if (!string.IsNullOrWhiteSpace(route) && !route.StartsWith("\""))
             {
                 return route.StartsWith("/") ? route : $"/{route}";
             }
@@ -304,11 +338,6 @@ public class OpenApiCreateRequestHandler : IRequestHandler<OpenApiCreateRequest>
         }
 
         return method.Identifier.Text;
-    }
-
-    private string GetMethodDescription(MethodDeclarationSyntax method)
-    {
-        return GetMethodSummary(method);
     }
 
     private string MapCSharpTypeToOpenApiType(string csharpType)
