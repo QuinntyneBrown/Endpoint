@@ -59,6 +59,8 @@ public class PlantUmlComponentModel
 
     public string Alias { get; set; }
 
+    public string Stereotype { get; set; }
+
     public string Note { get; set; }
 
     public PlantUmlEndpointSpecification EndpointSpec { get; set; }

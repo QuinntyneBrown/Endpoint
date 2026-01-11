@@ -56,13 +56,67 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
         var solution = new SolutionModel(solutionName, outputDirectory);
         var boundedContexts = plantUmlModel.GetBoundedContexts().ToList();
 
+        int projectOrder = 1;
+
+        // Create Angular projects from components with Angular stereotype
+        var angularComponents = plantUmlModel.GetAllComponents()
+            .Where(c => string.Equals(c.Stereotype, "Angular", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        
+        // Also look at participants with Angular or ts type
+        var angularParticipants = plantUmlModel.GetAllParticipants()
+            .Where(p => string.Equals(p.DotNetType, "Angular", StringComparison.OrdinalIgnoreCase) ||
+                       string.Equals(p.DotNetType, "ts", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        // Create projects for Angular components
+        foreach (var component in angularComponents)
+        {
+            logger.LogInformation("Creating Angular project for component: {Name}", component.Name);
+            var angularProject = CreateAngularProject(component.Name, solutionName, solution.SrcDirectory, ref projectOrder);
+            solution.Projects.Add(angularProject);
+        }
+
+        // Create projects for Angular participants
+        foreach (var participant in angularParticipants)
+        {
+            logger.LogInformation("Creating Angular project for participant: {Name}", participant.Name);
+            var angularProject = CreateAngularProject(participant.Name, solutionName, solution.SrcDirectory, ref projectOrder);
+            solution.Projects.Add(angularProject);
+        }
+
+        // Create Worker projects from components with Worker stereotype
+        var workerComponents = plantUmlModel.GetAllComponents()
+            .Where(c => string.Equals(c.Stereotype, "Worker", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        
+        // Also look at participants with Worker type
+        var workerParticipants = plantUmlModel.GetAllParticipants()
+            .Where(p => string.Equals(p.DotNetType, "Worker", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        // Create projects for Worker components
+        foreach (var component in workerComponents)
+        {
+            logger.LogInformation("Creating Worker project for component: {Name}", component.Name);
+            var workerProject = CreateWorkerProject(component.Name, solutionName, solution.SrcDirectory, ref projectOrder);
+            solution.Projects.Add(workerProject);
+        }
+
+        // Create projects for Worker participants
+        foreach (var participant in workerParticipants)
+        {
+            logger.LogInformation("Creating Worker project for participant: {Name}", participant.Name);
+            var workerProject = CreateWorkerProject(participant.Name, solutionName, solution.SrcDirectory, ref projectOrder);
+            solution.Projects.Add(workerProject);
+        }
+
         if (boundedContexts.Any())
         {
             // Multi-bounded context solution
             logger.LogInformation("Detected {Count} bounded context(s): {BoundedContexts}",
                 boundedContexts.Count, string.Join(", ", boundedContexts));
 
-            int projectOrder = 1;
             foreach (var boundedContext in boundedContexts)
             {
                 var bcEntities = plantUmlModel.GetEntitiesByBoundedContext(boundedContext).ToList();
@@ -229,6 +283,58 @@ public interface I{solutionName}Context
         GenerateAppSettingsFile(project, solutionName);
 
         return project;
+    }
+
+    private ProjectModel CreateAngularProject(string participantName, string solutionName, string srcDirectory, ref int projectOrder)
+    {
+        // Convert participant name to PascalCase project name (e.g., "Admin Dashboard" -> "AdminDashboard")
+        var projectName = SanitizeName(participantName);
+        
+        var project = new ProjectModel(DotNetProjectType.TypeScriptStandalone, projectName, srcDirectory)
+        {
+            Order = projectOrder++,
+            Extension = ".esproj"
+        };
+
+        logger.LogInformation("Created Angular project: {ProjectName}", projectName);
+
+        return project;
+    }
+
+    private ProjectModel CreateWorkerProject(string participantName, string solutionName, string srcDirectory, ref int projectOrder)
+    {
+        // Convert participant name to PascalCase project name (e.g., "Email Sender" -> "EmailSender")
+        var projectName = SanitizeName(participantName);
+        
+        var project = new ProjectModel(DotNetProjectType.Worker, projectName, srcDirectory)
+        {
+            Order = projectOrder++
+        };
+
+        // Add common Worker NuGet packages
+        project.Packages.Add(new PackageModel("Microsoft.Extensions.Hosting", "8.0.0"));
+
+        logger.LogInformation("Created Worker project: {ProjectName}", projectName);
+
+        return project;
+    }
+
+    private string SanitizeName(string name)
+    {
+        const string DefaultProjectName = "DefaultName";
+        
+        // Remove spaces and special characters, convert to PascalCase
+        var parts = name.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0)
+        {
+            return DefaultProjectName;
+        }
+        
+        return string.Join("", parts.Select(p => 
+        {
+            if (string.IsNullOrEmpty(p)) return string.Empty;
+            return char.ToUpper(p[0]) + (p.Length > 1 ? p.Substring(1).ToLower() : string.Empty);
+        }));
     }
 
     #region Bounded Context Project Creation

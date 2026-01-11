@@ -47,7 +47,7 @@ public class PlantUmlParserService : IPlantUmlParserService
         RegexOptions.Compiled | RegexOptions.Singleline);
 
     private static readonly Regex ComponentRegex = new(
-        @"component\s+\[([^\]]+)\]\s+as\s+(\w+)",
+        @"component\s+\[([^\]]+)\]\s+as\s+(\w+)\s*(?:<<(\w+)>>)?",
         RegexOptions.Compiled);
 
     private static readonly Regex NoteRegex = new(
@@ -466,7 +466,8 @@ public class PlantUmlParserService : IPlantUmlParserService
             var component = new PlantUmlComponentModel
             {
                 Name = match.Groups[1].Value.Trim(),
-                Alias = match.Groups[2].Value.Trim()
+                Alias = match.Groups[2].Value.Trim(),
+                Stereotype = match.Groups[3].Success ? match.Groups[3].Value.Trim() : null
             };
 
             document.Components.Add(component);
