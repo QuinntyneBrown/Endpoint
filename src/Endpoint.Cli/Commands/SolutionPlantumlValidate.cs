@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,13 +30,16 @@ public class SolutionPlantumlValidateRequestHandler : IRequestHandler<SolutionPl
 {
     private readonly ILogger<SolutionPlantumlValidateRequestHandler> logger;
     private readonly IPlantUmlValidationService validationService;
+    private readonly IFileSystem fileSystem;
 
     public SolutionPlantumlValidateRequestHandler(
         ILogger<SolutionPlantumlValidateRequestHandler> logger,
-        IPlantUmlValidationService validationService)
+        IPlantUmlValidationService validationService,
+        IFileSystem fileSystem)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
+        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
     public async Task Handle(SolutionPlantumlValidateRequest request, CancellationToken cancellationToken)
@@ -46,8 +49,8 @@ public class SolutionPlantumlValidateRequestHandler : IRequestHandler<SolutionPl
         logger.LogInformation("Output directory: {Directory}", request.Directory);
 
         // Resolve full paths
-        var sourcePath = Path.GetFullPath(request.PlantUmlSourcePath);
-        var outputDirectory = Path.GetFullPath(request.Directory);
+        var sourcePath = fileSystem.Path.GetFullPath(request.PlantUmlSourcePath);
+        var outputDirectory = fileSystem.Path.GetFullPath(request.Directory);
 
         // Validate the PlantUML files
         var validationResult = await validationService.ValidateDirectoryAsync(sourcePath, cancellationToken);
@@ -59,18 +62,18 @@ public class SolutionPlantumlValidateRequestHandler : IRequestHandler<SolutionPl
         var timestamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss");
         var reportName = string.IsNullOrWhiteSpace(request.Name)
             ? $"plantuml-validation-report-{timestamp}.md"
-            : $"{SanitizeFileName(request.Name)}-validation-report-{timestamp}.md";
+            : $"{SanitizeFileName(request.Name, fileSystem)}-validation-report-{timestamp}.md";
 
-        var reportPath = Path.Combine(outputDirectory, reportName);
+        var reportPath = fileSystem.Path.Combine(outputDirectory, reportName);
 
         // Ensure output directory exists
-        if (!System.IO.Directory.Exists(outputDirectory))
+        if (!fileSystem.Directory.Exists(outputDirectory))
         {
-            System.IO.Directory.CreateDirectory(outputDirectory);
+            fileSystem.Directory.CreateDirectory(outputDirectory);
         }
 
         // Write the report
-        await File.WriteAllTextAsync(reportPath, reportContent, cancellationToken);
+        await fileSystem.File.WriteAllTextAsync(reportPath, reportContent, cancellationToken);
 
         logger.LogInformation("Validation report saved to: {ReportPath}", reportPath);
 
@@ -126,16 +129,16 @@ public class SolutionPlantumlValidateRequestHandler : IRequestHandler<SolutionPl
         {
             if (docResult.HasErrors || docResult.HasWarnings)
             {
-                var fileName = Path.GetFileName(docResult.FilePath);
+                var fileName = fileSystem.Path.GetFileName(docResult.FilePath);
                 logger.LogInformation("Document: {FileName} - Errors: {Errors}, Warnings: {Warnings}",
                     fileName, docResult.ErrorCount, docResult.WarningCount);
             }
         }
     }
 
-    private static string SanitizeFileName(string name)
+    private static string SanitizeFileName(string name, IFileSystem fileSystem)
     {
-        var invalidChars = Path.GetInvalidFileNameChars();
+        var invalidChars = fileSystem.Path.GetInvalidFileNameChars();
         var sanitized = new string(name.Select(c => invalidChars.Contains(c) ? '_' : c).ToArray());
         return sanitized.ToLowerInvariant().Replace(' ', '-');
     }

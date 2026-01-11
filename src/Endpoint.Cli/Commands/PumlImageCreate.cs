@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -10,7 +11,6 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using static System.Environment;
 using static System.Environment.SpecialFolder;
-using static System.IO.Path;
 
 namespace Endpoint.Cli.Commands;
 
@@ -21,10 +21,10 @@ public class PlantUmlImageCreateRequest : IRequest
     public string InputPath { get; set; }
 
     [Option('p', "plantuml-path")]
-    public string PlantUmlPath { get; set; } = Combine(GetFolderPath(UserProfile), ".dotnet", "tools", "plantuml.jar");
+    public string PlantUmlPath { get; set; }
 
     [Option('j', "java-path")]
-    public string JavaPath { get; set; } = $"\"{Combine(GetFolderPath(ProgramFilesX86), "Java", "jre-1.8", "bin", "java.exe")}\"";
+    public string JavaPath { get; set; }
 
     [Option('d', Required = false)]
     public string Directory { get; set; } = System.Environment.CurrentDirectory;
@@ -34,17 +34,25 @@ public class ImageCreateRequestHandler : IRequestHandler<PlantUmlImageCreateRequ
 {
     private readonly ILogger<ImageCreateRequestHandler> logger;
     private readonly ICommandService commandService;
+    private readonly IFileSystem fileSystem;
 
-    public ImageCreateRequestHandler(ILogger<ImageCreateRequestHandler> logger, ICommandService commandService)
+    public ImageCreateRequestHandler(
+        ILogger<ImageCreateRequestHandler> logger, 
+        ICommandService commandService,
+        IFileSystem fileSystem)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
+        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
     public async Task Handle(PlantUmlImageCreateRequest request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Creating Image", nameof(ImageCreateRequestHandler));
 
-        commandService.Start($"{request.JavaPath} -jar {request.PlantUmlPath} {request.InputPath}", request.Directory);
+        var plantUmlPath = request.PlantUmlPath ?? fileSystem.Path.Combine(GetFolderPath(UserProfile), ".dotnet", "tools", "plantuml.jar");
+        var javaPath = request.JavaPath ?? $"\"{fileSystem.Path.Combine(GetFolderPath(ProgramFilesX86), "Java", "jre-1.8", "bin", "java.exe")}\"";
+
+        commandService.Start($"{javaPath} -jar {plantUmlPath} {request.InputPath}", request.Directory);
     }
 }

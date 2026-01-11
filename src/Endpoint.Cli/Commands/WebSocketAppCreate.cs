@@ -72,7 +72,7 @@ public class WebSocketAppCreateRequestHandler : IRequestHandler<WebSocketAppCrea
 
         var model = await solutionFactory.Create(request.Name, request.Name, "web", string.Empty, request.Directory);
 
-        if (System.IO.Directory.Exists(model.SolutionDirectory))
+        if (fileSystem.Directory.Exists(model.SolutionDirectory))
         {
             fileSystem.Directory.Delete(model.SolutionDirectory);
         }
