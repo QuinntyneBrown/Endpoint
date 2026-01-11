@@ -61,9 +61,23 @@ public class SolutionService : ISolutionService
 
         var solutionModel = new SolutionModel(name, directory);
 
-        solutionModel.Folders.Add(await BuildingBlocksCreate(solutionModel.SolutionDirectory));
+        var buildingBlocksFolder = await BuildingBlocksCreate(solutionModel.SolutionDirectory);
+        solutionModel.Folders.Add(buildingBlocksFolder);
+        
+        // Add building blocks projects to the solution
+        foreach (var project in buildingBlocksFolder.Projects)
+        {
+            solutionModel.Projects.Add(project);
+        }
 
-        solutionModel.Folders.Add(await ServicesCreate(services, solutionModel.SolutionDirectory, notifications));
+        var servicesFolder = await ServicesCreate(services, solutionModel.SolutionDirectory, notifications);
+        solutionModel.Folders.Add(servicesFolder);
+        
+        // Add services projects to the solution
+        foreach (var project in servicesFolder.Projects)
+        {
+            solutionModel.Projects.Add(project);
+        }
 
         await artifactGenerator.GenerateAsync(solutionModel);
 

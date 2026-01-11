@@ -421,9 +421,7 @@ public class ProjectFactory : IProjectFactory
         => await CreateLibrary($"{name}.Core", directory, new() { Constants.ProjectType.Core });
 
     public async Task<ProjectModel> CreateInfrastructure(string name, string directory)
-    {
-        throw new NotImplementedException();
-    }
+        => await CreateLibrary($"{name}.Infrastructure", directory, new() { Constants.ProjectType.Infrastructure });
 
     public async Task<ProjectModel> CreateApi(string name, string directory)
         => await CreateLibrary($"{name}.Api", directory, new() { Constants.ProjectType.Api });

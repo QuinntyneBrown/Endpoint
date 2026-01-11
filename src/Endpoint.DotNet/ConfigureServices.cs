@@ -29,6 +29,8 @@ using Endpoint.DotNet.Syntax.RouteHandlers;
 using Endpoint.DotNet.Syntax.Types;
 using Endpoint.DotNet.Syntax.Units.Factories;
 using Endpoint.DotNet.Syntax.Units.Services;
+using Endpoint.Internal;
+using MediatR;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -36,6 +38,7 @@ public static class ConfigureServices
 {
     public static void AddDotNetServices(this IServiceCollection services)
     {
+        services.AddSingleton(new Observable<INotification>());
         services.AddSingleton<IEndpointEventContainer, EndpointEventContainer>();
         services.AddSingleton<IFullStackFactory, FullStackFactory>();
         services.AddSingleton<IDocumentFactory, DocumentFactory>();
