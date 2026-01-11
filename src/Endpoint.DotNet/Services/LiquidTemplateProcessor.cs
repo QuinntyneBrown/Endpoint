@@ -103,9 +103,7 @@ public class LiquidTemplateProcessor : ITemplateProcessor
     {
         var dictionary = ConvertObjectToDictionary(model);
 
-        string[] result = Process(template, dictionary, ignoreTokens: null);
-
-        return string.Join(Environment.NewLine, result);
+        return Process(template, dictionary, ignoreTokens: null);
     }
 
     public Task<string> ProcessAsync(string template, IDictionary<string, object> tokens, string[] ignoreTokens = null)

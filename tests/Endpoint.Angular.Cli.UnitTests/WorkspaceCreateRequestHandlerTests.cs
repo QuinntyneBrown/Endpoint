@@ -300,7 +300,7 @@ public class WorkspaceCreateRequestHandlerTests
     #region Handle Method - Edge Cases Tests
 
     [Fact]
-    public async Task Handle_WithNullName_PassesNullNameToWorkspaceModel()
+    public async Task Handle_WithNullName_ThrowsArgumentNullException()
     {
         // Arrange
         var handler = new WorkspaceCreateRequestHandler(_mockLogger.Object, _mockArtifactGenerator.Object);
@@ -309,19 +309,10 @@ public class WorkspaceCreateRequestHandlerTests
             Name = null,
             Directory = "/test/directory"
         };
-        WorkspaceModel? capturedModel = null;
 
-        _mockArtifactGenerator
-            .Setup(x => x.GenerateAsync(It.IsAny<object>()))
-            .Callback<object>(model => capturedModel = model as WorkspaceModel)
-            .Returns(Task.CompletedTask);
-
-        // Act
-        await handler.Handle(request, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(capturedModel);
-        Assert.Null(capturedModel.Name);
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => handler.Handle(request, CancellationToken.None));
     }
 
     [Fact]

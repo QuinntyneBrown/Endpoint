@@ -47,11 +47,11 @@ public class FileFactory : IFileFactory
 
         if (scss)
         {
-            foreach (var file in Directory.GetFiles(directory, "*.scss"))
+            foreach (var file in _fileSystem.Directory.GetFiles(directory, "*.scss"))
             {
                 if (!file.EndsWith("index.scss"))
                 {
-                    lines.Add($"@use './{Path.GetFileNameWithoutExtension(file)}';");
+                    lines.Add($"@use './{_fileSystem.Path.GetFileNameWithoutExtension(file)}';");
                 }
             }
 
@@ -62,11 +62,11 @@ public class FileFactory : IFileFactory
         }
         else
         {
-            foreach (var file in Directory.GetFiles(directory, "*.ts"))
+            foreach (var file in _fileSystem.Directory.GetFiles(directory, "*.ts"))
             {
                 if (!file.Contains(".spec.") && !file.EndsWith("index.ts"))
                 {
-                    lines.Add($"export * from './{Path.GetFileNameWithoutExtension(file)}';");
+                    lines.Add($"export * from './{_fileSystem.Path.GetFileNameWithoutExtension(file)}';");
                 }
             }
 

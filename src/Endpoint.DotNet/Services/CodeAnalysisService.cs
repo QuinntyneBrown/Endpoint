@@ -12,6 +12,9 @@ namespace Endpoint.DotNet.Services;
 
 public class CodeAnalysisService : ICodeAnalysisService
 {
+    private static readonly object _lockObject = new();
+    private static bool _msBuildRegistered;
+
     private readonly ILogger<CodeAnalysisService> logger;
     private readonly IFileProvider fileProvider;
     private readonly IFileSystem fileSystem;
@@ -26,9 +29,32 @@ public class CodeAnalysisService : ICodeAnalysisService
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        MSBuildLocator.RegisterDefaults();
+        EnsureMsBuildRegistered();
 
         workspace = MSBuildWorkspace.Create();
+    }
+
+    private static void EnsureMsBuildRegistered()
+    {
+        if (_msBuildRegistered)
+        {
+            return;
+        }
+
+        lock (_lockObject)
+        {
+            if (_msBuildRegistered)
+            {
+                return;
+            }
+
+            if (!MSBuildLocator.IsRegistered)
+            {
+                MSBuildLocator.RegisterDefaults();
+            }
+
+            _msBuildRegistered = true;
+        }
     }
 
     public SyntaxModel SyntaxModel { get; set; }

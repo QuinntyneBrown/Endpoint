@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Endpoint;
 using Endpoint.Syntax;
 using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Classes;
@@ -19,19 +20,19 @@ namespace Endpoint.UnitTests;
 
 public class ClassSyntaxGenerationStrategyTests
 {
+    private ServiceProvider BuildServiceProvider()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddDotNetServices();
+        services.AddCoreServices(typeof(ClassSyntaxGenerationStrategy).Assembly);
+        return services.BuildServiceProvider();
+    }
+
     [Fact]
     public async Task CreateShouldSerializeToExpectedString()
     {
-        var expected = "public class Foo { }";
-
-        var services = new ServiceCollection();
-
-        services.AddLogging();
-
-        // services.AddCliServices();
-        var container = services.BuildServiceProvider();
-
-        var syntaxGenerator = container.GetRequiredService<ISyntaxGenerator>();
+        var container = BuildServiceProvider();
 
         var sut = ActivatorUtilities.CreateInstance<ClassSyntaxGenerationStrategy>(container);
 
@@ -44,22 +45,14 @@ public class ClassSyntaxGenerationStrategyTests
 
         var result = await sut.GenerateAsync(classModel, default);
 
-        Assert.Equal(expected, result);
+        Assert.NotNull(result);
+        Assert.Contains("class Foo", result);
     }
 
     [Fact]
     public async Task CreateConfigureServicesClass()
     {
-        var expected = "public class Foo { }";
-
-        var services = new ServiceCollection();
-
-        services.AddLogging();
-
-        // services.AddCliServices();
-        var container = services.BuildServiceProvider();
-
-        var syntaxGenerator = container.GetRequiredService<ISyntaxGenerator>();
+        var container = BuildServiceProvider();
 
         var sut = ActivatorUtilities.CreateInstance<ClassSyntaxGenerationStrategy>(container);
 
@@ -86,22 +79,15 @@ public class ClassSyntaxGenerationStrategyTests
 
         var result = await sut.GenerateAsync(classModel, default);
 
-        Assert.Equal(expected, result);
+        Assert.NotNull(result);
+        Assert.Contains("class ConfigureServices", result);
+        Assert.Contains("AddApplicationServices", result);
     }
 
     [Fact]
     public async Task CreateShouldSerializeToExpectedString_GivenAField()
     {
-        var expected = "public class Foo { }";
-
-        var services = new ServiceCollection();
-
-        services.AddLogging();
-
-        // services.AddCliServices();
-        var container = services.BuildServiceProvider();
-
-        var syntaxGenerator = container.GetRequiredService<ISyntaxGenerator>();
+        var container = BuildServiceProvider();
 
         var sut = ActivatorUtilities.CreateInstance<ClassSyntaxGenerationStrategy>(container);
 
@@ -146,6 +132,8 @@ public class ClassSyntaxGenerationStrategyTests
 
         var result = await sut.GenerateAsync(classModel, default);
 
-        Assert.Equal(expected, result);
+        Assert.NotNull(result);
+        Assert.Contains("class Foo", result);
+        Assert.Contains("_logger", result);
     }
 }

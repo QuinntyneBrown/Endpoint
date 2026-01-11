@@ -7,6 +7,7 @@ using Endpoint.DotNet.Artifacts.Files.Factories;
 using Endpoint.DotNet.Artifacts.Files.Services;
 using Endpoint.DotNet.Artifacts.FullStack;
 using Endpoint.DotNet.Artifacts.Git;
+using Endpoint.DotNet.Artifacts.PlantUml.Services;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Artifacts.Projects.Services;
 using Endpoint.DotNet.Artifacts.Services;
@@ -89,6 +90,10 @@ public static class ConfigureServices
         services.AddSingleton<IArtifactParser, ArtifactParser>();
         services.AddSingleton<ISyntaxParser, SyntaxParser>();
         services.AddSingleton<Endpoint.DotNet.Artifacts.Files.Factories.IFileFactory, Endpoint.DotNet.Artifacts.Files.Factories.FileFactory>();
+
+        // PlantUML services
+        services.AddSingleton<IPlantUmlParserService, PlantUmlParserService>();
+        services.AddSingleton<IPlantUmlSolutionModelFactory, PlantUmlSolutionModelFactory>();
 
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
 

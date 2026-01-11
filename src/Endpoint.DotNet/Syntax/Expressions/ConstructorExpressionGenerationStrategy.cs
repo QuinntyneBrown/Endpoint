@@ -47,11 +47,9 @@ public class ConstructorExpressionGenerationStrategy : ISyntaxGenerationStrategy
 
             if (field != null)
             {
-                var fieldName = _namingConventionConverter.Convert(NamingConvention.CamelCase, field.Name);
-
                 var paramName = _namingConventionConverter.Convert(NamingConvention.CamelCase, param.Name);
 
-                stringBuilder.AppendLine($"{fieldName} = {paramName};");
+                stringBuilder.AppendLine($"{field.Name} = {paramName};");
             }
         }
 
