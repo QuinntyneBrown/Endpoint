@@ -6,6 +6,7 @@ using System.IO;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.Internal;
 using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.DotNet.Artifacts.Projects;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Artifacts.Units;
@@ -148,12 +149,62 @@ public class SolutionService : ISolutionService
 
     private async Task<dynamic> BuildingBlocksCreate(string directory)
     {
-        throw new NotImplementedException();
+        var buildingBlocksDirectory = Path.Combine(directory, "src", "BuildingBlocks");
+        
+        var messagingDirectory = Path.Combine(buildingBlocksDirectory, "Messaging");
+        
+        Directory.CreateDirectory(messagingDirectory);
+        
+        var projects = new List<ProjectModel>();
+        
+        var messagingProjectModel = await projectFactory.CreateMessagingProject(messagingDirectory);
+        projects.Add(messagingProjectModel);
+        
+        var messagingUdpProjectModel = await projectFactory.CreateMessagingUdpProject(messagingDirectory);
+        projects.Add(messagingUdpProjectModel);
+        
+        return new { Name = "BuildingBlocks", Directory = buildingBlocksDirectory, Projects = projects };
     }
 
     private async Task<dynamic> ServicesCreate(string services, string directory, List<INotification> notifications)
     {
-        throw new NotImplementedException();
+        var servicesDirectory = Path.Combine(directory, "src", "Services");
+        
+        Directory.CreateDirectory(servicesDirectory);
+        
+        var projects = new List<ProjectModel>();
+        
+        if (string.IsNullOrEmpty(services))
+        {
+            return new { Name = "Services", Directory = servicesDirectory, Projects = projects };
+        }
+        
+        var serviceNames = services.Split(',', StringSplitOptions.RemoveEmptyEntries);
+        
+        foreach (var serviceName in serviceNames)
+        {
+            var trimmedServiceName = serviceName.Trim();
+            var serviceDirectory = Path.Combine(servicesDirectory, trimmedServiceName);
+            
+            Directory.CreateDirectory(serviceDirectory);
+            
+            // Create Core project
+            var coreDirectory = Path.Combine(serviceDirectory, $"{trimmedServiceName}.Core");
+            var coreProject = await projectFactory.CreateCore(trimmedServiceName, coreDirectory);
+            projects.Add(coreProject);
+            
+            // Create Infrastructure project
+            var infrastructureDirectory = Path.Combine(serviceDirectory, $"{trimmedServiceName}.Infrastructure");
+            var infrastructureProject = await projectFactory.CreateInfrastructure(trimmedServiceName, infrastructureDirectory);
+            projects.Add(infrastructureProject);
+            
+            // Create Api project
+            var apiDirectory = Path.Combine(serviceDirectory, $"{trimmedServiceName}.Api");
+            var apiProject = await projectFactory.CreateApi(trimmedServiceName, apiDirectory);
+            projects.Add(apiProject);
+        }
+        
+        return new { Name = "Services", Directory = servicesDirectory, Projects = projects };
     }
 
     private dynamic AppsCreate(string directory)
