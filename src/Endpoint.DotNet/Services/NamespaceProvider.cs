@@ -28,7 +28,12 @@ public class NamespaceProvider : INamespaceProvider
 
         var path = string.Join(Path.DirectorySeparatorChar, parts.Take(parts.Length - depth));
 
-        var projectFile = Directory.GetFiles(path, "*.csproj").FirstOrDefault();
+        // Check if directory exists before trying to enumerate files
+        string? projectFile = null;
+        if (Directory.Exists(path))
+        {
+            projectFile = Directory.GetFiles(path, "*.csproj").FirstOrDefault();
+        }
 
         if (!string.IsNullOrEmpty(projectFile))
         {
@@ -49,7 +54,5 @@ public class NamespaceProvider : INamespaceProvider
 
             return Get(directory, depth);
         }
-
-        throw new NotImplementedException();
     }
 }

@@ -18,6 +18,12 @@ public class ContentFileArtifactGenerationStrategy : IArtifactGenerationStrategy
 
     public async Task GenerateAsync(ContentFileModel model)
     {
+        var directory = fileSystem.Path.GetDirectoryName(model.Path);
+        if (!string.IsNullOrEmpty(directory) && !fileSystem.Directory.Exists(directory))
+        {
+            fileSystem.Directory.CreateDirectory(directory);
+        }
+
         fileSystem.File.WriteAllText(model.Path, model.Content);
     }
 }

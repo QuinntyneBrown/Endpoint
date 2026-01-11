@@ -22,6 +22,7 @@ using Endpoint.DotNet.Syntax.Methods;
 using Endpoint.DotNet.Syntax.Params;
 using Endpoint.DotNet.Syntax.Properties;
 using Endpoint.DotNet.Syntax.Types;
+using Endpoint.DotNet.Syntax.Units;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.PlantUml.Services;
@@ -91,7 +92,7 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
         // Generate entity models
         foreach (var entity in plantUmlModel.GetEntities())
         {
-            GenerateEntityFiles(project, entity, plantUmlModel);
+            GenerateEntityFiles(project, entity, plantUmlModel, solutionName);
         }
 
         // Generate enum files
@@ -100,7 +101,40 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
             GenerateEnumFile(project, enumModel);
         }
 
+        // Generate IContext interface in Core project
+        GenerateContextInterface(project, plantUmlModel, solutionName);
+
         return project;
+    }
+
+    private void GenerateContextInterface(ProjectModel project, PlantUmlSolutionModel solutionModel, string solutionName)
+    {
+        var contextDirectory = Path.Combine(project.Directory, "Data");
+        var entities = solutionModel.GetEntities().ToList();
+        var interfaceContent = GenerateCoreContextInterfaceContent(entities, solutionName, project.Namespace);
+        project.Files.Add(new Files.ContentFileModel(interfaceContent, $"I{solutionName}Context", contextDirectory, ".cs"));
+    }
+
+    private string GenerateCoreContextInterfaceContent(List<PlantUmlClassModel> entities, string solutionName, string projectNamespace)
+    {
+        var dbSets = string.Join("\n    ", entities.Select(e => $"DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
+        var usings = string.Join("\n", entities.Select(e => $"using {projectNamespace}.Models.{e.Name};"));
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using Microsoft.EntityFrameworkCore;
+{usings}
+
+namespace {projectNamespace}.Data;
+
+public interface I{solutionName}Context
+{{
+    {dbSets}
+
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+}}
+";
     }
 
     private ProjectModel CreateInfrastructureProject(PlantUmlSolutionModel plantUmlModel, string solutionName, string srcDirectory)
@@ -154,17 +188,17 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
         return project;
     }
 
-    private void GenerateEntityFiles(ProjectModel project, PlantUmlClassModel plantUmlClass, PlantUmlSolutionModel solutionModel)
+    private void GenerateEntityFiles(ProjectModel project, PlantUmlClassModel plantUmlClass, PlantUmlSolutionModel solutionModel, string solutionName)
     {
         var entityName = plantUmlClass.Name;
         var entityDirectory = Path.Combine(project.Directory, "Models", entityName);
 
         // Generate entity class
-        var entityClass = CreateEntityClassModel(plantUmlClass);
+        var entityClass = CreateEntityClassModel(plantUmlClass, project.Namespace);
         project.Files.Add(new CodeFileModel<ClassModel>(entityClass, entityClass.Usings, entityName, entityDirectory, ".cs"));
 
         // Generate DTO class
-        var dtoClass = CreateDtoClassModel(plantUmlClass);
+        var dtoClass = CreateDtoClassModel(plantUmlClass, project.Namespace);
         project.Files.Add(new CodeFileModel<ClassModel>(dtoClass, dtoClass.Usings, $"{entityName}Dto", entityDirectory, ".cs"));
 
         // Generate Extensions class
@@ -174,31 +208,38 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
         // Only generate CRUD operations for aggregate roots
         if (plantUmlClass.IsAggregate)
         {
-            var cqrsDirectory = Path.Combine(project.Directory, entityName);
-            GenerateCrudOperations(project, plantUmlClass, cqrsDirectory);
+            // Use "Features" prefix to avoid namespace collision with model names
+            var cqrsDirectory = Path.Combine(project.Directory, "Features", entityName);
+            GenerateCrudOperations(project, plantUmlClass, cqrsDirectory, solutionName);
         }
     }
 
-    private ClassModel CreateEntityClassModel(PlantUmlClassModel plantUmlClass)
+    private ClassModel CreateEntityClassModel(PlantUmlClassModel plantUmlClass, string projectNamespace)
     {
         var classModel = new ClassModel(plantUmlClass.Name);
 
         foreach (var property in plantUmlClass.Properties)
         {
-            var propertyModel = CreatePropertyModel(classModel, property);
+            var propertyModel = CreatePropertyModel(classModel, property, projectNamespace);
             classModel.Properties.Add(propertyModel);
         }
 
         return classModel;
     }
 
-    private ClassModel CreateDtoClassModel(PlantUmlClassModel plantUmlClass)
+    private static bool IsPrimitiveType(string typeName)
+    {
+        var primitives = new[] { "string", "int", "long", "bool", "decimal", "double", "float", "DateTime", "DateTimeOffset", "Guid", "byte", "short" };
+        return primitives.Contains(typeName, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private ClassModel CreateDtoClassModel(PlantUmlClassModel plantUmlClass, string projectNamespace)
     {
         var classModel = new ClassModel($"{plantUmlClass.Name}Dto");
 
         foreach (var property in plantUmlClass.Properties)
         {
-            var propertyModel = CreatePropertyModel(classModel, property);
+            var propertyModel = CreatePropertyModel(classModel, property, projectNamespace);
             classModel.Properties.Add(propertyModel);
         }
 
@@ -219,7 +260,8 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
             Name = "ToDto",
             ReturnType = new TypeModel($"{entityName}Dto"),
             Static = true,
-            AccessModifier = AccessModifier.Public
+            AccessModifier = AccessModifier.Public,
+            Body = new Syntax.Expressions.ExpressionModel("throw new NotImplementedException();")
         };
         toDtoMethod.Params.Add(new ParamModel
         {
@@ -232,9 +274,9 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
         return classModel;
     }
 
-    private PropertyModel CreatePropertyModel(TypeDeclarationModel parent, PlantUmlPropertyModel plantUmlProperty)
+    private PropertyModel CreatePropertyModel(TypeDeclarationModel parent, PlantUmlPropertyModel plantUmlProperty, string projectNamespace = null)
     {
-        var typeModel = CreateTypeModel(plantUmlProperty);
+        var typeModel = CreateTypeModel(plantUmlProperty, projectNamespace);
         var accessors = PropertyAccessorModel.GetSet;
 
         return new PropertyModel(
@@ -247,17 +289,24 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
             plantUmlProperty.IsKey);
     }
 
-    private TypeModel CreateTypeModel(PlantUmlPropertyModel property)
+    private TypeModel CreateTypeModel(PlantUmlPropertyModel property, string projectNamespace = null)
     {
         TypeModel typeModel;
 
         if (property.IsCollection && !string.IsNullOrEmpty(property.GenericTypeArgument))
         {
+            // Use fully qualified name for non-primitive types to avoid namespace collision
+            var genericTypeName = property.GenericTypeArgument;
+            if (!IsPrimitiveType(genericTypeName) && !string.IsNullOrEmpty(projectNamespace))
+            {
+                genericTypeName = $"Models.{property.GenericTypeArgument}.{property.GenericTypeArgument}";
+            }
+
             typeModel = new TypeModel(property.CollectionType ?? "List")
             {
                 GenericTypeParameters = new List<TypeModel>
                 {
-                    new TypeModel(property.GenericTypeArgument)
+                    new TypeModel(genericTypeName)
                 }
             };
         }
@@ -272,75 +321,217 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
         return typeModel;
     }
 
-    private void GenerateCrudOperations(ProjectModel project, PlantUmlClassModel entity, string directory)
+    private void GenerateCrudOperations(ProjectModel project, PlantUmlClassModel entity, string directory, string solutionName)
     {
         var entityName = entity.Name;
 
         // Create Request/Response/Handler for each CRUD operation
-        GenerateCreateOperation(project, entity, directory);
-        GenerateGetByIdOperation(project, entity, directory);
-        GenerateGetAllOperation(project, entity, directory);
-        GenerateUpdateOperation(project, entity, directory);
-        GenerateDeleteOperation(project, entity, directory);
+        GenerateCreateOperation(project, entity, directory, solutionName);
+        GenerateGetByIdOperation(project, entity, directory, solutionName);
+        GenerateGetAllOperation(project, entity, directory, solutionName);
+        GenerateUpdateOperation(project, entity, directory, solutionName);
+        GenerateDeleteOperation(project, entity, directory, solutionName);
     }
 
-    private void GenerateCreateOperation(ProjectModel project, PlantUmlClassModel entity, string directory)
+    private static PlantUmlPropertyModel? GetKeyProperty(PlantUmlClassModel entity)
+    {
+        return entity.Properties.FirstOrDefault(p => p.IsKey);
+    }
+
+    private static string ToCamelCase(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return name;
+        return char.ToLowerInvariant(name[0]) + name[1..];
+    }
+
+    private void GenerateCreateOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string solutionName)
     {
         var entityName = entity.Name;
+        var modelsNamespace = $"{project.Namespace}.Models.{entityName}";
+        var keyProperty = GetKeyProperty(entity);
+        var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
 
         // Create Request
         var requestClass = new ClassModel($"Create{entityName}Request");
+        requestClass.Usings.Add(new UsingModel("MediatR"));
+        requestClass.Usings.Add(new UsingModel($"{project.Namespace}.Models"));
         requestClass.Implements.Add(new TypeModel($"IRequest<Create{entityName}Response>"));
         foreach (var property in entity.Properties.Where(p => !p.IsKey && !IsAuditProperty(p.Name)))
         {
-            requestClass.Properties.Add(CreatePropertyModel(requestClass, property));
+            requestClass.Properties.Add(CreatePropertyModel(requestClass, property, project.Namespace));
         }
         project.Files.Add(new CodeFileModel<ClassModel>(requestClass, requestClass.Usings, $"Create{entityName}Request", directory, ".cs"));
 
         // Create Response
         var responseClass = new ClassModel($"Create{entityName}Response");
+        responseClass.Usings.Add(new UsingModel(modelsNamespace));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel($"{entityName}Dto"), entityName, PropertyAccessorModel.GetSet));
         project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Create{entityName}Response", directory, ".cs"));
 
-        // Create Handler
-        var handlerClass = new ClassModel($"Create{entityName}Handler");
-        handlerClass.Implements.Add(new TypeModel($"IRequestHandler<Create{entityName}Request, Create{entityName}Response>"));
-        project.Files.Add(new CodeFileModel<ClassModel>(handlerClass, handlerClass.Usings, $"Create{entityName}Handler", directory, ".cs"));
+        // Create Handler with implementation
+        var handlerContent = GenerateCreateHandlerContent(entity, solutionName, project.Namespace, keyPropertyName);
+        project.Files.Add(new Files.ContentFileModel(handlerContent, $"Create{entityName}Handler", directory, ".cs"));
 
         // Create Validator
-        var validatorClass = new ClassModel($"Create{entityName}Validator");
-        validatorClass.Implements.Add(new TypeModel($"AbstractValidator<Create{entityName}Request>"));
-        project.Files.Add(new CodeFileModel<ClassModel>(validatorClass, validatorClass.Usings, $"Create{entityName}Validator", directory, ".cs"));
+        var validatorContent = GenerateCreateValidatorContent(entity, project.Namespace);
+        project.Files.Add(new Files.ContentFileModel(validatorContent, $"Create{entityName}Validator", directory, ".cs"));
     }
 
-    private void GenerateGetByIdOperation(ProjectModel project, PlantUmlClassModel entity, string directory)
+    private string GenerateCreateHandlerContent(PlantUmlClassModel entity, string solutionName, string projectNamespace, string keyPropertyName)
     {
         var entityName = entity.Name;
+        var entityNameCamel = ToCamelCase(entityName);
+        var nonKeyProperties = entity.Properties.Where(p => !p.IsKey && !IsAuditProperty(p.Name)).ToList();
+
+        var propertyAssignments = string.Join("\n            ", nonKeyProperties.Select(p => $"{p.Name} = request.{p.Name},"));
+
+        // Use type alias to avoid namespace collision between Features.{EntityName} namespace and Models.{EntityName}.{EntityName} type
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {projectNamespace}.Data;
+using {entityName}Entity = {projectNamespace}.Models.{entityName}.{entityName};
+using {entityName}Ext = {projectNamespace}.Models.{entityName}.{entityName}Extensions;
+
+namespace {projectNamespace}.Features.{entityName};
+
+public class Create{entityName}Handler : IRequestHandler<Create{entityName}Request, Create{entityName}Response>
+{{
+    private readonly I{solutionName}Context _context;
+
+    public Create{entityName}Handler(I{solutionName}Context context)
+    {{
+        _context = context;
+    }}
+
+    public async Task<Create{entityName}Response> Handle(Create{entityName}Request request, CancellationToken cancellationToken)
+    {{
+        var {entityNameCamel} = new {entityName}Entity
+        {{
+            {keyPropertyName} = Guid.NewGuid().ToString(),
+            {propertyAssignments}
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow
+        }};
+
+        _context.{GetPluralName(entityName)}.Add({entityNameCamel});
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new Create{entityName}Response
+        {{
+            {entityName} = {entityName}Ext.ToDto({entityNameCamel})
+        }};
+    }}
+}}
+";
+    }
+
+    private string GenerateCreateValidatorContent(PlantUmlClassModel entity, string projectNamespace)
+    {
+        var entityName = entity.Name;
+        var requiredProperties = entity.Properties.Where(p => !p.IsKey && !IsAuditProperty(p.Name) && p.IsRequired && p.Type.ToLower() == "string").ToList();
+
+        var rules = string.Join("\n        ", requiredProperties.Select(p => $"RuleFor(x => x.{p.Name}).NotEmpty();"));
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using FluentValidation;
+
+namespace {projectNamespace}.Features.{entityName};
+
+public class Create{entityName}Validator : AbstractValidator<Create{entityName}Request>
+{{
+    public Create{entityName}Validator()
+    {{
+        {rules}
+    }}
+}}
+";
+    }
+
+    private void GenerateGetByIdOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string solutionName)
+    {
+        var entityName = entity.Name;
+        var modelsNamespace = $"{project.Namespace}.Models.{entityName}";
+        var keyProperty = GetKeyProperty(entity);
+        var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
 
         // Create Request
         var requestClass = new ClassModel($"Get{entityName}ByIdRequest");
+        requestClass.Usings.Add(new UsingModel("MediatR"));
         requestClass.Implements.Add(new TypeModel($"IRequest<Get{entityName}ByIdResponse>"));
-        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), $"{entityName}Id", PropertyAccessorModel.GetSet));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), keyPropertyName, PropertyAccessorModel.GetSet));
         project.Files.Add(new CodeFileModel<ClassModel>(requestClass, requestClass.Usings, $"Get{entityName}ByIdRequest", directory, ".cs"));
 
         // Create Response
         var responseClass = new ClassModel($"Get{entityName}ByIdResponse");
+        responseClass.Usings.Add(new UsingModel(modelsNamespace));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel($"{entityName}Dto"), entityName, PropertyAccessorModel.GetSet));
         project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Get{entityName}ByIdResponse", directory, ".cs"));
 
-        // Create Handler
-        var handlerClass = new ClassModel($"Get{entityName}ByIdHandler");
-        handlerClass.Implements.Add(new TypeModel($"IRequestHandler<Get{entityName}ByIdRequest, Get{entityName}ByIdResponse>"));
-        project.Files.Add(new CodeFileModel<ClassModel>(handlerClass, handlerClass.Usings, $"Get{entityName}ByIdHandler", directory, ".cs"));
+        // Create Handler with implementation
+        var handlerContent = GenerateGetByIdHandlerContent(entity, solutionName, project.Namespace, keyPropertyName);
+        project.Files.Add(new Files.ContentFileModel(handlerContent, $"Get{entityName}ByIdHandler", directory, ".cs"));
     }
 
-    private void GenerateGetAllOperation(ProjectModel project, PlantUmlClassModel entity, string directory)
+    private string GenerateGetByIdHandlerContent(PlantUmlClassModel entity, string solutionName, string projectNamespace, string keyPropertyName)
+    {
+        var entityName = entity.Name;
+        var entityNameCamel = ToCamelCase(entityName);
+
+        // Use type alias to avoid namespace collision between Features.{EntityName} namespace and Models.{EntityName}.{EntityName} type
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {projectNamespace}.Data;
+using {entityName}Entity = {projectNamespace}.Models.{entityName}.{entityName};
+using {entityName}Ext = {projectNamespace}.Models.{entityName}.{entityName}Extensions;
+
+namespace {projectNamespace}.Features.{entityName};
+
+public class Get{entityName}ByIdHandler : IRequestHandler<Get{entityName}ByIdRequest, Get{entityName}ByIdResponse>
+{{
+    private readonly I{solutionName}Context _context;
+
+    public Get{entityName}ByIdHandler(I{solutionName}Context context)
+    {{
+        _context = context;
+    }}
+
+    public async Task<Get{entityName}ByIdResponse> Handle(Get{entityName}ByIdRequest request, CancellationToken cancellationToken)
+    {{
+        var {entityNameCamel} = await _context.{GetPluralName(entityName)}
+            .FirstOrDefaultAsync(x => x.{keyPropertyName} == request.{keyPropertyName}, cancellationToken);
+
+        if ({entityNameCamel} == null)
+        {{
+            throw new KeyNotFoundException($""{entityName} with ID '{{request.{keyPropertyName}}}' was not found."");
+        }}
+
+        return new Get{entityName}ByIdResponse
+        {{
+            {entityName} = {entityName}Ext.ToDto({entityNameCamel})
+        }};
+    }}
+}}
+";
+    }
+
+    private void GenerateGetAllOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string solutionName)
     {
         var entityName = entity.Name;
         var pluralName = GetPluralName(entityName);
+        var modelsNamespace = $"{project.Namespace}.Models.{entityName}";
 
         // Create Request
         var requestClass = new ClassModel($"Get{pluralName}Request");
+        requestClass.Usings.Add(new UsingModel("MediatR"));
         requestClass.Implements.Add(new TypeModel($"IRequest<Get{pluralName}Response>"));
         requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("int"), "PageIndex", PropertyAccessorModel.GetSet) { DefaultValue = "0" });
         requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("int"), "PageSize", PropertyAccessorModel.GetSet) { DefaultValue = "20" });
@@ -351,56 +542,214 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
 
         // Create Response
         var responseClass = new ClassModel($"Get{pluralName}Response");
+        responseClass.Usings.Add(new UsingModel(modelsNamespace));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, TypeModel.ListOf($"{entityName}Dto"), pluralName, PropertyAccessorModel.GetSet) { DefaultValue = "new()" });
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel("int"), "TotalCount", PropertyAccessorModel.GetSet));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel("int"), "PageIndex", PropertyAccessorModel.GetSet));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel("int"), "PageSize", PropertyAccessorModel.GetSet));
         project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Get{pluralName}Response", directory, ".cs"));
 
-        // Create Handler
-        var handlerClass = new ClassModel($"Get{pluralName}Handler");
-        handlerClass.Implements.Add(new TypeModel($"IRequestHandler<Get{pluralName}Request, Get{pluralName}Response>"));
-        project.Files.Add(new CodeFileModel<ClassModel>(handlerClass, handlerClass.Usings, $"Get{pluralName}Handler", directory, ".cs"));
+        // Create Handler with implementation
+        var handlerContent = GenerateGetAllHandlerContent(entity, solutionName, project.Namespace);
+        project.Files.Add(new Files.ContentFileModel(handlerContent, $"Get{pluralName}Handler", directory, ".cs"));
     }
 
-    private void GenerateUpdateOperation(ProjectModel project, PlantUmlClassModel entity, string directory)
+    private string GenerateGetAllHandlerContent(PlantUmlClassModel entity, string solutionName, string projectNamespace)
     {
         var entityName = entity.Name;
+        var pluralName = GetPluralName(entityName);
+        var searchableProperties = entity.Properties.Where(p => p.Type.ToLower() == "string" && !p.IsKey).ToList();
+
+        var searchConditions = searchableProperties.Any()
+            ? string.Join(" ||\n                    ", searchableProperties.Select(p => $"x.{p.Name}.Contains(request.SearchTerm)"))
+            : "false";
+
+        // Use type alias to avoid namespace collision
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {projectNamespace}.Data;
+using {entityName}Entity = {projectNamespace}.Models.{entityName}.{entityName};
+using {entityName}Ext = {projectNamespace}.Models.{entityName}.{entityName}Extensions;
+
+namespace {projectNamespace}.Features.{entityName};
+
+public class Get{pluralName}Handler : IRequestHandler<Get{pluralName}Request, Get{pluralName}Response>
+{{
+    private readonly I{solutionName}Context _context;
+
+    public Get{pluralName}Handler(I{solutionName}Context context)
+    {{
+        _context = context;
+    }}
+
+    public async Task<Get{pluralName}Response> Handle(Get{pluralName}Request request, CancellationToken cancellationToken)
+    {{
+        var query = _context.{pluralName}.AsQueryable();
+
+        // Apply search filter
+        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        {{
+            query = query.Where(x =>
+                {searchConditions});
+        }}
+
+        // Get total count before paging
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        // Apply sorting
+        query = request.SortBy?.ToLower() switch
+        {{
+            ""createdat"" => request.SortDescending ? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt),
+            ""modifiedat"" => request.SortDescending ? query.OrderByDescending(x => x.ModifiedAt) : query.OrderBy(x => x.ModifiedAt),
+            _ => query.OrderByDescending(x => x.CreatedAt)
+        }};
+
+        // Apply paging
+        var items = await query
+            .Skip(request.PageIndex * request.PageSize)
+            .Take(request.PageSize)
+            .ToListAsync(cancellationToken);
+
+        return new Get{pluralName}Response
+        {{
+            {pluralName} = items.Select(x => {entityName}Ext.ToDto(x)).ToList(),
+            TotalCount = totalCount,
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize
+        }};
+    }}
+}}
+";
+    }
+
+    private void GenerateUpdateOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string solutionName)
+    {
+        var entityName = entity.Name;
+        var modelsNamespace = $"{project.Namespace}.Models.{entityName}";
+        var keyProperty = GetKeyProperty(entity);
+        var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
 
         // Create Request
         var requestClass = new ClassModel($"Update{entityName}Request");
+        requestClass.Usings.Add(new UsingModel("MediatR"));
+        requestClass.Usings.Add(new UsingModel($"{project.Namespace}.Models"));
         requestClass.Implements.Add(new TypeModel($"IRequest<Update{entityName}Response>"));
-        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), $"{entityName}Id", PropertyAccessorModel.GetSet));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), keyPropertyName, PropertyAccessorModel.GetSet));
         foreach (var property in entity.Properties.Where(p => !p.IsKey && !IsAuditProperty(p.Name)))
         {
-            requestClass.Properties.Add(CreatePropertyModel(requestClass, property));
+            requestClass.Properties.Add(CreatePropertyModel(requestClass, property, project.Namespace));
         }
         project.Files.Add(new CodeFileModel<ClassModel>(requestClass, requestClass.Usings, $"Update{entityName}Request", directory, ".cs"));
 
         // Create Response
         var responseClass = new ClassModel($"Update{entityName}Response");
+        responseClass.Usings.Add(new UsingModel(modelsNamespace));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel($"{entityName}Dto"), entityName, PropertyAccessorModel.GetSet));
         project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Update{entityName}Response", directory, ".cs"));
 
-        // Create Handler
-        var handlerClass = new ClassModel($"Update{entityName}Handler");
-        handlerClass.Implements.Add(new TypeModel($"IRequestHandler<Update{entityName}Request, Update{entityName}Response>"));
-        project.Files.Add(new CodeFileModel<ClassModel>(handlerClass, handlerClass.Usings, $"Update{entityName}Handler", directory, ".cs"));
+        // Create Handler with implementation
+        var handlerContent = GenerateUpdateHandlerContent(entity, solutionName, project.Namespace, keyPropertyName);
+        project.Files.Add(new Files.ContentFileModel(handlerContent, $"Update{entityName}Handler", directory, ".cs"));
 
         // Create Validator
-        var validatorClass = new ClassModel($"Update{entityName}Validator");
-        validatorClass.Implements.Add(new TypeModel($"AbstractValidator<Update{entityName}Request>"));
-        project.Files.Add(new CodeFileModel<ClassModel>(validatorClass, validatorClass.Usings, $"Update{entityName}Validator", directory, ".cs"));
+        var validatorContent = GenerateUpdateValidatorContent(entity, project.Namespace, keyPropertyName);
+        project.Files.Add(new Files.ContentFileModel(validatorContent, $"Update{entityName}Validator", directory, ".cs"));
     }
 
-    private void GenerateDeleteOperation(ProjectModel project, PlantUmlClassModel entity, string directory)
+    private string GenerateUpdateHandlerContent(PlantUmlClassModel entity, string solutionName, string projectNamespace, string keyPropertyName)
     {
         var entityName = entity.Name;
+        var entityNameCamel = ToCamelCase(entityName);
+        var nonKeyProperties = entity.Properties.Where(p => !p.IsKey && !IsAuditProperty(p.Name)).ToList();
+
+        var propertyUpdates = string.Join("\n        ", nonKeyProperties.Select(p => $"{entityNameCamel}.{p.Name} = request.{p.Name};"));
+
+        // Use type alias to avoid namespace collision
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {projectNamespace}.Data;
+using {entityName}Entity = {projectNamespace}.Models.{entityName}.{entityName};
+using {entityName}Ext = {projectNamespace}.Models.{entityName}.{entityName}Extensions;
+
+namespace {projectNamespace}.Features.{entityName};
+
+public class Update{entityName}Handler : IRequestHandler<Update{entityName}Request, Update{entityName}Response>
+{{
+    private readonly I{solutionName}Context _context;
+
+    public Update{entityName}Handler(I{solutionName}Context context)
+    {{
+        _context = context;
+    }}
+
+    public async Task<Update{entityName}Response> Handle(Update{entityName}Request request, CancellationToken cancellationToken)
+    {{
+        var {entityNameCamel} = await _context.{GetPluralName(entityName)}
+            .FirstOrDefaultAsync(x => x.{keyPropertyName} == request.{keyPropertyName}, cancellationToken);
+
+        if ({entityNameCamel} == null)
+        {{
+            throw new KeyNotFoundException($""{entityName} with ID '{{request.{keyPropertyName}}}' was not found."");
+        }}
+
+        // Update all properties
+        {propertyUpdates}
+        {entityNameCamel}.ModifiedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new Update{entityName}Response
+        {{
+            {entityName} = {entityName}Ext.ToDto({entityNameCamel})
+        }};
+    }}
+}}
+";
+    }
+
+    private string GenerateUpdateValidatorContent(PlantUmlClassModel entity, string projectNamespace, string keyPropertyName)
+    {
+        var entityName = entity.Name;
+        var requiredProperties = entity.Properties.Where(p => !p.IsKey && !IsAuditProperty(p.Name) && p.IsRequired && p.Type.ToLower() == "string").ToList();
+
+        var rules = new List<string> { $"RuleFor(x => x.{keyPropertyName}).NotEmpty();" };
+        rules.AddRange(requiredProperties.Select(p => $"RuleFor(x => x.{p.Name}).NotEmpty();"));
+        var rulesStr = string.Join("\n        ", rules);
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using FluentValidation;
+
+namespace {projectNamespace}.Features.{entityName};
+
+public class Update{entityName}Validator : AbstractValidator<Update{entityName}Request>
+{{
+    public Update{entityName}Validator()
+    {{
+        {rulesStr}
+    }}
+}}
+";
+    }
+
+    private void GenerateDeleteOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string solutionName)
+    {
+        var entityName = entity.Name;
+        var keyProperty = GetKeyProperty(entity);
+        var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
 
         // Create Request
         var requestClass = new ClassModel($"Delete{entityName}Request");
+        requestClass.Usings.Add(new UsingModel("MediatR"));
         requestClass.Implements.Add(new TypeModel($"IRequest<Delete{entityName}Response>"));
-        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), $"{entityName}Id", PropertyAccessorModel.GetSet));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), keyPropertyName, PropertyAccessorModel.GetSet));
         project.Files.Add(new CodeFileModel<ClassModel>(requestClass, requestClass.Usings, $"Delete{entityName}Request", directory, ".cs"));
 
         // Create Response
@@ -409,10 +758,61 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel("string"), "Message", PropertyAccessorModel.GetSet));
         project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Delete{entityName}Response", directory, ".cs"));
 
-        // Create Handler
-        var handlerClass = new ClassModel($"Delete{entityName}Handler");
-        handlerClass.Implements.Add(new TypeModel($"IRequestHandler<Delete{entityName}Request, Delete{entityName}Response>"));
-        project.Files.Add(new CodeFileModel<ClassModel>(handlerClass, handlerClass.Usings, $"Delete{entityName}Handler", directory, ".cs"));
+        // Create Handler with implementation
+        var handlerContent = GenerateDeleteHandlerContent(entity, solutionName, project.Namespace, keyPropertyName);
+        project.Files.Add(new Files.ContentFileModel(handlerContent, $"Delete{entityName}Handler", directory, ".cs"));
+    }
+
+    private string GenerateDeleteHandlerContent(PlantUmlClassModel entity, string solutionName, string projectNamespace, string keyPropertyName)
+    {
+        var entityName = entity.Name;
+        var entityNameCamel = ToCamelCase(entityName);
+
+        // Use type alias to avoid namespace collision
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {projectNamespace}.Data;
+using {entityName}Entity = {projectNamespace}.Models.{entityName}.{entityName};
+
+namespace {projectNamespace}.Features.{entityName};
+
+public class Delete{entityName}Handler : IRequestHandler<Delete{entityName}Request, Delete{entityName}Response>
+{{
+    private readonly I{solutionName}Context _context;
+
+    public Delete{entityName}Handler(I{solutionName}Context context)
+    {{
+        _context = context;
+    }}
+
+    public async Task<Delete{entityName}Response> Handle(Delete{entityName}Request request, CancellationToken cancellationToken)
+    {{
+        var {entityNameCamel} = await _context.{GetPluralName(entityName)}
+            .FirstOrDefaultAsync(x => x.{keyPropertyName} == request.{keyPropertyName}, cancellationToken);
+
+        if ({entityNameCamel} == null)
+        {{
+            return new Delete{entityName}Response
+            {{
+                Success = false,
+                Message = $""{entityName} with ID '{{request.{keyPropertyName}}}' was not found.""
+            }};
+        }}
+
+        _context.{GetPluralName(entityName)}.Remove({entityNameCamel});
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new Delete{entityName}Response
+        {{
+            Success = true,
+            Message = $""{entityName} with ID '{{request.{keyPropertyName}}}' was successfully deleted.""
+        }};
+    }}
+}}
+";
     }
 
     private void GenerateEnumFile(ProjectModel project, PlantUmlEnumModel plantUmlEnum)
@@ -443,21 +843,20 @@ public enum {enumModel.Name}
         var entities = solutionModel.GetEntities().ToList();
         var content = GenerateDbContextContent(entities, solutionName, project.Namespace);
         project.Files.Add(new Files.ContentFileModel(content, $"{solutionName}DbContext", dbContextDirectory, ".cs"));
-
-        // Generate interface
-        var interfaceContent = GenerateDbContextInterfaceContent(entities, solutionName, project.Namespace);
-        project.Files.Add(new Files.ContentFileModel(interfaceContent, $"I{solutionName}Context", dbContextDirectory, ".cs"));
+        // Note: IContext interface is now generated in Core project
     }
 
     private string GenerateDbContextContent(List<PlantUmlClassModel> entities, string solutionName, string projectNamespace)
     {
         var dbSets = string.Join("\n    ", entities.Select(e => $"public DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
+        var usings = string.Join("\n", entities.Select(e => $"using {solutionName}.Core.Models.{e.Name};"));
 
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore;
-using {solutionName}.Core.Models;
+using {solutionName}.Core.Data;
+{usings}
 
 namespace {projectNamespace}.Data;
 
@@ -474,27 +873,6 @@ public class {solutionName}DbContext : DbContext, I{solutionName}Context
     {{
         base.OnModelCreating(modelBuilder);
     }}
-}}
-";
-    }
-
-    private string GenerateDbContextInterfaceContent(List<PlantUmlClassModel> entities, string solutionName, string projectNamespace)
-    {
-        var dbSets = string.Join("\n    ", entities.Select(e => $"DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
-
-        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
-// Licensed under the MIT License. See License.txt in the project root for license information.
-
-using Microsoft.EntityFrameworkCore;
-using {solutionName}.Core.Models;
-
-namespace {projectNamespace}.Data;
-
-public interface I{solutionName}Context
-{{
-    {dbSets}
-
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }}
 ";
     }
@@ -519,7 +897,7 @@ public interface I{solutionName}Context
 
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using {solutionName}.Core.{entityName};
+using {solutionName}.Core.Features.{entityName};
 
 namespace {projectNamespace}.Controllers;
 
@@ -613,6 +991,7 @@ public class {entityName}Controller : ControllerBase
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using {solutionName}.Core.Data;
 using {solutionName}.Infrastructure.Data;
 using FluentValidation;
 using MediatR;
@@ -625,11 +1004,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// MediatR
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof({solutionName}.Core.Constants).Assembly));
+// MediatR - register from Core project
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<I{solutionName}Context>());
 
-// FluentValidation
-builder.Services.AddValidatorsFromAssembly(typeof({solutionName}.Core.Constants).Assembly);
+// FluentValidation - register from Core project
+builder.Services.AddValidatorsFromAssemblyContaining<I{solutionName}Context>();
 
 // Database
 builder.Services.AddDbContext<{solutionName}DbContext>(options =>
