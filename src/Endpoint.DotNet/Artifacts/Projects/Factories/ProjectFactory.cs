@@ -258,7 +258,7 @@ public class ProjectFactory : IProjectFactory
 
         model.Files.Add(fileFactory.CreateTemplate("ServiceBusMessage", "ServiceBusMessage", model.Directory));
 
-        model.Files.Add(fileFactory.CreateTemplate("Observable", "Observable", $"{model.Directory}{Path.DirectorySeparatorChar}Internals"));
+        model.Files.Add(fileFactory.CreateTemplate("Observable", "Observable", Path.Combine(model.Directory, "Internals")));
 
         model.Packages.Add(new() { Name = "MediatR.Contracts", Version = "1.0.1" });
 
@@ -421,9 +421,7 @@ public class ProjectFactory : IProjectFactory
         => await CreateLibrary($"{name}.Core", directory, new() { Constants.ProjectType.Core });
 
     public async Task<ProjectModel> CreateInfrastructure(string name, string directory)
-    {
-        throw new NotImplementedException();
-    }
+        => await CreateLibrary($"{name}.Infrastructure", directory, new() { Constants.ProjectType.Infrastructure });
 
     public async Task<ProjectModel> CreateApi(string name, string directory)
         => await CreateLibrary($"{name}.Api", directory, new() { Constants.ProjectType.Api });
