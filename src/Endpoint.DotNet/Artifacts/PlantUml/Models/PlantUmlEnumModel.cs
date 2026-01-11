@@ -16,5 +16,11 @@ public class PlantUmlEnumModel
 
     public string Namespace { get; set; }
 
+    /// <summary>
+    /// The bounded context this enum belongs to (e.g., "OrderManagement", "IdentityManagement").
+    /// Null or empty if the enum belongs to the default/main context.
+    /// </summary>
+    public string BoundedContext { get; set; }
+
     public List<string> Values { get; set; }
 }

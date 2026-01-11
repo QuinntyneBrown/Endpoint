@@ -50,9 +50,76 @@ A coding agent implementing this specification SHALL be able to:
 |------|------------|
 | Entity | A domain model class representing a business concept |
 | Aggregate | A cluster of entities with a root entity |
+| Bounded Context | A logical boundary containing related aggregates and entities with its own data store |
 | CRUD | Create, Read, Update, Delete operations |
 | Scaffold | Generated code structure with placeholder implementation |
 | Operational | Code that compiles, runs, and passes tests |
+
+### 1.4 Bounded Context Support
+
+The specification supports multiple bounded contexts within a single solution. Each bounded context:
+
+1. **Generates its own project set**: `{Solution}.{BoundedContext}.Core`, `{Solution}.{BoundedContext}.Infrastructure`, `{Solution}.{BoundedContext}.Api`
+2. **Has its own database context**: Each bounded context has a separate DbContext and database
+3. **Maintains isolation**: Entities in one bounded context are independent of entities in another
+
+#### 1.4.1 Package Naming Convention for Bounded Contexts
+
+To define entities within a bounded context, use the following package naming convention:
+
+```plantuml
+package "{SolutionName}.{BoundedContext}.Aggregates.{EntityName}" {
+    class EntityName <<aggregate>> {
+        +EntityNameId : string
+        ' properties...
+    }
+}
+```
+
+**Examples:**
+```plantuml
+' Order Management bounded context
+package "ECommerce.OrderManagement.Aggregates.Order" {
+    class Order <<aggregate>> { ... }
+}
+
+' Identity Management bounded context
+package "ECommerce.IdentityManagement.Aggregates.User" {
+    class User <<aggregate>> { ... }
+}
+```
+
+#### 1.4.2 Bounded Context Detection Rules
+
+The parser extracts bounded contexts using the following rules:
+
+1. Package name format: `{SolutionName}.{BoundedContext}.Aggregates.{EntityName}`
+2. The bounded context name is the second segment after the solution name
+3. If no bounded context is detected (simple format like `{SolutionName}.Core.Aggregates.{EntityName}`), entities belong to the default/main context
+4. Bounded context names SHOULD use PascalCase (e.g., `OrderManagement`, `IdentityManagement`)
+
+#### 1.4.3 Multi-Bounded Context Solution Structure
+
+```
+Solution/
+├── src/
+│   ├── {Solution}.{BoundedContext1}.Api/
+│   │   ├── Controllers/
+│   │   ├── Program.cs
+│   │   └── {Solution}.{BoundedContext1}.Api.csproj
+│   ├── {Solution}.{BoundedContext1}.Core/
+│   │   ├── Aggregates/
+│   │   ├── Features/
+│   │   └── {Solution}.{BoundedContext1}.Core.csproj
+│   ├── {Solution}.{BoundedContext1}.Infrastructure/
+│   │   ├── Data/
+│   │   │   └── {BoundedContext1}DbContext.cs
+│   │   └── {Solution}.{BoundedContext1}.Infrastructure.csproj
+│   ├── {Solution}.{BoundedContext2}.Api/
+│   ├── {Solution}.{BoundedContext2}.Core/
+│   └── {Solution}.{BoundedContext2}.Infrastructure/
+└── {Solution}.sln
+```
 
 ---
 

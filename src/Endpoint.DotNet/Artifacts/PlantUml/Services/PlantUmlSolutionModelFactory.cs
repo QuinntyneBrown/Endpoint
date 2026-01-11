@@ -54,22 +54,61 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
         logger.LogInformation("Creating solution model from PlantUML: {SolutionName}", solutionName);
 
         var solution = new SolutionModel(solutionName, outputDirectory);
+        var boundedContexts = plantUmlModel.GetBoundedContexts().ToList();
 
-        // Create Core project
-        var coreProject = CreateCoreProject(plantUmlModel, solutionName, solution.SrcDirectory);
-        solution.Projects.Add(coreProject);
+        if (boundedContexts.Any())
+        {
+            // Multi-bounded context solution
+            logger.LogInformation("Detected {Count} bounded context(s): {BoundedContexts}",
+                boundedContexts.Count, string.Join(", ", boundedContexts));
 
-        // Create Infrastructure project
-        var infrastructureProject = CreateInfrastructureProject(plantUmlModel, solutionName, solution.SrcDirectory);
-        solution.Projects.Add(infrastructureProject);
+            int projectOrder = 1;
+            foreach (var boundedContext in boundedContexts)
+            {
+                var bcEntities = plantUmlModel.GetEntitiesByBoundedContext(boundedContext).ToList();
+                var bcEnums = plantUmlModel.GetEnumsByBoundedContext(boundedContext).ToList();
 
-        // Create Api project
-        var apiProject = CreateApiProject(plantUmlModel, solutionName, solution.SrcDirectory);
-        solution.Projects.Add(apiProject);
+                logger.LogInformation("Generating projects for bounded context: {BoundedContext} ({EntityCount} entities)",
+                    boundedContext, bcEntities.Count);
 
-        // Set up project dependencies
-        solution.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
-        solution.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+                // Create Core project for this bounded context
+                var coreProject = CreateBoundedContextCoreProject(bcEntities, bcEnums, solutionName, boundedContext, solution.SrcDirectory, ref projectOrder);
+                solution.Projects.Add(coreProject);
+
+                // Create Infrastructure project for this bounded context
+                var infrastructureProject = CreateBoundedContextInfrastructureProject(bcEntities, solutionName, boundedContext, solution.SrcDirectory, ref projectOrder);
+                solution.Projects.Add(infrastructureProject);
+
+                // Create Api project for this bounded context
+                var apiProject = CreateBoundedContextApiProject(bcEntities, solutionName, boundedContext, solution.SrcDirectory, ref projectOrder);
+                solution.Projects.Add(apiProject);
+
+                // Set up project dependencies within bounded context
+                solution.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
+                solution.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+            }
+        }
+        else
+        {
+            // Single context solution (legacy behavior)
+            logger.LogInformation("No bounded contexts detected, using single context approach");
+
+            // Create Core project
+            var coreProject = CreateCoreProject(plantUmlModel, solutionName, solution.SrcDirectory);
+            solution.Projects.Add(coreProject);
+
+            // Create Infrastructure project
+            var infrastructureProject = CreateInfrastructureProject(plantUmlModel, solutionName, solution.SrcDirectory);
+            solution.Projects.Add(infrastructureProject);
+
+            // Create Api project
+            var apiProject = CreateApiProject(plantUmlModel, solutionName, solution.SrcDirectory);
+            solution.Projects.Add(apiProject);
+
+            // Set up project dependencies
+            solution.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
+            solution.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+        }
 
         return solution;
     }
@@ -185,8 +224,810 @@ public interface I{solutionName}Context
         // Generate Program.cs
         GenerateProgramFile(project, solutionName);
 
+        // Generate appsettings.json
+        GenerateAppSettingsFile(project, solutionName);
+
         return project;
     }
+
+    #region Bounded Context Project Creation
+
+    private ProjectModel CreateBoundedContextCoreProject(
+        List<PlantUmlClassModel> entities,
+        List<PlantUmlEnumModel> enums,
+        string solutionName,
+        string boundedContext,
+        string srcDirectory,
+        ref int projectOrder)
+    {
+        var projectName = $"{solutionName}.{boundedContext}.Core";
+        var project = new ProjectModel(DotNetProjectType.ClassLib, projectName, srcDirectory)
+        {
+            Order = projectOrder++
+        };
+
+        // Add NuGet packages
+        project.Packages.Add(new PackageModel("MediatR", "12.2.0"));
+        project.Packages.Add(new PackageModel("FluentValidation", "11.9.0"));
+        project.Packages.Add(new PackageModel("FluentValidation.DependencyInjectionExtensions", "11.9.0"));
+        project.Packages.Add(new PackageModel("Microsoft.EntityFrameworkCore", "8.0.0"));
+        project.Packages.Add(new PackageModel("Microsoft.Extensions.Logging.Abstractions", "8.0.0"));
+
+        // Generate entity models
+        foreach (var entity in entities)
+        {
+            GenerateBoundedContextEntityFiles(project, entity, solutionName, boundedContext);
+        }
+
+        // Generate enum files
+        foreach (var enumModel in enums)
+        {
+            GenerateBoundedContextEnumFile(project, enumModel, boundedContext);
+        }
+
+        // Generate IContext interface in Core project
+        GenerateBoundedContextContextInterface(project, entities, solutionName, boundedContext);
+
+        return project;
+    }
+
+    private ProjectModel CreateBoundedContextInfrastructureProject(
+        List<PlantUmlClassModel> entities,
+        string solutionName,
+        string boundedContext,
+        string srcDirectory,
+        ref int projectOrder)
+    {
+        var projectName = $"{solutionName}.{boundedContext}.Infrastructure";
+        var coreProjectName = $"{solutionName}.{boundedContext}.Core";
+        var project = new ProjectModel(DotNetProjectType.ClassLib, projectName, srcDirectory)
+        {
+            Order = projectOrder++
+        };
+
+        // Add NuGet packages
+        project.Packages.Add(new PackageModel("Microsoft.EntityFrameworkCore", "8.0.0"));
+        project.Packages.Add(new PackageModel("Microsoft.EntityFrameworkCore.SqlServer", "8.0.0"));
+        project.Packages.Add(new PackageModel("Microsoft.EntityFrameworkCore.Design", "8.0.0"));
+        project.Packages.Add(new PackageModel("Microsoft.EntityFrameworkCore.Tools", "8.0.0"));
+
+        // Add reference to Core project
+        project.References.Add($"..{Path.DirectorySeparatorChar}{coreProjectName}{Path.DirectorySeparatorChar}{coreProjectName}.csproj");
+
+        // Generate DbContext
+        GenerateBoundedContextDbContextFile(project, entities, solutionName, boundedContext);
+
+        return project;
+    }
+
+    private ProjectModel CreateBoundedContextApiProject(
+        List<PlantUmlClassModel> entities,
+        string solutionName,
+        string boundedContext,
+        string srcDirectory,
+        ref int projectOrder)
+    {
+        var projectName = $"{solutionName}.{boundedContext}.Api";
+        var infrastructureProjectName = $"{solutionName}.{boundedContext}.Infrastructure";
+        var project = new ProjectModel(DotNetProjectType.WebApi, projectName, srcDirectory)
+        {
+            Order = projectOrder++
+        };
+
+        // Add NuGet packages
+        project.Packages.Add(new PackageModel("MediatR", "12.2.0"));
+        project.Packages.Add(new PackageModel("Swashbuckle.AspNetCore", "6.5.0"));
+        project.Packages.Add(new PackageModel("Swashbuckle.AspNetCore.Annotations", "6.5.0"));
+
+        // Add reference to Infrastructure project
+        project.References.Add($"..{Path.DirectorySeparatorChar}{infrastructureProjectName}{Path.DirectorySeparatorChar}{infrastructureProjectName}.csproj");
+
+        // Generate controllers for aggregate roots
+        var aggregates = entities.Where(e => e.IsAggregate).ToList();
+        foreach (var aggregate in aggregates)
+        {
+            GenerateBoundedContextControllerFile(project, aggregate, solutionName, boundedContext);
+        }
+
+        // Generate Program.cs
+        GenerateBoundedContextProgramFile(project, solutionName, boundedContext);
+
+        // Generate appsettings.json
+        GenerateBoundedContextAppSettingsFile(project, solutionName, boundedContext);
+
+        return project;
+    }
+
+    private void GenerateBoundedContextEntityFiles(ProjectModel project, PlantUmlClassModel plantUmlClass, string solutionName, string boundedContext)
+    {
+        var entityName = plantUmlClass.Name;
+        var entityDirectory = Path.Combine(project.Directory, "Aggregates", entityName);
+
+        // Generate entity class
+        var entityClass = CreateEntityClassModel(plantUmlClass, project.Namespace);
+        project.Files.Add(new CodeFileModel<ClassModel>(entityClass, entityClass.Usings, entityName, entityDirectory, ".cs"));
+
+        // Generate DTO class
+        var dtoClass = CreateDtoClassModel(plantUmlClass, project.Namespace);
+        project.Files.Add(new CodeFileModel<ClassModel>(dtoClass, dtoClass.Usings, $"{entityName}Dto", entityDirectory, ".cs"));
+
+        // Generate Extensions class
+        var extensionsClass = CreateExtensionsClassModel(plantUmlClass);
+        project.Files.Add(new CodeFileModel<ClassModel>(extensionsClass, extensionsClass.Usings, $"{entityName}Extensions", entityDirectory, ".cs"));
+
+        // Generate CQRS files in Features folder
+        var featuresDirectory = Path.Combine(project.Directory, "Features", entityName);
+
+        if (plantUmlClass.IsAggregate)
+        {
+            GenerateBoundedContextCrudOperations(project, plantUmlClass, featuresDirectory, solutionName, boundedContext);
+        }
+    }
+
+    private void GenerateBoundedContextEnumFile(ProjectModel project, PlantUmlEnumModel plantUmlEnum, string boundedContext)
+    {
+        // Place enum in the same folder as its parent aggregate if we can detect it
+        string enumDirectory;
+        string enumNamespace;
+
+        if (!string.IsNullOrEmpty(plantUmlEnum.Namespace))
+        {
+            var namespaceParts = plantUmlEnum.Namespace.Split('.');
+            var aggregatesIndex = Array.FindIndex(namespaceParts, p => p.Equals("Aggregates", StringComparison.OrdinalIgnoreCase));
+
+            if (aggregatesIndex >= 0 && aggregatesIndex < namespaceParts.Length - 1)
+            {
+                var aggregateName = namespaceParts[aggregatesIndex + 1];
+                enumDirectory = Path.Combine(project.Directory, "Aggregates", aggregateName);
+                enumNamespace = $"{project.Namespace}.Aggregates.{aggregateName}";
+            }
+            else
+            {
+                enumDirectory = Path.Combine(project.Directory, "Models");
+                enumNamespace = $"{project.Namespace}.Models";
+            }
+        }
+        else
+        {
+            enumDirectory = Path.Combine(project.Directory, "Models");
+            enumNamespace = $"{project.Namespace}.Models";
+        }
+
+        var content = GenerateEnumContent(plantUmlEnum, enumNamespace);
+        project.Files.Add(new Files.ContentFileModel(content, plantUmlEnum.Name, enumDirectory, ".cs"));
+    }
+
+    private void GenerateBoundedContextContextInterface(ProjectModel project, List<PlantUmlClassModel> entities, string solutionName, string boundedContext)
+    {
+        var contextDirectory = Path.Combine(project.Directory, "Data");
+        var contextName = $"{boundedContext}";
+        var interfaceContent = GenerateBoundedContextContextInterfaceContent(entities, contextName, project.Namespace);
+        project.Files.Add(new Files.ContentFileModel(interfaceContent, $"I{contextName}Context", contextDirectory, ".cs"));
+    }
+
+    private string GenerateBoundedContextContextInterfaceContent(List<PlantUmlClassModel> entities, string contextName, string projectNamespace)
+    {
+        var dbSets = string.Join("\n    ", entities.Select(e => $"DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
+        var usings = string.Join("\n", entities.Select(e => $"using {projectNamespace}.Aggregates.{e.Name};"));
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using Microsoft.EntityFrameworkCore;
+{usings}
+
+namespace {projectNamespace}.Data;
+
+public interface I{contextName}Context
+{{
+    {dbSets}
+
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+}}
+";
+    }
+
+    private void GenerateBoundedContextDbContextFile(ProjectModel project, List<PlantUmlClassModel> entities, string solutionName, string boundedContext)
+    {
+        var dbContextDirectory = Path.Combine(project.Directory, "Data");
+        var contextName = $"{boundedContext}";
+        var coreNamespace = $"{solutionName}.{boundedContext}.Core";
+        var content = GenerateBoundedContextDbContextContent(entities, contextName, project.Namespace, coreNamespace);
+        project.Files.Add(new Files.ContentFileModel(content, $"{contextName}DbContext", dbContextDirectory, ".cs"));
+    }
+
+    private string GenerateBoundedContextDbContextContent(List<PlantUmlClassModel> entities, string contextName, string projectNamespace, string coreNamespace)
+    {
+        var dbSets = string.Join("\n    ", entities.Select(e => $"public DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
+        var usings = string.Join("\n", entities.Select(e => $"using {coreNamespace}.Aggregates.{e.Name};"));
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using Microsoft.EntityFrameworkCore;
+using {coreNamespace}.Data;
+{usings}
+
+namespace {projectNamespace}.Data;
+
+public class {contextName}DbContext : DbContext, I{contextName}Context
+{{
+    public {contextName}DbContext(DbContextOptions<{contextName}DbContext> options)
+        : base(options)
+    {{
+    }}
+
+    {dbSets}
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {{
+        base.OnModelCreating(modelBuilder);
+        // Configure entity relationships and constraints here
+    }}
+}}
+";
+    }
+
+    private void GenerateBoundedContextControllerFile(ProjectModel project, PlantUmlClassModel aggregate, string solutionName, string boundedContext)
+    {
+        var entityName = aggregate.Name;
+        var controllerDirectory = Path.Combine(project.Directory, "Controllers");
+        var coreNamespace = $"{solutionName}.{boundedContext}.Core";
+        var content = GenerateBoundedContextControllerContent(entityName, project.Namespace, coreNamespace);
+        project.Files.Add(new Files.ContentFileModel(content, $"{entityName}Controller", controllerDirectory, ".cs"));
+    }
+
+    private string GenerateBoundedContextControllerContent(string entityName, string projectNamespace, string coreNamespace)
+    {
+        var entityNameCamelCase = char.ToLowerInvariant(entityName[0]) + entityName[1..];
+        var keyPropertyName = $"{entityName}Id";
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using {coreNamespace}.Features.{entityName};
+
+namespace {projectNamespace}.Controllers;
+
+[ApiController]
+[Route(""api/[controller]"")]
+public class {entityName}Controller : ControllerBase
+{{
+    private readonly IMediator _mediator;
+
+    public {entityName}Controller(IMediator mediator)
+    {{
+        _mediator = mediator;
+    }}
+
+    [HttpGet]
+    public async Task<ActionResult<Get{entityName}sResponse>> Get([FromQuery] Get{entityName}sRequest request, CancellationToken cancellationToken)
+    {{
+        var response = await _mediator.Send(request, cancellationToken);
+        return Ok(response);
+    }}
+
+    [HttpGet(""{{{entityNameCamelCase}Id}}"")]
+    public async Task<ActionResult<Get{entityName}ByIdResponse>> GetById([FromRoute] string {entityNameCamelCase}Id, CancellationToken cancellationToken)
+    {{
+        var request = new Get{entityName}ByIdRequest {{ {keyPropertyName} = {entityNameCamelCase}Id }};
+        var response = await _mediator.Send(request, cancellationToken);
+        return response.{entityName} == null ? NotFound() : Ok(response);
+    }}
+
+    [HttpPost]
+    public async Task<ActionResult<Create{entityName}Response>> Create([FromBody] Create{entityName}Request request, CancellationToken cancellationToken)
+    {{
+        var response = await _mediator.Send(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new {{ {entityNameCamelCase}Id = response.{entityName}?.{keyPropertyName} }}, response);
+    }}
+
+    [HttpPut(""{{{entityNameCamelCase}Id}}"")]
+    public async Task<ActionResult<Update{entityName}Response>> Update([FromRoute] string {entityNameCamelCase}Id, [FromBody] Update{entityName}Request request, CancellationToken cancellationToken)
+    {{
+        request.{keyPropertyName} = {entityNameCamelCase}Id;
+        var response = await _mediator.Send(request, cancellationToken);
+        return response.{entityName} == null ? NotFound() : Ok(response);
+    }}
+
+    [HttpDelete(""{{{entityNameCamelCase}Id}}"")]
+    public async Task<ActionResult<Delete{entityName}Response>> Delete([FromRoute] string {entityNameCamelCase}Id, CancellationToken cancellationToken)
+    {{
+        var request = new Delete{entityName}Request {{ {keyPropertyName} = {entityNameCamelCase}Id }};
+        var response = await _mediator.Send(request, cancellationToken);
+        return response.Success ? Ok(response) : NotFound(response);
+    }}
+}}
+";
+    }
+
+    private void GenerateBoundedContextProgramFile(ProjectModel project, string solutionName, string boundedContext)
+    {
+        var coreNamespace = $"{solutionName}.{boundedContext}.Core";
+        var infrastructureNamespace = $"{solutionName}.{boundedContext}.Infrastructure";
+        var contextName = boundedContext;
+        var content = $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {coreNamespace}.Data;
+using {infrastructureNamespace}.Data;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Add MediatR
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(I{contextName}Context).Assembly));
+
+// Add DbContext
+builder.Services.AddDbContext<{contextName}DbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString(""{contextName}Connection"")));
+
+builder.Services.AddScoped<I{contextName}Context>(sp => sp.GetRequiredService<{contextName}DbContext>());
+
+// CORS
+builder.Services.AddCors(options =>
+{{
+    options.AddPolicy(""AllowSpecificOrigins"", policy =>
+    {{
+        var origins = builder.Configuration[""WithOrigins""]?.Split(',') ?? new[] {{ ""http://localhost:4200"" }};
+        policy.WithOrigins(origins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    }});
+}});
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}}
+
+app.UseHttpsRedirection();
+app.UseCors(""AllowSpecificOrigins"");
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();
+";
+        project.Files.Add(new Files.ContentFileModel(content, "Program", project.Directory, ".cs"));
+    }
+
+    private void GenerateBoundedContextAppSettingsFile(ProjectModel project, string solutionName, string boundedContext)
+    {
+        var databaseName = $"{solutionName}{boundedContext}Db";
+        var connectionName = $"{boundedContext}Connection";
+        var content = $@"{{
+  ""Logging"": {{
+    ""LogLevel"": {{
+      ""Default"": ""Information"",
+      ""Microsoft.AspNetCore"": ""Warning""
+    }}
+  }},
+  ""AllowedHosts"": ""*"",
+  ""ConnectionStrings"": {{
+    ""{connectionName}"": ""Server=.\\SQLEXPRESS;Database={databaseName};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true""
+  }},
+  ""WithOrigins"": ""http://localhost:4200""
+}}";
+        project.Files.Add(new Files.ContentFileModel(content, "appsettings", project.Directory, ".json"));
+    }
+
+    private void GenerateBoundedContextCrudOperations(ProjectModel project, PlantUmlClassModel entity, string directory, string solutionName, string boundedContext)
+    {
+        var entityName = entity.Name;
+        var coreNamespace = $"{solutionName}.{boundedContext}.Core";
+
+        // Generate Create operation
+        GenerateBoundedContextCreateOperation(project, entity, directory, coreNamespace);
+
+        // Generate GetById operation
+        GenerateBoundedContextGetByIdOperation(project, entity, directory, coreNamespace);
+
+        // Generate GetAll operation
+        GenerateBoundedContextGetAllOperation(project, entity, directory, coreNamespace);
+
+        // Generate Update operation
+        GenerateBoundedContextUpdateOperation(project, entity, directory, coreNamespace);
+
+        // Generate Delete operation
+        GenerateBoundedContextDeleteOperation(project, entity, directory, coreNamespace);
+    }
+
+    private void GenerateBoundedContextCreateOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string coreNamespace)
+    {
+        var entityName = entity.Name;
+        var aggregateNamespace = $"{coreNamespace}.Aggregates.{entityName}";
+        var featuresNamespace = $"{coreNamespace}.Features.{entityName}";
+        var keyProperty = GetKeyProperty(entity);
+        var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
+
+        // Create Request
+        var requestClass = new ClassModel($"Create{entityName}Request");
+        requestClass.Usings.Add(new UsingModel("MediatR"));
+        requestClass.Usings.Add(new UsingModel(aggregateNamespace));
+        requestClass.Implements.Add(new TypeModel($"IRequest<Create{entityName}Response>"));
+        foreach (var property in entity.Properties.Where(p => !p.IsKey && !IsAuditProperty(p.Name)))
+        {
+            requestClass.Properties.Add(CreatePropertyModel(requestClass, property, coreNamespace));
+        }
+        project.Files.Add(new CodeFileModel<ClassModel>(requestClass, requestClass.Usings, $"Create{entityName}Request", directory, ".cs"));
+
+        // Create Response
+        var responseClass = new ClassModel($"Create{entityName}Response");
+        responseClass.Usings.Add(new UsingModel(aggregateNamespace));
+        responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel($"{entityName}Dto"), entityName, PropertyAccessorModel.GetSet));
+        project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Create{entityName}Response", directory, ".cs"));
+
+        // Create Handler with implementation
+        var handlerContent = GenerateBoundedContextCreateHandlerContent(entity, coreNamespace, keyPropertyName);
+        project.Files.Add(new Files.ContentFileModel(handlerContent, $"Create{entityName}Handler", directory, ".cs"));
+    }
+
+    private string GenerateBoundedContextCreateHandlerContent(PlantUmlClassModel entity, string coreNamespace, string keyPropertyName)
+    {
+        var entityName = entity.Name;
+        var entityNameCamelCase = char.ToLowerInvariant(entityName[0]) + entityName[1..];
+
+        var propertyAssignments = entity.Properties
+            .Where(p => !p.IsKey && !IsAuditProperty(p.Name))
+            .Select(p => $"            {p.Name} = request.{p.Name},")
+            .ToList();
+
+        var assignmentBlock = string.Join("\n", propertyAssignments);
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {coreNamespace}.Data;
+using {entityName}Entity = {coreNamespace}.Aggregates.{entityName}.{entityName};
+using {entityName}Ext = {coreNamespace}.Aggregates.{entityName}.{entityName}Extensions;
+
+namespace {coreNamespace}.Features.{entityName};
+
+public class Create{entityName}Handler : IRequestHandler<Create{entityName}Request, Create{entityName}Response>
+{{
+    private readonly I{entity.BoundedContext}Context _context;
+
+    public Create{entityName}Handler(I{entity.BoundedContext}Context context)
+    {{
+        _context = context;
+    }}
+
+    public async Task<Create{entityName}Response> Handle(Create{entityName}Request request, CancellationToken cancellationToken)
+    {{
+        var {entityNameCamelCase} = new {entityName}Entity
+        {{
+            {keyPropertyName} = Guid.NewGuid().ToString(),
+{assignmentBlock}
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow
+        }};
+
+        _context.{GetPluralName(entityName)}.Add({entityNameCamelCase});
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new Create{entityName}Response
+        {{
+            {entityName} = {entityName}Ext.ToDto({entityNameCamelCase})
+        }};
+    }}
+}}
+";
+    }
+
+    private void GenerateBoundedContextGetByIdOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string coreNamespace)
+    {
+        var entityName = entity.Name;
+        var aggregateNamespace = $"{coreNamespace}.Aggregates.{entityName}";
+        var keyProperty = GetKeyProperty(entity);
+        var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
+
+        // GetById Request
+        var requestClass = new ClassModel($"Get{entityName}ByIdRequest");
+        requestClass.Usings.Add(new UsingModel("MediatR"));
+        requestClass.Implements.Add(new TypeModel($"IRequest<Get{entityName}ByIdResponse>"));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), keyPropertyName, PropertyAccessorModel.GetSet));
+        project.Files.Add(new CodeFileModel<ClassModel>(requestClass, requestClass.Usings, $"Get{entityName}ByIdRequest", directory, ".cs"));
+
+        // GetById Response
+        var responseClass = new ClassModel($"Get{entityName}ByIdResponse");
+        responseClass.Usings.Add(new UsingModel(aggregateNamespace));
+        responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel($"{entityName}Dto"), entityName, PropertyAccessorModel.GetSet));
+        project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Get{entityName}ByIdResponse", directory, ".cs"));
+
+        // GetById Handler
+        var handlerContent = GenerateBoundedContextGetByIdHandlerContent(entity, coreNamespace, keyPropertyName);
+        project.Files.Add(new Files.ContentFileModel(handlerContent, $"Get{entityName}ByIdHandler", directory, ".cs"));
+    }
+
+    private string GenerateBoundedContextGetByIdHandlerContent(PlantUmlClassModel entity, string coreNamespace, string keyPropertyName)
+    {
+        var entityName = entity.Name;
+        var entityNameCamelCase = char.ToLowerInvariant(entityName[0]) + entityName[1..];
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {coreNamespace}.Data;
+using {entityName}Ext = {coreNamespace}.Aggregates.{entityName}.{entityName}Extensions;
+
+namespace {coreNamespace}.Features.{entityName};
+
+public class Get{entityName}ByIdHandler : IRequestHandler<Get{entityName}ByIdRequest, Get{entityName}ByIdResponse>
+{{
+    private readonly I{entity.BoundedContext}Context _context;
+
+    public Get{entityName}ByIdHandler(I{entity.BoundedContext}Context context)
+    {{
+        _context = context;
+    }}
+
+    public async Task<Get{entityName}ByIdResponse> Handle(Get{entityName}ByIdRequest request, CancellationToken cancellationToken)
+    {{
+        var {entityNameCamelCase} = await _context.{GetPluralName(entityName)}
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.{keyPropertyName} == request.{keyPropertyName}, cancellationToken);
+
+        return new Get{entityName}ByIdResponse
+        {{
+            {entityName} = {entityNameCamelCase} != null ? {entityName}Ext.ToDto({entityNameCamelCase}) : null
+        }};
+    }}
+}}
+";
+    }
+
+    private void GenerateBoundedContextGetAllOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string coreNamespace)
+    {
+        var entityName = entity.Name;
+        var aggregateNamespace = $"{coreNamespace}.Aggregates.{entityName}";
+
+        // GetAll Request
+        var requestClass = new ClassModel($"Get{entityName}sRequest");
+        requestClass.Usings.Add(new UsingModel("MediatR"));
+        requestClass.Implements.Add(new TypeModel($"IRequest<Get{entityName}sResponse>"));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("int"), "PageIndex", PropertyAccessorModel.GetSet));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("int"), "PageSize", PropertyAccessorModel.GetSet));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), "SearchTerm", PropertyAccessorModel.GetSet));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), "SortBy", PropertyAccessorModel.GetSet));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("bool"), "SortDescending", PropertyAccessorModel.GetSet));
+        project.Files.Add(new CodeFileModel<ClassModel>(requestClass, requestClass.Usings, $"Get{entityName}sRequest", directory, ".cs"));
+
+        // GetAll Response
+        var responseClass = new ClassModel($"Get{entityName}sResponse");
+        responseClass.Usings.Add(new UsingModel(aggregateNamespace));
+        responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel($"List<{entityName}Dto>"), $"{entityName}s", PropertyAccessorModel.GetSet));
+        responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel("int"), "TotalCount", PropertyAccessorModel.GetSet));
+        project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Get{entityName}sResponse", directory, ".cs"));
+
+        // GetAll Handler
+        var handlerContent = GenerateBoundedContextGetAllHandlerContent(entity, coreNamespace);
+        project.Files.Add(new Files.ContentFileModel(handlerContent, $"Get{entityName}sHandler", directory, ".cs"));
+    }
+
+    private string GenerateBoundedContextGetAllHandlerContent(PlantUmlClassModel entity, string coreNamespace)
+    {
+        var entityName = entity.Name;
+        var entityNameCamelCase = char.ToLowerInvariant(entityName[0]) + entityName[1..];
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {coreNamespace}.Data;
+using {entityName}Ext = {coreNamespace}.Aggregates.{entityName}.{entityName}Extensions;
+
+namespace {coreNamespace}.Features.{entityName};
+
+public class Get{entityName}sHandler : IRequestHandler<Get{entityName}sRequest, Get{entityName}sResponse>
+{{
+    private readonly I{entity.BoundedContext}Context _context;
+
+    public Get{entityName}sHandler(I{entity.BoundedContext}Context context)
+    {{
+        _context = context;
+    }}
+
+    public async Task<Get{entityName}sResponse> Handle(Get{entityName}sRequest request, CancellationToken cancellationToken)
+    {{
+        var query = _context.{GetPluralName(entityName)}.AsNoTracking();
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var pageSize = request.PageSize > 0 ? request.PageSize : 10;
+        var pageIndex = request.PageIndex > 0 ? request.PageIndex : 0;
+
+        var items = await query
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return new Get{entityName}sResponse
+        {{
+            {entityName}s = items.Select({entityName}Ext.ToDto).ToList(),
+            TotalCount = totalCount
+        }};
+    }}
+}}
+";
+    }
+
+    private void GenerateBoundedContextUpdateOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string coreNamespace)
+    {
+        var entityName = entity.Name;
+        var aggregateNamespace = $"{coreNamespace}.Aggregates.{entityName}";
+        var keyProperty = GetKeyProperty(entity);
+        var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
+
+        // Update Request
+        var requestClass = new ClassModel($"Update{entityName}Request");
+        requestClass.Usings.Add(new UsingModel("MediatR"));
+        requestClass.Usings.Add(new UsingModel(aggregateNamespace));
+        requestClass.Implements.Add(new TypeModel($"IRequest<Update{entityName}Response>"));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), keyPropertyName, PropertyAccessorModel.GetSet));
+        foreach (var property in entity.Properties.Where(p => !p.IsKey && !IsAuditProperty(p.Name)))
+        {
+            requestClass.Properties.Add(CreatePropertyModel(requestClass, property, coreNamespace));
+        }
+        project.Files.Add(new CodeFileModel<ClassModel>(requestClass, requestClass.Usings, $"Update{entityName}Request", directory, ".cs"));
+
+        // Update Response
+        var responseClass = new ClassModel($"Update{entityName}Response");
+        responseClass.Usings.Add(new UsingModel(aggregateNamespace));
+        responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel($"{entityName}Dto"), entityName, PropertyAccessorModel.GetSet));
+        project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Update{entityName}Response", directory, ".cs"));
+
+        // Update Handler
+        var handlerContent = GenerateBoundedContextUpdateHandlerContent(entity, coreNamespace, keyPropertyName);
+        project.Files.Add(new Files.ContentFileModel(handlerContent, $"Update{entityName}Handler", directory, ".cs"));
+    }
+
+    private string GenerateBoundedContextUpdateHandlerContent(PlantUmlClassModel entity, string coreNamespace, string keyPropertyName)
+    {
+        var entityName = entity.Name;
+        var entityNameCamelCase = char.ToLowerInvariant(entityName[0]) + entityName[1..];
+
+        var propertyUpdates = entity.Properties
+            .Where(p => !p.IsKey && !IsAuditProperty(p.Name))
+            .Select(p => $"        {entityNameCamelCase}.{p.Name} = request.{p.Name};")
+            .ToList();
+
+        var updateBlock = string.Join("\n", propertyUpdates);
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {coreNamespace}.Data;
+using {entityName}Ext = {coreNamespace}.Aggregates.{entityName}.{entityName}Extensions;
+
+namespace {coreNamespace}.Features.{entityName};
+
+public class Update{entityName}Handler : IRequestHandler<Update{entityName}Request, Update{entityName}Response>
+{{
+    private readonly I{entity.BoundedContext}Context _context;
+
+    public Update{entityName}Handler(I{entity.BoundedContext}Context context)
+    {{
+        _context = context;
+    }}
+
+    public async Task<Update{entityName}Response> Handle(Update{entityName}Request request, CancellationToken cancellationToken)
+    {{
+        var {entityNameCamelCase} = await _context.{GetPluralName(entityName)}
+            .FirstOrDefaultAsync(x => x.{keyPropertyName} == request.{keyPropertyName}, cancellationToken);
+
+        if ({entityNameCamelCase} == null)
+        {{
+            return new Update{entityName}Response {{ {entityName} = null }};
+        }}
+
+{updateBlock}
+        {entityNameCamelCase}.ModifiedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new Update{entityName}Response
+        {{
+            {entityName} = {entityName}Ext.ToDto({entityNameCamelCase})
+        }};
+    }}
+}}
+";
+    }
+
+    private void GenerateBoundedContextDeleteOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string coreNamespace)
+    {
+        var entityName = entity.Name;
+        var keyProperty = GetKeyProperty(entity);
+        var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
+
+        // Delete Request
+        var requestClass = new ClassModel($"Delete{entityName}Request");
+        requestClass.Usings.Add(new UsingModel("MediatR"));
+        requestClass.Implements.Add(new TypeModel($"IRequest<Delete{entityName}Response>"));
+        requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), keyPropertyName, PropertyAccessorModel.GetSet));
+        project.Files.Add(new CodeFileModel<ClassModel>(requestClass, requestClass.Usings, $"Delete{entityName}Request", directory, ".cs"));
+
+        // Delete Response
+        var responseClass = new ClassModel($"Delete{entityName}Response");
+        responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel("bool"), "Success", PropertyAccessorModel.GetSet));
+        responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel("string"), "Message", PropertyAccessorModel.GetSet));
+        project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Delete{entityName}Response", directory, ".cs"));
+
+        // Delete Handler
+        var handlerContent = GenerateBoundedContextDeleteHandlerContent(entity, coreNamespace, keyPropertyName);
+        project.Files.Add(new Files.ContentFileModel(handlerContent, $"Delete{entityName}Handler", directory, ".cs"));
+    }
+
+    private string GenerateBoundedContextDeleteHandlerContent(PlantUmlClassModel entity, string coreNamespace, string keyPropertyName)
+    {
+        var entityName = entity.Name;
+        var entityNameCamelCase = char.ToLowerInvariant(entityName[0]) + entityName[1..];
+
+        return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using {coreNamespace}.Data;
+
+namespace {coreNamespace}.Features.{entityName};
+
+public class Delete{entityName}Handler : IRequestHandler<Delete{entityName}Request, Delete{entityName}Response>
+{{
+    private readonly I{entity.BoundedContext}Context _context;
+
+    public Delete{entityName}Handler(I{entity.BoundedContext}Context context)
+    {{
+        _context = context;
+    }}
+
+    public async Task<Delete{entityName}Response> Handle(Delete{entityName}Request request, CancellationToken cancellationToken)
+    {{
+        var {entityNameCamelCase} = await _context.{GetPluralName(entityName)}
+            .FirstOrDefaultAsync(x => x.{keyPropertyName} == request.{keyPropertyName}, cancellationToken);
+
+        if ({entityNameCamelCase} == null)
+        {{
+            return new Delete{entityName}Response
+            {{
+                Success = false,
+                Message = $""{entityName} with ID '{{request.{keyPropertyName}}}' was not found.""
+            }};
+        }}
+
+        _context.{GetPluralName(entityName)}.Remove({entityNameCamelCase});
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new Delete{entityName}Response
+        {{
+            Success = true,
+            Message = $""{entityName} with ID '{{request.{keyPropertyName}}}' was successfully deleted.""
+        }};
+    }}
+}}
+";
+    }
+
+    #endregion
 
     private void GenerateEntityFiles(ProjectModel project, PlantUmlClassModel plantUmlClass, PlantUmlSolutionModel solutionModel, string solutionName)
     {
@@ -254,6 +1095,15 @@ public interface I{solutionName}Context
             Static = true
         };
 
+        // Generate property mappings for ToDto
+        var propertyMappings = new List<string>();
+        foreach (var property in plantUmlClass.Properties)
+        {
+            propertyMappings.Add($"            {property.Name} = entity.{property.Name}");
+        }
+
+        var toDtoBody = $"return new {entityName}Dto\n        {{\n{string.Join(",\n", propertyMappings)}\n        }};";
+
         // Add ToDto method
         var toDtoMethod = new MethodModel
         {
@@ -261,7 +1111,7 @@ public interface I{solutionName}Context
             ReturnType = new TypeModel($"{entityName}Dto"),
             Static = true,
             AccessModifier = AccessModifier.Public,
-            Body = new Syntax.Expressions.ExpressionModel("throw new NotImplementedException();")
+            Body = new Syntax.Expressions.ExpressionModel(toDtoBody)
         };
         toDtoMethod.Params.Add(new ParamModel
         {
@@ -1056,9 +1906,10 @@ builder.Services.AddScoped<I{solutionName}Context>(provider => provider.GetRequi
 // CORS
 builder.Services.AddCors(options =>
 {{
-    options.AddPolicy(""AllowAll"", policy =>
+    options.AddPolicy(""AllowSpecificOrigins"", policy =>
     {{
-        policy.AllowAnyOrigin()
+        var origins = builder.Configuration[""WithOrigins""]?.Split(',') ?? new[] {{ ""http://localhost:4200"" }};
+        policy.WithOrigins(origins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     }});
@@ -1073,12 +1924,31 @@ if (app.Environment.IsDevelopment())
 }}
 
 app.UseHttpsRedirection();
-app.UseCors(""AllowAll"");
+app.UseCors(""AllowSpecificOrigins"");
 app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
 ";
+    }
+
+    private void GenerateAppSettingsFile(ProjectModel project, string solutionName)
+    {
+        var databaseName = $"{solutionName}Db";
+        var content = $@"{{
+  ""Logging"": {{
+    ""LogLevel"": {{
+      ""Default"": ""Information"",
+      ""Microsoft.AspNetCore"": ""Warning""
+    }}
+  }},
+  ""AllowedHosts"": ""*"",
+  ""ConnectionStrings"": {{
+    ""DefaultConnection"": ""Server=.\\SQLEXPRESS;Database={databaseName};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true""
+  }},
+  ""WithOrigins"": ""http://localhost:4200""
+}}";
+        project.Files.Add(new Files.ContentFileModel(content, "appsettings", project.Directory, ".json"));
     }
 
     private static AccessModifier ConvertVisibility(PlantUmlVisibility visibility)

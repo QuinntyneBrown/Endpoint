@@ -8,10 +8,12 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-// Configuration
-const string SolutionName = "ToDo";
-const string PlantUmlSourcePath = @"C:\demo-plantuml-files";
-const string OutputDirectory = @"C:\demo-out";
+// Solution configurations
+var solutions = new[]
+{
+    new SolutionConfig("ECommerce", @"C:\demo-plantuml-files", @"C:\demo-out"),
+    new SolutionConfig("ToDo", @"C:\simple-demo-plantuml-files", @"C:\simple-demo-out")
+};
 
 // Setup dependency injection
 var services = new ServiceCollection();
@@ -43,80 +45,77 @@ try
     logger.LogInformation("  PlantUML Solution Generator Playground");
     logger.LogInformation("===========================================");
     logger.LogInformation("");
-    logger.LogInformation("Configuration:");
-    logger.LogInformation("  Solution Name:      {SolutionName}", SolutionName);
-    logger.LogInformation("  PlantUML Source:    {PlantUmlSourcePath}", PlantUmlSourcePath);
-    logger.LogInformation("  Output Directory:   {OutputDirectory}", OutputDirectory);
-    logger.LogInformation("");
 
-    // Verify PlantUML source directory exists
-    if (!Directory.Exists(PlantUmlSourcePath))
+    foreach (var solution in solutions)
     {
-        logger.LogError("PlantUML source directory does not exist: {PlantUmlSourcePath}", PlantUmlSourcePath);
-        logger.LogInformation("Please create the directory and add .puml files before running this playground.");
-        return 1;
+        logger.LogInformation("-------------------------------------------");
+        logger.LogInformation("Processing: {SolutionName}", solution.Name);
+        logger.LogInformation("-------------------------------------------");
+        logger.LogInformation("  PlantUML Source:    {PlantUmlSourcePath}", solution.PlantUmlSourcePath);
+        logger.LogInformation("  Output Directory:   {OutputDirectory}", solution.OutputDirectory);
+        logger.LogInformation("");
+
+        // Verify PlantUML source directory exists
+        if (!Directory.Exists(solution.PlantUmlSourcePath))
+        {
+            logger.LogWarning("PlantUML source directory does not exist: {PlantUmlSourcePath}", solution.PlantUmlSourcePath);
+            logger.LogWarning("Skipping {SolutionName}...", solution.Name);
+            continue;
+        }
+
+        // List PlantUML files found
+        var pumlFiles = Directory.GetFiles(solution.PlantUmlSourcePath, "*.puml", SearchOption.AllDirectories);
+        logger.LogInformation("Found {Count} PlantUML file(s):", pumlFiles.Length);
+        foreach (var file in pumlFiles)
+        {
+            logger.LogInformation("  - {FileName}", Path.GetFileName(file));
+        }
+        logger.LogInformation("");
+
+        // Clean output directory if it exists
+        if (Directory.Exists(solution.OutputDirectory))
+        {
+            logger.LogInformation("Cleaning output directory: {OutputDirectory}", solution.OutputDirectory);
+            try
+            {
+                Directory.Delete(solution.OutputDirectory, recursive: true);
+            }
+            catch (IOException ex)
+            {
+                logger.LogWarning("Could not fully clean output directory (files may be locked): {Message}", ex.Message);
+            }
+        }
+
+        Directory.CreateDirectory(solution.OutputDirectory);
+
+        // Create request to generate solution from PlantUML
+        var request = new SolutionCreateFromPlantUmlRequest
+        {
+            Name = solution.Name,
+            PlantUmlSourcePath = solution.PlantUmlSourcePath,
+            Directory = solution.OutputDirectory
+        };
+
+        logger.LogInformation("Generating solution from PlantUML files...");
+        logger.LogInformation("");
+
+        await mediator.Send(request);
+
+        logger.LogInformation("");
+        logger.LogInformation("{SolutionName} created successfully!", solution.Name);
+        logger.LogInformation("Output location: {OutputDirectory}", Path.Combine(solution.OutputDirectory, solution.Name));
+        logger.LogInformation("");
     }
 
-    // List PlantUML files found
-    var pumlFiles = Directory.GetFiles(PlantUmlSourcePath, "*.puml", SearchOption.AllDirectories);
-    logger.LogInformation("Found {Count} PlantUML file(s):", pumlFiles.Length);
-    foreach (var file in pumlFiles)
-    {
-        logger.LogInformation("  - {FileName}", Path.GetFileName(file));
-    }
-    logger.LogInformation("");
-
-    // Clean output directory if it exists
-    if (Directory.Exists(OutputDirectory))
-    {
-        logger.LogInformation("Cleaning output directory: {OutputDirectory}", OutputDirectory);
-        Directory.Delete(OutputDirectory, recursive: true);
-    }
-
-    Directory.CreateDirectory(OutputDirectory);
-
-    // Create request to generate solution from PlantUML
-    var request = new SolutionCreateFromPlantUmlRequest
-    {
-        Name = SolutionName,
-        PlantUmlSourcePath = PlantUmlSourcePath,
-        Directory = OutputDirectory
-    };
-
-    logger.LogInformation("Generating solution from PlantUML files...");
-    logger.LogInformation("");
-
-    await mediator.Send(request);
-
-    logger.LogInformation("");
     logger.LogInformation("===========================================");
-    logger.LogInformation("  Solution created successfully!");
+    logger.LogInformation("  All solutions created successfully!");
     logger.LogInformation("===========================================");
     logger.LogInformation("");
-    logger.LogInformation("Output location: {OutputDirectory}", Path.Combine(OutputDirectory, SolutionName));
-    logger.LogInformation("");
-    logger.LogInformation("Expected solution structure:");
-    logger.LogInformation("├── {SolutionName}/", SolutionName);
-    logger.LogInformation("│   ├── {SolutionName}.sln", SolutionName);
-    logger.LogInformation("│   └── src/");
-    logger.LogInformation("│       ├── {SolutionName}.Core/", SolutionName);
-    logger.LogInformation("│       │   ├── Aggregates/");
-    logger.LogInformation("│       │   │   ├── ToDoItem/");
-    logger.LogInformation("│       │   │   └── ToDoList/");
-    logger.LogInformation("│       │   ├── ToDoItem/ (CQRS operations)");
-    logger.LogInformation("│       │   └── ToDoList/ (CQRS operations)");
-    logger.LogInformation("│       ├── {SolutionName}.Infrastructure/", SolutionName);
-    logger.LogInformation("│       │   └── Data/");
-    logger.LogInformation("│       │       └── ToDoDbContext.cs");
-    logger.LogInformation("│       └── {SolutionName}.Api/", SolutionName);
-    logger.LogInformation("│           ├── Controllers/");
-    logger.LogInformation("│           │   ├── ToDoItemController.cs");
-    logger.LogInformation("│           │   └── ToDoListController.cs");
-    logger.LogInformation("│           └── Program.cs");
-    logger.LogInformation("");
-    logger.LogInformation("To build the solution:");
-    logger.LogInformation("  cd {OutputDirectory}\\{SolutionName}", OutputDirectory, SolutionName);
-    logger.LogInformation("  dotnet build");
+    logger.LogInformation("To build the solutions:");
+    foreach (var solution in solutions)
+    {
+        logger.LogInformation("  cd {OutputDirectory}\\{SolutionName} && dotnet build", solution.OutputDirectory, solution.Name);
+    }
 
     return 0;
 }
@@ -125,3 +124,5 @@ catch (Exception ex)
     logger.LogError(ex, "Error creating solution from PlantUML");
     return 1;
 }
+
+record SolutionConfig(string Name, string PlantUmlSourcePath, string OutputDirectory);

@@ -17,6 +17,12 @@ public class PlantUmlClassModel
 
     public string Namespace { get; set; }
 
+    /// <summary>
+    /// The bounded context this class belongs to (e.g., "OrderManagement", "IdentityManagement").
+    /// Null or empty if the class belongs to the default/main context.
+    /// </summary>
+    public string BoundedContext { get; set; }
+
     public PlantUmlStereotype Stereotype { get; set; } = PlantUmlStereotype.None;
 
     public List<PlantUmlPropertyModel> Properties { get; set; }

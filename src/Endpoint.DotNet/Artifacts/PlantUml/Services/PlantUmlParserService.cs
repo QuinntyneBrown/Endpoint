@@ -217,6 +217,7 @@ public class PlantUmlParserService : IPlantUmlParserService
         {
             Name = className,
             Namespace = defaultNamespace,
+            BoundedContext = ExtractBoundedContext(defaultNamespace),
             Stereotype = ParseStereotype(stereotypeStr)
         };
 
@@ -257,6 +258,14 @@ public class PlantUmlParserService : IPlantUmlParserService
             }
         }
 
+        // Post-process: correctly identify the primary key
+        // Only {ClassName}Id should be treated as the primary key, not foreign keys like UserId, CustomerId, etc.
+        var expectedPrimaryKeyName = $"{className}Id";
+        foreach (var property in classModel.Properties)
+        {
+            property.IsKey = property.Name.Equals(expectedPrimaryKeyName, StringComparison.OrdinalIgnoreCase);
+        }
+
         return classModel;
     }
 
@@ -290,10 +299,9 @@ public class PlantUmlParserService : IPlantUmlParserService
             property.Type = typeStr;
         }
 
-        // Detect if this is likely a key property
-        property.IsKey = name.EndsWith("Id", StringComparison.OrdinalIgnoreCase) &&
-                        name.Length > 2 &&
-                        !name.Contains("Parent", StringComparison.OrdinalIgnoreCase);
+        // IsKey will be set correctly in ParseClassMatch post-processing
+        // based on whether it matches {ClassName}Id pattern
+        property.IsKey = false;
 
         // Detect if required based on nullable
         property.IsRequired = !isNullable;
@@ -358,7 +366,8 @@ public class PlantUmlParserService : IPlantUmlParserService
         var enumModel = new PlantUmlEnumModel
         {
             Name = enumName,
-            Namespace = defaultNamespace
+            Namespace = defaultNamespace,
+            BoundedContext = ExtractBoundedContext(defaultNamespace)
         };
 
         var lines = enumBody.Split('\n');
@@ -637,5 +646,39 @@ public class PlantUmlParserService : IPlantUmlParserService
     {
         var keywords = new[] { "class", "enum", "component", "package", "note", "end", "abstract", "interface" };
         return keywords.Any(k => k.Equals(word, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Extracts the bounded context name from a namespace.
+    /// Expected format: {SolutionName}.{BoundedContext}.Aggregates.{EntityName}
+    /// Returns null if no bounded context is detected.
+    /// </summary>
+    private static string ExtractBoundedContext(string namespaceStr)
+    {
+        if (string.IsNullOrEmpty(namespaceStr))
+        {
+            return null;
+        }
+
+        var parts = namespaceStr.Split('.');
+
+        // Look for the pattern: {SolutionName}.{BoundedContext}.Aggregates.{EntityName}
+        // The bounded context is the segment immediately before "Aggregates"
+        var aggregatesIndex = Array.FindIndex(parts, p => p.Equals("Aggregates", StringComparison.OrdinalIgnoreCase));
+
+        if (aggregatesIndex > 1)
+        {
+            // There's at least one segment before "Aggregates" after the solution name
+            // e.g., ["ECommerce", "OrderManagement", "Aggregates", "Order"] -> "OrderManagement"
+            var boundedContext = parts[aggregatesIndex - 1];
+
+            // Skip if the segment looks like "Core" (default context)
+            if (!boundedContext.Equals("Core", StringComparison.OrdinalIgnoreCase))
+            {
+                return boundedContext;
+            }
+        }
+
+        return null;
     }
 }

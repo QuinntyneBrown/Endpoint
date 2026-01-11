@@ -76,4 +76,43 @@ public class PlantUmlSolutionModel
     {
         return Documents.SelectMany(d => d.Components);
     }
+
+    /// <summary>
+    /// Gets all unique bounded context names found in the solution.
+    /// Returns an empty enumerable if no bounded contexts are defined.
+    /// </summary>
+    public IEnumerable<string> GetBoundedContexts()
+    {
+        return GetAllClasses()
+            .Where(c => !string.IsNullOrEmpty(c.BoundedContext))
+            .Select(c => c.BoundedContext)
+            .Distinct()
+            .OrderBy(bc => bc);
+    }
+
+    /// <summary>
+    /// Gets all entities belonging to a specific bounded context.
+    /// </summary>
+    public IEnumerable<PlantUmlClassModel> GetEntitiesByBoundedContext(string boundedContext)
+    {
+        return GetEntities().Where(e =>
+            string.Equals(e.BoundedContext, boundedContext, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Gets all enums belonging to a specific bounded context.
+    /// </summary>
+    public IEnumerable<PlantUmlEnumModel> GetEnumsByBoundedContext(string boundedContext)
+    {
+        return GetAllEnums().Where(e =>
+            string.Equals(e.BoundedContext, boundedContext, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Returns true if the solution has multiple bounded contexts.
+    /// </summary>
+    public bool HasMultipleBoundedContexts()
+    {
+        return GetBoundedContexts().Count() > 1;
+    }
 }
