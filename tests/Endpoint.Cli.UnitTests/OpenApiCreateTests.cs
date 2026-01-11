@@ -4,6 +4,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Endpoint.Artifacts.Abstractions;
 using Endpoint.Cli.Commands;
 using Endpoint.Services;
 using Microsoft.Extensions.Logging;
@@ -27,8 +28,9 @@ public class OpenApiCreateTests
     {
         var logger = new Mock<ILogger<OpenApiCreateRequestHandler>>();
         var fileProvider = new Mock<IFileProvider>();
+        var artifactGenerator = new Mock<IArtifactGenerator>();
 
-        var handler = new OpenApiCreateRequestHandler(logger.Object, fileProvider.Object);
+        var handler = new OpenApiCreateRequestHandler(logger.Object, fileProvider.Object, artifactGenerator.Object);
 
         Assert.NotNull(handler);
     }
@@ -38,10 +40,11 @@ public class OpenApiCreateTests
     {
         var logger = new Mock<ILogger<OpenApiCreateRequestHandler>>();
         var fileProvider = new Mock<IFileProvider>();
+        var artifactGenerator = new Mock<IArtifactGenerator>();
         fileProvider.Setup(x => x.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
             .Returns(string.Empty);
 
-        var handler = new OpenApiCreateRequestHandler(logger.Object, fileProvider.Object);
+        var handler = new OpenApiCreateRequestHandler(logger.Object, fileProvider.Object, artifactGenerator.Object);
         var request = new OpenApiCreateRequest { Directory = "/tmp/nonexistent" };
 
         await handler.Handle(request, CancellationToken.None);
