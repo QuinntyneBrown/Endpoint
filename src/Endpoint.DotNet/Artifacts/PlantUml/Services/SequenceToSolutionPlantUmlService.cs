@@ -205,6 +205,15 @@ public class SequenceToSolutionPlantUmlService : ISequenceToSolutionPlantUmlServ
     {
         // Remove spaces and special characters, convert to PascalCase
         var parts = name.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
-        return string.Join("", parts.Select(p => char.ToUpper(p[0]) + p.Substring(1).ToLower()));
+        if (parts.Length == 0)
+        {
+            return "DefaultName";
+        }
+        
+        return string.Join("", parts.Select(p => 
+        {
+            if (string.IsNullOrEmpty(p)) return string.Empty;
+            return char.ToUpper(p[0]) + (p.Length > 1 ? p.Substring(1).ToLower() : string.Empty);
+        }));
     }
 }
