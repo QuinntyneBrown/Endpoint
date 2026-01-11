@@ -1,7 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts.Files.Factories;
@@ -41,7 +41,7 @@ public class ApiProjectEnsureArtifactGenerationStrategy : IArtifactGenerationStr
     {
         logger.LogInformation("Generating artifact for {0}.", model);
 
-        var projectDirectory = Path.GetDirectoryName(fileProvider.Get("*.csproj", model.ReferenceDirectory));
+        var projectDirectory = fileSystem.Path.GetDirectoryName(fileProvider.Get("*.csproj", model.ReferenceDirectory));
 
         EnsureDefaultFilesRemoved(projectDirectory);
 
@@ -54,22 +54,22 @@ public class ApiProjectEnsureArtifactGenerationStrategy : IArtifactGenerationStr
 
     private void EnsureDefaultFilesRemoved(string projectDirectory)
     {
-        fileSystem.File.Delete($"{projectDirectory}{Path.DirectorySeparatorChar}Controllers{Path.DirectorySeparatorChar}WeatherForecastController.cs");
-        fileSystem.File.Delete($"{projectDirectory}{Path.DirectorySeparatorChar}WeatherForecast.cs");
+        fileSystem.File.Delete($"{projectDirectory}{fileSystem.Path.DirectorySeparatorChar}Controllers{fileSystem.Path.DirectorySeparatorChar}WeatherForecastController.cs");
+        fileSystem.File.Delete($"{projectDirectory}{fileSystem.Path.DirectorySeparatorChar}WeatherForecast.cs");
     }
 
     private async Task EnsureApiDefaultFilesAdd(IArtifactGenerator artifactGenerator, string projectDirectory)
     {
-        var projectName = Path.GetFileNameWithoutExtension(projectDirectory).Split('.').First();
+        var projectName = fileSystem.Path.GetFileNameWithoutExtension(projectDirectory).Split('.').First();
 
         var dbContext = $"{projectName}DbContext";
 
-        if (!fileSystem.File.Exists($"{projectDirectory}{Path.DirectorySeparatorChar}Properties{Path.DirectorySeparatorChar}launchSettings.json"))
+        if (!fileSystem.File.Exists($"{projectDirectory}{fileSystem.Path.DirectorySeparatorChar}Properties{fileSystem.Path.DirectorySeparatorChar}launchSettings.json"))
         {
             await artifactGenerator.GenerateAsync(fileFactory.LaunchSettingsJson(projectDirectory, projectName, 5000));
         }
 
-        if (!fileSystem.File.Exists($"{projectDirectory}{Path.DirectorySeparatorChar}ConfigureServices.cs"))
+        if (!fileSystem.File.Exists($"{projectDirectory}{fileSystem.Path.DirectorySeparatorChar}ConfigureServices.cs"))
         {
             await artifactGenerator.GenerateAsync(fileFactory.CreateTemplate("Api.ConfigureServices", "ConfigureServices", projectDirectory, tokens: new TokensBuilder()
                 .With("DbContext", dbContext)
@@ -109,16 +109,16 @@ public class ApiProjectEnsureArtifactGenerationStrategy : IArtifactGenerationStr
 
     private void EnsureProjectsReferenced(string projectDirectory)
     {
-        var projectName = Path.GetFileNameWithoutExtension(projectDirectory).Split('.').First();
+        var projectName = fileSystem.Path.GetFileNameWithoutExtension(projectDirectory).Split('.').First();
 
         var solutionDirectory = projectDirectory;
 
-        while (!Directory.EnumerateFiles(solutionDirectory, "*.sln").Any(x => x.EndsWith($"sln")))
+        while (!fileSystem.Directory.EnumerateFiles(solutionDirectory, "*.sln").Any(x => x.EndsWith($"sln")))
         {
-            solutionDirectory = solutionDirectory.Substring(0, solutionDirectory.LastIndexOf(Path.DirectorySeparatorChar));
+            solutionDirectory = solutionDirectory.Substring(0, solutionDirectory.LastIndexOf(fileSystem.Path.DirectorySeparatorChar));
         }
 
-        foreach (var infrastructureProjectPath in Directory.GetFiles(solutionDirectory, $"{projectName}.Infrastructure.csproj", SearchOption.AllDirectories))
+        foreach (var infrastructureProjectPath in fileSystem.Directory.GetFiles(solutionDirectory, $"{projectName}.Infrastructure.csproj", SearchOption.AllDirectories))
         {
             commandService.Start($"dotnet add {projectDirectory} reference {infrastructureProjectPath}", projectDirectory);
         }

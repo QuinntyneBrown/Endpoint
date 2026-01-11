@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Services;
@@ -77,15 +77,15 @@ public class ClassService : IClassService
     {
         _logger.LogInformation("Create Unit Test for {name}", name);
 
-        var projectDirectory = Path.GetDirectoryName(_fileProvider.Get("*.csproj", directory));
+        var projectDirectory = _fileSystem.Path.GetDirectoryName(_fileProvider.Get("*.csproj", directory));
 
-        var slnDirectory = Path.GetDirectoryName(_fileProvider.Get("*.sln", directory));
+        var slnDirectory = _fileSystem.Path.GetDirectoryName(_fileProvider.Get("*.sln", directory));
 
-        var classPath = Directory.GetFiles(slnDirectory, $"{name}.cs", SearchOption.AllDirectories).FirstOrDefault();
+        var classPath = _fileSystem.Directory.GetFiles(slnDirectory, $"{name}.cs", SearchOption.AllDirectories).FirstOrDefault();
 
         if (classPath == null)
         {
-            foreach (var path in Directory.GetFiles(Path.GetDirectoryName(projectDirectory), "*.cs", SearchOption.AllDirectories))
+            foreach (var path in _fileSystem.Directory.GetFiles(_fileSystem.Path.GetDirectoryName(projectDirectory), "*.cs", SearchOption.AllDirectories))
             {
                 var supportedDeclarations = new string[]
                 {
@@ -107,7 +107,7 @@ public class ClassService : IClassService
 
         if (classPath == null)
         {
-            foreach (var path in Directory.GetFiles(Path.GetDirectoryName(Path.GetDirectoryName(projectDirectory)), "*.cs", SearchOption.AllDirectories))
+            foreach (var path in _fileSystem.Directory.GetFiles(_fileSystem.Path.GetDirectoryName(_fileSystem.Path.GetDirectoryName(projectDirectory)), "*.cs", SearchOption.AllDirectories))
             {
                 var supportedDeclarations = new string[]
                 {
@@ -127,7 +127,7 @@ public class ClassService : IClassService
             }
         }
 
-        _fileSystem.Directory.CreateDirectory($"{projectDirectory}{Path.DirectorySeparatorChar}{name}");
+        _fileSystem.Directory.CreateDirectory($"{projectDirectory}{_fileSystem.Path.DirectorySeparatorChar}{name}");
 
         foreach (var methodModel in Parse(name, classPath))
         {

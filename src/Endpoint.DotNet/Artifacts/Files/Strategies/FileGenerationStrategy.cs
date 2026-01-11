@@ -1,7 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using Endpoint.Artifacts.Abstractions;
@@ -34,19 +34,19 @@ public class FileGenerationStrategy : IArtifactGenerationStrategy<FileModel>
 
         var copyright = templateLocator.GetCopyright();
 
-        var parts = Path.GetDirectoryName(model.Path).Split(Path.DirectorySeparatorChar);
+        var parts = fileSystem.Path.GetDirectoryName(model.Path).Split(fileSystem.Path.DirectorySeparatorChar);
 
         for (var i = 1; i <= parts.Length; i++)
         {
-            var dir = string.Join(Path.DirectorySeparatorChar, parts.Take(i));
+            var dir = string.Join(fileSystem.Path.DirectorySeparatorChar, parts.Take(i));
 
-            if (!Directory.Exists(dir))
+            if (!fileSystem.Directory.Exists(dir))
             {
                 fileSystem.Directory.CreateDirectory(dir);
             }
         }
 
-        var extension = Path.GetExtension(model.Path);
+        var extension = fileSystem.Path.GetExtension(model.Path);
 
         var validExtension = extension == ".cs" || extension == ".ts" || extension == ".js";
 
