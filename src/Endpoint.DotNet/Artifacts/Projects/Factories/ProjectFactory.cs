@@ -385,6 +385,7 @@ public class ProjectFactory : IProjectFactory
             "worker" => DotNetProjectType.Worker,
             "xunit" => DotNetProjectType.XUnit,
             "ts" => DotNetProjectType.TypeScriptStandalone,
+            "angular" => DotNetProjectType.TypeScriptStandalone,
             _ => DotNetProjectType.Console
         };
 
