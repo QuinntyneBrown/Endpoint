@@ -18,16 +18,14 @@ public class ImportModelTests
     }
 
     [Fact]
-    public void ImportModel_ShouldSetName()
+    public void ImportModel_ShouldSetTypes()
     {
         // Arrange
-        var import = new ImportModel
-        {
-            Name = "Component",
-        };
+        var import = new ImportModel("Component", "@angular/core");
 
         // Act & Assert
-        Assert.Equal("Component", import.Name);
+        Assert.Single(import.Types);
+        Assert.Equal("Component", import.Types[0].Name);
     }
 
     [Fact]

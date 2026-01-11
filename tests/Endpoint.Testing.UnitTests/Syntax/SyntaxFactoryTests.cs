@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Testing;
-using Microsoft.Extensions.Logging.Nulls;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Endpoint.Testing.UnitTests.Syntax;
 

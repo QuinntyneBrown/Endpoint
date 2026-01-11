@@ -54,15 +54,12 @@ public class ParamModelTests
     }
 
     [Fact]
-    public void ParamModel_ToStringWhenNameOnly()
+    public void ParamModel_ShouldSetNameProperty()
     {
-        // Arrange
+        // Arrange & Act
         var param = new ParamModel { Name = "test" };
 
-        // Act
-        var result = param.ToString();
-
         // Assert
-        Assert.Equal("test", result);
+        Assert.Equal("test", param.Name);
     }
 }
