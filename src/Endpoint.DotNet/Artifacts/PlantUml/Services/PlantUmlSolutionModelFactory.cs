@@ -321,11 +321,13 @@ public interface I{solutionName}Context
 
     private string SanitizeName(string name)
     {
+        const string DefaultProjectName = "DefaultName";
+        
         // Remove spaces and special characters, convert to PascalCase
         var parts = name.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length == 0)
         {
-            return "DefaultName";
+            return DefaultProjectName;
         }
         
         return string.Join("", parts.Select(p => 
