@@ -34,7 +34,6 @@ var app = CodeGeneratorApplication.CreateBuilder()
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
         services.AddModernWebAppPatternCoreServices();
         services.AddAngularServices();
-        services.AddTestingCoreServices();
     })
     .Build();
 
