@@ -100,7 +100,7 @@ try
     logger.LogInformation("│   ├── {SolutionName}.sln", SolutionName);
     logger.LogInformation("│   └── src/");
     logger.LogInformation("│       ├── {SolutionName}.Core/", SolutionName);
-    logger.LogInformation("│       │   ├── Models/");
+    logger.LogInformation("│       │   ├── Aggregates/");
     logger.LogInformation("│       │   │   ├── ToDoItem/");
     logger.LogInformation("│       │   │   └── ToDoList/");
     logger.LogInformation("│       │   ├── ToDoItem/ (CQRS operations)");

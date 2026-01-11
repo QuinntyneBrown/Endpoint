@@ -373,7 +373,7 @@ FUNCTION GeneratePlantUML(codebase: Codebase) -> PlantUMLDocuments:
 
 **C# Class:**
 ```csharp
-namespace Tseten.Models.SoftwareRequirement;
+namespace Tseten.Aggregates.SoftwareRequirement;
 
 public class SoftwareRequirement
 {
@@ -391,7 +391,7 @@ public class SoftwareRequirement
 
 **PlantUML Output:**
 ```plantuml
-package "Tseten.Models.SoftwareRequirement" {
+package "Tseten.Aggregates.SoftwareRequirement" {
     class SoftwareRequirement {
         +SoftwareRequirementId : string
         +ParentSoftwareRequirementId : string?
@@ -475,7 +475,7 @@ Solution/
 │   │   ├── Program.cs
 │   │   └── {Project}.Api.csproj
 │   ├── {Project}.Core/
-│   │   ├── Models/
+│   │   ├── Aggregates/
 │   │   │   └── {Entity}/
 │   │   │       ├── {Entity}.cs
 │   │   │       ├── {Entity}Dto.cs
@@ -593,7 +593,7 @@ public class Create{Entity}Handler : IRequestHandler<Create{Entity}Request, Crea
         Create{Entity}Request request,
         CancellationToken cancellationToken)
     {
-        var entity = new Models.{Entity}.{Entity}
+        var entity = new Aggregates.{Entity}.{Entity}
         {
             {Entity}Id = Guid.NewGuid().ToString(),
             Property1 = request.Property1,
@@ -1624,7 +1624,7 @@ export const routes: Routes = [
 ### 7.1 PlantUML Entity Format
 
 ```plantuml
-package "Namespace.EntityName" {
+package "Namespace.Aggregates.EntityName" {
     class EntityName <<aggregate>> {
         ' Primary key - REQUIRED
         +EntityNameId : string
@@ -1683,8 +1683,8 @@ package "Namespace.EntityName" {
 
 | Stereotype | Meaning | Scaffolding Effect |
 |------------|---------|-------------------|
-| `<<aggregate>>` | Aggregate root | Full CRUD, own controller |
-| `<<entity>>` | Child entity | CRUD via parent |
+| `<<aggregate>>` | Aggregate root | Full CRUD, own controller, placed in Aggregates folder |
+| `<<entity>>` | Child entity | CRUD via parent, placed in Aggregates folder with parent |
 | `<<valueobject>>` | Value object | No ID, embedded |
 | `<<enum>>` | Enumeration | Enum file generation |
 | `<<service>>` | Service class | Service generation |
@@ -2170,7 +2170,7 @@ skinparam defaultFontSize 11
 
 title Domain Models - SoftwareRequirement Aggregate
 
-package "Tseten.Models.SoftwareRequirement" {
+package "Tseten.Aggregates.SoftwareRequirement" {
     class SoftwareRequirement <<aggregate>> {
         +SoftwareRequirementId : string
         +ParentSoftwareRequirementId : string?

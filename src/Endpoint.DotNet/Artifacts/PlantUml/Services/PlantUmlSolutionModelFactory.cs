@@ -118,7 +118,7 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
     private string GenerateCoreContextInterfaceContent(List<PlantUmlClassModel> entities, string solutionName, string projectNamespace)
     {
         var dbSets = string.Join("\n    ", entities.Select(e => $"DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
-        var usings = string.Join("\n", entities.Select(e => $"using {projectNamespace}.Models.{e.Name};"));
+        var usings = string.Join("\n", entities.Select(e => $"using {projectNamespace}.Aggregates.{e.Name};"));
 
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
@@ -191,7 +191,7 @@ public interface I{solutionName}Context
     private void GenerateEntityFiles(ProjectModel project, PlantUmlClassModel plantUmlClass, PlantUmlSolutionModel solutionModel, string solutionName)
     {
         var entityName = plantUmlClass.Name;
-        var entityDirectory = Path.Combine(project.Directory, "Models", entityName);
+        var entityDirectory = Path.Combine(project.Directory, "Aggregates", entityName);
 
         // Generate entity class
         var entityClass = CreateEntityClassModel(plantUmlClass, project.Namespace);
@@ -299,7 +299,7 @@ public interface I{solutionName}Context
             var genericTypeName = property.GenericTypeArgument;
             if (!IsPrimitiveType(genericTypeName) && !string.IsNullOrEmpty(projectNamespace))
             {
-                genericTypeName = $"Models.{property.GenericTypeArgument}.{property.GenericTypeArgument}";
+                genericTypeName = $"Aggregates.{property.GenericTypeArgument}.{property.GenericTypeArgument}";
             }
 
             typeModel = new TypeModel(property.CollectionType ?? "List")
@@ -348,14 +348,14 @@ public interface I{solutionName}Context
     private void GenerateCreateOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string solutionName)
     {
         var entityName = entity.Name;
-        var modelsNamespace = $"{project.Namespace}.Models.{entityName}";
+        var aggregateNamespace = $"{project.Namespace}.Aggregates.{entityName}";
         var keyProperty = GetKeyProperty(entity);
         var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
 
         // Create Request
         var requestClass = new ClassModel($"Create{entityName}Request");
         requestClass.Usings.Add(new UsingModel("MediatR"));
-        requestClass.Usings.Add(new UsingModel($"{project.Namespace}.Models"));
+        requestClass.Usings.Add(new UsingModel(aggregateNamespace));
         requestClass.Implements.Add(new TypeModel($"IRequest<Create{entityName}Response>"));
         foreach (var property in entity.Properties.Where(p => !p.IsKey && !IsAuditProperty(p.Name)))
         {
@@ -365,7 +365,7 @@ public interface I{solutionName}Context
 
         // Create Response
         var responseClass = new ClassModel($"Create{entityName}Response");
-        responseClass.Usings.Add(new UsingModel(modelsNamespace));
+        responseClass.Usings.Add(new UsingModel(aggregateNamespace));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel($"{entityName}Dto"), entityName, PropertyAccessorModel.GetSet));
         project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Create{entityName}Response", directory, ".cs"));
 
@@ -386,15 +386,15 @@ public interface I{solutionName}Context
 
         var propertyAssignments = string.Join("\n            ", nonKeyProperties.Select(p => $"{p.Name} = request.{p.Name},"));
 
-        // Use type alias to avoid namespace collision between Features.{EntityName} namespace and Models.{EntityName}.{EntityName} type
+        // Use type alias to avoid namespace collision between Features.{EntityName} namespace and Aggregates.{EntityName}.{EntityName} type
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using {projectNamespace}.Data;
-using {entityName}Entity = {projectNamespace}.Models.{entityName}.{entityName};
-using {entityName}Ext = {projectNamespace}.Models.{entityName}.{entityName}Extensions;
+using {entityName}Entity = {projectNamespace}.Aggregates.{entityName}.{entityName};
+using {entityName}Ext = {projectNamespace}.Aggregates.{entityName}.{entityName}Extensions;
 
 namespace {projectNamespace}.Features.{entityName};
 
@@ -456,7 +456,7 @@ public class Create{entityName}Validator : AbstractValidator<Create{entityName}R
     private void GenerateGetByIdOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string solutionName)
     {
         var entityName = entity.Name;
-        var modelsNamespace = $"{project.Namespace}.Models.{entityName}";
+        var aggregateNamespace = $"{project.Namespace}.Aggregates.{entityName}";
         var keyProperty = GetKeyProperty(entity);
         var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
 
@@ -469,7 +469,7 @@ public class Create{entityName}Validator : AbstractValidator<Create{entityName}R
 
         // Create Response
         var responseClass = new ClassModel($"Get{entityName}ByIdResponse");
-        responseClass.Usings.Add(new UsingModel(modelsNamespace));
+        responseClass.Usings.Add(new UsingModel(aggregateNamespace));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel($"{entityName}Dto"), entityName, PropertyAccessorModel.GetSet));
         project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Get{entityName}ByIdResponse", directory, ".cs"));
 
@@ -483,15 +483,15 @@ public class Create{entityName}Validator : AbstractValidator<Create{entityName}R
         var entityName = entity.Name;
         var entityNameCamel = ToCamelCase(entityName);
 
-        // Use type alias to avoid namespace collision between Features.{EntityName} namespace and Models.{EntityName}.{EntityName} type
+        // Use type alias to avoid namespace collision between Features.{EntityName} namespace and Aggregates.{EntityName}.{EntityName} type
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using {projectNamespace}.Data;
-using {entityName}Entity = {projectNamespace}.Models.{entityName}.{entityName};
-using {entityName}Ext = {projectNamespace}.Models.{entityName}.{entityName}Extensions;
+using {entityName}Entity = {projectNamespace}.Aggregates.{entityName}.{entityName};
+using {entityName}Ext = {projectNamespace}.Aggregates.{entityName}.{entityName}Extensions;
 
 namespace {projectNamespace}.Features.{entityName};
 
@@ -527,7 +527,7 @@ public class Get{entityName}ByIdHandler : IRequestHandler<Get{entityName}ByIdReq
     {
         var entityName = entity.Name;
         var pluralName = GetPluralName(entityName);
-        var modelsNamespace = $"{project.Namespace}.Models.{entityName}";
+        var aggregateNamespace = $"{project.Namespace}.Aggregates.{entityName}";
 
         // Create Request
         var requestClass = new ClassModel($"Get{pluralName}Request");
@@ -542,7 +542,7 @@ public class Get{entityName}ByIdHandler : IRequestHandler<Get{entityName}ByIdReq
 
         // Create Response
         var responseClass = new ClassModel($"Get{pluralName}Response");
-        responseClass.Usings.Add(new UsingModel(modelsNamespace));
+        responseClass.Usings.Add(new UsingModel(aggregateNamespace));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, TypeModel.ListOf($"{entityName}Dto"), pluralName, PropertyAccessorModel.GetSet) { DefaultValue = "new()" });
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel("int"), "TotalCount", PropertyAccessorModel.GetSet));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel("int"), "PageIndex", PropertyAccessorModel.GetSet));
@@ -571,8 +571,8 @@ public class Get{entityName}ByIdHandler : IRequestHandler<Get{entityName}ByIdReq
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using {projectNamespace}.Data;
-using {entityName}Entity = {projectNamespace}.Models.{entityName}.{entityName};
-using {entityName}Ext = {projectNamespace}.Models.{entityName}.{entityName}Extensions;
+using {entityName}Entity = {projectNamespace}.Aggregates.{entityName}.{entityName};
+using {entityName}Ext = {projectNamespace}.Aggregates.{entityName}.{entityName}Extensions;
 
 namespace {projectNamespace}.Features.{entityName};
 
@@ -628,14 +628,14 @@ public class Get{pluralName}Handler : IRequestHandler<Get{pluralName}Request, Ge
     private void GenerateUpdateOperation(ProjectModel project, PlantUmlClassModel entity, string directory, string solutionName)
     {
         var entityName = entity.Name;
-        var modelsNamespace = $"{project.Namespace}.Models.{entityName}";
+        var aggregateNamespace = $"{project.Namespace}.Aggregates.{entityName}";
         var keyProperty = GetKeyProperty(entity);
         var keyPropertyName = keyProperty?.Name ?? $"{entityName}Id";
 
         // Create Request
         var requestClass = new ClassModel($"Update{entityName}Request");
         requestClass.Usings.Add(new UsingModel("MediatR"));
-        requestClass.Usings.Add(new UsingModel($"{project.Namespace}.Models"));
+        requestClass.Usings.Add(new UsingModel(aggregateNamespace));
         requestClass.Implements.Add(new TypeModel($"IRequest<Update{entityName}Response>"));
         requestClass.Properties.Add(new PropertyModel(requestClass, AccessModifier.Public, new TypeModel("string"), keyPropertyName, PropertyAccessorModel.GetSet));
         foreach (var property in entity.Properties.Where(p => !p.IsKey && !IsAuditProperty(p.Name)))
@@ -646,7 +646,7 @@ public class Get{pluralName}Handler : IRequestHandler<Get{pluralName}Request, Ge
 
         // Create Response
         var responseClass = new ClassModel($"Update{entityName}Response");
-        responseClass.Usings.Add(new UsingModel(modelsNamespace));
+        responseClass.Usings.Add(new UsingModel(aggregateNamespace));
         responseClass.Properties.Add(new PropertyModel(responseClass, AccessModifier.Public, new TypeModel($"{entityName}Dto"), entityName, PropertyAccessorModel.GetSet));
         project.Files.Add(new CodeFileModel<ClassModel>(responseClass, responseClass.Usings, $"Update{entityName}Response", directory, ".cs"));
 
@@ -674,8 +674,8 @@ public class Get{pluralName}Handler : IRequestHandler<Get{pluralName}Request, Ge
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using {projectNamespace}.Data;
-using {entityName}Entity = {projectNamespace}.Models.{entityName}.{entityName};
-using {entityName}Ext = {projectNamespace}.Models.{entityName}.{entityName}Extensions;
+using {entityName}Entity = {projectNamespace}.Aggregates.{entityName}.{entityName};
+using {entityName}Ext = {projectNamespace}.Aggregates.{entityName}.{entityName}Extensions;
 
 namespace {projectNamespace}.Features.{entityName};
 
@@ -775,7 +775,7 @@ public class Update{entityName}Validator : AbstractValidator<Update{entityName}R
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using {projectNamespace}.Data;
-using {entityName}Entity = {projectNamespace}.Models.{entityName}.{entityName};
+using {entityName}Entity = {projectNamespace}.Aggregates.{entityName}.{entityName};
 
 namespace {projectNamespace}.Features.{entityName};
 
@@ -817,18 +817,55 @@ public class Delete{entityName}Handler : IRequestHandler<Delete{entityName}Reque
 
     private void GenerateEnumFile(ProjectModel project, PlantUmlEnumModel plantUmlEnum)
     {
-        var enumDirectory = Path.Combine(project.Directory, "Models");
-        var content = GenerateEnumContent(plantUmlEnum, project.Namespace);
+        // If the enum has a namespace (from a package), use that to determine the folder
+        // Otherwise, place it in the Models folder
+        string enumDirectory;
+        string enumNamespace;
+
+        if (!string.IsNullOrEmpty(plantUmlEnum.Namespace))
+        {
+            // Extract the last part of the namespace to determine the folder
+            // e.g., "ToDo.Core.Aggregates.ToDoItem" -> place in Aggregates/ToDoItem
+            var namespaceParts = plantUmlEnum.Namespace.Split('.');
+            if (namespaceParts.Length >= 2)
+            {
+                // Check if this is inside an Aggregates namespace
+                var aggregatesIndex = Array.IndexOf(namespaceParts, "Aggregates");
+                if (aggregatesIndex >= 0 && aggregatesIndex < namespaceParts.Length - 1)
+                {
+                    var aggregateName = namespaceParts[aggregatesIndex + 1];
+                    enumDirectory = Path.Combine(project.Directory, "Aggregates", aggregateName);
+                    enumNamespace = $"{project.Namespace}.Aggregates.{aggregateName}";
+                }
+                else
+                {
+                    enumDirectory = Path.Combine(project.Directory, "Models");
+                    enumNamespace = $"{project.Namespace}.Models";
+                }
+            }
+            else
+            {
+                enumDirectory = Path.Combine(project.Directory, "Models");
+                enumNamespace = $"{project.Namespace}.Models";
+            }
+        }
+        else
+        {
+            enumDirectory = Path.Combine(project.Directory, "Models");
+            enumNamespace = $"{project.Namespace}.Models";
+        }
+
+        var content = GenerateEnumContent(plantUmlEnum, enumNamespace);
         project.Files.Add(new Files.ContentFileModel(content, plantUmlEnum.Name, enumDirectory, ".cs"));
     }
 
-    private string GenerateEnumContent(PlantUmlEnumModel enumModel, string projectNamespace)
+    private string GenerateEnumContent(PlantUmlEnumModel enumModel, string enumNamespace)
     {
         var values = string.Join(",\n    ", enumModel.Values);
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-namespace {projectNamespace}.Models;
+namespace {enumNamespace};
 
 public enum {enumModel.Name}
 {{
@@ -849,7 +886,7 @@ public enum {enumModel.Name}
     private string GenerateDbContextContent(List<PlantUmlClassModel> entities, string solutionName, string projectNamespace)
     {
         var dbSets = string.Join("\n    ", entities.Select(e => $"public DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
-        var usings = string.Join("\n", entities.Select(e => $"using {solutionName}.Core.Models.{e.Name};"));
+        var usings = string.Join("\n", entities.Select(e => $"using {solutionName}.Core.Aggregates.{e.Name};"));
 
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
