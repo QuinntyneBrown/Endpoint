@@ -63,7 +63,7 @@ public class PlantUmlParserService : IPlantUmlParserService
         RegexOptions.Compiled);
 
     private static readonly Regex ParticipantRegex = new(
-        @"(?:participant|actor)\s+""([^""]+)""\s+as\s+(\w+)",
+        @"(?:participant|actor)\s+(?:""([^""]+)""|(\w+))\s+as\s+(\w+)",
         RegexOptions.Compiled | RegexOptions.Multiline);
 
     public PlantUmlParserService(ILogger<PlantUmlParserService> logger, IFileSystem fileSystem)
@@ -482,8 +482,9 @@ public class PlantUmlParserService : IPlantUmlParserService
         {
             var participant = new PlantUmlParticipantModel
             {
-                Name = match.Groups[1].Value.Trim(),
-                Alias = match.Groups[2].Value.Trim()
+                // Group 1 is quoted name, Group 2 is unquoted name, Group 3 is alias
+                Name = match.Groups[1].Success ? match.Groups[1].Value.Trim() : match.Groups[2].Value.Trim(),
+                Alias = match.Groups[3].Value.Trim()
             };
 
             // Look for a comment line immediately before this participant
