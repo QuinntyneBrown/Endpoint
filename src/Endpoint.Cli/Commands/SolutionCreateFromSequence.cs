@@ -1,22 +1,18 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using CommandLine;
-using MediatR;
 using System;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Endpoint.Services;
-using Endpoint.DotNet.Artifacts.PlantUml.Services;
+using CommandLine;
 using Endpoint.Artifacts.Abstractions;
-
+using Endpoint.DotNet.Artifacts.PlantUml.Services;
+using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Cli.Commands;
-
 
 [Verb("solution-create-from-sequence")]
 public class SolutionCreateFromSequenceRequest : IRequest {
