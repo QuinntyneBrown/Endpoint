@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.DotNet.Services;
+using System.IO.Abstractions;
 
 namespace Endpoint.DotNet.UnitTests.Services;
 
@@ -11,7 +12,7 @@ public class NamespaceProviderTests
     public void Get_ShouldReturnNamespaceNotFound_WhenDirectoryIsNull()
     {
         // Arrange
-        var namespaceProvider = new NamespaceProvider();
+        var namespaceProvider = new NamespaceProvider(new FileSystem());
 
         // Act
         var result = namespaceProvider.Get(null);
@@ -24,7 +25,7 @@ public class NamespaceProviderTests
     public void Get_ShouldReturnNamespaceNotFound_WhenDirectoryIsEmpty()
     {
         // Arrange
-        var namespaceProvider = new NamespaceProvider();
+        var namespaceProvider = new NamespaceProvider(new FileSystem());
 
         // Act
         var result = namespaceProvider.Get(string.Empty);
@@ -37,7 +38,7 @@ public class NamespaceProviderTests
     public void Get_ShouldReturnNamespaceNotFound_WhenDepthExceedsPathLength()
     {
         // Arrange
-        var namespaceProvider = new NamespaceProvider();
+        var namespaceProvider = new NamespaceProvider(new FileSystem());
 
         // Act
         var result = namespaceProvider.Get("path", 10);
@@ -50,7 +51,7 @@ public class NamespaceProviderTests
     public void NamespaceProvider_ShouldCreateInstance()
     {
         // Act
-        var namespaceProvider = new NamespaceProvider();
+        var namespaceProvider = new NamespaceProvider(new FileSystem());
 
         // Assert
         Assert.NotNull(namespaceProvider);

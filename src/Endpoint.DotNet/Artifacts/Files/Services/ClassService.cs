@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using Endpoint.Artifacts.Abstractions;
@@ -165,11 +166,11 @@ public class ClassService : IClassService
 
             classModel.Usings.Add(new("Xunit"));
 
-            classModel.Usings.Add(new(_namespaceProvider.Get(Path.GetDirectoryName(classPath))));
+            classModel.Usings.Add(new(_namespaceProvider.Get(_fileSystem.Path.GetDirectoryName(classPath))));
 
-            classModel.UsingAs.Add(new UsingAsModel($"{_namespaceProvider.Get(Path.GetDirectoryName(classPath))}.{name}", name));
+            classModel.UsingAs.Add(new UsingAsModel($"{_namespaceProvider.Get(_fileSystem.Path.GetDirectoryName(classPath))}.{name}", name));
 
-            await _artifactGenerator.GenerateAsync(new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, $"{projectDirectory}{Path.DirectorySeparatorChar}{name}", ".cs"));
+            await _artifactGenerator.GenerateAsync(new CodeFileModel<ClassModel>(classModel, classModel.Usings, classModel.Name, $"{projectDirectory}{_fileSystem.Path.DirectorySeparatorChar}{name}", ".cs"));
         }
     }
 

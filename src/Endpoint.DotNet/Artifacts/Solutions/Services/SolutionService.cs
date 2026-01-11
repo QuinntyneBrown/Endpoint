@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.Internal;
 using Endpoint.DotNet.Artifacts.Files;
@@ -26,6 +26,7 @@ public class SolutionService : ISolutionService
     private readonly Observable<INotification> notificationListener;
     private readonly IFileProvider fileProvider;
     private readonly ICommandService commandService;
+    private readonly IFileSystem _fileSystem;
 
     public SolutionService(
         IArtifactGenerator artifactGenerator,
@@ -34,7 +35,8 @@ public class SolutionService : ISolutionService
         IDomainDrivenDesignService domainDrivenDesignService,
         Observable<INotification> notificationListener,
         IFileProvider fileProvider,
-        ICommandService commandService)
+        ICommandService commandService,
+        IFileSystem fileSystem)
     {
         this.artifactGenerator = artifactGenerator;
         this.projectFactory = projectFactory;
@@ -43,6 +45,7 @@ public class SolutionService : ISolutionService
         this.notificationListener = notificationListener;
         this.fileProvider = fileProvider;
         this.commandService = commandService;
+        _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
     public async Task AddSolutionItem(string path)
@@ -95,22 +98,22 @@ public class SolutionService : ISolutionService
     {
         var solutionPath = fileProvider.Get("*.sln", directory);
 
-        var solutionName = Path.GetFileName(solutionPath);
+        var solutionName = _fileSystem.Path.GetFileName(solutionPath);
 
-        var solutionDirectory = Path.GetDirectoryName(solutionPath);
+        var solutionDirectory = _fileSystem.Path.GetDirectoryName(solutionPath);
 
-        var buildingBlocksDirectory = Path.Combine(solutionDirectory, "src", "BuildingBlocks");
+        var buildingBlocksDirectory = _fileSystem.Path.Combine(solutionDirectory, "src", "BuildingBlocks");
 
-        var messagingDirectory = Path.Combine(buildingBlocksDirectory, "Messaging");
+        var messagingDirectory = _fileSystem.Path.Combine(buildingBlocksDirectory, "Messaging");
 
-        if (!Directory.Exists(buildingBlocksDirectory))
+        if (!_fileSystem.Directory.Exists(buildingBlocksDirectory))
         {
-            Directory.CreateDirectory(buildingBlocksDirectory);
+            _fileSystem.Directory.CreateDirectory(buildingBlocksDirectory);
         }
 
-        if (!Directory.Exists(messagingDirectory))
+        if (!_fileSystem.Directory.Exists(messagingDirectory))
         {
-            Directory.CreateDirectory(messagingDirectory);
+            _fileSystem.Directory.CreateDirectory(messagingDirectory);
         }
 
         var messagingProjectModel = await projectFactory.CreateMessagingProject(messagingDirectory);
@@ -130,22 +133,22 @@ public class SolutionService : ISolutionService
     {
         var solutionPath = fileProvider.Get("*.sln", directory);
 
-        var solutionName = Path.GetFileName(solutionPath);
+        var solutionName = _fileSystem.Path.GetFileName(solutionPath);
 
-        var solutionDirectory = Path.GetDirectoryName(solutionPath);
+        var solutionDirectory = _fileSystem.Path.GetDirectoryName(solutionPath);
 
-        var buildingBlocksDirectory = Path.Combine(solutionDirectory, "src", "BuildingBlocks");
+        var buildingBlocksDirectory = _fileSystem.Path.Combine(solutionDirectory, "src", "BuildingBlocks");
 
-        var messagingDirectory = Path.Combine(buildingBlocksDirectory, "IO.Compression");
+        var messagingDirectory = _fileSystem.Path.Combine(buildingBlocksDirectory, "IO.Compression");
 
-        if (!Directory.Exists(buildingBlocksDirectory))
+        if (!_fileSystem.Directory.Exists(buildingBlocksDirectory))
         {
-            Directory.CreateDirectory(buildingBlocksDirectory);
+            _fileSystem.Directory.CreateDirectory(buildingBlocksDirectory);
         }
 
-        if (!Directory.Exists(messagingDirectory))
+        if (!_fileSystem.Directory.Exists(messagingDirectory))
         {
-            Directory.CreateDirectory(messagingDirectory);
+            _fileSystem.Directory.CreateDirectory(messagingDirectory);
         }
 
         var messagingProjectModel = await projectFactory.CreateMessagingProject(messagingDirectory);
@@ -163,11 +166,11 @@ public class SolutionService : ISolutionService
 
     private async Task<dynamic> BuildingBlocksCreate(string directory)
     {
-        var buildingBlocksDirectory = Path.Combine(directory, "src", "BuildingBlocks");
+        var buildingBlocksDirectory = _fileSystem.Path.Combine(directory, "src", "BuildingBlocks");
         
-        var messagingDirectory = Path.Combine(buildingBlocksDirectory, "Messaging");
+        var messagingDirectory = _fileSystem.Path.Combine(buildingBlocksDirectory, "Messaging");
         
-        Directory.CreateDirectory(messagingDirectory);
+        _fileSystem.Directory.CreateDirectory(messagingDirectory);
         
         var projects = new List<ProjectModel>();
         
@@ -182,9 +185,9 @@ public class SolutionService : ISolutionService
 
     private async Task<dynamic> ServicesCreate(string services, string directory, List<INotification> notifications)
     {
-        var servicesDirectory = Path.Combine(directory, "src", "Services");
+        var servicesDirectory = _fileSystem.Path.Combine(directory, "src", "Services");
         
-        Directory.CreateDirectory(servicesDirectory);
+        _fileSystem.Directory.CreateDirectory(servicesDirectory);
         
         var projects = new List<ProjectModel>();
         
@@ -198,22 +201,22 @@ public class SolutionService : ISolutionService
         foreach (var serviceName in serviceNames)
         {
             var trimmedServiceName = serviceName.Trim();
-            var serviceDirectory = Path.Combine(servicesDirectory, trimmedServiceName);
+            var serviceDirectory = _fileSystem.Path.Combine(servicesDirectory, trimmedServiceName);
             
-            Directory.CreateDirectory(serviceDirectory);
+            _fileSystem.Directory.CreateDirectory(serviceDirectory);
             
             // Create Core project
-            var coreDirectory = Path.Combine(serviceDirectory, $"{trimmedServiceName}.Core");
+            var coreDirectory = _fileSystem.Path.Combine(serviceDirectory, $"{trimmedServiceName}.Core");
             var coreProject = await projectFactory.CreateCore(trimmedServiceName, coreDirectory);
             projects.Add(coreProject);
             
             // Create Infrastructure project
-            var infrastructureDirectory = Path.Combine(serviceDirectory, $"{trimmedServiceName}.Infrastructure");
+            var infrastructureDirectory = _fileSystem.Path.Combine(serviceDirectory, $"{trimmedServiceName}.Infrastructure");
             var infrastructureProject = await projectFactory.CreateInfrastructure(trimmedServiceName, infrastructureDirectory);
             projects.Add(infrastructureProject);
             
             // Create Api project
-            var apiDirectory = Path.Combine(serviceDirectory, $"{trimmedServiceName}.Api");
+            var apiDirectory = _fileSystem.Path.Combine(serviceDirectory, $"{trimmedServiceName}.Api");
             var apiProject = await projectFactory.CreateApi(trimmedServiceName, apiDirectory);
             projects.Add(apiProject);
         }
