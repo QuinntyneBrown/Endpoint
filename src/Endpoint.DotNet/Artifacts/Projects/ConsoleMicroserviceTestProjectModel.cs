@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Syntax.Classes;
@@ -10,10 +11,11 @@ namespace Endpoint.DotNet.Artifacts.Projects;
 
 public class ConsoleMicroserviceTestProjectModel : ProjectModel
 {
-    public ConsoleMicroserviceTestProjectModel(string name, string directory)
+    public ConsoleMicroserviceTestProjectModel(string name, string directory, IFileSystem? fileSystem = null)
     {
+        fileSystem ??= new FileSystem();
         Name = name;
-        Directory = $"{directory}{System.IO.Path.DirectorySeparatorChar}{name}";
+        Directory = $"{directory}{fileSystem.Path.DirectorySeparatorChar}{name}";
         DotNetProjectType = DotNetProjectType.XUnit;
         Packages.Add(new PackageModel("Moq", "4.18.4"));
         Order = 1;
@@ -24,7 +26,7 @@ public class ConsoleMicroserviceTestProjectModel : ProjectModel
 
         var classModel = new ClassModel("Worker");
 
-        var classFileModel = new CodeFileModel<ClassModel>(classModel, classModel.Usings, "Worker", Directory, ".cs");
+        var classFileModel = new CodeFileModel<ClassModel>(classModel, classModel.Usings, "Worker", Directory, ".cs", fileSystem);
 
         Files = new List<FileModel>
         {

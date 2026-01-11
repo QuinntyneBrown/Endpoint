@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using System.Linq;
 
 namespace Endpoint.DotNet.Artifacts.Files;
@@ -14,15 +15,15 @@ public class CodeFileModel<T> : FileModel
     {
     }
 
-    public CodeFileModel(T @object, string name, string directory, string extension)
-    : base(name.Split('.').Last(), directory, extension)
+    public CodeFileModel(T @object, string name, string directory, string extension, IFileSystem? fileSystem = null)
+    : base(name.Split('.').Last(), directory, extension, fileSystem)
     {
         Object = @object;
         Usings = @object.Usings;
     }
 
-    public CodeFileModel(T @object, List<UsingModel> usings, string name, string directory, string extension)
-        : base(name.Split('.').Last(), directory, extension)
+    public CodeFileModel(T @object, List<UsingModel> usings, string name, string directory, string extension, IFileSystem? fileSystem = null)
+        : base(name.Split('.').Last(), directory, extension, fileSystem)
     {
         Object = @object;
         Usings = usings;

@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.IO.Abstractions;
 using Endpoint.Internal;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -11,26 +12,29 @@ public class UtlitityService : IUtilityService
 {
     private readonly ILogger<UtlitityService> logger;
     private readonly Observable<INotification> observableNotifications;
+    private readonly IFileSystem _fileSystem;
 
     public UtlitityService(
         ILogger<UtlitityService> logger,
-        Observable<INotification> observableNotifications)
+        Observable<INotification> observableNotifications,
+        IFileSystem fileSystem)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.observableNotifications = observableNotifications ?? throw new ArgumentNullException(nameof(observableNotifications));
+        _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
     public void CopyrightAdd(string directory)
     {
-        foreach (var path in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
+        foreach (var path in _fileSystem.Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
         {
-            var ignore = path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}")
-                || path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}")
-                || path.Contains($"{Path.DirectorySeparatorChar}nupkg{Path.DirectorySeparatorChar}")
-                || path.Contains($"{Path.DirectorySeparatorChar}Properties{Path.DirectorySeparatorChar}")
-                || path.Contains($"{Path.DirectorySeparatorChar}node_modules{Path.DirectorySeparatorChar}");
+            var ignore = path.Contains($"{_fileSystem.Path.DirectorySeparatorChar}obj{_fileSystem.Path.DirectorySeparatorChar}")
+                || path.Contains($"{_fileSystem.Path.DirectorySeparatorChar}bin{_fileSystem.Path.DirectorySeparatorChar}")
+                || path.Contains($"{_fileSystem.Path.DirectorySeparatorChar}nupkg{_fileSystem.Path.DirectorySeparatorChar}")
+                || path.Contains($"{_fileSystem.Path.DirectorySeparatorChar}Properties{_fileSystem.Path.DirectorySeparatorChar}")
+                || path.Contains($"{_fileSystem.Path.DirectorySeparatorChar}node_modules{_fileSystem.Path.DirectorySeparatorChar}");
 
-            var extension = Path.GetExtension(path);
+            var extension = _fileSystem.Path.GetExtension(path);
 
             var validExtension = extension == ".cs" || extension == ".ts" || extension == ".js";
 
