@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.IO;
+using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -28,13 +28,16 @@ public class GitCreateRequestHandler : IRequestHandler<GitCreateRequest>
 {
     private readonly ILogger<GitCreateRequestHandler> logger;
     private readonly IArtifactGenerator artifactGenerator;
+    private readonly IFileSystem fileSystem;
 
     public GitCreateRequestHandler(
         ILogger<GitCreateRequestHandler> logger,
-        IArtifactGenerator artifactGenerator)
+        IArtifactGenerator artifactGenerator,
+        IFileSystem fileSystem)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.artifactGenerator = artifactGenerator ?? throw new ArgumentNullException(nameof(artifactGenerator));
+        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
     public async Task Handle(GitCreateRequest request, CancellationToken cancellationToken)
@@ -46,7 +49,7 @@ public class GitCreateRequestHandler : IRequestHandler<GitCreateRequest>
 
         var model = new GitModel(request.RepositoryName)
         {
-            Directory = Path.Combine(request.Directory, request.RepositoryName),
+            Directory = fileSystem.Path.Combine(request.Directory, request.RepositoryName),
             Username = "QuinntyneBrown",
         };
 

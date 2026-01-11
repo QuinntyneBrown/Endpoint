@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,17 +34,20 @@ public class SolutionCreateFromPlantUmlRequestHandler : IRequestHandler<Solution
     private readonly IPlantUmlParserService plantUmlParserService;
     private readonly IPlantUmlSolutionModelFactory plantUmlSolutionModelFactory;
     private readonly IArtifactGenerator artifactGenerator;
+    private readonly IFileSystem fileSystem;
 
     public SolutionCreateFromPlantUmlRequestHandler(
         ILogger<SolutionCreateFromPlantUmlRequestHandler> logger,
         IPlantUmlParserService plantUmlParserService,
         IPlantUmlSolutionModelFactory plantUmlSolutionModelFactory,
-        IArtifactGenerator artifactGenerator)
+        IArtifactGenerator artifactGenerator,
+        IFileSystem fileSystem)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.plantUmlParserService = plantUmlParserService ?? throw new ArgumentNullException(nameof(plantUmlParserService));
         this.plantUmlSolutionModelFactory = plantUmlSolutionModelFactory ?? throw new ArgumentNullException(nameof(plantUmlSolutionModelFactory));
         this.artifactGenerator = artifactGenerator ?? throw new ArgumentNullException(nameof(artifactGenerator));
+        this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
     public async Task Handle(SolutionCreateFromPlantUmlRequest request, CancellationToken cancellationToken)
@@ -64,10 +68,10 @@ public class SolutionCreateFromPlantUmlRequestHandler : IRequestHandler<Solution
         }
 
         // Resolve full path
-        var sourcePath = Path.GetFullPath(request.PlantUmlSourcePath);
-        var outputDirectory = Path.GetFullPath(request.Directory);
+        var sourcePath = fileSystem.Path.GetFullPath(request.PlantUmlSourcePath);
+        var outputDirectory = fileSystem.Path.GetFullPath(request.Directory);
 
-        if (!System.IO.Directory.Exists(sourcePath))
+        if (!fileSystem.Directory.Exists(sourcePath))
         {
             throw new DirectoryNotFoundException($"PlantUML source directory not found: {sourcePath}");
         }

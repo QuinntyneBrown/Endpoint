@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +32,7 @@ public class SolutionCreateFromSequenceRequestHandler : IRequestHandler<Solution
     private readonly IPlantUmlParserService _plantUmlParserService;
     private readonly IPlantUmlSolutionModelFactory _plantUmlSolutionModelFactory;
     private readonly IArtifactGenerator _artifactGenerator;
+    private readonly IFileSystem _fileSystem;
 
     public SolutionCreateFromSequenceRequestHandler(
         ILogger<SolutionCreateFromSequenceRequestHandler> logger,
@@ -39,7 +40,8 @@ public class SolutionCreateFromSequenceRequestHandler : IRequestHandler<Solution
         ISequenceToSolutionPlantUmlService sequenceToSolutionService,
         IPlantUmlParserService plantUmlParserService,
         IPlantUmlSolutionModelFactory plantUmlSolutionModelFactory,
-        IArtifactGenerator artifactGenerator)
+        IArtifactGenerator artifactGenerator,
+        IFileSystem fileSystem)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _userInputService = userInputService ?? throw new ArgumentNullException(nameof(userInputService));
@@ -47,6 +49,7 @@ public class SolutionCreateFromSequenceRequestHandler : IRequestHandler<Solution
         _plantUmlParserService = plantUmlParserService ?? throw new ArgumentNullException(nameof(plantUmlParserService));
         _plantUmlSolutionModelFactory = plantUmlSolutionModelFactory ?? throw new ArgumentNullException(nameof(plantUmlSolutionModelFactory));
         _artifactGenerator = artifactGenerator ?? throw new ArgumentNullException(nameof(artifactGenerator));
+        _fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
     }
 
     public async Task Handle(SolutionCreateFromSequenceRequest request, CancellationToken cancellationToken)
@@ -93,10 +96,10 @@ public class SolutionCreateFromSequenceRequestHandler : IRequestHandler<Solution
         var solutionPlantUml = _sequenceToSolutionService.GenerateSolutionPlantUml(sequenceDiagram, request.Name);
 
         // Save the generated PlantUML for debugging/reference
-        var tempDir = Path.Combine(Path.GetTempPath(), "endpoint-plantuml", request.Name);
-        System.IO.Directory.CreateDirectory(tempDir);
-        var plantUmlPath = Path.Combine(tempDir, "generated-solution.puml");
-        await File.WriteAllTextAsync(plantUmlPath, solutionPlantUml, cancellationToken);
+        var tempDir = _fileSystem.Path.Combine(_fileSystem.Path.GetTempPath(), "endpoint-plantuml", request.Name);
+        _fileSystem.Directory.CreateDirectory(tempDir);
+        var plantUmlPath = _fileSystem.Path.Combine(tempDir, "generated-solution.puml");
+        await _fileSystem.File.WriteAllTextAsync(plantUmlPath, solutionPlantUml, cancellationToken);
         _logger.LogInformation("Generated PlantUML saved to: {Path}", plantUmlPath);
 
         Console.WriteLine();
@@ -123,7 +126,7 @@ public class SolutionCreateFromSequenceRequestHandler : IRequestHandler<Solution
 
         // Step 4: Create solution model from parsed PlantUML
         _logger.LogInformation("Building solution model...");
-        var outputDirectory = Path.GetFullPath(request.Directory);
+        var outputDirectory = _fileSystem.Path.GetFullPath(request.Directory);
         var solutionModel = await _plantUmlSolutionModelFactory.CreateAsync(
             plantUmlSolutionModel,
             request.Name,
