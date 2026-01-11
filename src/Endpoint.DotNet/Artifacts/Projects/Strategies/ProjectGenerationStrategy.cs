@@ -37,6 +37,17 @@ public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectMode
 
     public int GetPriority() => 2;
 
+    public bool CanHandle(object model)
+    {
+        // Skip .esproj projects as they are handled by AngularStandaloneProjectArtifactGenerationStrategy
+        if (model is ProjectModel projectModel && projectModel.Extension == ".esproj")
+        {
+            return false;
+        }
+
+        return model is ProjectModel;
+    }
+
     public async Task GenerateAsync(ProjectModel model)
     {
         _logger.LogInformation("Generating artifact for {0}.", model);
