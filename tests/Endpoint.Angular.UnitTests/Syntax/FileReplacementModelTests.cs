@@ -11,7 +11,7 @@ public class FileReplacementModelTests
     public void FileReplacementModel_ShouldCreateInstance()
     {
         // Arrange & Act
-        var model = new FileReplacementModel();
+        var model = new FileReplacementModel("replace", "with");
 
         // Assert
         Assert.NotNull(model);
@@ -21,11 +21,9 @@ public class FileReplacementModelTests
     public void FileReplacementModel_ShouldSetProperties()
     {
         // Arrange
-        var model = new FileReplacementModel
-        {
-            Replace = "src/environments/environment.ts",
-            With = "src/environments/environment.prod.ts",
-        };
+        var model = new FileReplacementModel(
+            "src/environments/environment.ts",
+            "src/environments/environment.prod.ts");
 
         // Act & Assert
         Assert.Equal("src/environments/environment.ts", model.Replace);

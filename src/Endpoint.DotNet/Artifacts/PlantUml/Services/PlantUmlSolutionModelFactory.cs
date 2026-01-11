@@ -156,14 +156,15 @@ public class PlantUmlSolutionModelFactory : IPlantUmlSolutionModelFactory
 
     private string GenerateCoreContextInterfaceContent(List<PlantUmlClassModel> entities, string solutionName, string projectNamespace)
     {
-        var dbSets = string.Join("\n    ", entities.Select(e => $"DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
-        var usings = string.Join("\n", entities.Select(e => $"using {projectNamespace}.Aggregates.{e.Name};"));
+        // Use type aliases to avoid namespace collision when entity name matches namespace segment
+        var typeAliases = string.Join("\n", entities.Select(e => $"using {e.Name}Entity = {projectNamespace}.Aggregates.{e.Name}.{e.Name};"));
+        var dbSets = string.Join("\n    ", entities.Select(e => $"DbSet<{e.Name}Entity> {GetPluralName(e.Name)} {{ get; set; }}"));
 
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore;
-{usings}
+{typeAliases}
 
 namespace {projectNamespace}.Data;
 
@@ -407,14 +408,16 @@ public interface I{solutionName}Context
 
     private string GenerateBoundedContextContextInterfaceContent(List<PlantUmlClassModel> entities, string contextName, string projectNamespace)
     {
-        var dbSets = string.Join("\n    ", entities.Select(e => $"DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
-        var usings = string.Join("\n", entities.Select(e => $"using {projectNamespace}.Aggregates.{e.Name};"));
+        // Use type aliases to avoid namespace collision when entity name matches namespace segment
+        // e.g., OrderManagement class in ECommercePlatform.OrderManagement.Core.Aggregates.OrderManagement namespace
+        var typeAliases = string.Join("\n", entities.Select(e => $"using {e.Name}Entity = {projectNamespace}.Aggregates.{e.Name}.{e.Name};"));
+        var dbSets = string.Join("\n    ", entities.Select(e => $"DbSet<{e.Name}Entity> {GetPluralName(e.Name)} {{ get; set; }}"));
 
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore;
-{usings}
+{typeAliases}
 
 namespace {projectNamespace}.Data;
 
@@ -438,15 +441,17 @@ public interface I{contextName}Context
 
     private string GenerateBoundedContextDbContextContent(List<PlantUmlClassModel> entities, string contextName, string projectNamespace, string coreNamespace)
     {
-        var dbSets = string.Join("\n    ", entities.Select(e => $"public DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
-        var usings = string.Join("\n", entities.Select(e => $"using {coreNamespace}.Aggregates.{e.Name};"));
+        // Use type aliases to avoid namespace collision when entity name matches namespace segment
+        // e.g., OrderManagement class in ECommercePlatform.OrderManagement.Core.Aggregates.OrderManagement namespace
+        var typeAliases = string.Join("\n", entities.Select(e => $"using {e.Name}Entity = {coreNamespace}.Aggregates.{e.Name}.{e.Name};"));
+        var dbSets = string.Join("\n    ", entities.Select(e => $"public DbSet<{e.Name}Entity> {GetPluralName(e.Name)} {{ get; set; }}"));
 
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore;
 using {coreNamespace}.Data;
-{usings}
+{typeAliases}
 
 namespace {projectNamespace}.Data;
 
@@ -1735,15 +1740,16 @@ public enum {enumModel.Name}
 
     private string GenerateDbContextContent(List<PlantUmlClassModel> entities, string solutionName, string projectNamespace)
     {
-        var dbSets = string.Join("\n    ", entities.Select(e => $"public DbSet<{e.Name}> {GetPluralName(e.Name)} {{ get; set; }}"));
-        var usings = string.Join("\n", entities.Select(e => $"using {solutionName}.Core.Aggregates.{e.Name};"));
+        // Use type aliases to avoid namespace collision when entity name matches namespace segment
+        var typeAliases = string.Join("\n", entities.Select(e => $"using {e.Name}Entity = {solutionName}.Core.Aggregates.{e.Name}.{e.Name};"));
+        var dbSets = string.Join("\n    ", entities.Select(e => $"public DbSet<{e.Name}Entity> {GetPluralName(e.Name)} {{ get; set; }}"));
 
         return $@"// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore;
 using {solutionName}.Core.Data;
-{usings}
+{typeAliases}
 
 namespace {projectNamespace}.Data;
 

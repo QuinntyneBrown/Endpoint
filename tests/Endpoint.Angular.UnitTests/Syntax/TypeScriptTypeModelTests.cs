@@ -11,7 +11,7 @@ public class TypeScriptTypeModelTests
     public void TypeScriptTypeModel_ShouldCreateInstance()
     {
         // Arrange & Act
-        var type = new TypeScriptTypeModel();
+        var type = new TypeScriptTypeModel("TestType");
 
         // Assert
         Assert.NotNull(type);
@@ -21,10 +21,7 @@ public class TypeScriptTypeModelTests
     public void TypeScriptTypeModel_ShouldSetName()
     {
         // Arrange
-        var type = new TypeScriptTypeModel
-        {
-            Name = "Observable",
-        };
+        var type = new TypeScriptTypeModel("Observable");
 
         // Act & Assert
         Assert.Equal("Observable", type.Name);

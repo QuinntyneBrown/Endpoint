@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Angular.Syntax;
+using Endpoint.Syntax;
 
 namespace Endpoint.Angular.UnitTests.Syntax;
 
@@ -24,7 +25,7 @@ public class PropertyModelTests
         var property = new PropertyModel
         {
             Name = "userId",
-            Type = new TypeScriptTypeModel { Name = "string" },
+            Type = new TypeModel("string"),
         };
 
         // Act & Assert
