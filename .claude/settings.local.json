@@ -19,7 +19,9 @@
       "Bash(Select-String -Pattern \"Creating|Error|exception\" -CaseSensitive:$false)",
       "Bash(tree:*)",
       "Bash(cat:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(del \"playground\\EventDrivenMicroservices\\run.bat\")",
+      "Bash(./event-driven-microservices.bat)"
     ],
     "deny": [],
     "ask": []
