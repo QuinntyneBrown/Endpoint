@@ -75,30 +75,25 @@ The generator supports:
 ```
 src/
 ├── Endpoint/                       # Core generation engine
-├── Endpoint.Cli/                   # Main CLI application
+├── Endpoint.Engineering.Cli/       # Main CLI application
 ├── Endpoint.DotNet/                # .NET-specific generators
 ├── Endpoint.Angular/               # Angular generators
-├── Endpoint.DomainDrivenDesign/    # DDD patterns and templates
-├── Endpoint.ModernWebAppPattern/   # Modern web app pattern implementation
-└── Endpoint.Testing/               # Test generation utilities
+├── Endpoint.Engineering/           # DDD patterns, templates, and Modern Web App Pattern
+│   ├── DomainDrivenDesign/         # DDD patterns and templates
+│   └── ModernWebAppPattern/        # Modern web app pattern implementation
 
 tests/
 ├── Endpoint.UnitTests/
-├── Endpoint.Cli.UnitTests/
+├── Endpoint.Engineering.Cli.UnitTests/
 ├── Endpoint.DotNet.UnitTests/
 ├── Endpoint.Angular.UnitTests/
-├── Endpoint.React.UnitTests/
-├── Endpoint.DomainDrivenDesign.UnitTests/
-├── Endpoint.MinimalApi.UnitTests/
-├── Endpoint.ModernWebAppPattern.UnitTests/
-├── Endpoint.ModernWebAppPlatform.Core.Tests/
-└── Endpoint.Testing.UnitTests/
+├── Endpoint.Engineering.UnitTests/ # Tests for Engineering module
+│   ├── DomainDrivenDesign/         # DDD pattern tests
+│   └── ModernWebAppPattern/        # Modern web app pattern tests
 
 playground/
 ├── DddSolution/                  # DDD example workspace
 ├── EventDrivenMicroservices/     # Event-driven microservices example
-├── FullStackSolution/            # Full-stack example workspace
-├── Sample/                       # Sample project workspace
 ├── SolutionCreateFromSequence/   # Sequence diagram-based generation example
 └── SolutionFromPlantuml/         # PlantUML-based generation example
 ```
