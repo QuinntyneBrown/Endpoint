@@ -98,6 +98,7 @@ public static class ConfigureServices
         services.AddSingleton<IPlantUmlParserService, PlantUmlParserService>();
         services.AddSingleton<IPlantUmlSolutionModelFactory, PlantUmlSolutionModelFactory>();
         services.AddSingleton<IPlantUmlValidationService, PlantUmlValidationService>();
+        services.AddSingleton<ISequenceToSolutionPlantUmlService, SequenceToSolutionPlantUmlService>();
 
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
 

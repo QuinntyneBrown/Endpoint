@@ -62,6 +62,10 @@ public class PlantUmlParserService : IPlantUmlParserService
         @"(\w+)<([\w,\s]+)>",
         RegexOptions.Compiled);
 
+    private static readonly Regex ParticipantRegex = new(
+        @"(?:participant|actor)\s+""([^""]+)""\s+as\s+(\w+)",
+        RegexOptions.Compiled | RegexOptions.Multiline);
+
     public PlantUmlParserService(ILogger<PlantUmlParserService> logger, IFileSystem fileSystem)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -150,6 +154,9 @@ public class PlantUmlParserService : IPlantUmlParserService
 
         // Parse components
         ParseComponents(content, document);
+
+        // Parse participants (for sequence diagrams)
+        ParseParticipants(content, document);
 
         // Parse notes and associate with elements
         ParseNotes(content, document);
@@ -464,6 +471,68 @@ public class PlantUmlParserService : IPlantUmlParserService
 
             document.Components.Add(component);
         }
+    }
+
+    private void ParseParticipants(string content, PlantUmlDocumentModel document)
+    {
+        var participantMatches = ParticipantRegex.Matches(content);
+        var lines = content.Split('\n');
+        
+        foreach (Match match in participantMatches)
+        {
+            var participant = new PlantUmlParticipantModel
+            {
+                Name = match.Groups[1].Value.Trim(),
+                Alias = match.Groups[2].Value.Trim()
+            };
+
+            // Look for a comment line immediately before this participant
+            // to get the DotNetType (Angular, Worker, Microservice)
+            var matchLineIndex = FindLineIndex(lines, match.Index);
+            if (matchLineIndex > 0)
+            {
+                var previousLine = lines[matchLineIndex - 1].Trim();
+                if (previousLine.StartsWith("'") || previousLine.StartsWith("//"))
+                {
+                    // Extract the type from the comment
+                    var commentContent = previousLine.TrimStart('\'', '/', ' ').Trim();
+                    participant.DotNetType = commentContent;
+                }
+            }
+
+            // Determine the type (participant or actor) from the match
+            var lineText = GetLineAtIndex(lines, match.Index);
+            if (lineText.TrimStart().StartsWith("actor"))
+            {
+                participant.Type = "actor";
+            }
+            else if (lineText.TrimStart().StartsWith("participant"))
+            {
+                participant.Type = "participant";
+            }
+
+            document.Participants.Add(participant);
+        }
+    }
+
+    private int FindLineIndex(string[] lines, int charIndex)
+    {
+        int currentIndex = 0;
+        for (int i = 0; i < lines.Length; i++)
+        {
+            currentIndex += lines[i].Length + 1; // +1 for newline
+            if (currentIndex > charIndex)
+            {
+                return i;
+            }
+        }
+        return lines.Length - 1;
+    }
+
+    private string GetLineAtIndex(string[] lines, int charIndex)
+    {
+        int lineIndex = FindLineIndex(lines, charIndex);
+        return lineIndex >= 0 && lineIndex < lines.Length ? lines[lineIndex] : string.Empty;
     }
 
     private void ParseNotes(string content, PlantUmlDocumentModel document)

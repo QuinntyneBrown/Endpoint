@@ -77,6 +77,11 @@ public class PlantUmlSolutionModel
         return Documents.SelectMany(d => d.Components);
     }
 
+    public IEnumerable<PlantUmlParticipantModel> GetAllParticipants()
+    {
+        return Documents.SelectMany(d => d.Participants);
+    }
+
     /// <summary>
     /// Gets all unique bounded context names found in the solution.
     /// Returns an empty enumerable if no bounded contexts are defined.

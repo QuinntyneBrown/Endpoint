@@ -14,6 +14,7 @@ public class PlantUmlDocumentModel
         Relationships = [];
         Packages = [];
         Components = [];
+        Participants = [];
     }
 
     public string Title { get; set; }
@@ -29,6 +30,8 @@ public class PlantUmlDocumentModel
     public List<PlantUmlPackageModel> Packages { get; set; }
 
     public List<PlantUmlComponentModel> Components { get; set; }
+
+    public List<PlantUmlParticipantModel> Participants { get; set; }
 
     public PlantUmlMetadataModel Metadata { get; set; }
 }
@@ -103,4 +106,15 @@ public class PlantUmlMetadataModel
     public string TargetFramework { get; set; }
 
     public string AngularVersion { get; set; }
+}
+
+public class PlantUmlParticipantModel
+{
+    public string Name { get; set; }
+
+    public string Alias { get; set; }
+
+    public string Type { get; set; }
+
+    public string DotNetType { get; set; }
 }
