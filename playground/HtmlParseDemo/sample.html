@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Welcome to our online store - the best place to shop for electronics">
+    <title>TechStore - Your Electronics Destination</title>
+    <link rel="stylesheet" href="https://cdn.example.com/bootstrap.min.css">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px;
+        }
+    </style>
+    <script src="https://cdn.example.com/jquery.min.js"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="main-header">
+        <nav class="navbar">
+            <div class="logo">
+                <a href="/">TechStore</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/products">All Products</a></li>
+                <li><a href="/categories/laptops">Laptops</a></li>
+                <li><a href="/categories/phones">Smartphones</a></li>
+                <li><a href="/categories/accessories">Accessories</a></li>
+                <li><a href="/deals">Hot Deals</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="/search">Search</a>
+                <a href="/cart">Cart (0)</a>
+                <a href="/account">My Account</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome to TechStore</h1>
+            <p>Your one-stop destination for the latest electronics and gadgets at unbeatable prices.</p>
+            <button class="cta-button">Shop Now</button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Featured Products -->
+        <section class="featured-products">
+            <h2>Featured Products</h2>
+            <p>Check out our handpicked selection of top-rated electronics.</p>
+
+            <div class="product-grid">
+                <article class="product-card">
+                    <img src="/images/laptop-pro.jpg" alt="ProBook Laptop 15-inch with high-resolution display">
+                    <h3>ProBook Laptop 15"</h3>
+                    <p>Powerful performance for work and play. Features the latest processor and 16GB RAM.</p>
+                    <div class="price">$1,299.99</div>
+                    <button>Add to Cart</button>
+                </article>
+
+                <article class="product-card">
+                    <img src="/images/smartphone-x.jpg" alt="SmartPhone X with triple camera system">
+                    <h3>SmartPhone X</h3>
+                    <p>Capture every moment with the revolutionary triple camera system and all-day battery.</p>
+                    <div class="price">$899.99</div>
+                    <button>Add to Cart</button>
+                </article>
+
+                <article class="product-card">
+                    <img src="/images/wireless-earbuds.jpg" alt="Premium wireless earbuds with noise cancellation">
+                    <h3>Premium Wireless Earbuds</h3>
+                    <p>Immersive sound with active noise cancellation. Up to 24 hours of battery life.</p>
+                    <div class="price">$199.99</div>
+                    <button>Add to Cart</button>
+                </article>
+            </div>
+        </section>
+
+        <!-- Why Choose Us -->
+        <section class="benefits">
+            <h2>Why Shop With Us?</h2>
+            <ul class="benefits-list">
+                <li>Free shipping on orders over $50</li>
+                <li>30-day hassle-free returns</li>
+                <li>24/7 customer support</li>
+                <li>Price match guarantee</li>
+                <li>Secure payment processing</li>
+            </ul>
+        </section>
+
+        <!-- Customer Reviews -->
+        <section class="reviews">
+            <h2>What Our Customers Say</h2>
+
+            <div class="review-card">
+                <p>"Amazing selection and fast shipping! I got my laptop in just 2 days."</p>
+                <span class="reviewer">- Sarah M., New York</span>
+            </div>
+
+            <div class="review-card">
+                <p>"The customer service team helped me find exactly what I needed. Highly recommend!"</p>
+                <span class="reviewer">- John D., California</span>
+            </div>
+        </section>
+
+        <!-- Newsletter Signup -->
+        <section class="newsletter">
+            <h2>Stay Updated</h2>
+            <p>Subscribe to our newsletter for exclusive deals and tech news.</p>
+
+            <form class="newsletter-form" action="/subscribe" method="post">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+
+                <label for="name">Your Name (Optional)</label>
+                <input type="text" id="name" name="name" placeholder="Enter your name">
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="deals" name="preferences[]" value="deals">
+                    <label for="deals">Notify me about special deals</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="newProducts" name="preferences[]" value="new">
+                    <label for="newProducts">Notify me about new products</label>
+                </div>
+
+                <button type="submit">Subscribe Now</button>
+            </form>
+        </section>
+
+        <!-- Product Comparison Table -->
+        <section class="comparison">
+            <h2>Compare Our Top Laptops</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>ProBook 15"</th>
+                        <th>UltraSlim 14"</th>
+                        <th>PowerStation 17"</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Processor</td>
+                        <td>Intel Core i7</td>
+                        <td>Intel Core i5</td>
+                        <td>Intel Core i9</td>
+                    </tr>
+                    <tr>
+                        <td>RAM</td>
+                        <td>16GB</td>
+                        <td>8GB</td>
+                        <td>32GB</td>
+                    </tr>
+                    <tr>
+                        <td>Storage</td>
+                        <td>512GB SSD</td>
+                        <td>256GB SSD</td>
+                        <td>1TB SSD</td>
+                    </tr>
+                    <tr>
+                        <td>Price</td>
+                        <td>$1,299</td>
+                        <td>$899</td>
+                        <td>$1,999</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Customer Service</h4>
+                <ul>
+                    <li><a href="/help">Help Center</a></li>
+                    <li><a href="/returns">Returns & Refunds</a></li>
+                    <li><a href="/shipping">Shipping Info</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>About TechStore</h4>
+                <ul>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/careers">Careers</a></li>
+                    <li><a href="/press">Press</a></li>
+                    <li><a href="/blog">Tech Blog</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Connect With Us</h4>
+                <p>Follow us on social media for the latest updates.</p>
+                <div class="social-links">
+                    <a href="https://facebook.com/techstore">Facebook</a>
+                    <a href="https://twitter.com/techstore">Twitter</a>
+                    <a href="https://instagram.com/techstore">Instagram</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2024 TechStore Inc. All rights reserved.</p>
+            <nav class="legal-links">
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Analytics and Tracking Scripts -->
+    <script>
+        // Google Analytics
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://analytics.example.com/analytics.js','ga');
+        ga('create', 'UA-XXXXX-Y', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <script src="/js/app.bundle.min.js"></script>
+    <noscript>
+        <p>Please enable JavaScript to use all features of this website.</p>
+    </noscript>
+</body>
+</html>
