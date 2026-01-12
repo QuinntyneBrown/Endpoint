@@ -15,7 +15,8 @@ public partial class CodeParser : ICodeParser
 
     private static readonly HashSet<string> SupportedExtensions =
     [
-        ".cs", ".ts", ".js", ".tsx", ".jsx", ".py", ".java", ".go", ".rs", ".rb"
+        ".cs", ".ts", ".js", ".tsx", ".jsx", ".py", ".java", ".go", ".rs", ".rb",
+        ".html", ".scss", ".css"
     ];
 
     /// <summary>
@@ -216,6 +217,13 @@ public partial class CodeParser : ICodeParser
                 break;
             case ".go":
                 ParseGoFile(content, summary);
+                break;
+            case ".html":
+                ParseHtmlFile(content, summary);
+                break;
+            case ".scss":
+            case ".css":
+                ParseScssFile(content, summary);
                 break;
             default:
                 ParseGenericFile(content, summary);
@@ -590,6 +598,124 @@ public partial class CodeParser : ICodeParser
         }
     }
 
+    private void ParseHtmlFile(string content, FileSummary summary)
+    {
+        // Extract Angular/Vue component selectors
+        var componentMatches = HtmlComponentRegex().Matches(content);
+        foreach (Match match in componentMatches)
+        {
+            var tagName = match.Groups[1].Value;
+            // Only include custom components (contain hyphen or start with app-)
+            if (tagName.Contains('-') || tagName.StartsWith("app", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!summary.Imports.Contains(tagName))
+                {
+                    summary.Imports.Add(tagName);
+                }
+            }
+        }
+
+        // Extract form elements with names/ids
+        var formElementMatches = HtmlFormElementRegex().Matches(content);
+        foreach (Match match in formElementMatches)
+        {
+            var elementType = match.Groups[1].Value;
+            var identifier = match.Groups[2].Value;
+            summary.Functions.Add($"{elementType}#{identifier}");
+        }
+
+        // Extract Angular bindings
+        var bindingMatches = AngularBindingRegex().Matches(content);
+        var bindings = new HashSet<string>();
+        foreach (Match match in bindingMatches)
+        {
+            bindings.Add(match.Groups[1].Value);
+        }
+
+        if (bindings.Count > 0)
+        {
+            var typeSummary = new TypeSummary
+            {
+                Name = "Bindings",
+                Kind = "template"
+            };
+            typeSummary.Members.AddRange(bindings.Take(10));
+            if (bindings.Count > 10)
+            {
+                typeSummary.Members.Add($"...+{bindings.Count - 10} more");
+            }
+            summary.Types.Add(typeSummary);
+        }
+    }
+
+    private void ParseScssFile(string content, FileSummary summary)
+    {
+        // Extract SCSS imports
+        var importMatches = ScssImportRegex().Matches(content);
+        foreach (Match match in importMatches)
+        {
+            var importPath = match.Groups[1].Value.Trim('\'', '"');
+            var fileName = Path.GetFileNameWithoutExtension(importPath).TrimStart('_');
+            if (!summary.Imports.Contains(fileName))
+            {
+                summary.Imports.Add(fileName);
+            }
+        }
+
+        // Extract SCSS variables
+        var variableMatches = ScssVariableRegex().Matches(content);
+        var variables = new List<string>();
+        foreach (Match match in variableMatches)
+        {
+            variables.Add(match.Groups[1].Value);
+        }
+
+        if (variables.Count > 0)
+        {
+            var typeSummary = new TypeSummary
+            {
+                Name = "Variables",
+                Kind = "scss"
+            };
+            typeSummary.Members.AddRange(variables.Take(10));
+            if (variables.Count > 10)
+            {
+                typeSummary.Members.Add($"...+{variables.Count - 10} more");
+            }
+            summary.Types.Add(typeSummary);
+        }
+
+        // Extract SCSS mixins
+        var mixinMatches = ScssMixinRegex().Matches(content);
+        foreach (Match match in mixinMatches)
+        {
+            summary.Functions.Add($"@mixin {match.Groups[1].Value}");
+        }
+
+        // Extract top-level selectors (classes and ids)
+        var selectorMatches = ScssSelectorRegex().Matches(content);
+        var selectors = new HashSet<string>();
+        foreach (Match match in selectorMatches)
+        {
+            selectors.Add(match.Groups[1].Value);
+        }
+
+        if (selectors.Count > 0)
+        {
+            var typeSummary = new TypeSummary
+            {
+                Name = "Selectors",
+                Kind = "css"
+            };
+            typeSummary.Members.AddRange(selectors.Take(15));
+            if (selectors.Count > 15)
+            {
+                typeSummary.Members.Add($"...+{selectors.Count - 15} more");
+            }
+            summary.Types.Add(typeSummary);
+        }
+    }
+
     private void ParseGenericFile(string content, FileSummary summary)
     {
         // Basic parsing for unsupported languages
@@ -747,6 +873,29 @@ public partial class CodeParser : ICodeParser
 
     [GeneratedRegex(@"^func\s+(?:\([^)]+\)\s+)?(\w+)\s*\(", RegexOptions.Multiline)]
     private static partial Regex GoFunctionRegex();
+
+    // HTML Regex patterns
+    [GeneratedRegex(@"<([a-zA-Z][\w-]*)[^>]*>", RegexOptions.Multiline)]
+    private static partial Regex HtmlComponentRegex();
+
+    [GeneratedRegex(@"<(input|select|textarea|button|form)[^>]*(?:id|name)=[""']([^""']+)[""']", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
+    private static partial Regex HtmlFormElementRegex();
+
+    [GeneratedRegex(@"\[\(?\w+\)?\]=""([^""]+)""|\{\{([^}]+)\}\}", RegexOptions.Multiline)]
+    private static partial Regex AngularBindingRegex();
+
+    // SCSS/CSS Regex patterns
+    [GeneratedRegex(@"@import\s+['""]?([^'"";\s]+)['""]?\s*;", RegexOptions.Multiline)]
+    private static partial Regex ScssImportRegex();
+
+    [GeneratedRegex(@"^\s*(\$[\w-]+)\s*:", RegexOptions.Multiline)]
+    private static partial Regex ScssVariableRegex();
+
+    [GeneratedRegex(@"@mixin\s+([\w-]+)", RegexOptions.Multiline)]
+    private static partial Regex ScssMixinRegex();
+
+    [GeneratedRegex(@"^([.#][\w-]+)\s*\{", RegexOptions.Multiline)]
+    private static partial Regex ScssSelectorRegex();
 }
 
 /// <summary>
