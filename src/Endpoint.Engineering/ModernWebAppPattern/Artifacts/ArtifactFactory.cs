@@ -28,8 +28,8 @@ namespace Endpoint.Engineering.ModernWebAppPattern.Artifacts;
 
 using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 using AggregateModel = Endpoint.Engineering.DomainDrivenDesign.Models.AggregateModel;
-using Microservice = Endpoint.ModernWebAppPattern.Models.Microservice;
-using ISyntaxFactory = Endpoint.ModernWebAppPattern.Syntax.ISyntaxFactory;
+using Microservice = Endpoint.Engineering.ModernWebAppPattern.Models.Microservice;
+using ISyntaxFactory = Endpoint.Engineering.ModernWebAppPattern.Syntax.ISyntaxFactory;
 public class ArtifactFactory : IArtifactFactory
 {
     private readonly ILogger<ArtifactFactory> _logger;

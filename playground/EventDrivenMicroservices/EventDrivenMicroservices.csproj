@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Endpoint\Endpoint.csproj" />
-    <ProjectReference Include="..\..\src\Endpoint.Cli\Endpoint.Cli.csproj" />
+    <ProjectReference Include="..\..\src\Endpoint.Engineering.Cli\Endpoint.Engineering.Cli.csproj" />
     <ProjectReference Include="..\..\src\Endpoint.DotNet\Endpoint.DotNet.csproj" />
   </ItemGroup>
 
