@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
@@ -14,11 +15,14 @@ namespace Endpoint.Engineering.AI.Services;
 public partial class HtmlParserService : IHtmlParserService
 {
     private readonly ILogger<HtmlParserService> _logger;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public HtmlParserService(ILogger<HtmlParserService> logger)
+    public HtmlParserService(ILogger<HtmlParserService> logger, IHttpClientFactory httpClientFactory)
     {
         ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(httpClientFactory);
         _logger = logger;
+        _httpClientFactory = httpClientFactory;
     }
 
     /// <inheritdoc/>
@@ -60,6 +64,44 @@ public partial class HtmlParserService : IHtmlParserService
 
         var htmlContent = await File.ReadAllTextAsync(filePath, cancellationToken);
         return ParseHtml(htmlContent);
+    }
+
+    /// <inheritdoc/>
+    public async Task<string> ParseHtmlFromUrlAsync(string url, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(url);
+
+        _logger.LogInformation("Fetching HTML from URL: {Url}", url);
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        {
+            throw new ArgumentException($"Invalid URL: {url}", nameof(url));
+        }
+
+        if (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+        {
+            throw new ArgumentException($"URL must use HTTP or HTTPS scheme: {url}", nameof(url));
+        }
+
+        try
+        {
+            using var httpClient = _httpClientFactory.CreateClient("HtmlParser");
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; HtmlParserService/1.0)");
+
+            var response = await httpClient.GetAsync(uri, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            var htmlContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            _logger.LogInformation("Fetched {Length} characters from {Url}", htmlContent.Length, url);
+
+            return ParseHtml(htmlContent);
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to fetch HTML from URL: {Url}", url);
+            throw new InvalidOperationException($"Failed to fetch HTML from URL: {url}", ex);
+        }
     }
 
     private static string ExtractBodyContent(string html)

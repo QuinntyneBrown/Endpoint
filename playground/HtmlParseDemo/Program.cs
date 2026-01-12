@@ -166,6 +166,52 @@ try
     }
 
     logger.LogInformation("");
+
+    // Demo 4: Fetch and parse HTML from a URL
+    logger.LogInformation("--- Demo 4: Fetch and parse HTML from URL ---");
+    logger.LogInformation("");
+
+    var testUrl = "https://example.com";
+    logger.LogInformation("Fetching HTML from: {Url}", testUrl);
+
+    try
+    {
+        var urlParsed = await htmlParserService.ParseHtmlFromUrlAsync(testUrl);
+
+        logger.LogInformation("Parsed content size: {ParsedSize} characters", urlParsed.Length);
+        logger.LogInformation("");
+        logger.LogInformation("Parsed content from {Url}:", testUrl);
+        logger.LogInformation("----------------");
+        Console.WriteLine(urlParsed);
+        logger.LogInformation("----------------");
+    }
+    catch (Exception urlEx)
+    {
+        logger.LogWarning(urlEx, "Could not fetch URL (this is expected in offline environments)");
+    }
+
+    logger.LogInformation("");
+
+    // Demo 5: Use the CLI command with URL via MediatR
+    logger.LogInformation("--- Demo 5: Using CLI command with URL via MediatR ---");
+    logger.LogInformation("");
+
+    try
+    {
+        var urlRequest = new HtmlParseRequest
+        {
+            Url = testUrl
+        };
+
+        logger.LogInformation("Sending HtmlParseRequest with URL via MediatR...");
+        await mediator.Send(urlRequest);
+    }
+    catch (Exception urlEx)
+    {
+        logger.LogWarning(urlEx, "Could not fetch URL via command (this is expected in offline environments)");
+    }
+
+    logger.LogInformation("");
     logger.LogInformation("=== Demo Completed Successfully! ===");
 }
 catch (Exception ex)

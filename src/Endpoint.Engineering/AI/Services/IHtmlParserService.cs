@@ -22,4 +22,12 @@ public interface IHtmlParserService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A summarized version of the HTML body content.</returns>
     Task<string> ParseHtmlFromFileAsync(string filePath, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Fetches HTML from a URL and extracts a token-efficient summary suitable for LLM consumption.
+    /// </summary>
+    /// <param name="url">The URL to fetch HTML from.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A summarized version of the HTML body content.</returns>
+    Task<string> ParseHtmlFromUrlAsync(string url, CancellationToken cancellationToken = default);
 }

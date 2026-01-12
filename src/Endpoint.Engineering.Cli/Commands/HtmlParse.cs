@@ -17,13 +17,18 @@ public class HtmlParseRequest : IRequest
 {
     /// <summary>
     /// Gets or sets the path to the HTML file to parse.
-    /// If not provided, the command will read from standard input.
     /// </summary>
-    [Option('p', "path", Required = false, HelpText = "Path to the HTML file to parse. If not provided, reads from stdin.")]
+    [Option('p', "path", Required = false, HelpText = "Path to the HTML file to parse.")]
     public string? Path { get; set; }
 
     /// <summary>
-    /// Gets or sets whether to output the result to a file instead of console.
+    /// Gets or sets the URL to fetch and parse HTML from.
+    /// </summary>
+    [Option('u', "url", Required = false, HelpText = "URL to fetch and parse HTML from.")]
+    public string? Url { get; set; }
+
+    /// <summary>
+    /// Gets or sets the output file path to write the parsed content.
     /// </summary>
     [Option('o', "output", Required = false, HelpText = "Optional output file path to write the parsed content.")]
     public string? OutputPath { get; set; }
@@ -60,7 +65,13 @@ public class HtmlParseRequestHandler : IRequestHandler<HtmlParseRequest>
 
         string parsedContent;
 
-        if (!string.IsNullOrWhiteSpace(request.Path))
+        if (!string.IsNullOrWhiteSpace(request.Url))
+        {
+            // Parse from URL
+            _logger.LogInformation("Fetching and parsing HTML from URL: {Url}", request.Url);
+            parsedContent = await _htmlParserService.ParseHtmlFromUrlAsync(request.Url, cancellationToken);
+        }
+        else if (!string.IsNullOrWhiteSpace(request.Path))
         {
             // Parse from file
             _logger.LogInformation("Parsing HTML from file: {Path}", request.Path);
@@ -74,8 +85,8 @@ public class HtmlParseRequestHandler : IRequestHandler<HtmlParseRequest>
 
             if (string.IsNullOrWhiteSpace(htmlContent))
             {
-                _logger.LogWarning("No HTML content provided. Use --path to specify a file or pipe HTML content to stdin.");
-                Console.WriteLine("No HTML content provided. Use --path to specify a file or pipe HTML content to stdin.");
+                _logger.LogWarning("No HTML content provided. Use --url, --path, or pipe HTML content to stdin.");
+                Console.WriteLine("No HTML content provided. Use --url, --path, or pipe HTML content to stdin.");
                 return;
             }
 

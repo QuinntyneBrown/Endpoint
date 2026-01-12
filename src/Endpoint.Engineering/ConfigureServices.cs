@@ -10,6 +10,13 @@ public static class ConfigureServices
     public static void AddEngineeringServices(this IServiceCollection services)
     {
         services.AddSingleton<ICodeParser, CodeParser>();
+
+        // Register HttpClient for HtmlParserService
+        services.AddHttpClient("HtmlParser", client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
+
         services.AddSingleton<IHtmlParserService, HtmlParserService>();
     }
 }
