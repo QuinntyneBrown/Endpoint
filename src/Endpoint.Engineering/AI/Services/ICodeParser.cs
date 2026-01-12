@@ -34,6 +34,38 @@ public enum CodeParseEfficiency
 }
 
 /// <summary>
+/// Options for code parsing.
+/// </summary>
+public class CodeParseOptions
+{
+    /// <summary>
+    /// The level of token efficiency for the output.
+    /// </summary>
+    public CodeParseEfficiency Efficiency { get; set; } = CodeParseEfficiency.Medium;
+
+    /// <summary>
+    /// When true, ignores test files and test projects.
+    /// </summary>
+    public bool IgnoreTests { get; set; } = false;
+
+    /// <summary>
+    /// When true, only parses test files and test projects (opposite of IgnoreTests).
+    /// </summary>
+    public bool TestsOnly { get; set; } = false;
+
+    /// <summary>
+    /// Creates default options.
+    /// </summary>
+    public static CodeParseOptions Default => new();
+
+    /// <summary>
+    /// Creates options with specified efficiency.
+    /// </summary>
+    public static CodeParseOptions WithEfficiency(CodeParseEfficiency efficiency) =>
+        new() { Efficiency = efficiency };
+}
+
+/// <summary>
 /// Service for parsing code directories and generating token-efficient summaries for LLM consumption.
 /// </summary>
 public interface ICodeParser
@@ -42,12 +74,12 @@ public interface ICodeParser
     /// Parses all code files in a directory and generates a token-efficient summary.
     /// </summary>
     /// <param name="directory">The directory to scan for code files.</param>
-    /// <param name="efficiency">The level of token efficiency for the output.</param>
+    /// <param name="options">Parsing options including efficiency level and test filtering.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A token-efficient summary of the codebase.</returns>
     Task<CodeSummary> ParseDirectoryAsync(
         string directory,
-        CodeParseEfficiency efficiency = CodeParseEfficiency.Medium,
+        CodeParseOptions? options = null,
         CancellationToken cancellationToken = default);
 }
 

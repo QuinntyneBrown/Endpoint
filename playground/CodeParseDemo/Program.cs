@@ -5,26 +5,61 @@ using Endpoint.Engineering.AI.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-// Configuration - modify these paths as needed
-var targetDirectory = args.Length > 0 ? args[0] : Directory.GetCurrentDirectory();
-var efficiencyArg = args.Length > 1 ? args[1] : null;
-var outputFile = args.Length > 2 ? args[2] : null;
+// Parse command line arguments
+var directoriesArg = (string?)null;
+var efficiencyArg = "medium";
+var ignoreTests = false;
+var testsOnly = false;
+var outputFile = (string?)null;
+
+for (var i = 0; i < args.Length; i++)
+{
+    switch (args[i])
+    {
+        case "-d" or "--directory" when i + 1 < args.Length:
+            directoriesArg = args[++i];
+            break;
+        case "-e" or "--efficiency" when i + 1 < args.Length:
+            efficiencyArg = args[++i];
+            break;
+        case "--ignore-tests":
+            ignoreTests = true;
+            break;
+        case "--tests-only":
+            testsOnly = true;
+            break;
+        case "-o" or "--output" when i + 1 < args.Length:
+            outputFile = args[++i];
+            break;
+        case "-h" or "--help":
+            ShowHelp();
+            return;
+        default:
+            // Accept directory as positional argument (can be comma-separated)
+            if (!args[i].StartsWith('-'))
+            {
+                directoriesArg = args[i];
+            }
+            break;
+    }
+}
+
+// Parse directories - default to current directory
+var targetDirectories = ParseDirectories(directoriesArg);
 
 Console.WriteLine("=== CodeParse Demo ===");
-Console.WriteLine($"Directory: {targetDirectory}");
+Console.WriteLine($"Directories: {string.Join(", ", targetDirectories.Select(Path.GetFileName))}");
 Console.WriteLine();
 
 // Setup dependency injection
 var services = new ServiceCollection();
 
-// Add logging
 services.AddLogging(builder =>
 {
     builder.AddConsole();
-    builder.SetMinimumLevel(LogLevel.Warning); // Reduce noise for demo
+    builder.SetMinimumLevel(LogLevel.Warning);
 });
 
-// Add Engineering services (includes ICodeParser)
 services.AddEngineeringServices();
 
 var serviceProvider = services.BuildServiceProvider();
@@ -32,36 +67,28 @@ var codeParser = serviceProvider.GetRequiredService<ICodeParser>();
 
 try
 {
-    // If efficiency is specified, parse with that level
-    if (!string.IsNullOrEmpty(efficiencyArg))
+    // Build options
+    var options = new CodeParseOptions
     {
-        var efficiency = ParseEfficiency(efficiencyArg);
-        await ParseAndDisplay(efficiency);
+        Efficiency = ParseEfficiency(efficiencyArg),
+        IgnoreTests = ignoreTests && !testsOnly,
+        TestsOnly = testsOnly
+    };
+
+    var filterMode = testsOnly ? " (tests only)" :
+                     ignoreTests ? " (ignoring tests)" : " (all files)";
+
+    Console.WriteLine($"Mode: {options.Efficiency} efficiency{filterMode}");
+    Console.WriteLine(new string('=', 60));
+
+    // If no specific mode requested and single directory, show comparison
+    if (!ignoreTests && !testsOnly && string.IsNullOrEmpty(outputFile) && targetDirectories.Count == 1)
+    {
+        await ShowComparison(targetDirectories[0]);
     }
     else
     {
-        // Demo all efficiency levels to show the difference
-        Console.WriteLine("Demonstrating all efficiency levels:");
-        Console.WriteLine(new string('=', 60));
-
-        foreach (var efficiency in Enum.GetValues<CodeParseEfficiency>())
-        {
-            await ParseAndDisplay(efficiency);
-            Console.WriteLine();
-        }
-
-        // Show comparison summary
-        Console.WriteLine(new string('=', 60));
-        Console.WriteLine("COMPARISON SUMMARY");
-        Console.WriteLine(new string('=', 60));
-
-        foreach (var efficiency in Enum.GetValues<CodeParseEfficiency>())
-        {
-            var summary = await codeParser.ParseDirectoryAsync(targetDirectory, efficiency);
-            var output = summary.ToLlmString();
-            var tokens = output.Length / 4;
-            Console.WriteLine($"{efficiency,-8}: {output.Length,6} chars, ~{tokens,5} tokens");
-        }
+        await ParseAndDisplay(options);
     }
 }
 catch (Exception ex)
@@ -69,36 +96,110 @@ catch (Exception ex)
     Console.WriteLine($"Error: {ex.Message}");
 }
 
-async Task ParseAndDisplay(CodeParseEfficiency efficiency)
+async Task ShowComparison(string directory)
 {
-    Console.WriteLine();
-    Console.WriteLine($"--- Efficiency: {efficiency} ---");
+    Console.WriteLine("\nComparing parsing modes:\n");
 
-    var summary = await codeParser.ParseDirectoryAsync(targetDirectory, efficiency);
-    var llmOutput = summary.ToLlmString();
+    // Parse all files
+    var allOptions = new CodeParseOptions { Efficiency = CodeParseEfficiency.Medium };
+    var allSummary = await codeParser.ParseDirectoryAsync(directory, allOptions);
+    var allOutput = allSummary.ToLlmString();
+
+    // Parse ignoring tests
+    var noTestsOptions = new CodeParseOptions { Efficiency = CodeParseEfficiency.Medium, IgnoreTests = true };
+    var noTestsSummary = await codeParser.ParseDirectoryAsync(directory, noTestsOptions);
+    var noTestsOutput = noTestsSummary.ToLlmString();
+
+    // Parse tests only
+    var testsOnlyOptions = new CodeParseOptions { Efficiency = CodeParseEfficiency.Medium, TestsOnly = true };
+    var testsOnlySummary = await codeParser.ParseDirectoryAsync(directory, testsOnlyOptions);
+    var testsOnlyOutput = testsOnlySummary.ToLlmString();
+
+    Console.WriteLine("COMPARISON SUMMARY");
+    Console.WriteLine(new string('-', 60));
+    Console.WriteLine($"{"Mode",-20} {"Files",-10} {"Chars",-10} {"Est. Tokens",-12}");
+    Console.WriteLine(new string('-', 60));
+    Console.WriteLine($"{"All files",-20} {allSummary.Files.Count,-10} {allOutput.Length,-10} ~{allOutput.Length / 4,-12}");
+    Console.WriteLine($"{"Ignoring tests",-20} {noTestsSummary.Files.Count,-10} {noTestsOutput.Length,-10} ~{noTestsOutput.Length / 4,-12}");
+    Console.WriteLine($"{"Tests only",-20} {testsOnlySummary.Files.Count,-10} {testsOnlyOutput.Length,-10} ~{testsOnlyOutput.Length / 4,-12}");
+    Console.WriteLine(new string('-', 60));
+
+    var testFileCount = allSummary.Files.Count - noTestsSummary.Files.Count;
+    var productionFileCount = allSummary.Files.Count - testsOnlySummary.Files.Count;
+    Console.WriteLine($"\nDetected {testFileCount} test files and {productionFileCount} production files.");
+
+    // Show token savings
+    if (noTestsOutput.Length < allOutput.Length)
+    {
+        var savings = (1 - (double)noTestsOutput.Length / allOutput.Length) * 100;
+        Console.WriteLine($"Token savings by ignoring tests: {savings:F1}%");
+    }
+}
+
+async Task ParseAndDisplay(CodeParseOptions options)
+{
+    // Parse all directories and merge results
+    var mergedSummary = new CodeSummary
+    {
+        RootDirectory = targetDirectories.Count == 1
+            ? targetDirectories[0]
+            : string.Join(", ", targetDirectories.Select(Path.GetFileName)),
+        Efficiency = options.Efficiency
+    };
+
+    foreach (var directory in targetDirectories)
+    {
+        if (!Directory.Exists(directory))
+        {
+            Console.WriteLine($"Warning: Directory not found: {directory}");
+            continue;
+        }
+
+        Console.WriteLine($"Parsing: {directory}");
+        var summary = await codeParser.ParseDirectoryAsync(directory, options);
+        mergedSummary.Files.AddRange(summary.Files);
+        mergedSummary.TotalFiles += summary.TotalFiles;
+    }
+
+    var llmOutput = mergedSummary.ToLlmString();
 
     if (!string.IsNullOrEmpty(outputFile))
     {
-        var path = Path.Combine(
-            Path.GetDirectoryName(outputFile) ?? ".",
-            $"{Path.GetFileNameWithoutExtension(outputFile)}_{efficiency.ToString().ToLower()}{Path.GetExtension(outputFile)}");
-        await File.WriteAllTextAsync(path, llmOutput);
-        Console.WriteLine($"Output written to: {path}");
+        await File.WriteAllTextAsync(outputFile, llmOutput);
+        Console.WriteLine($"Output written to: {outputFile}");
     }
     else
     {
-        // Show preview (first 500 chars for medium+, full for low on small output)
-        var preview = efficiency == CodeParseEfficiency.Low && llmOutput.Length < 2000
-            ? llmOutput
-            : llmOutput.Length > 500
-                ? llmOutput[..500] + $"\n... ({llmOutput.Length - 500} more chars)"
-                : llmOutput;
+        // Show preview
+        var preview = llmOutput.Length > 1000
+            ? llmOutput[..1000] + $"\n... ({llmOutput.Length - 1000} more chars)"
+            : llmOutput;
 
         Console.WriteLine(preview);
     }
 
     Console.WriteLine();
-    Console.WriteLine($"Files: {summary.TotalFiles} | Chars: {llmOutput.Length} | Est. tokens: ~{llmOutput.Length / 4}");
+    Console.WriteLine(new string('-', 40));
+    Console.WriteLine($"Directories: {targetDirectories.Count}");
+    Console.WriteLine($"Files: {mergedSummary.Files.Count}");
+    Console.WriteLine($"Chars: {llmOutput.Length}");
+    Console.WriteLine($"Est. tokens: ~{llmOutput.Length / 4}");
+}
+
+static List<string> ParseDirectories(string? directoriesArg)
+{
+    if (string.IsNullOrWhiteSpace(directoriesArg))
+    {
+        return [Directory.GetCurrentDirectory()];
+    }
+
+    var directories = directoriesArg
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .Select(d => Path.GetFullPath(d.Trim()))
+        .Distinct()
+        .ToList();
+
+    return directories.Count > 0 ? directories : [Directory.GetCurrentDirectory()];
 }
 
 static CodeParseEfficiency ParseEfficiency(string value)
@@ -111,4 +212,34 @@ static CodeParseEfficiency ParseEfficiency(string value)
         "max" or "maximum" or "x" or "4" => CodeParseEfficiency.Max,
         _ => CodeParseEfficiency.Medium
     };
+}
+
+static void ShowHelp()
+{
+    Console.WriteLine(@"CodeParse Demo - Token-efficient code summarization for LLMs
+
+Usage: CodeParseDemo [options] [directory]
+
+Options:
+  -d, --directory <paths>   Comma-separated list of directories to parse
+                            (default: current directory)
+  -e, --efficiency <level>  Token efficiency: low, medium, high, max
+  --ignore-tests            Ignore test files and test projects
+  --tests-only              Only parse test files and test projects
+  -o, --output <file>       Write output to file
+  -h, --help                Show this help
+
+Examples:
+  CodeParseDemo                                    # Compare all modes
+  CodeParseDemo /path/to/code                      # Parse single directory
+  CodeParseDemo -d ""/src,/lib,/api""                # Parse multiple directories
+  CodeParseDemo -e high --ignore-tests             # High efficiency, skip tests
+  CodeParseDemo --tests-only                       # Parse only test files
+
+Test Detection:
+  - Directories: test, tests, __tests__, *.Tests, *.Spec
+  - Files: *.spec.ts, *.test.js, *Tests.cs, test_*.py
+  - Imports: xUnit, NUnit, Jest, pytest, Mocha, etc.
+  - Attributes: [Fact], [Test], @Test, describe(), it()
+");
 }

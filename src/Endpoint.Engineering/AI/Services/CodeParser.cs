@@ -20,6 +20,77 @@ public partial class CodeParser : ICodeParser
     ];
 
     /// <summary>
+    /// Directory names that indicate test code.
+    /// </summary>
+    private static readonly HashSet<string> TestDirectoryNames =
+    [
+        "test", "tests", "spec", "specs", "__tests__", "__test__",
+        "unittest", "unittests", "integration", "integrationtests",
+        "e2e", "e2e-tests", "test-utils", "testing", "testcases"
+    ];
+
+    /// <summary>
+    /// Directory name patterns that indicate test projects.
+    /// </summary>
+    private static readonly string[] TestDirectoryPatterns =
+    [
+        ".Tests", ".Test", ".Specs", ".Spec",
+        ".UnitTests", ".IntegrationTests", ".FunctionalTests",
+        "Tests.", "Test.", "Specs.", "Spec."
+    ];
+
+    /// <summary>
+    /// File name suffixes that indicate test files.
+    /// </summary>
+    private static readonly string[] TestFileSuffixes =
+    [
+        ".spec.ts", ".spec.js", ".spec.tsx", ".spec.jsx",
+        ".test.ts", ".test.js", ".test.tsx", ".test.jsx",
+        ".spec.cs", ".test.cs", "Tests.cs", "Test.cs",
+        "_test.py", "_tests.py", "_spec.py",
+        "_test.go", "_test.rb", "Spec.rb",
+        "Test.java", "Tests.java", "IT.java"
+    ];
+
+    /// <summary>
+    /// File name patterns that indicate test files.
+    /// </summary>
+    private static readonly string[] TestFilePatterns =
+    [
+        "test_", "tests_", "spec_", "specs_",
+        "Test", "Tests", "Spec", "Specs"
+    ];
+
+    /// <summary>
+    /// Import/using patterns that indicate test code.
+    /// </summary>
+    private static readonly string[] TestImportPatterns =
+    [
+        // .NET test frameworks
+        "using Xunit", "using NUnit", "using Microsoft.VisualStudio.TestTools",
+        "using Moq", "using NSubstitute", "using FakeItEasy", "using FluentAssertions",
+        "using Shouldly", "using AutoFixture", "using Bogus",
+        // JavaScript/TypeScript test frameworks
+        "from '@jest'", "from 'jest'", "from '@testing-library'",
+        "from 'mocha'", "from 'chai'", "from 'jasmine'",
+        "from 'enzyme'", "from '@enzyme'", "from 'sinon'",
+        "from 'vitest'", "from '@vitest'", "from 'cypress'",
+        "require('jest')", "require('mocha')", "require('chai')",
+        "import { test", "import { expect", "import { describe",
+        // Python test frameworks
+        "import pytest", "import unittest", "from pytest",
+        "from unittest", "import mock", "from mock",
+        "import hypothesis", "from hypothesis",
+        // Go test
+        "import \"testing\"",
+        // Ruby test frameworks
+        "require 'rspec'", "require 'minitest'", "require 'test/unit'",
+        // Java test frameworks
+        "import org.junit", "import org.testng", "import org.mockito",
+        "import org.assertj", "import org.hamcrest"
+    ];
+
+    /// <summary>
     /// Default .NET gitignore patterns based on the standard Visual Studio .gitignore template.
     /// </summary>
     private static readonly string[] DefaultDotNetGitIgnorePatterns =
@@ -107,23 +178,29 @@ public partial class CodeParser : ICodeParser
 
     public async Task<CodeSummary> ParseDirectoryAsync(
         string directory,
-        CodeParseEfficiency efficiency = CodeParseEfficiency.Medium,
+        CodeParseOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Parsing directory: {Directory} with efficiency: {Efficiency}", directory, efficiency);
+        options ??= CodeParseOptions.Default;
+
+        _logger.LogInformation("Parsing directory: {Directory} with efficiency: {Efficiency}, ignoreTests: {IgnoreTests}",
+            directory, options.Efficiency, options.IgnoreTests);
 
         var summary = new CodeSummary
         {
             RootDirectory = directory,
-            Efficiency = efficiency
+            Efficiency = options.Efficiency
         };
 
         // Build gitignore matcher with default patterns and any .gitignore files found
         var gitIgnoreMatcher = new GitIgnoreMatcher(DefaultDotNetGitIgnorePatterns, _logger);
         gitIgnoreMatcher.LoadGitIgnoreFiles(directory);
 
-        var files = GetCodeFiles(directory, directory, gitIgnoreMatcher);
+        var files = GetCodeFiles(directory, directory, gitIgnoreMatcher, options.IgnoreTests, options.TestsOnly);
         summary.TotalFiles = files.Count;
+
+        var skippedFiles = 0;
+        var includedFiles = 0;
 
         foreach (var file in files)
         {
@@ -135,6 +212,23 @@ public partial class CodeParser : ICodeParser
                 var relativePath = Path.GetRelativePath(directory, file);
                 var extension = Path.GetExtension(file).ToLowerInvariant();
 
+                var isTestFile = IsTestFileByContent(content);
+
+                // Skip test files when ignoring tests
+                if (options.IgnoreTests && isTestFile)
+                {
+                    skippedFiles++;
+                    continue;
+                }
+
+                // Skip non-test files when only parsing tests
+                if (options.TestsOnly && !isTestFile && !IsTestFileByPath(relativePath))
+                {
+                    skippedFiles++;
+                    continue;
+                }
+
+                includedFiles++;
                 var fileSummary = ParseFile(content, relativePath, extension);
                 summary.Files.Add(fileSummary);
             }
@@ -144,16 +238,38 @@ public partial class CodeParser : ICodeParser
             }
         }
 
-        _logger.LogInformation("Parsed {FileCount} files", summary.TotalFiles);
+        if (skippedFiles > 0)
+        {
+            var reason = options.IgnoreTests ? "test" : "non-test";
+            _logger.LogInformation("Skipped {SkippedCount} {Reason} files based on content analysis", skippedFiles, reason);
+        }
+
+        _logger.LogInformation("Parsed {FileCount} files", summary.Files.Count);
         return summary;
     }
 
-    private List<string> GetCodeFiles(string currentDirectory, string rootDirectory, GitIgnoreMatcher gitIgnoreMatcher)
+    private List<string> GetCodeFiles(
+        string currentDirectory,
+        string rootDirectory,
+        GitIgnoreMatcher gitIgnoreMatcher,
+        bool ignoreTests = false,
+        bool testsOnly = false)
     {
         var files = new List<string>();
 
         try
         {
+            // Check if current directory is a test directory
+            var currentDirName = Path.GetFileName(currentDirectory);
+            var isTestDirectory = IsTestDirectory(currentDirName) ||
+                                  IsTestDirectoryByPath(Path.GetRelativePath(rootDirectory, currentDirectory));
+
+            // Skip entire test directories when ignoring tests
+            if (ignoreTests && isTestDirectory)
+            {
+                return files;
+            }
+
             foreach (var file in Directory.GetFiles(currentDirectory))
             {
                 var relativePath = Path.GetRelativePath(rootDirectory, file).Replace('\\', '/');
@@ -165,10 +281,27 @@ public partial class CodeParser : ICodeParser
                 }
 
                 var ext = Path.GetExtension(file).ToLowerInvariant();
-                if (SupportedExtensions.Contains(ext))
+                if (!SupportedExtensions.Contains(ext))
                 {
-                    files.Add(file);
+                    continue;
                 }
+
+                var isTestFile = IsTestFileByPath(relativePath);
+
+                // Skip test files when ignoring tests (path-based check)
+                if (ignoreTests && isTestFile)
+                {
+                    continue;
+                }
+
+                // Skip non-test files when only parsing tests (path-based check)
+                // Note: Content-based check happens later in ParseDirectoryAsync
+                if (testsOnly && !isTestFile && !isTestDirectory)
+                {
+                    continue;
+                }
+
+                files.Add(file);
             }
 
             foreach (var subDir in Directory.GetDirectories(currentDirectory))
@@ -181,7 +314,7 @@ public partial class CodeParser : ICodeParser
                     continue;
                 }
 
-                files.AddRange(GetCodeFiles(subDir, rootDirectory, gitIgnoreMatcher));
+                files.AddRange(GetCodeFiles(subDir, rootDirectory, gitIgnoreMatcher, ignoreTests, testsOnly));
             }
         }
         catch (Exception ex)
@@ -190,6 +323,106 @@ public partial class CodeParser : ICodeParser
         }
 
         return files;
+    }
+
+    /// <summary>
+    /// Checks if a directory name indicates a test directory.
+    /// </summary>
+    private static bool IsTestDirectory(string directoryName)
+    {
+        var lowerName = directoryName.ToLowerInvariant();
+        return TestDirectoryNames.Contains(lowerName);
+    }
+
+    /// <summary>
+    /// Checks if a directory path indicates a test project/directory.
+    /// </summary>
+    private static bool IsTestDirectoryByPath(string relativePath)
+    {
+        var pathParts = relativePath.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var part in pathParts)
+        {
+            // Check exact matches
+            if (TestDirectoryNames.Contains(part.ToLowerInvariant()))
+            {
+                return true;
+            }
+
+            // Check patterns (e.g., "MyProject.Tests", "Tests.Integration")
+            foreach (var pattern in TestDirectoryPatterns)
+            {
+                if (part.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if a file path indicates a test file.
+    /// </summary>
+    private static bool IsTestFileByPath(string relativePath)
+    {
+        var fileName = Path.GetFileName(relativePath);
+
+        // Check file suffixes
+        foreach (var suffix in TestFileSuffixes)
+        {
+            if (fileName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        // Check if file is in a test directory
+        if (IsTestDirectoryByPath(Path.GetDirectoryName(relativePath) ?? ""))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if file content indicates it's a test file by looking for test framework imports.
+    /// </summary>
+    private static bool IsTestFileByContent(string content)
+    {
+        // Check first 2000 characters for test imports (for performance)
+        var searchContent = content.Length > 2000 ? content[..2000] : content;
+
+        foreach (var pattern in TestImportPatterns)
+        {
+            if (searchContent.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        // Check for common test attributes/decorators
+        if (searchContent.Contains("[Fact]") ||
+            searchContent.Contains("[Theory]") ||
+            searchContent.Contains("[Test]") ||
+            searchContent.Contains("[TestMethod]") ||
+            searchContent.Contains("[TestCase]") ||
+            searchContent.Contains("[TestFixture]") ||
+            searchContent.Contains("@Test") ||
+            searchContent.Contains("@pytest") ||
+            searchContent.Contains("def test_") ||
+            searchContent.Contains("describe(") ||
+            searchContent.Contains("it('") ||
+            searchContent.Contains("it(\"") ||
+            searchContent.Contains("test('") ||
+            searchContent.Contains("test(\""))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private FileSummary ParseFile(string content, string relativePath, string extension)
