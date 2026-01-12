@@ -18,10 +18,84 @@ public partial class CodeParser : ICodeParser
         ".cs", ".ts", ".js", ".tsx", ".jsx", ".py", ".java", ".go", ".rs", ".rb"
     ];
 
-    private static readonly HashSet<string> IgnoredDirectories =
+    /// <summary>
+    /// Default .NET gitignore patterns based on the standard Visual Studio .gitignore template.
+    /// </summary>
+    private static readonly string[] DefaultDotNetGitIgnorePatterns =
     [
-        "bin", "obj", "node_modules", ".git", ".vs", ".idea", "dist", "build",
-        "packages", ".nuget", "TestResults", "coverage"
+        // Build results
+        "[Dd]ebug/",
+        "[Dd]ebugPublic/",
+        "[Rr]elease/",
+        "[Rr]eleases/",
+        "x64/",
+        "x86/",
+        "[Ww][Ii][Nn]32/",
+        "[Aa][Rr][Mm]/",
+        "[Aa][Rr][Mm]64/",
+        "bld/",
+        "[Bb]in/",
+        "[Oo]bj/",
+        "[Ll]og/",
+        "[Ll]ogs/",
+
+        // Visual Studio
+        ".vs/",
+        "*.user",
+        "*.rsuser",
+        "*.suo",
+        "*.cache",
+        "*.userosscache",
+        "*.sln.docstates",
+
+        // NuGet
+        "**/[Pp]ackages/*",
+        "*.nupkg",
+        "*.snupkg",
+        ".nuget/",
+
+        // Build
+        "project.lock.json",
+        "project.fragment.lock.json",
+        "artifacts/",
+
+        // Test Results
+        "[Tt]est[Rr]esult*/",
+        "[Bb]uild[Ll]og.*",
+        "*.trx",
+        "*.coverage",
+        "*.coveragexml",
+        "coverage*/",
+
+        // NCrunch
+        "_NCrunch_*",
+        "*.ncrunch*",
+
+        // IDE
+        ".idea/",
+        "*.resharper*",
+
+        // Node
+        "node_modules/",
+
+        // Misc
+        "*.log",
+        "*.tmp",
+        "*.temp",
+        ".git/",
+        ".gitattributes",
+        ".gitignore",
+        "*.orig",
+
+        // OS
+        ".DS_Store",
+        "Thumbs.db",
+
+        // Common output
+        "dist/",
+        "build/",
+        "out/",
+        "output/"
     ];
 
     public CodeParser(ILogger<CodeParser> logger)
@@ -39,7 +113,11 @@ public partial class CodeParser : ICodeParser
             RootDirectory = directory
         };
 
-        var files = GetCodeFiles(directory);
+        // Build gitignore matcher with default patterns and any .gitignore files found
+        var gitIgnoreMatcher = new GitIgnoreMatcher(DefaultDotNetGitIgnorePatterns, _logger);
+        gitIgnoreMatcher.LoadGitIgnoreFiles(directory);
+
+        var files = GetCodeFiles(directory, directory, gitIgnoreMatcher);
         summary.TotalFiles = files.Count;
 
         foreach (var file in files)
@@ -65,14 +143,22 @@ public partial class CodeParser : ICodeParser
         return summary;
     }
 
-    private List<string> GetCodeFiles(string directory)
+    private List<string> GetCodeFiles(string currentDirectory, string rootDirectory, GitIgnoreMatcher gitIgnoreMatcher)
     {
         var files = new List<string>();
 
         try
         {
-            foreach (var file in Directory.GetFiles(directory))
+            foreach (var file in Directory.GetFiles(currentDirectory))
             {
+                var relativePath = Path.GetRelativePath(rootDirectory, file).Replace('\\', '/');
+
+                // Skip if matched by gitignore
+                if (gitIgnoreMatcher.IsIgnored(relativePath, isDirectory: false))
+                {
+                    continue;
+                }
+
                 var ext = Path.GetExtension(file).ToLowerInvariant();
                 if (SupportedExtensions.Contains(ext))
                 {
@@ -80,18 +166,22 @@ public partial class CodeParser : ICodeParser
                 }
             }
 
-            foreach (var subDir in Directory.GetDirectories(directory))
+            foreach (var subDir in Directory.GetDirectories(currentDirectory))
             {
-                var dirName = Path.GetFileName(subDir);
-                if (!IgnoredDirectories.Contains(dirName) && !dirName.StartsWith('.'))
+                var relativePath = Path.GetRelativePath(rootDirectory, subDir).Replace('\\', '/') + "/";
+
+                // Skip if matched by gitignore
+                if (gitIgnoreMatcher.IsIgnored(relativePath, isDirectory: true))
                 {
-                    files.AddRange(GetCodeFiles(subDir));
+                    continue;
                 }
+
+                files.AddRange(GetCodeFiles(subDir, rootDirectory, gitIgnoreMatcher));
             }
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Error accessing directory: {Directory}", directory);
+            _logger.LogWarning(ex, "Error accessing directory: {Directory}", currentDirectory);
         }
 
         return files;
@@ -657,4 +747,248 @@ public partial class CodeParser : ICodeParser
 
     [GeneratedRegex(@"^func\s+(?:\([^)]+\)\s+)?(\w+)\s*\(", RegexOptions.Multiline)]
     private static partial Regex GoFunctionRegex();
+}
+
+/// <summary>
+/// Matches file paths against gitignore patterns.
+/// </summary>
+internal class GitIgnoreMatcher
+{
+    private readonly List<GitIgnorePattern> _patterns = [];
+    private readonly ILogger _logger;
+
+    public GitIgnoreMatcher(string[] defaultPatterns, ILogger logger)
+    {
+        _logger = logger;
+
+        foreach (var pattern in defaultPatterns)
+        {
+            AddPattern(pattern, isFromFile: false);
+        }
+    }
+
+    public void LoadGitIgnoreFiles(string rootDirectory)
+    {
+        LoadGitIgnoreFilesRecursive(rootDirectory, rootDirectory);
+    }
+
+    private void LoadGitIgnoreFilesRecursive(string currentDirectory, string rootDirectory)
+    {
+        var gitIgnorePath = Path.Combine(currentDirectory, ".gitignore");
+
+        if (File.Exists(gitIgnorePath))
+        {
+            try
+            {
+                var relativeDirPath = Path.GetRelativePath(rootDirectory, currentDirectory).Replace('\\', '/');
+                var prefix = relativeDirPath == "." ? "" : relativeDirPath + "/";
+
+                var lines = File.ReadAllLines(gitIgnorePath);
+                foreach (var line in lines)
+                {
+                    var trimmed = line.Trim();
+
+                    // Skip empty lines and comments
+                    if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith('#'))
+                        continue;
+
+                    AddPattern(trimmed, isFromFile: true, prefix: prefix);
+                }
+
+                _logger.LogDebug("Loaded .gitignore from: {Path}", gitIgnorePath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to read .gitignore: {Path}", gitIgnorePath);
+            }
+        }
+
+        // Recursively check subdirectories for .gitignore files
+        try
+        {
+            foreach (var subDir in Directory.GetDirectories(currentDirectory))
+            {
+                var dirName = Path.GetFileName(subDir);
+                // Don't descend into .git directory
+                if (dirName != ".git")
+                {
+                    LoadGitIgnoreFilesRecursive(subDir, rootDirectory);
+                }
+            }
+        }
+        catch
+        {
+            // Ignore directory access errors
+        }
+    }
+
+    private void AddPattern(string pattern, bool isFromFile, string prefix = "")
+    {
+        var isNegation = pattern.StartsWith('!');
+        if (isNegation)
+        {
+            pattern = pattern[1..];
+        }
+
+        // Handle patterns that start with /
+        var isRooted = pattern.StartsWith('/');
+        if (isRooted)
+        {
+            pattern = pattern[1..];
+        }
+
+        // Add prefix for patterns from nested .gitignore files
+        if (!string.IsNullOrEmpty(prefix) && !isRooted)
+        {
+            // Non-rooted patterns in nested .gitignore still apply from that directory
+        }
+        else if (!string.IsNullOrEmpty(prefix) && isRooted)
+        {
+            pattern = prefix + pattern;
+        }
+
+        var gitPattern = new GitIgnorePattern
+        {
+            OriginalPattern = pattern,
+            IsNegation = isNegation,
+            IsDirectoryOnly = pattern.EndsWith('/'),
+            IsRooted = isRooted || pattern.Contains('/'),
+            Regex = ConvertToRegex(pattern)
+        };
+
+        _patterns.Add(gitPattern);
+    }
+
+    public bool IsIgnored(string relativePath, bool isDirectory)
+    {
+        var normalizedPath = relativePath.Replace('\\', '/');
+        if (isDirectory && !normalizedPath.EndsWith('/'))
+        {
+            normalizedPath += "/";
+        }
+
+        var isIgnored = false;
+
+        foreach (var pattern in _patterns)
+        {
+            // Directory-only patterns don't match files
+            if (pattern.IsDirectoryOnly && !isDirectory)
+                continue;
+
+            var matches = pattern.Regex.IsMatch(normalizedPath);
+
+            if (!matches && !pattern.IsRooted)
+            {
+                // For non-rooted patterns, also try matching against the filename only
+                var fileName = Path.GetFileName(relativePath.TrimEnd('/'));
+                if (isDirectory)
+                    fileName += "/";
+                matches = pattern.Regex.IsMatch(fileName);
+            }
+
+            if (matches)
+            {
+                isIgnored = !pattern.IsNegation;
+            }
+        }
+
+        return isIgnored;
+    }
+
+    private static Regex ConvertToRegex(string pattern)
+    {
+        // Remove trailing slash for processing
+        var isDir = pattern.EndsWith('/');
+        if (isDir)
+        {
+            pattern = pattern[..^1];
+        }
+
+        var regexPattern = "^";
+
+        for (var i = 0; i < pattern.Length; i++)
+        {
+            var c = pattern[i];
+
+            switch (c)
+            {
+                case '*':
+                    if (i + 1 < pattern.Length && pattern[i + 1] == '*')
+                    {
+                        // ** matches everything including /
+                        if (i + 2 < pattern.Length && pattern[i + 2] == '/')
+                        {
+                            regexPattern += "(.*/)?";
+                            i += 2;
+                        }
+                        else
+                        {
+                            regexPattern += ".*";
+                            i++;
+                        }
+                    }
+                    else
+                    {
+                        // * matches everything except /
+                        regexPattern += "[^/]*";
+                    }
+                    break;
+
+                case '?':
+                    regexPattern += "[^/]";
+                    break;
+
+                case '[':
+                    // Character class - find the closing bracket
+                    var end = pattern.IndexOf(']', i + 1);
+                    if (end > i)
+                    {
+                        regexPattern += pattern[i..(end + 1)];
+                        i = end;
+                    }
+                    else
+                    {
+                        regexPattern += @"\[";
+                    }
+                    break;
+
+                case '.':
+                case '(':
+                case ')':
+                case '+':
+                case '|':
+                case '^':
+                case '$':
+                case '@':
+                case '%':
+                case '{':
+                case '}':
+                case '\\':
+                    regexPattern += "\\" + c;
+                    break;
+
+                default:
+                    regexPattern += c;
+                    break;
+            }
+        }
+
+        if (isDir)
+        {
+            regexPattern += "/";
+        }
+
+        regexPattern += "$";
+
+        return new Regex(regexPattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    }
+
+    private class GitIgnorePattern
+    {
+        public string OriginalPattern { get; init; } = string.Empty;
+        public bool IsNegation { get; init; }
+        public bool IsDirectoryOnly { get; init; }
+        public bool IsRooted { get; init; }
+        public Regex Regex { get; init; } = null!;
+    }
 }
