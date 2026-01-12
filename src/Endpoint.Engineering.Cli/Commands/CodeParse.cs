@@ -14,8 +14,9 @@ public class CodeParseRequest : IRequest
     [Option('n', "name", HelpText = "Name for the output file (optional)")]
     public string? Name { get; set; }
 
-    [Option('d', "directory", Required = false, HelpText = "Directory to parse (defaults to current directory)")]
-    public string Directory { get; set; } = Environment.CurrentDirectory;
+    [Option('d', "directory", Required = false,
+        HelpText = "Comma-separated list of directories to parse (defaults to current directory)")]
+    public string? Directories { get; set; }
 
     [Option('o', "output", Required = false, HelpText = "Output file path (optional, prints to console if not specified)")]
     public string? Output { get; set; }
@@ -23,6 +24,14 @@ public class CodeParseRequest : IRequest
     [Option('e', "efficiency", Required = false, Default = "medium",
         HelpText = "Token efficiency level: low (full detail), medium (balanced), high (compact), max (minimal)")]
     public string Efficiency { get; set; } = "medium";
+
+    [Option("ignore-tests", Required = false, Default = false,
+        HelpText = "Ignore test files and test projects (xUnit, NUnit, Jest, pytest, etc.)")]
+    public bool IgnoreTests { get; set; } = false;
+
+    [Option("tests-only", Required = false, Default = false,
+        HelpText = "Only parse test files and test projects")]
+    public bool TestsOnly { get; set; } = false;
 }
 
 public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
@@ -40,12 +49,52 @@ public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
 
     public async Task Handle(CodeParseRequest request, CancellationToken cancellationToken)
     {
-        var efficiency = ParseEfficiency(request.Efficiency);
-        _logger.LogInformation("Parsing code in directory: {Directory} with efficiency: {Efficiency}",
-            request.Directory, efficiency);
+        // Validate options
+        if (request.IgnoreTests && request.TestsOnly)
+        {
+            _logger.LogWarning("Both --ignore-tests and --tests-only specified. Using --tests-only.");
+        }
 
-        var summary = await _codeParser.ParseDirectoryAsync(request.Directory, efficiency, cancellationToken);
-        var output = summary.ToLlmString();
+        var options = new CodeParseOptions
+        {
+            Efficiency = ParseEfficiency(request.Efficiency),
+            IgnoreTests = request.IgnoreTests && !request.TestsOnly,
+            TestsOnly = request.TestsOnly
+        };
+
+        // Parse directories - default to current directory if not specified
+        var directories = ParseDirectories(request.Directories);
+
+        var filterMode = request.TestsOnly ? " (tests only)" :
+                         request.IgnoreTests ? " (ignoring tests)" : "";
+
+        _logger.LogInformation("Parsing {DirectoryCount} directory(s){FilterMode} with efficiency: {Efficiency}",
+            directories.Count, filterMode, options.Efficiency);
+
+        // Parse all directories and merge results
+        var mergedSummary = new CodeSummary
+        {
+            RootDirectory = directories.Count == 1 ? directories[0] : string.Join(", ", directories.Select(Path.GetFileName)),
+            Efficiency = options.Efficiency
+        };
+
+        foreach (var directory in directories)
+        {
+            if (!Directory.Exists(directory))
+            {
+                _logger.LogWarning("Directory not found: {Directory}", directory);
+                continue;
+            }
+
+            _logger.LogInformation("Parsing directory: {Directory}", directory);
+            var summary = await _codeParser.ParseDirectoryAsync(directory, options, cancellationToken);
+
+            // Merge files into combined summary
+            mergedSummary.Files.AddRange(summary.Files);
+            mergedSummary.TotalFiles += summary.TotalFiles;
+        }
+
+        var output = mergedSummary.ToLlmString();
 
         if (!string.IsNullOrEmpty(request.Output))
         {
@@ -53,7 +102,7 @@ public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
             if (!string.IsNullOrEmpty(request.Name))
             {
                 outputPath = Path.Combine(
-                    Path.GetDirectoryName(request.Output) ?? request.Directory,
+                    Path.GetDirectoryName(request.Output) ?? directories[0],
                     $"{request.Name}.txt");
             }
 
@@ -65,8 +114,24 @@ public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
             Console.WriteLine(output);
         }
 
-        _logger.LogInformation("Parsed {FileCount} files with {Efficiency} efficiency ({OutputLength} chars)",
-            summary.TotalFiles, efficiency, output.Length);
+        _logger.LogInformation("Parsed {FileCount} files from {DirectoryCount} directory(s) with {Efficiency} efficiency ({OutputLength} chars)",
+            mergedSummary.Files.Count, directories.Count, options.Efficiency, output.Length);
+    }
+
+    private static List<string> ParseDirectories(string? directoriesArg)
+    {
+        if (string.IsNullOrWhiteSpace(directoriesArg))
+        {
+            return [Environment.CurrentDirectory];
+        }
+
+        var directories = directoriesArg
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(d => Path.GetFullPath(d.Trim()))
+            .Distinct()
+            .ToList();
+
+        return directories.Count > 0 ? directories : [Environment.CurrentDirectory];
     }
 
     private static CodeParseEfficiency ParseEfficiency(string value)
