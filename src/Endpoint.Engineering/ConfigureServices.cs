@@ -3,6 +3,7 @@
 
 using Endpoint.Engineering.AI.Services;
 using Endpoint.Engineering.Microservices;
+using Endpoint.Engineering.Microservices.Identity;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -19,6 +20,9 @@ public static class ConfigureServices
         });
 
         services.AddSingleton<IHtmlParserService, HtmlParserService>();
+
+        // Register artifact factories for microservices
+        services.AddSingleton<IIdentityArtifactFactory, IdentityArtifactFactory>();
 
         // Register MicroserviceFactory for predefined microservice creation
         services.AddSingleton<IMicroserviceFactory, MicroserviceFactory>();

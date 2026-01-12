@@ -5,6 +5,7 @@ using Endpoint.DotNet.Artifacts.Projects;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Artifacts.Solutions;
+using Endpoint.Engineering.Microservices.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Engineering.Microservices;
@@ -16,6 +17,7 @@ public class MicroserviceFactory : IMicroserviceFactory
 {
     private readonly ILogger<MicroserviceFactory> logger;
     private readonly IProjectFactory projectFactory;
+    private readonly IIdentityArtifactFactory identityArtifactFactory;
 
     private static readonly IReadOnlyList<string> AvailableMicroserviceNames = new[]
     {
@@ -47,10 +49,12 @@ public class MicroserviceFactory : IMicroserviceFactory
 
     public MicroserviceFactory(
         ILogger<MicroserviceFactory> logger,
-        IProjectFactory projectFactory)
+        IProjectFactory projectFactory,
+        IIdentityArtifactFactory identityArtifactFactory)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.projectFactory = projectFactory ?? throw new ArgumentNullException(nameof(projectFactory));
+        this.identityArtifactFactory = identityArtifactFactory ?? throw new ArgumentNullException(nameof(identityArtifactFactory));
     }
 
     public IReadOnlyList<string> GetAvailableMicroservices() => AvailableMicroserviceNames;
@@ -87,15 +91,105 @@ public class MicroserviceFactory : IMicroserviceFactory
         };
     }
 
-    public Task<SolutionModel> CreateIdentityMicroserviceAsync(string directory, CancellationToken cancellationToken = default)
+    public async Task<SolutionModel> CreateIdentityMicroserviceAsync(string directory, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("Creating Identity microservice");
-        return CreateMicroserviceAsync("Identity", directory, new[]
+        logger.LogInformation("Creating Identity microservice with full implementation");
+
+        var solutionModel = new SolutionModel("Identity", directory);
+
+        // Create Core project with Identity-specific packages
+        var coreProject = await CreateIdentityCoreProjectAsync(solutionModel.SrcDirectory);
+
+        // Create Infrastructure project
+        var infrastructureProject = await CreateIdentityInfrastructureProjectAsync(solutionModel.SrcDirectory);
+
+        // Create API project
+        var apiProject = await CreateIdentityApiProjectAsync(solutionModel.SrcDirectory);
+
+        // Add files using the artifact factory
+        identityArtifactFactory.AddCoreFiles(coreProject);
+        identityArtifactFactory.AddInfrastructureFiles(infrastructureProject, "Identity");
+        identityArtifactFactory.AddApiFiles(apiProject, "Identity");
+
+        solutionModel.Projects.Add(coreProject);
+        solutionModel.Projects.Add(infrastructureProject);
+        solutionModel.Projects.Add(apiProject);
+
+        solutionModel.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+        solutionModel.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
+
+        return solutionModel;
+    }
+
+    private Task<ProjectModel> CreateIdentityCoreProjectAsync(string directory)
+    {
+        var project = new ProjectModel
         {
+            Name = "Identity.Core",
+            Directory = Path.Combine(directory, "Identity.Core"),
+            DotNetProjectType = DotNetProjectType.ClassLib
+        };
+
+        project.Packages.AddRange(new[]
+        {
+            new PackageModel("MediatR", "12.2.0"),
+            new PackageModel("Microsoft.Extensions.Hosting.Abstractions", "8.0.0"),
+            new PackageModel("Microsoft.EntityFrameworkCore", "8.0.0"),
+            new PackageModel("Microsoft.Extensions.Logging.Abstractions", "8.0.0"),
+            new PackageModel("FluentValidation", "11.9.0"),
+            new PackageModel("FluentValidation.DependencyInjectionExtensions", "11.9.0"),
+            new PackageModel("Newtonsoft.Json", "13.0.3"),
             new PackageModel("Microsoft.AspNetCore.Identity.EntityFrameworkCore", "8.0.0"),
             new PackageModel("Microsoft.AspNetCore.Authentication.JwtBearer", "8.0.0"),
             new PackageModel("System.IdentityModel.Tokens.Jwt", "7.0.3")
-        }, cancellationToken);
+        });
+
+        return Task.FromResult(project);
+    }
+
+    private Task<ProjectModel> CreateIdentityInfrastructureProjectAsync(string directory)
+    {
+        var project = new ProjectModel
+        {
+            Name = "Identity.Infrastructure",
+            Directory = Path.Combine(directory, "Identity.Infrastructure"),
+            DotNetProjectType = DotNetProjectType.ClassLib
+        };
+
+        project.Packages.AddRange(new[]
+        {
+            new PackageModel("Microsoft.EntityFrameworkCore.SqlServer", "8.0.0"),
+            new PackageModel("Microsoft.EntityFrameworkCore.Design", "8.0.0"),
+            new PackageModel("Microsoft.EntityFrameworkCore.Tools", "8.0.0"),
+            new PackageModel("Microsoft.Extensions.Configuration.Abstractions", "8.0.0")
+        });
+
+        project.References.Add(@"..\Identity.Core\Identity.Core.csproj");
+
+        return Task.FromResult(project);
+    }
+
+    private Task<ProjectModel> CreateIdentityApiProjectAsync(string directory)
+    {
+        var project = new ProjectModel
+        {
+            Name = "Identity.Api",
+            Directory = Path.Combine(directory, "Identity.Api"),
+            DotNetProjectType = DotNetProjectType.Web
+        };
+
+        project.Packages.AddRange(new[]
+        {
+            new PackageModel("Asp.Versioning.Mvc", "8.0.0"),
+            new PackageModel("Microsoft.AspNetCore.OpenApi", "8.0.0"),
+            new PackageModel("Serilog.AspNetCore", "8.0.0"),
+            new PackageModel("Swashbuckle.AspNetCore", "6.5.0"),
+            new PackageModel("Microsoft.AspNetCore.Authentication.JwtBearer", "8.0.0")
+        });
+
+        project.References.Add(@"..\Identity.Infrastructure\Identity.Infrastructure.csproj");
+
+        return Task.FromResult(project);
     }
 
     public Task<SolutionModel> CreateTenantMicroserviceAsync(string directory, CancellationToken cancellationToken = default)

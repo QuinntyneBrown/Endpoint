@@ -37,8 +37,9 @@ var mediator = serviceProvider.GetRequiredService<IMediator>();
 
 try
 {
-    // Output directory for the demo solution
-    var demoDirectory = Path.Combine(Directory.GetCurrentDirectory(), "generated-output");
+    // Output directory for the demo solution (repo root/generated-output)
+    var repoRoot = Path.Combine(Directory.GetCurrentDirectory(), "..", "..");
+    var demoDirectory = Path.Combine(repoRoot, "generated-output");
 
     // Clean up existing demo directory if it exists
     if (Directory.Exists(demoDirectory))
