@@ -5,7 +5,7 @@
 - **Version**: 1.0
 - **Last Updated**: 2026-01-12
 - **Status**: Active
-- **Related Documents**: [Implementation Specification](../../implementation.spec.md), [Message Design Specification](../messaging/message-design.spec.md)
+- **Related Documents**: [Implementation Specification](../implementation.spec.md), [Message Design Specification](../messaging/message-design.spec.md)
 
 ## 1. Overview
 

@@ -8,7 +8,7 @@ This directory contains formal specifications for the Endpoint code generation f
 
 ### Core Specifications
 
-- **[Implementation Specification](./implementation.spec.md)** - Core technical requirements, architectural principles, and coding conventions for the Endpoint framework. This is the foundational document that all other specifications must align with.
+- **[Implementation Specification](implementation.spec.md)** - Core technical requirements, architectural principles, and coding conventions for the Endpoint framework. This is the foundational document that all other specifications must align with.
 
 ### Messaging Specifications
 

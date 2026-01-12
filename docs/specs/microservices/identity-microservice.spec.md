@@ -6,7 +6,7 @@
 - **Last Updated**: 2026-01-12
 - **Status**: Active
 - **Related Documents**: 
-  - [Implementation Specification](../../implementation.spec.md)
+  - [Implementation Specification](../implementation.spec.md)
   - [Message Design Specification](../messaging/message-design.spec.md)
   - [Subscription Design Specification](../messaging/subscription-design.spec.md)
 
@@ -289,7 +289,7 @@ The Identity Microservice MUST follow a three-layer architecture:
 
 ## 11. Alignment with Implementation Spec
 
-All code MUST follow the conventions in [implementation.spec.md](../../implementation.spec.md):
+All code MUST follow the conventions in [implementation.spec.md](../implementation.spec.md):
 
 - Use C# 11+ features (file-scoped namespaces, required keyword)
 - Use nullable reference types
