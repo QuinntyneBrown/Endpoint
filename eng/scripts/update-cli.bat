@@ -1,5 +1,5 @@
 @echo off
-dotnet tool uninstall -g Quinntyne.Endpoint.Cli
-cd ..\..
-dotnet pack -c Release
-dotnet tool install --global --add-source .\src\Endpoint.Cli\nupkg Quinntyne.Endpoint.Cli --version 0.3.1
+dotnet tool uninstall -g Quinntyne.Endpoint.Engineering.Cli 2>nul
+cd /d %~dp0..\..
+dotnet pack src\Endpoint.Engineering.Cli\Endpoint.Engineering.Cli.csproj -c Release
+dotnet tool install --global --add-source .\src\Endpoint.Engineering.Cli\nupkg Quinntyne.Endpoint.Engineering.Cli --version 0.3.1
