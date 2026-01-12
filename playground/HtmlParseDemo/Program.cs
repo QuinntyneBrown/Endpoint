@@ -212,6 +212,51 @@ try
     }
 
     logger.LogInformation("");
+
+    // Demo 6: Parse all HTML files from a directory
+    logger.LogInformation("--- Demo 6: Parse HTML files from a directory ---");
+    logger.LogInformation("");
+
+    var samplePagesDir = Path.Combine(AppContext.BaseDirectory, "sample-pages");
+    if (Directory.Exists(samplePagesDir))
+    {
+        var directoryRequest = new HtmlParseRequest
+        {
+            Directories = new[] { samplePagesDir },
+            SearchPattern = "*.html",
+            Recursive = false
+        };
+
+        logger.LogInformation("Parsing all HTML files from: {Directory}", samplePagesDir);
+        await mediator.Send(directoryRequest);
+    }
+    else
+    {
+        logger.LogWarning("Sample pages directory not found at {Path}", samplePagesDir);
+    }
+
+    logger.LogInformation("");
+
+    // Demo 7: Parse multiple URLs at once
+    logger.LogInformation("--- Demo 7: Parse multiple URLs at once ---");
+    logger.LogInformation("");
+
+    try
+    {
+        var multiUrlRequest = new HtmlParseRequest
+        {
+            Urls = new[] { "https://example.com", "https://example.org" }
+        };
+
+        logger.LogInformation("Parsing multiple URLs...");
+        await mediator.Send(multiUrlRequest);
+    }
+    catch (Exception urlEx)
+    {
+        logger.LogWarning(urlEx, "Could not fetch URLs (this is expected in offline environments)");
+    }
+
+    logger.LogInformation("");
     logger.LogInformation("=== Demo Completed Successfully! ===");
 }
 catch (Exception ex)
