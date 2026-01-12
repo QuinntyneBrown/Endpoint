@@ -39,7 +39,16 @@ try
 {
     logger.LogInformation("Creating DDD application with product name: Sample");
 
-    var playgroundDirectory = Path.Combine(Directory.GetCurrentDirectory(), "..");
+    var outputDirectory = Path.Combine(Directory.GetCurrentDirectory(), "generated-output");
+
+    // Clean up existing output directory if it exists
+    if (Directory.Exists(outputDirectory))
+    {
+        logger.LogInformation("Cleaning up existing output directory: {Directory}", outputDirectory);
+        Directory.Delete(outputDirectory, recursive: true);
+    }
+
+    Directory.CreateDirectory(outputDirectory);
 
     // Create request to generate Sample DDD solution
     var request = new DddAppCreateRequest
@@ -48,7 +57,7 @@ try
         BoundedContext = "ToDos",
         Aggregate = "ToDo",
         Properties = "ToDoId:Guid,Title:String,IsComplete:String",
-        Directory = playgroundDirectory
+        Directory = outputDirectory
     };
 
     await mediator.Send(request);

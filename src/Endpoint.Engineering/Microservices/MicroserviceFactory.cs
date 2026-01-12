@@ -94,7 +94,7 @@ public class MicroserviceFactory : IMicroserviceFactory
         {
             new PackageModel("Microsoft.AspNetCore.Identity.EntityFrameworkCore", "8.0.0"),
             new PackageModel("Microsoft.AspNetCore.Authentication.JwtBearer", "8.0.0"),
-            new PackageModel("System.IdentityModel.Tokens.Jwt", "7.0.0")
+            new PackageModel("System.IdentityModel.Tokens.Jwt", "7.0.3")
         }, cancellationToken);
     }
 

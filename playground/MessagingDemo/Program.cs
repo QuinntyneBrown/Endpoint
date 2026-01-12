@@ -44,9 +44,8 @@ try
     logger.LogInformation("This demo will create a messaging project with Redis Pub/Sub support.");
     logger.LogInformation("");
 
-    // Get the output directory (parent of playground)
-    var playgroundDirectory = Path.Combine(Directory.GetCurrentDirectory(), "..");
-    var demoSolutionDirectory = Path.Combine(playgroundDirectory, "MessagingDemoSolution");
+    // Get the output directory
+    var demoSolutionDirectory = Path.Combine(Directory.GetCurrentDirectory(), "generated-output");
 
     // Clean up any existing demo directory
     if (Directory.Exists(demoSolutionDirectory))
