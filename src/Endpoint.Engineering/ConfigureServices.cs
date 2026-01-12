@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Engineering.AI.Services;
+using Endpoint.Engineering.Microservices;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -18,5 +19,8 @@ public static class ConfigureServices
         });
 
         services.AddSingleton<IHtmlParserService, HtmlParserService>();
+
+        // Register MicroserviceFactory for predefined microservice creation
+        services.AddSingleton<IMicroserviceFactory, MicroserviceFactory>();
     }
 }
