@@ -3,7 +3,7 @@
 
 using Endpoint;
 using Endpoint.Artifacts.Abstractions;
-using Endpoint.Cli.Commands;
+using Endpoint.Engineering.Cli.Commands;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

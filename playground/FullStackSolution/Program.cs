@@ -1,8 +1,8 @@
-﻿// Copyright (c) Quinntyne Brown. All Rights Reserved.
+// Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Endpoint.Core;
-using Endpoint.Core.Artifacts.Abstractions;
+using Endpoint;
+using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet;
 using Endpoint.DotNet.Artifacts.Projects;
 using Endpoint.DotNet.Artifacts.Projects.Factories;
@@ -77,11 +77,7 @@ rootCommand.SetHandler(async (InvocationContext context) =>
         var infrastructureProject = await projectFactory.CreateInfrastructure(solutionName, solution.SrcDirectory);
 
         // Add reference from Infrastructure to Core
-        infrastructureProject.ProjectReferences.Add(new ProjectReferenceModel
-        {
-            Name = $"{solutionName}.Core",
-            Path = $"..\\{solutionName}.Core\\{solutionName}.Core.csproj"
-        });
+        infrastructureProject.References.Add(Path.Combine("..", solutionName + ".Core", solutionName + ".Core.csproj"));
 
         solution.Projects.Add(infrastructureProject);
 
@@ -89,39 +85,23 @@ rootCommand.SetHandler(async (InvocationContext context) =>
         var apiProject = await projectFactory.CreateApi(solutionName, solution.SrcDirectory);
 
         // Add reference from API to Infrastructure
-        apiProject.ProjectReferences.Add(new ProjectReferenceModel
-        {
-            Name = $"{solutionName}.Infrastructure",
-            Path = $"..\\{solutionName}.Infrastructure\\{solutionName}.Infrastructure.csproj"
-        });
+        apiProject.References.Add(Path.Combine("..", solutionName + ".Infrastructure", solutionName + ".Infrastructure.csproj"));
 
         solution.Projects.Add(apiProject);
 
         // Create tests folder projects
         logger.LogInformation("Creating test projects...");
 
-        var coreTestProject = await projectFactory.Create("xunit", $"{solutionName}.Core.Tests", solution.TestDirectory);
-        coreTestProject.ProjectReferences.Add(new ProjectReferenceModel
-        {
-            Name = $"{solutionName}.Core",
-            Path = $"..\\..\\src\\{solutionName}.Core\\{solutionName}.Core.csproj"
-        });
+        var coreTestProject = await projectFactory.Create("xunit", solutionName + ".Core.Tests", solution.TestDirectory);
+        coreTestProject.References.Add(Path.Combine("..", "..", "src", solutionName + ".Core", solutionName + ".Core.csproj"));
         solution.Projects.Add(coreTestProject);
 
-        var infrastructureTestProject = await projectFactory.Create("xunit", $"{solutionName}.Infrastructure.Tests", solution.TestDirectory);
-        infrastructureTestProject.ProjectReferences.Add(new ProjectReferenceModel
-        {
-            Name = $"{solutionName}.Infrastructure",
-            Path = $"..\\..\\src\\{solutionName}.Infrastructure\\{solutionName}.Infrastructure.csproj"
-        });
+        var infrastructureTestProject = await projectFactory.Create("xunit", solutionName + ".Infrastructure.Tests", solution.TestDirectory);
+        infrastructureTestProject.References.Add(Path.Combine("..", "..", "src", solutionName + ".Infrastructure", solutionName + ".Infrastructure.csproj"));
         solution.Projects.Add(infrastructureTestProject);
 
-        var apiTestProject = await projectFactory.Create("xunit", $"{solutionName}.Api.Tests", solution.TestDirectory);
-        apiTestProject.ProjectReferences.Add(new ProjectReferenceModel
-        {
-            Name = $"{solutionName}.Api",
-            Path = $"..\\..\\src\\{solutionName}.Api\\{solutionName}.Api.csproj"
-        });
+        var apiTestProject = await projectFactory.Create("xunit", solutionName + ".Api.Tests", solution.TestDirectory);
+        apiTestProject.References.Add(Path.Combine("..", "..", "src", solutionName + ".Api", solutionName + ".Api.csproj"));
         solution.Projects.Add(apiTestProject);
 
         // Generate the solution and all projects
@@ -129,16 +109,6 @@ rootCommand.SetHandler(async (InvocationContext context) =>
         await artifactGenerator.GenerateAsync(solution);
 
         logger.LogInformation("Solution created successfully at: {SolutionPath}", solution.SolutionPath);
-        logger.LogInformation("");
-        logger.LogInformation("Solution Structure:");
-        logger.LogInformation("├── src/");
-        logger.LogInformation("│   ├── {SolutionName}.Core/", solutionName);
-        logger.LogInformation("│   ├── {SolutionName}.Infrastructure/ (references Core)", solutionName);
-        logger.LogInformation("│   └── {SolutionName}.Api/ (references Infrastructure)", solutionName);
-        logger.LogInformation("└── tests/");
-        logger.LogInformation("    ├── {SolutionName}.Core.Tests/", solutionName);
-        logger.LogInformation("    ├── {SolutionName}.Infrastructure.Tests/", solutionName);
-        logger.LogInformation("    └── {SolutionName}.Api.Tests/", solutionName);
 
         context.ExitCode = 0;
     }

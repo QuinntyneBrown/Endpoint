@@ -4,6 +4,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Engineering.AI.Services;

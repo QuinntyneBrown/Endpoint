@@ -1,7 +1,10 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using System.IO.Abstractions;
+using System.Threading;
+using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.Engineering.RedisPubSub.Artifacts;
@@ -116,7 +119,7 @@ public class MessagingAddRequestHandler : IRequestHandler<MessagingAddRequest>
         var projectModel = await _artifactFactory.CreateMessagingProjectAsync(messagingModel, cancellationToken);
 
         // Generate the messaging project
-        await _artifactGenerator.GenerateAsync(projectModel, cancellationToken);
+        await _artifactGenerator.GenerateAsync(projectModel);
 
         _logger.LogInformation("Messaging project '{ProjectName}' added successfully!", projectModel.Name);
     }

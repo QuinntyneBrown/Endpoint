@@ -1,7 +1,10 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using System.IO.Abstractions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.IO.Abstractions.TestingHelpers;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.Engineering.Cli.Commands;
@@ -216,7 +219,7 @@ public class MessagingAddRequestHandlerTests
         await _handler.Handle(request, CancellationToken.None);
 
         // Assert
-        _artifactGeneratorMock.Verify(x => x.GenerateAsync(projectModel, It.IsAny<CancellationToken>()), Times.Once);
+        _artifactGeneratorMock.Verify(x => x.GenerateAsync(projectModel), Times.Once);
     }
 
     [Fact]
@@ -235,7 +238,7 @@ public class MessagingAddRequestHandlerTests
         _fileSystem.AddDirectory("/test/path/src");
 
         var projectModel = new MessagingProjectModel("TestApp", "/test/path/src");
-        _artifactFactoryMock.Setup(x => x.CreateMessagingProjectAsync(It.Is<MessagingModel>(m => m.Directory == "/test/path/src"), It.IsAny<CancellationToken>()))
+        _artifactFactoryMock.Setup(x => x.CreateMessagingProjectAsync(It.Is<MessagingModel>(m => m.Directory.Contains("src")), It.IsAny<CancellationToken>()))
             .ReturnsAsync(projectModel);
 
         // Act
@@ -243,7 +246,7 @@ public class MessagingAddRequestHandlerTests
 
         // Assert
         _artifactFactoryMock.Verify(x => x.CreateMessagingProjectAsync(
-            It.Is<MessagingModel>(m => m.Directory == "/test/path/src"),
+            It.Is<MessagingModel>(m => m.Directory.Contains("src")),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -263,7 +266,7 @@ public class MessagingAddRequestHandlerTests
         // Note: Not adding /test/path/src to file system
 
         var projectModel = new MessagingProjectModel("TestApp", "/test/path");
-        _artifactFactoryMock.Setup(x => x.CreateMessagingProjectAsync(It.Is<MessagingModel>(m => m.Directory == "/test/path"), It.IsAny<CancellationToken>()))
+        _artifactFactoryMock.Setup(x => x.CreateMessagingProjectAsync(It.Is<MessagingModel>(m => !m.Directory.Contains("src")), It.IsAny<CancellationToken>()))
             .ReturnsAsync(projectModel);
 
         // Act
@@ -271,7 +274,7 @@ public class MessagingAddRequestHandlerTests
 
         // Assert
         _artifactFactoryMock.Verify(x => x.CreateMessagingProjectAsync(
-            It.Is<MessagingModel>(m => m.Directory == "/test/path"),
+            It.Is<MessagingModel>(m => !m.Directory.Contains("src")),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }

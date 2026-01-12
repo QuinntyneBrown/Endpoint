@@ -7,7 +7,7 @@ using Endpoint.Engineering.ModernWebAppPattern.Artifacts;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-public static class ConfigureServices
+public static class ModernWebAppPatternConfigureServices
 {
     public static void AddModernWebAppPatternCoreServices(this IServiceCollection services)
     {

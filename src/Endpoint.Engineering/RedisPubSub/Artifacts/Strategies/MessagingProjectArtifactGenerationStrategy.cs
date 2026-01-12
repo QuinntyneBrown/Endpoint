@@ -41,7 +41,7 @@ public class MessagingProjectArtifactGenerationStrategy : IArtifactGenerationStr
     public int GetPriority() => 1;
 
     /// <inheritdoc/>
-    public async Task GenerateAsync(MessagingProjectModel model, CancellationToken cancellationToken = default)
+    public async Task GenerateAsync(MessagingProjectModel model)
     {
         _logger.LogInformation("Generating messaging project: {ProjectName}", model.Name);
 
@@ -51,7 +51,7 @@ public class MessagingProjectArtifactGenerationStrategy : IArtifactGenerationStr
         // Generate all files for the project
         foreach (var file in model.Files)
         {
-            await _artifactGenerator.GenerateAsync(file, cancellationToken);
+            await _artifactGenerator.GenerateAsync(file);
         }
 
         // Add project to solution

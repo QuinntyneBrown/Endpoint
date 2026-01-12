@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.IO.Abstractions;
-using Endpoint.DotNet.Artifacts.Files;
+using Endpoint.Artifacts;
 using Endpoint.Engineering.RedisPubSub.Models;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
