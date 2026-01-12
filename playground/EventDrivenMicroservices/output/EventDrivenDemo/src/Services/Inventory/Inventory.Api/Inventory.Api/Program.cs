@@ -4,7 +4,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-using Orders.Infrastructure.Data;
+using Inventory.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -33,7 +33,7 @@ try
 
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Orders");
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Inventory");
         options.RoutePrefix = string.Empty;
         options.DisplayOperationId();
     });
@@ -50,7 +50,7 @@ try
 
     using (var scope = services.CreateScope())
     {
-        var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
 
         if (args.Contains("ci"))
             args = new string[4] { "dropdb", "migratedb", "seeddb", "stop" };
