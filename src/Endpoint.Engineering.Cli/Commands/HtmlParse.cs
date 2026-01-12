@@ -28,6 +28,30 @@ public class HtmlParseRequest : IRequest
     public string? Url { get; set; }
 
     /// <summary>
+    /// Gets or sets a list of URLs to fetch and parse HTML from.
+    /// </summary>
+    [Option("urls", Required = false, Separator = ',', HelpText = "Comma-separated list of URLs to fetch and parse HTML from.")]
+    public IEnumerable<string>? Urls { get; set; }
+
+    /// <summary>
+    /// Gets or sets a list of directories containing HTML files to parse.
+    /// </summary>
+    [Option('d', "directories", Required = false, Separator = ',', HelpText = "Comma-separated list of directories containing HTML files to parse.")]
+    public IEnumerable<string>? Directories { get; set; }
+
+    /// <summary>
+    /// Gets or sets the search pattern for HTML files in directories.
+    /// </summary>
+    [Option("pattern", Required = false, Default = "*.html", HelpText = "Search pattern for HTML files in directories (default: *.html).")]
+    public string SearchPattern { get; set; } = "*.html";
+
+    /// <summary>
+    /// Gets or sets whether to search directories recursively.
+    /// </summary>
+    [Option('r', "recursive", Required = false, Default = false, HelpText = "Search directories recursively for HTML files.")]
+    public bool Recursive { get; set; }
+
+    /// <summary>
     /// Gets or sets the output file path to write the parsed content.
     /// </summary>
     [Option('o', "output", Required = false, HelpText = "Optional output file path to write the parsed content.")]
@@ -63,40 +87,124 @@ public class HtmlParseRequestHandler : IRequestHandler<HtmlParseRequest>
     {
         _logger.LogInformation("Starting HTML parse command...");
 
-        string parsedContent;
+        var results = new StringBuilder();
+        var hasContent = false;
 
+        // Process multiple URLs
+        if (request.Urls?.Any() == true)
+        {
+            foreach (var url in request.Urls.Where(u => !string.IsNullOrWhiteSpace(u)))
+            {
+                try
+                {
+                    _logger.LogInformation("Fetching and parsing HTML from URL: {Url}", url);
+                    var content = await _htmlParserService.ParseHtmlFromUrlAsync(url, cancellationToken);
+                    AppendResult(results, $"URL: {url}", content);
+                    hasContent = true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to parse URL: {Url}", url);
+                    AppendResult(results, $"URL: {url}", $"[Error: {ex.Message}]");
+                }
+            }
+        }
+
+        // Process single URL
         if (!string.IsNullOrWhiteSpace(request.Url))
         {
-            // Parse from URL
-            _logger.LogInformation("Fetching and parsing HTML from URL: {Url}", request.Url);
-            parsedContent = await _htmlParserService.ParseHtmlFromUrlAsync(request.Url, cancellationToken);
+            try
+            {
+                _logger.LogInformation("Fetching and parsing HTML from URL: {Url}", request.Url);
+                var content = await _htmlParserService.ParseHtmlFromUrlAsync(request.Url, cancellationToken);
+                AppendResult(results, $"URL: {request.Url}", content);
+                hasContent = true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to parse URL: {Url}", request.Url);
+                AppendResult(results, $"URL: {request.Url}", $"[Error: {ex.Message}]");
+            }
         }
-        else if (!string.IsNullOrWhiteSpace(request.Path))
+
+        // Process directories
+        if (request.Directories?.Any() == true)
         {
-            // Parse from file
-            _logger.LogInformation("Parsing HTML from file: {Path}", request.Path);
-            parsedContent = await _htmlParserService.ParseHtmlFromFileAsync(request.Path, cancellationToken);
+            var searchOption = request.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+
+            foreach (var directory in request.Directories.Where(d => !string.IsNullOrWhiteSpace(d)))
+            {
+                if (!Directory.Exists(directory))
+                {
+                    _logger.LogWarning("Directory not found: {Directory}", directory);
+                    AppendResult(results, $"Directory: {directory}", "[Error: Directory not found]");
+                    continue;
+                }
+
+                _logger.LogInformation("Processing directory: {Directory} (pattern: {Pattern}, recursive: {Recursive})",
+                    directory, request.SearchPattern, request.Recursive);
+
+                var htmlFiles = Directory.GetFiles(directory, request.SearchPattern, searchOption);
+                _logger.LogInformation("Found {Count} HTML files in {Directory}", htmlFiles.Length, directory);
+
+                foreach (var filePath in htmlFiles)
+                {
+                    try
+                    {
+                        _logger.LogInformation("Parsing HTML from file: {Path}", filePath);
+                        var content = await _htmlParserService.ParseHtmlFromFileAsync(filePath, cancellationToken);
+                        AppendResult(results, $"File: {filePath}", content);
+                        hasContent = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to parse file: {Path}", filePath);
+                        AppendResult(results, $"File: {filePath}", $"[Error: {ex.Message}]");
+                    }
+                }
+            }
         }
-        else
+
+        // Process single file path
+        if (!string.IsNullOrWhiteSpace(request.Path))
         {
-            // Read from stdin
+            try
+            {
+                _logger.LogInformation("Parsing HTML from file: {Path}", request.Path);
+                var content = await _htmlParserService.ParseHtmlFromFileAsync(request.Path, cancellationToken);
+                AppendResult(results, $"File: {request.Path}", content);
+                hasContent = true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to parse file: {Path}", request.Path);
+                AppendResult(results, $"File: {request.Path}", $"[Error: {ex.Message}]");
+            }
+        }
+
+        // Read from stdin if no other input provided
+        if (!hasContent && results.Length == 0)
+        {
             _logger.LogInformation("Reading HTML from stdin...");
             var htmlContent = await ReadFromStdinAsync(cancellationToken);
 
             if (string.IsNullOrWhiteSpace(htmlContent))
             {
-                _logger.LogWarning("No HTML content provided. Use --url, --path, or pipe HTML content to stdin.");
-                Console.WriteLine("No HTML content provided. Use --url, --path, or pipe HTML content to stdin.");
+                _logger.LogWarning("No HTML content provided. Use --url, --urls, --path, --directories, or pipe HTML content to stdin.");
+                Console.WriteLine("No HTML content provided. Use --url, --urls, --path, --directories, or pipe HTML content to stdin.");
                 return;
             }
 
-            parsedContent = _htmlParserService.ParseHtml(htmlContent);
+            var content = _htmlParserService.ParseHtml(htmlContent);
+            AppendResult(results, "stdin", content);
         }
+
+        var finalContent = results.ToString().Trim();
 
         // Output the result
         if (!string.IsNullOrWhiteSpace(request.OutputPath))
         {
-            await File.WriteAllTextAsync(request.OutputPath, parsedContent, cancellationToken);
+            await File.WriteAllTextAsync(request.OutputPath, finalContent, cancellationToken);
             _logger.LogInformation("Parsed content written to: {OutputPath}", request.OutputPath);
             Console.WriteLine($"Parsed content written to: {request.OutputPath}");
         }
@@ -105,10 +213,24 @@ public class HtmlParseRequestHandler : IRequestHandler<HtmlParseRequest>
             Console.WriteLine();
             Console.WriteLine("=== Parsed HTML Content (LLM-Optimized) ===");
             Console.WriteLine();
-            Console.WriteLine(parsedContent);
+            Console.WriteLine(finalContent);
         }
 
         _logger.LogInformation("HTML parse command completed successfully.");
+    }
+
+    private static void AppendResult(StringBuilder builder, string source, string content)
+    {
+        if (builder.Length > 0)
+        {
+            builder.AppendLine();
+            builder.AppendLine("---");
+            builder.AppendLine();
+        }
+
+        builder.AppendLine($"## Source: {source}");
+        builder.AppendLine();
+        builder.AppendLine(content);
     }
 
     private static async Task<string> ReadFromStdinAsync(CancellationToken cancellationToken)
