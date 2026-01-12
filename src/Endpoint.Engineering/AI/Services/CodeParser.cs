@@ -105,13 +105,17 @@ public partial class CodeParser : ICodeParser
         _logger = logger;
     }
 
-    public async Task<CodeSummary> ParseDirectoryAsync(string directory, CancellationToken cancellationToken = default)
+    public async Task<CodeSummary> ParseDirectoryAsync(
+        string directory,
+        CodeParseEfficiency efficiency = CodeParseEfficiency.Medium,
+        CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Parsing directory: {Directory}", directory);
+        _logger.LogInformation("Parsing directory: {Directory} with efficiency: {Efficiency}", directory, efficiency);
 
         var summary = new CodeSummary
         {
-            RootDirectory = directory
+            RootDirectory = directory,
+            Efficiency = efficiency
         };
 
         // Build gitignore matcher with default patterns and any .gitignore files found

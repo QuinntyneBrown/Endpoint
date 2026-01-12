@@ -19,6 +19,10 @@ public class CodeParseRequest : IRequest
 
     [Option('o', "output", Required = false, HelpText = "Output file path (optional, prints to console if not specified)")]
     public string? Output { get; set; }
+
+    [Option('e', "efficiency", Required = false, Default = "medium",
+        HelpText = "Token efficiency level: low (full detail), medium (balanced), high (compact), max (minimal)")]
+    public string Efficiency { get; set; } = "medium";
 }
 
 public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
@@ -36,9 +40,11 @@ public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
 
     public async Task Handle(CodeParseRequest request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Parsing code in directory: {Directory}", request.Directory);
+        var efficiency = ParseEfficiency(request.Efficiency);
+        _logger.LogInformation("Parsing code in directory: {Directory} with efficiency: {Efficiency}",
+            request.Directory, efficiency);
 
-        var summary = await _codeParser.ParseDirectoryAsync(request.Directory, cancellationToken);
+        var summary = await _codeParser.ParseDirectoryAsync(request.Directory, efficiency, cancellationToken);
         var output = summary.ToLlmString();
 
         if (!string.IsNullOrEmpty(request.Output))
@@ -59,6 +65,19 @@ public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
             Console.WriteLine(output);
         }
 
-        _logger.LogInformation("Parsed {FileCount} files", summary.TotalFiles);
+        _logger.LogInformation("Parsed {FileCount} files with {Efficiency} efficiency ({OutputLength} chars)",
+            summary.TotalFiles, efficiency, output.Length);
+    }
+
+    private static CodeParseEfficiency ParseEfficiency(string value)
+    {
+        return value.ToLowerInvariant() switch
+        {
+            "low" or "l" or "1" => CodeParseEfficiency.Low,
+            "medium" or "med" or "m" or "2" => CodeParseEfficiency.Medium,
+            "high" or "h" or "3" => CodeParseEfficiency.High,
+            "max" or "maximum" or "x" or "4" => CodeParseEfficiency.Max,
+            _ => CodeParseEfficiency.Medium
+        };
     }
 }
