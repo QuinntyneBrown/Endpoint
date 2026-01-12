@@ -20,5 +20,3 @@ public static class ConfigureServices
         services.AddSingleton<IHtmlParserService, HtmlParserService>();
     }
 }
-
-
