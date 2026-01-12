@@ -35,6 +35,7 @@ var app = CodeGeneratorApplication.CreateBuilder()
         services.AddModernWebAppPatternCoreServices();
         services.AddAngularServices();
         services.AddRedisPubSubServices();
+        services.AddEngineeringServices();
     })
     .Build();
 
