@@ -85,7 +85,7 @@ public class ApiGatewayAddRequestHandler : IRequestHandler<ApiGatewayAddRequest>
         _logger.LogInformation("Adding API Gateway project to solution...");
 
         // Find the solution file
-        var solutionPath = _fileProvider.Get("*.sln", request.Directory);
+        var solutionPath = _fileProvider.Get("*.sln", request.Directory, 0);
 
         if (solutionPath == Endpoint.Constants.FileNotFound)
         {

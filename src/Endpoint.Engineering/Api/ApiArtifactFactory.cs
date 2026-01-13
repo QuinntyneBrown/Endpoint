@@ -154,7 +154,7 @@ public class ApiArtifactFactory : IApiArtifactFactory
                 "https://localhost:4200"
               ],
               "JwtSettings": {
-                "SecretKey": "your-secret-key-min-32-chars-long",
+                "SecretKey": "your-secret-key-min-32-chars-long-CHANGE-THIS-IN-PRODUCTION",
                 "Issuer": "YourIssuer",
                 "Audience": "YourAudience",
                 "ExpirationMinutes": 60
