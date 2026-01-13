@@ -7,7 +7,6 @@ using Endpoint.DotNet.Artifacts.Projects.Factories;
 using Endpoint.DotNet.Artifacts.Solutions;
 using Endpoint.Engineering.Microservices.Analytics;
 using Endpoint.Engineering.Microservices.Audit;
-using Endpoint.Engineering.Microservices.Backup;
 using Endpoint.Engineering.Microservices.Billing;
 using Endpoint.Engineering.Microservices.Cache;
 using Endpoint.Engineering.Microservices.Calculation;
@@ -68,7 +67,6 @@ public class MicroserviceFactory : IMicroserviceFactory
     private readonly IRateLimitingArtifactFactory rateLimitingArtifactFactory;
     private readonly ILocalizationArtifactFactory localizationArtifactFactory;
     private readonly IWorkflowArtifactFactory workflowArtifactFactory;
-    private readonly IBackupArtifactFactory backupArtifactFactory;
     private readonly IConfigurationManagementArtifactFactory configurationManagementArtifactFactory;
     private readonly ITelemetryStreamingArtifactFactory telemetryStreamingArtifactFactory;
     private readonly IHistoricalTelemetryArtifactFactory historicalTelemetryArtifactFactory;
@@ -98,7 +96,6 @@ public class MicroserviceFactory : IMicroserviceFactory
         "RateLimiting",
         "Localization",
         "Workflow",
-        "Backup",
         "ConfigurationManagement",
         "TelemetryStreaming",
         "HistoricalTelemetry"
@@ -130,7 +127,6 @@ public class MicroserviceFactory : IMicroserviceFactory
         IRateLimitingArtifactFactory rateLimitingArtifactFactory,
         ILocalizationArtifactFactory localizationArtifactFactory,
         IWorkflowArtifactFactory workflowArtifactFactory,
-        IBackupArtifactFactory backupArtifactFactory,
         IConfigurationManagementArtifactFactory configurationManagementArtifactFactory,
         ITelemetryStreamingArtifactFactory telemetryStreamingArtifactFactory,
         IHistoricalTelemetryArtifactFactory historicalTelemetryArtifactFactory)
@@ -160,7 +156,6 @@ public class MicroserviceFactory : IMicroserviceFactory
         this.rateLimitingArtifactFactory = rateLimitingArtifactFactory ?? throw new ArgumentNullException(nameof(rateLimitingArtifactFactory));
         this.localizationArtifactFactory = localizationArtifactFactory ?? throw new ArgumentNullException(nameof(localizationArtifactFactory));
         this.workflowArtifactFactory = workflowArtifactFactory ?? throw new ArgumentNullException(nameof(workflowArtifactFactory));
-        this.backupArtifactFactory = backupArtifactFactory ?? throw new ArgumentNullException(nameof(backupArtifactFactory));
         this.configurationManagementArtifactFactory = configurationManagementArtifactFactory ?? throw new ArgumentNullException(nameof(configurationManagementArtifactFactory));
         this.telemetryStreamingArtifactFactory = telemetryStreamingArtifactFactory ?? throw new ArgumentNullException(nameof(telemetryStreamingArtifactFactory));
         this.historicalTelemetryArtifactFactory = historicalTelemetryArtifactFactory ?? throw new ArgumentNullException(nameof(historicalTelemetryArtifactFactory));
@@ -195,7 +190,6 @@ public class MicroserviceFactory : IMicroserviceFactory
             "ratelimiting" => await CreateRateLimitingMicroserviceAsync(directory, cancellationToken),
             "localization" => await CreateLocalizationMicroserviceAsync(directory, cancellationToken),
             "workflow" => await CreateWorkflowMicroserviceAsync(directory, cancellationToken),
-            "backup" => await CreateBackupMicroserviceAsync(directory, cancellationToken),
             "configurationmanagement" => await CreateConfigurationManagementMicroserviceAsync(directory, cancellationToken),
             "telemetrystreaming" => await CreateTelemetryStreamingMicroserviceAsync(directory, cancellationToken),
             "historicaltelemetry" => await CreateHistoricalTelemetryMicroserviceAsync(directory, cancellationToken),
@@ -835,34 +829,6 @@ public class MicroserviceFactory : IMicroserviceFactory
         workflowArtifactFactory.AddCoreFiles(coreProject);
         workflowArtifactFactory.AddInfrastructureFiles(infrastructureProject, "Workflow");
         workflowArtifactFactory.AddApiFiles(apiProject, "Workflow");
-
-        solutionModel.Projects.Add(coreProject);
-        solutionModel.Projects.Add(infrastructureProject);
-        solutionModel.Projects.Add(apiProject);
-
-        solutionModel.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
-        solutionModel.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
-
-        return solutionModel;
-    }
-
-    public async Task<SolutionModel> CreateBackupMicroserviceAsync(string directory, CancellationToken cancellationToken = default)
-    {
-        logger.LogInformation("Creating Backup microservice with full implementation");
-
-        var solutionModel = new SolutionModel("Backup", directory);
-
-        var coreProject = await CreateCoreProjectAsync("Backup", solutionModel.SrcDirectory, new[]
-        {
-            new PackageModel("Azure.Storage.Blobs", "12.19.0"),
-            new PackageModel("SharpZipLib", "1.4.2")
-        });
-        var infrastructureProject = await CreateInfrastructureProjectAsync("Backup", solutionModel.SrcDirectory);
-        var apiProject = await CreateApiProjectAsync("Backup", solutionModel.SrcDirectory);
-
-        backupArtifactFactory.AddCoreFiles(coreProject);
-        backupArtifactFactory.AddInfrastructureFiles(infrastructureProject, "Backup");
-        backupArtifactFactory.AddApiFiles(apiProject, "Backup");
 
         solutionModel.Projects.Add(coreProject);
         solutionModel.Projects.Add(infrastructureProject);

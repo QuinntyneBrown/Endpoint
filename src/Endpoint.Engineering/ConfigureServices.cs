@@ -5,7 +5,6 @@ using Endpoint.Engineering.AI.Services;
 using Endpoint.Engineering.Microservices;
 using Endpoint.Engineering.Microservices.Analytics;
 using Endpoint.Engineering.Microservices.Audit;
-using Endpoint.Engineering.Microservices.Backup;
 using Endpoint.Engineering.Microservices.Billing;
 using Endpoint.Engineering.Microservices.Cache;
 using Endpoint.Engineering.Microservices.Calculation;
@@ -71,7 +70,6 @@ public static class ConfigureServices
         services.AddSingleton<IRateLimitingArtifactFactory, RateLimitingArtifactFactory>();
         services.AddSingleton<ILocalizationArtifactFactory, LocalizationArtifactFactory>();
         services.AddSingleton<IWorkflowArtifactFactory, WorkflowArtifactFactory>();
-        services.AddSingleton<IBackupArtifactFactory, BackupArtifactFactory>();
         services.AddSingleton<IConfigurationManagementArtifactFactory, ConfigurationManagementArtifactFactory>();
         services.AddSingleton<ITelemetryStreamingArtifactFactory, TelemetryStreamingArtifactFactory>();
         services.AddSingleton<IHistoricalTelemetryArtifactFactory, HistoricalTelemetryArtifactFactory>();
