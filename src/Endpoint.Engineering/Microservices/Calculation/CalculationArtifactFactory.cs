@@ -2,11 +2,23 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Constructors;
+using Endpoint.DotNet.Syntax.Expressions;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
+using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Engineering.Microservices.Calculation;
+
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 public class CalculationArtifactFactory : ICalculationArtifactFactory
 {
@@ -26,7 +38,53 @@ public class CalculationArtifactFactory : ICalculationArtifactFactory
         var dtosDir = Path.Combine(project.Directory, "DTOs");
 
         // Entities
-        project.Files.Add(new FileModel("Calculation", entitiesDir, CSharp)
+        project.Files.Add(CreateCalculationFile(entitiesDir));
+        project.Files.Add(CreateFormulaFile(entitiesDir));
+        project.Files.Add(CreateScenarioFile(entitiesDir));
+        project.Files.Add(CreateCalculationHistoryFile(entitiesDir));
+
+        // Interfaces
+        project.Files.Add(CreateICalculationRepositoryFile(interfacesDir));
+        project.Files.Add(CreateIFormulaEngineFile(interfacesDir));
+        project.Files.Add(CreateISimulationServiceFile(interfacesDir));
+
+        // Events
+        project.Files.Add(CreateCalculationCompletedEventFile(eventsDir));
+        project.Files.Add(CreateScenarioCreatedEventFile(eventsDir));
+
+        // DTOs
+        project.Files.Add(CreateCalculationDtoFile(dtosDir));
+        project.Files.Add(CreateComputeCalculationRequestFile(dtosDir));
+        project.Files.Add(CreateCreateScenarioRequestFile(dtosDir));
+    }
+
+    public void AddInfrastructureFiles(ProjectModel project, string microserviceName)
+    {
+        logger.LogInformation("Adding Calculation.Infrastructure files");
+        var dataDir = Path.Combine(project.Directory, "Data");
+        var repositoriesDir = Path.Combine(project.Directory, "Repositories");
+
+        project.Files.Add(CreateCalculationDbContextFile(dataDir));
+        project.Files.Add(CreateCalculationRepositoryFile(repositoriesDir));
+        project.Files.Add(CreateConfigureServicesFile(project.Directory));
+    }
+
+    public void AddApiFiles(ProjectModel project, string microserviceName)
+    {
+        logger.LogInformation("Adding Calculation.Api files");
+        var controllersDir = Path.Combine(project.Directory, "Controllers");
+
+        project.Files.Add(CreateCalculationsControllerFile(controllersDir));
+        project.Files.Add(CreateProgramFile(project.Directory));
+        project.Files.Add(CreateAppSettingsFile(project.Directory));
+    }
+
+    #region Core Layer Files - Entities
+
+    // Keep as FileModel because it contains enum CalculationStatus
+    private static FileModel CreateCalculationFile(string directory)
+    {
+        return new FileModel("Calculation", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -50,30 +108,31 @@ public class CalculationArtifactFactory : ICalculationArtifactFactory
 
                 public enum CalculationStatus { Pending, Running, Completed, Failed }
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("Formula", entitiesDir, CSharp)
+    private static CodeFileModel<ClassModel> CreateFormulaFile(string directory)
+    {
+        var classModel = new ClassModel("Formula");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "FormulaId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Expression", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("ICollection") { GenericTypeParameters = [new TypeModel("Calculation")] }, "Calculations", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<Calculation>()" });
+
+        return new CodeFileModel<ClassModel>(classModel, "Formula", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "Calculation.Core.Entities"
+        };
+    }
 
-                namespace Calculation.Core.Entities;
-
-                public class Formula
-                {
-                    public Guid FormulaId { get; set; }
-                    public required string Name { get; set; }
-                    public required string Expression { get; set; }
-                    public string? Description { get; set; }
-                    public bool IsActive { get; set; } = true;
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                    public ICollection<Calculation> Calculations { get; set; } = new List<Calculation>();
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("Scenario", entitiesDir, CSharp)
+    // Keep as FileModel because it contains enum ScenarioType
+    private static FileModel CreateScenarioFile(string directory)
+    {
+        return new FileModel("Scenario", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -94,150 +153,260 @@ public class CalculationArtifactFactory : ICalculationArtifactFactory
 
                 public enum ScenarioType { Standard, Simulation, WhatIf }
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("CalculationHistory", entitiesDir, CSharp)
+    private static CodeFileModel<ClassModel> CreateCalculationHistoryFile(string directory)
+    {
+        var classModel = new ClassModel("CalculationHistory");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "HistoryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "CalculationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Calculation"), "Calculation", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "null!" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "InputValues", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("decimal") { Nullable = true }, "OutputValue", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Status", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "ErrorMessage", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "ExecutedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "CalculationHistory", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "Calculation.Core.Entities"
+        };
+    }
 
-                namespace Calculation.Core.Entities;
+    #endregion
 
-                public class CalculationHistory
-                {
-                    public Guid HistoryId { get; set; }
-                    public Guid CalculationId { get; set; }
-                    public Calculation Calculation { get; set; } = null!;
-                    public required string InputValues { get; set; }
-                    public decimal? OutputValue { get; set; }
-                    public required string Status { get; set; }
-                    public string? ErrorMessage { get; set; }
-                    public DateTime ExecutedAt { get; set; } = DateTime.UtcNow;
-                }
-                """
-        });
+    #region Core Layer Files - Interfaces
 
-        // Interfaces
-        project.Files.Add(new FileModel("ICalculationRepository", interfacesDir, CSharp)
+    private static CodeFileModel<InterfaceModel> CreateICalculationRepositoryFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("ICalculationRepository");
+
+        interfaceModel.Usings.Add(new UsingModel("Calculation.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Calculation.Core.Entities;
-
-                namespace Calculation.Core.Interfaces;
-
-                public interface ICalculationRepository
-                {
-                    Task<Entities.Calculation?> GetByIdAsync(Guid calculationId, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<Entities.Calculation>> GetAllAsync(CancellationToken cancellationToken = default);
-                    Task<Entities.Calculation> AddAsync(Entities.Calculation calculation, CancellationToken cancellationToken = default);
-                    Task UpdateAsync(Entities.Calculation calculation, CancellationToken cancellationToken = default);
-                    Task DeleteAsync(Guid calculationId, CancellationToken cancellationToken = default);
-                }
-                """
+            Name = "GetByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Entities.Calculation") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "calculationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("IFormulaEngine", interfacesDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Calculation.Core.Entities;
-
-                namespace Calculation.Core.Interfaces;
-
-                public interface IFormulaEngine
-                {
-                    Task<decimal> EvaluateAsync(Formula formula, IDictionary<string, decimal> variables, CancellationToken cancellationToken = default);
-                    Task<bool> ValidateExpressionAsync(string expression, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<string>> ExtractVariablesAsync(string expression, CancellationToken cancellationToken = default);
-                }
-                """
+            Name = "GetAllAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Entities.Calculation")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("ISimulationService", interfacesDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Calculation.Core.Entities;
-
-                namespace Calculation.Core.Interfaces;
-
-                public interface ISimulationService
-                {
-                    Task<Scenario> CreateScenarioAsync(string name, string inputParameters, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<Entities.Calculation>> RunScenarioAsync(Guid scenarioId, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<Scenario>> GetScenariosAsync(CancellationToken cancellationToken = default);
-                }
-                """
+            Name = "AddAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Entities.Calculation")] },
+            Params =
+            [
+                new ParamModel { Name = "calculation", Type = new TypeModel("Entities.Calculation") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        // Events
-        project.Files.Add(new FileModel("CalculationCompletedEvent", eventsDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Calculation.Core.Events;
-
-                public sealed class CalculationCompletedEvent
-                {
-                    public Guid CalculationId { get; init; }
-                    public decimal? Result { get; init; }
-                    public required string Status { get; init; }
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
+            Name = "UpdateAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "calculation", Type = new TypeModel("Entities.Calculation") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("ScenarioCreatedEvent", eventsDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Calculation.Core.Events;
-
-                public sealed class ScenarioCreatedEvent
-                {
-                    public Guid ScenarioId { get; init; }
-                    public required string Name { get; init; }
-                    public required string ScenarioType { get; init; }
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
+            Name = "DeleteAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "calculationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        // DTOs
-        project.Files.Add(new FileModel("CalculationDto", dtosDir, CSharp)
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ICalculationRepository", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "Calculation.Core.Interfaces"
+        };
+    }
 
-                namespace Calculation.Core.DTOs;
+    private static CodeFileModel<InterfaceModel> CreateIFormulaEngineFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("IFormulaEngine");
 
-                public sealed class CalculationDto
-                {
-                    public Guid CalculationId { get; init; }
-                    public required string Name { get; init; }
-                    public string? Description { get; init; }
-                    public string Status { get; init; } = "Pending";
-                    public decimal? Result { get; init; }
-                    public DateTime CreatedAt { get; init; }
-                    public DateTime? CompletedAt { get; init; }
-                }
-                """
+        interfaceModel.Usings.Add(new UsingModel("Calculation.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "EvaluateAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("decimal")] },
+            Params =
+            [
+                new ParamModel { Name = "formula", Type = new TypeModel("Formula") },
+                new ParamModel { Name = "variables", Type = new TypeModel("IDictionary") { GenericTypeParameters = [new TypeModel("string"), new TypeModel("decimal")] } },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("ComputeCalculationRequest", dtosDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "ValidateExpressionAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("bool")] },
+            Params =
+            [
+                new ParamModel { Name = "expression", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "ExtractVariablesAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("string")] }] },
+            Params =
+            [
+                new ParamModel { Name = "expression", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IFormulaEngine", directory, CSharp)
+        {
+            Namespace = "Calculation.Core.Interfaces"
+        };
+    }
+
+    private static CodeFileModel<InterfaceModel> CreateISimulationServiceFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("ISimulationService");
+
+        interfaceModel.Usings.Add(new UsingModel("Calculation.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "CreateScenarioAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Scenario")] },
+            Params =
+            [
+                new ParamModel { Name = "name", Type = new TypeModel("string") },
+                new ParamModel { Name = "inputParameters", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "RunScenarioAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Entities.Calculation")] }] },
+            Params =
+            [
+                new ParamModel { Name = "scenarioId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetScenariosAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Scenario")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ISimulationService", directory, CSharp)
+        {
+            Namespace = "Calculation.Core.Interfaces"
+        };
+    }
+
+    #endregion
+
+    #region Core Layer Files - Events
+
+    private static CodeFileModel<ClassModel> CreateCalculationCompletedEventFile(string directory)
+    {
+        var classModel = new ClassModel("CalculationCompletedEvent");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "CalculationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("decimal") { Nullable = true }, "Result", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Status", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "CalculationCompletedEvent", directory, CSharp)
+        {
+            Namespace = "Calculation.Core.Events"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateScenarioCreatedEventFile(string directory)
+    {
+        var classModel = new ClassModel("ScenarioCreatedEvent");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "ScenarioId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ScenarioType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "ScenarioCreatedEvent", directory, CSharp)
+        {
+            Namespace = "Calculation.Core.Events"
+        };
+    }
+
+    #endregion
+
+    #region Core Layer Files - DTOs
+
+    private static CodeFileModel<ClassModel> CreateCalculationDtoFile(string directory)
+    {
+        var classModel = new ClassModel("CalculationDto");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "CalculationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Status", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "\"Pending\"" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("decimal") { Nullable = true }, "Result", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "CompletedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "CalculationDto", directory, CSharp)
+        {
+            Namespace = "Calculation.Core.DTOs"
+        };
+    }
+
+    // Keep as FileModel due to [Required] data annotation attributes
+    private static FileModel CreateComputeCalculationRequestFile(string directory)
+    {
+        return new FileModel("ComputeCalculationRequest", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -259,9 +428,13 @@ public class CalculationArtifactFactory : ICalculationArtifactFactory
                     public required IDictionary<string, decimal> Variables { get; init; }
                 }
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("CreateScenarioRequest", dtosDir, CSharp)
+    // Keep as FileModel due to [Required] data annotation attributes
+    private static FileModel CreateCreateScenarioRequestFile(string directory)
+    {
+        return new FileModel("CreateScenarioRequest", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -284,16 +457,17 @@ public class CalculationArtifactFactory : ICalculationArtifactFactory
                     public string Type { get; init; } = "Standard";
                 }
                 """
-        });
+        };
     }
 
-    public void AddInfrastructureFiles(ProjectModel project, string microserviceName)
-    {
-        logger.LogInformation("Adding Calculation.Infrastructure files");
-        var dataDir = Path.Combine(project.Directory, "Data");
-        var repositoriesDir = Path.Combine(project.Directory, "Repositories");
+    #endregion
 
-        project.Files.Add(new FileModel("CalculationDbContext", dataDir, CSharp)
+    #region Infrastructure Layer Files
+
+    // Keep as FileModel due to complex OnModelCreating configuration
+    private static FileModel CreateCalculationDbContextFile(string directory)
+    {
+        return new FileModel("CalculationDbContext", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -344,172 +518,277 @@ public class CalculationArtifactFactory : ICalculationArtifactFactory
                     }
                 }
                 """
-        });
-
-        project.Files.Add(new FileModel("CalculationRepository", repositoriesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Calculation.Core.Interfaces;
-                using Calculation.Infrastructure.Data;
-
-                namespace Calculation.Infrastructure.Repositories;
-
-                public class CalculationRepository : ICalculationRepository
-                {
-                    private readonly CalculationDbContext context;
-
-                    public CalculationRepository(CalculationDbContext context)
-                    {
-                        this.context = context;
-                    }
-
-                    public async Task<Core.Entities.Calculation?> GetByIdAsync(Guid calculationId, CancellationToken cancellationToken = default)
-                        => await context.Calculations.Include(c => c.Formula).Include(c => c.History).FirstOrDefaultAsync(c => c.CalculationId == calculationId, cancellationToken);
-
-                    public async Task<IEnumerable<Core.Entities.Calculation>> GetAllAsync(CancellationToken cancellationToken = default)
-                        => await context.Calculations.Include(c => c.Formula).ToListAsync(cancellationToken);
-
-                    public async Task<Core.Entities.Calculation> AddAsync(Core.Entities.Calculation calculation, CancellationToken cancellationToken = default)
-                    {
-                        calculation.CalculationId = Guid.NewGuid();
-                        await context.Calculations.AddAsync(calculation, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-                        return calculation;
-                    }
-
-                    public async Task UpdateAsync(Core.Entities.Calculation calculation, CancellationToken cancellationToken = default)
-                    {
-                        context.Calculations.Update(calculation);
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
-
-                    public async Task DeleteAsync(Guid calculationId, CancellationToken cancellationToken = default)
-                    {
-                        var calculation = await context.Calculations.FindAsync(new object[] { calculationId }, cancellationToken);
-                        if (calculation != null)
-                        {
-                            context.Calculations.Remove(calculation);
-                            await context.SaveChangesAsync(cancellationToken);
-                        }
-                    }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("ConfigureServices", project.Directory, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Configuration;
-                using Calculation.Core.Interfaces;
-                using Calculation.Infrastructure.Data;
-                using Calculation.Infrastructure.Repositories;
-
-                namespace Microsoft.Extensions.DependencyInjection;
-
-                public static class ConfigureServices
-                {
-                    public static IServiceCollection AddCalculationInfrastructure(this IServiceCollection services, IConfiguration configuration)
-                    {
-                        services.AddDbContext<CalculationDbContext>(options =>
-                            options.UseSqlServer(configuration.GetConnectionString("CalculationDb") ??
-                                @"Server=.\SQLEXPRESS;Database=CalculationDb;Trusted_Connection=True;TrustServerCertificate=True"));
-
-                        services.AddScoped<ICalculationRepository, CalculationRepository>();
-                        return services;
-                    }
-                }
-                """
-        });
+        };
     }
 
-    public void AddApiFiles(ProjectModel project, string microserviceName)
+    private static CodeFileModel<ClassModel> CreateCalculationRepositoryFile(string directory)
     {
-        logger.LogInformation("Adding Calculation.Api files");
-        var controllersDir = Path.Combine(project.Directory, "Controllers");
+        var classModel = new ClassModel("CalculationRepository");
 
-        project.Files.Add(new FileModel("CalculationsController", controllersDir, CSharp)
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Calculation.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Calculation.Infrastructure.Data"));
+
+        classModel.Implements.Add(new TypeModel("ICalculationRepository"));
+
+        classModel.Fields.Add(new FieldModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.AspNetCore.Mvc;
-                using Calculation.Core.DTOs;
-                using Calculation.Core.Interfaces;
-
-                namespace Calculation.Api.Controllers;
-
-                [ApiController]
-                [Route("api/[controller]")]
-                public class CalculationsController : ControllerBase
-                {
-                    private readonly ICalculationRepository repository;
-                    private readonly IFormulaEngine formulaEngine;
-                    private readonly ISimulationService simulationService;
-
-                    public CalculationsController(ICalculationRepository repository, IFormulaEngine formulaEngine, ISimulationService simulationService)
-                    {
-                        this.repository = repository;
-                        this.formulaEngine = formulaEngine;
-                        this.simulationService = simulationService;
-                    }
-
-                    [HttpPost("compute")]
-                    public async Task<ActionResult<CalculationDto>> Compute([FromBody] ComputeCalculationRequest request, CancellationToken cancellationToken)
-                    {
-                        var calculation = new Core.Entities.Calculation
-                        {
-                            Name = request.Name,
-                            FormulaId = request.FormulaId,
-                            Status = Core.Entities.CalculationStatus.Running
-                        };
-
-                        var created = await repository.AddAsync(calculation, cancellationToken);
-                        return CreatedAtAction(nameof(GetById), new { id = created.CalculationId }, new CalculationDto
-                        {
-                            CalculationId = created.CalculationId,
-                            Name = created.Name,
-                            Status = created.Status.ToString(),
-                            CreatedAt = created.CreatedAt
-                        });
-                    }
-
-                    [HttpGet("{id:guid}")]
-                    public async Task<ActionResult<CalculationDto>> GetById(Guid id, CancellationToken cancellationToken)
-                    {
-                        var calculation = await repository.GetByIdAsync(id, cancellationToken);
-                        if (calculation == null) return NotFound();
-                        return Ok(new CalculationDto
-                        {
-                            CalculationId = calculation.CalculationId,
-                            Name = calculation.Name,
-                            Description = calculation.Description,
-                            Status = calculation.Status.ToString(),
-                            Result = calculation.Result,
-                            CreatedAt = calculation.CreatedAt,
-                            CompletedAt = calculation.CompletedAt
-                        });
-                    }
-
-                    [HttpPost("scenarios")]
-                    public async Task<ActionResult> CreateScenario([FromBody] CreateScenarioRequest request, CancellationToken cancellationToken)
-                    {
-                        var scenario = await simulationService.CreateScenarioAsync(request.Name, request.InputParameters, cancellationToken);
-                        return CreatedAtAction(nameof(GetById), new { id = scenario.ScenarioId }, scenario);
-                    }
-                }
-                """
+            Name = "context",
+            Type = new TypeModel("CalculationDbContext"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
         });
 
-        project.Files.Add(new FileModel("Program", project.Directory, CSharp)
+        var constructor = new ConstructorModel(classModel, "CalculationRepository")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "context", Type = new TypeModel("CalculationDbContext") }],
+            Body = new ExpressionModel("this.context = context;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Core.Entities.Calculation") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "calculationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Calculations.Include(c => c.Formula).Include(c => c.History).FirstOrDefaultAsync(c => c.CalculationId == calculationId, cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Core.Entities.Calculation")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Calculations.Include(c => c.Formula).ToListAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Core.Entities.Calculation")] },
+            Params =
+            [
+                new ParamModel { Name = "calculation", Type = new TypeModel("Core.Entities.Calculation") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"calculation.CalculationId = Guid.NewGuid();
+        await context.Calculations.AddAsync(calculation, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return calculation;")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "calculation", Type = new TypeModel("Core.Entities.Calculation") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"context.Calculations.Update(calculation);
+        await context.SaveChangesAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "calculationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var calculation = await context.Calculations.FindAsync(new object[] { calculationId }, cancellationToken);
+        if (calculation != null)
+        {
+            context.Calculations.Remove(calculation);
+            await context.SaveChangesAsync(cancellationToken);
+        }")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "CalculationRepository", directory, CSharp)
+        {
+            Namespace = "Calculation.Infrastructure.Repositories"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateConfigureServicesFile(string directory)
+    {
+        var classModel = new ClassModel("ConfigureServices")
+        {
+            Static = true
+        };
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
+        classModel.Usings.Add(new UsingModel("Calculation.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Calculation.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Calculation.Infrastructure.Repositories"));
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddCalculationInfrastructure",
+            AccessModifier = AccessModifier.Public,
+            Static = true,
+            ReturnType = new TypeModel("IServiceCollection"),
+            Params =
+            [
+                new ParamModel { Name = "services", Type = new TypeModel("IServiceCollection"), ExtensionMethodParam = true },
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") }
+            ],
+            Body = new ExpressionModel(@"services.AddDbContext<CalculationDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString(""CalculationDb"") ??
+                @""Server=.\SQLEXPRESS;Database=CalculationDb;Trusted_Connection=True;TrustServerCertificate=True""));
+
+        services.AddScoped<ICalculationRepository, CalculationRepository>();
+        return services;")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "ConfigureServices", directory, CSharp)
+        {
+            Namespace = "Microsoft.Extensions.DependencyInjection"
+        };
+    }
+
+    #endregion
+
+    #region API Layer Files
+
+    private static CodeFileModel<ClassModel> CreateCalculationsControllerFile(string directory)
+    {
+        var classModel = new ClassModel("CalculationsController");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Mvc"));
+        classModel.Usings.Add(new UsingModel("Calculation.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Calculation.Core.Interfaces"));
+
+        classModel.Implements.Add(new TypeModel("ControllerBase"));
+
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ApiController" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Route", Template = "\"api/[controller]\"" });
+
+        classModel.Fields.Add(new FieldModel { Name = "repository", Type = new TypeModel("ICalculationRepository"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "formulaEngine", Type = new TypeModel("IFormulaEngine"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "simulationService", Type = new TypeModel("ISimulationService"), AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "CalculationsController")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "repository", Type = new TypeModel("ICalculationRepository") },
+                new ParamModel { Name = "formulaEngine", Type = new TypeModel("IFormulaEngine") },
+                new ParamModel { Name = "simulationService", Type = new TypeModel("ISimulationService") }
+            ],
+            Body = new ExpressionModel(@"this.repository = repository;
+        this.formulaEngine = formulaEngine;
+        this.simulationService = simulationService;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        var computeMethod = new MethodModel
+        {
+            Name = "Compute",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("CalculationDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("ComputeCalculationRequest"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var calculation = new Core.Entities.Calculation
+        {
+            Name = request.Name,
+            FormulaId = request.FormulaId,
+            Status = Core.Entities.CalculationStatus.Running
+        };
+
+        var created = await repository.AddAsync(calculation, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = created.CalculationId }, new CalculationDto
+        {
+            CalculationId = created.CalculationId,
+            Name = created.Name,
+            Status = created.Status.ToString(),
+            CreatedAt = created.CreatedAt
+        });")
+        };
+        computeMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost", Template = "\"compute\"" });
+        classModel.Methods.Add(computeMethod);
+
+        var getByIdMethod = new MethodModel
+        {
+            Name = "GetById",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("CalculationDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "id", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var calculation = await repository.GetByIdAsync(id, cancellationToken);
+        if (calculation == null) return NotFound();
+        return Ok(new CalculationDto
+        {
+            CalculationId = calculation.CalculationId,
+            Name = calculation.Name,
+            Description = calculation.Description,
+            Status = calculation.Status.ToString(),
+            Result = calculation.Result,
+            CreatedAt = calculation.CreatedAt,
+            CompletedAt = calculation.CompletedAt
+        });")
+        };
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"{id:guid}\"" });
+        classModel.Methods.Add(getByIdMethod);
+
+        var createScenarioMethod = new MethodModel
+        {
+            Name = "CreateScenario",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateScenarioRequest"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var scenario = await simulationService.CreateScenarioAsync(request.Name, request.InputParameters, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = scenario.ScenarioId }, scenario);")
+        };
+        createScenarioMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost", Template = "\"scenarios\"" });
+        classModel.Methods.Add(createScenarioMethod);
+
+        return new CodeFileModel<ClassModel>(classModel, "CalculationsController", directory, CSharp)
+        {
+            Namespace = "Calculation.Api.Controllers"
+        };
+    }
+
+    // Keep as FileModel due to top-level statements
+    private static FileModel CreateProgramFile(string directory)
+    {
+        return new FileModel("Program", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -536,9 +815,13 @@ public class CalculationArtifactFactory : ICalculationArtifactFactory
                 app.MapHealthChecks("/health");
                 app.Run();
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("appsettings", project.Directory, ".json")
+    // Keep as FileModel for JSON format
+    private static FileModel CreateAppSettingsFile(string directory)
+    {
+        return new FileModel("appsettings", directory, ".json")
         {
             Body = """
                 {
@@ -553,6 +836,8 @@ public class CalculationArtifactFactory : ICalculationArtifactFactory
                   "AllowedHosts": "*"
                 }
                 """
-        });
+        };
     }
+
+    #endregion
 }

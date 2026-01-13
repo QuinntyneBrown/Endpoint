@@ -2,11 +2,23 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Constructors;
+using Endpoint.DotNet.Syntax.Expressions;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
+using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Engineering.Microservices.Analytics;
+
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 /// <summary>
 /// Factory for creating Analytics microservice artifacts according to analytics-microservice.spec.md.
@@ -103,98 +115,61 @@ public class AnalyticsArtifactFactory : IAnalyticsArtifactFactory
 
     #region Core Layer Files
 
-    private static FileModel CreateIAggregateRootFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIAggregateRootFile(string directory)
     {
-        return new FileModel("IAggregateRoot", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IAggregateRoot");
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IAggregateRoot", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Analytics.Core.Entities;
-
-                /// <summary>
-                /// Marker interface for aggregate roots.
-                /// </summary>
-                public interface IAggregateRoot
-                {
-                }
-                """
+            Namespace = "Analytics.Core.Entities"
         };
     }
 
-    private static FileModel CreateEventEntityFile(string directory)
+    private static CodeFileModel<ClassModel> CreateEventEntityFile(string directory)
     {
-        return new FileModel("Event", directory, CSharp)
+        var classModel = new ClassModel("Event");
+
+        classModel.Implements.Add(new TypeModel("IAggregateRoot"));
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EventId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EventType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Source", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "SessionId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Dictionary") { Nullable = true, GenericTypeParameters = [new TypeModel("string"), new TypeModel("object")] }, "Properties", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "Timestamp", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "Event", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Analytics.Core.Entities;
-
-                /// <summary>
-                /// Event entity representing a tracked analytics event.
-                /// </summary>
-                public class Event : IAggregateRoot
-                {
-                    public Guid EventId { get; set; }
-
-                    public required string EventType { get; set; }
-
-                    public required string Source { get; set; }
-
-                    public string? UserId { get; set; }
-
-                    public string? SessionId { get; set; }
-
-                    public Dictionary<string, object>? Properties { get; set; }
-
-                    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                }
-                """
+            Namespace = "Analytics.Core.Entities"
         };
     }
 
-    private static FileModel CreateMetricEntityFile(string directory)
+    private static CodeFileModel<ClassModel> CreateMetricEntityFile(string directory)
     {
-        return new FileModel("Metric", directory, CSharp)
+        var classModel = new ClassModel("Metric");
+
+        classModel.Implements.Add(new TypeModel("IAggregateRoot"));
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "MetricId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Category", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Value", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Unit", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Dictionary") { Nullable = true, GenericTypeParameters = [new TypeModel("string"), new TypeModel("string")] }, "Tags", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "Timestamp", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "Metric", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Analytics.Core.Entities;
-
-                /// <summary>
-                /// Metric entity representing a measured analytics metric.
-                /// </summary>
-                public class Metric : IAggregateRoot
-                {
-                    public Guid MetricId { get; set; }
-
-                    public required string Name { get; set; }
-
-                    public required string Category { get; set; }
-
-                    public double Value { get; set; }
-
-                    public string? Unit { get; set; }
-
-                    public Dictionary<string, string>? Tags { get; set; }
-
-                    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                }
-                """
+            Namespace = "Analytics.Core.Entities"
         };
     }
 
     private static FileModel CreateReportEntityFile(string directory)
     {
+        // Keep as FileModel - contains enum which can't be expressed with syntax models
         return new FileModel("Report", directory, CSharp)
         {
             Body = """
@@ -245,358 +220,486 @@ public class AnalyticsArtifactFactory : IAnalyticsArtifactFactory
         };
     }
 
-    private static FileModel CreateIDomainEventFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIDomainEventFile(string directory)
     {
-        return new FileModel("IDomainEvent", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IDomainEvent");
+
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("Guid"), "AggregateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("string"), "AggregateType", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("string"), "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IDomainEvent", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Analytics.Core.Interfaces;
-
-                /// <summary>
-                /// Interface for domain events.
-                /// </summary>
-                public interface IDomainEvent
-                {
-                    Guid AggregateId { get; }
-
-                    string AggregateType { get; }
-
-                    DateTime OccurredAt { get; }
-
-                    string CorrelationId { get; }
-                }
-                """
+            Namespace = "Analytics.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateIEventRepositoryFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIEventRepositoryFile(string directory)
     {
-        return new FileModel("IEventRepository", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IEventRepository");
+
+        interfaceModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "GetByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Event") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "eventId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                using Analytics.Core.Entities;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByTypeAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Event")] }] },
+            Params =
+            [
+                new ParamModel { Name = "eventType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                namespace Analytics.Core.Interfaces;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByDateRangeAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Event")] }] },
+            Params =
+            [
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                /// <summary>
-                /// Repository interface for Event entities.
-                /// </summary>
-                public interface IEventRepository
-                {
-                    Task<Event?> GetByIdAsync(Guid eventId, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByUserIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Event")] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Event>> GetByTypeAsync(string eventType, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Event")] }] },
+            Params =
+            [
+                new ParamModel { Name = "skip", Type = new TypeModel("int"), DefaultValue = "0" },
+                new ParamModel { Name = "take", Type = new TypeModel("int"), DefaultValue = "100" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Event>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Event")] },
+            Params =
+            [
+                new ParamModel { Name = "analyticsEvent", Type = new TypeModel("Event") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Event>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "AddBatchAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "events", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Event")] } },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Event>> GetAllAsync(int skip = 0, int take = 100, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetCountAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("long")] },
+            Params =
+            [
+                new ParamModel { Name = "eventType", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<Event> AddAsync(Event analyticsEvent, CancellationToken cancellationToken = default);
-
-                    Task AddBatchAsync(IEnumerable<Event> events, CancellationToken cancellationToken = default);
-
-                    Task<long> GetCountAsync(string? eventType = null, CancellationToken cancellationToken = default);
-                }
-                """
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IEventRepository", directory, CSharp)
+        {
+            Namespace = "Analytics.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateIMetricsServiceFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIMetricsServiceFile(string directory)
     {
-        return new FileModel("IMetricsService", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IMetricsService");
+
+        interfaceModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "RecordMetricAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Metric")] },
+            Params =
+            [
+                new ParamModel { Name = "metric", Type = new TypeModel("Metric") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                using Analytics.Core.Entities;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetMetricsByNameAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Metric")] }] },
+            Params =
+            [
+                new ParamModel { Name = "name", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                namespace Analytics.Core.Interfaces;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetMetricsByCategoryAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Metric")] }] },
+            Params =
+            [
+                new ParamModel { Name = "category", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                /// <summary>
-                /// Service interface for metrics operations.
-                /// </summary>
-                public interface IMetricsService
-                {
-                    Task<Metric> RecordMetricAsync(Metric metric, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetMetricsByDateRangeAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Metric")] }] },
+            Params =
+            [
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Metric>> GetMetricsByNameAsync(string name, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAverageAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("double")] },
+            Params =
+            [
+                new ParamModel { Name = "metricName", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Metric>> GetMetricsByCategoryAsync(string category, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetSumAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("double")] },
+            Params =
+            [
+                new ParamModel { Name = "metricName", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Metric>> GetMetricsByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetMinAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("double")] },
+            Params =
+            [
+                new ParamModel { Name = "metricName", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<double> GetAverageAsync(string metricName, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetMaxAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("double")] },
+            Params =
+            [
+                new ParamModel { Name = "metricName", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<double> GetSumAsync(string metricName, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "CheckThresholdsAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<double> GetMinAsync(string metricName, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
-
-                    Task<double> GetMaxAsync(string metricName, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
-
-                    Task CheckThresholdsAsync(CancellationToken cancellationToken = default);
-                }
-                """
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IMetricsService", directory, CSharp)
+        {
+            Namespace = "Analytics.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateIReportGeneratorFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIReportGeneratorFile(string directory)
     {
-        return new FileModel("IReportGenerator", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IReportGenerator");
+
+        interfaceModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "GenerateReportAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Report")] },
+            Params =
+            [
+                new ParamModel { Name = "name", Type = new TypeModel("string") },
+                new ParamModel { Name = "reportType", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "generatedBy", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                using Analytics.Core.Entities;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetReportByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Report") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "reportId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                namespace Analytics.Core.Interfaces;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetReportsByTypeAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Report")] }] },
+            Params =
+            [
+                new ParamModel { Name = "reportType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                /// <summary>
-                /// Service interface for report generation.
-                /// </summary>
-                public interface IReportGenerator
-                {
-                    Task<Report> GenerateReportAsync(string name, string reportType, DateTime startDate, DateTime endDate, string? generatedBy = null, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllReportsAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Report")] }] },
+            Params =
+            [
+                new ParamModel { Name = "skip", Type = new TypeModel("int"), DefaultValue = "0" },
+                new ParamModel { Name = "take", Type = new TypeModel("int"), DefaultValue = "100" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<Report?> GetReportByIdAsync(Guid reportId, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateReportStatusAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Report")] },
+            Params =
+            [
+                new ParamModel { Name = "reportId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "status", Type = new TypeModel("ReportStatus") },
+                new ParamModel { Name = "data", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Report>> GetReportsByTypeAsync(string reportType, CancellationToken cancellationToken = default);
-
-                    Task<IEnumerable<Report>> GetAllReportsAsync(int skip = 0, int take = 100, CancellationToken cancellationToken = default);
-
-                    Task<Report> UpdateReportStatusAsync(Guid reportId, ReportStatus status, string? data = null, CancellationToken cancellationToken = default);
-                }
-                """
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IReportGenerator", directory, CSharp)
+        {
+            Namespace = "Analytics.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateEventTrackedEventFile(string directory)
+    private static CodeFileModel<ClassModel> CreateEventTrackedEventFile(string directory)
     {
-        return new FileModel("EventTrackedEvent", directory, CSharp)
+        var classModel = new ClassModel("EventTrackedEvent")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using Analytics.Core.Interfaces;
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Interfaces"));
 
-                namespace Analytics.Core.Events;
+        classModel.Implements.Add(new TypeModel("IDomainEvent"));
 
-                /// <summary>
-                /// Event raised when an analytics event is tracked.
-                /// </summary>
-                public sealed class EventTrackedEvent : IDomainEvent
-                {
-                    public Guid AggregateId { get; init; }
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "AggregateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "AggregateType", [new PropertyAccessorModel(PropertyAccessorType.Get, "\"Event\"")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EventType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Source", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                    public string AggregateType => "Event";
-
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-
-                    public required string CorrelationId { get; init; }
-
-                    public required string EventType { get; init; }
-
-                    public required string Source { get; init; }
-
-                    public string? UserId { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "EventTrackedEvent", directory, CSharp)
+        {
+            Namespace = "Analytics.Core.Events"
         };
     }
 
-    private static FileModel CreateReportGeneratedEventFile(string directory)
+    private static CodeFileModel<ClassModel> CreateReportGeneratedEventFile(string directory)
     {
-        return new FileModel("ReportGeneratedEvent", directory, CSharp)
+        var classModel = new ClassModel("ReportGeneratedEvent")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using Analytics.Core.Interfaces;
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Interfaces"));
 
-                namespace Analytics.Core.Events;
+        classModel.Implements.Add(new TypeModel("IDomainEvent"));
 
-                /// <summary>
-                /// Event raised when a report is generated.
-                /// </summary>
-                public sealed class ReportGeneratedEvent : IDomainEvent
-                {
-                    public Guid AggregateId { get; init; }
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "AggregateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "AggregateType", [new PropertyAccessorModel(PropertyAccessorType.Get, "\"Report\"")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ReportName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ReportType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "GeneratedBy", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                    public string AggregateType => "Report";
-
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-
-                    public required string CorrelationId { get; init; }
-
-                    public required string ReportName { get; init; }
-
-                    public required string ReportType { get; init; }
-
-                    public string? GeneratedBy { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ReportGeneratedEvent", directory, CSharp)
+        {
+            Namespace = "Analytics.Core.Events"
         };
     }
 
-    private static FileModel CreateMetricThresholdExceededEventFile(string directory)
+    private static CodeFileModel<ClassModel> CreateMetricThresholdExceededEventFile(string directory)
     {
-        return new FileModel("MetricThresholdExceededEvent", directory, CSharp)
+        var classModel = new ClassModel("MetricThresholdExceededEvent")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using Analytics.Core.Interfaces;
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Interfaces"));
 
-                namespace Analytics.Core.Events;
+        classModel.Implements.Add(new TypeModel("IDomainEvent"));
 
-                /// <summary>
-                /// Event raised when a metric threshold is exceeded.
-                /// </summary>
-                public sealed class MetricThresholdExceededEvent : IDomainEvent
-                {
-                    public Guid AggregateId { get; init; }
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "AggregateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "AggregateType", [new PropertyAccessorModel(PropertyAccessorType.Get, "\"Metric\"")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "MetricName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "CurrentValue", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "ThresholdValue", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ThresholdType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
 
-                    public string AggregateType => "Metric";
-
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-
-                    public required string CorrelationId { get; init; }
-
-                    public required string MetricName { get; init; }
-
-                    public required double CurrentValue { get; init; }
-
-                    public required double ThresholdValue { get; init; }
-
-                    public required string ThresholdType { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "MetricThresholdExceededEvent", directory, CSharp)
+        {
+            Namespace = "Analytics.Core.Events"
         };
     }
 
-    private static FileModel CreateEventDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateEventDtoFile(string directory)
     {
-        return new FileModel("EventDto", directory, CSharp)
+        var classModel = new ClassModel("EventDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                namespace Analytics.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EventId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EventType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Source", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "SessionId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Dictionary") { Nullable = true, GenericTypeParameters = [new TypeModel("string"), new TypeModel("object")] }, "Properties", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "Timestamp", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                /// <summary>
-                /// Data transfer object for Event.
-                /// </summary>
-                public sealed class EventDto
-                {
-                    public Guid EventId { get; init; }
-
-                    public required string EventType { get; init; }
-
-                    public required string Source { get; init; }
-
-                    public string? UserId { get; init; }
-
-                    public string? SessionId { get; init; }
-
-                    public Dictionary<string, object>? Properties { get; init; }
-
-                    public DateTime Timestamp { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "EventDto", directory, CSharp)
+        {
+            Namespace = "Analytics.Core.DTOs"
         };
     }
 
-    private static FileModel CreateMetricDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateMetricDtoFile(string directory)
     {
-        return new FileModel("MetricDto", directory, CSharp)
+        var classModel = new ClassModel("MetricDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                namespace Analytics.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "MetricId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Category", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Value", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Unit", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Dictionary") { Nullable = true, GenericTypeParameters = [new TypeModel("string"), new TypeModel("string")] }, "Tags", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "Timestamp", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                /// <summary>
-                /// Data transfer object for Metric.
-                /// </summary>
-                public sealed class MetricDto
-                {
-                    public Guid MetricId { get; init; }
-
-                    public required string Name { get; init; }
-
-                    public required string Category { get; init; }
-
-                    public double Value { get; init; }
-
-                    public string? Unit { get; init; }
-
-                    public Dictionary<string, string>? Tags { get; init; }
-
-                    public DateTime Timestamp { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "MetricDto", directory, CSharp)
+        {
+            Namespace = "Analytics.Core.DTOs"
         };
     }
 
-    private static FileModel CreateReportDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateReportDtoFile(string directory)
     {
-        return new FileModel("ReportDto", directory, CSharp)
+        var classModel = new ClassModel("ReportDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using Analytics.Core.Entities;
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
 
-                namespace Analytics.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "ReportId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ReportType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "StartDate", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "EndDate", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "GeneratedBy", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Data", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("ReportStatus"), "Status", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "CompletedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                /// <summary>
-                /// Data transfer object for Report.
-                /// </summary>
-                public sealed class ReportDto
-                {
-                    public Guid ReportId { get; init; }
-
-                    public required string Name { get; init; }
-
-                    public required string ReportType { get; init; }
-
-                    public string? Description { get; init; }
-
-                    public DateTime StartDate { get; init; }
-
-                    public DateTime EndDate { get; init; }
-
-                    public string? GeneratedBy { get; init; }
-
-                    public string? Data { get; init; }
-
-                    public ReportStatus Status { get; init; }
-
-                    public DateTime CreatedAt { get; init; }
-
-                    public DateTime? CompletedAt { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ReportDto", directory, CSharp)
+        {
+            Namespace = "Analytics.Core.DTOs"
         };
     }
 
     private static FileModel CreateTrackEventRequestFile(string directory)
     {
+        // Keep as FileModel - contains [Required] attribute which needs raw syntax
         return new FileModel("TrackEventRequest", directory, CSharp)
         {
             Body = """
@@ -630,32 +733,22 @@ public class AnalyticsArtifactFactory : IAnalyticsArtifactFactory
         };
     }
 
-    private static FileModel CreateMetricsQueryRequestFile(string directory)
+    private static CodeFileModel<ClassModel> CreateMetricsQueryRequestFile(string directory)
     {
-        return new FileModel("MetricsQueryRequest", directory, CSharp)
+        var classModel = new ClassModel("MetricsQueryRequest")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                namespace Analytics.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Category", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "StartDate", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "EndDate", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "AggregationType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                /// <summary>
-                /// Request model for querying metrics.
-                /// </summary>
-                public sealed class MetricsQueryRequest
-                {
-                    public string? Name { get; init; }
-
-                    public string? Category { get; init; }
-
-                    public DateTime? StartDate { get; init; }
-
-                    public DateTime? EndDate { get; init; }
-
-                    public string? AggregationType { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "MetricsQueryRequest", directory, CSharp)
+        {
+            Namespace = "Analytics.Core.DTOs"
         };
     }
 
@@ -663,620 +756,824 @@ public class AnalyticsArtifactFactory : IAnalyticsArtifactFactory
 
     #region Infrastructure Layer Files
 
-    private static FileModel CreateAnalyticsDbContextFile(string directory)
+    private static CodeFileModel<ClassModel> CreateAnalyticsDbContextFile(string directory)
     {
-        return new FileModel("AnalyticsDbContext", directory, CSharp)
+        var classModel = new ClassModel("AnalyticsDbContext");
+
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+
+        classModel.Implements.Add(new TypeModel("DbContext"));
+
+        var constructor = new ConstructorModel(classModel, "AnalyticsDbContext")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "options", Type = new TypeModel("DbContextOptions") { GenericTypeParameters = [new TypeModel("AnalyticsDbContext")] } }],
+            BaseParams = ["options"]
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Analytics.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Event")] }, "Events", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Event>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Metric")] }, "Metrics", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Metric>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Report")] }, "Reports", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Report>()")]));
 
-                namespace Analytics.Infrastructure.Data;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "OnModelCreating",
+            AccessModifier = AccessModifier.Protected,
+            Override = true,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "modelBuilder", Type = new TypeModel("ModelBuilder") }],
+            Body = new ExpressionModel(@"base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AnalyticsDbContext).Assembly);")
+        });
 
-                /// <summary>
-                /// Entity Framework Core DbContext for Analytics microservice.
-                /// </summary>
-                public class AnalyticsDbContext : DbContext
-                {
-                    public AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> options)
-                        : base(options)
-                    {
-                    }
-
-                    public DbSet<Event> Events => Set<Event>();
-
-                    public DbSet<Metric> Metrics => Set<Metric>();
-
-                    public DbSet<Report> Reports => Set<Report>();
-
-                    protected override void OnModelCreating(ModelBuilder modelBuilder)
-                    {
-                        base.OnModelCreating(modelBuilder);
-                        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AnalyticsDbContext).Assembly);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "AnalyticsDbContext", directory, CSharp)
+        {
+            Namespace = "Analytics.Infrastructure.Data"
         };
     }
 
-    private static FileModel CreateEventConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateEventConfigurationFile(string directory)
     {
-        return new FileModel("EventConfiguration", directory, CSharp)
+        var classModel = new ClassModel("EventConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("Event")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("Event")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(e => e.EventId);
 
-                using Analytics.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(e => e.EventType)
+            .IsRequired()
+            .HasMaxLength(100);
 
-                namespace Analytics.Infrastructure.Data.Configurations;
+        builder.Property(e => e.Source)
+            .IsRequired()
+            .HasMaxLength(200);
 
-                /// <summary>
-                /// Entity configuration for Event.
-                /// </summary>
-                public class EventConfiguration : IEntityTypeConfiguration<Event>
-                {
-                    public void Configure(EntityTypeBuilder<Event> builder)
-                    {
-                        builder.HasKey(e => e.EventId);
+        builder.Property(e => e.UserId)
+            .HasMaxLength(100);
 
-                        builder.Property(e => e.EventType)
-                            .IsRequired()
-                            .HasMaxLength(100);
+        builder.Property(e => e.SessionId)
+            .HasMaxLength(100);
 
-                        builder.Property(e => e.Source)
-                            .IsRequired()
-                            .HasMaxLength(200);
+        builder.Property(e => e.Properties)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(e => e.UserId)
-                            .HasMaxLength(100);
+        builder.Property(e => e.Timestamp)
+            .IsRequired();
 
-                        builder.Property(e => e.SessionId)
-                            .HasMaxLength(100);
+        builder.Property(e => e.CreatedAt)
+            .IsRequired();
 
-                        builder.Property(e => e.Properties)
-                            .HasColumnType("nvarchar(max)");
+        builder.HasIndex(e => e.EventType);
+        builder.HasIndex(e => e.Timestamp);
+        builder.HasIndex(e => e.UserId);")
+        });
 
-                        builder.Property(e => e.Timestamp)
-                            .IsRequired();
-
-                        builder.Property(e => e.CreatedAt)
-                            .IsRequired();
-
-                        builder.HasIndex(e => e.EventType);
-                        builder.HasIndex(e => e.Timestamp);
-                        builder.HasIndex(e => e.UserId);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "EventConfiguration", directory, CSharp)
+        {
+            Namespace = "Analytics.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateMetricConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateMetricConfigurationFile(string directory)
     {
-        return new FileModel("MetricConfiguration", directory, CSharp)
+        var classModel = new ClassModel("MetricConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("Metric")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("Metric")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(m => m.MetricId);
 
-                using Analytics.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(m => m.Name)
+            .IsRequired()
+            .HasMaxLength(100);
 
-                namespace Analytics.Infrastructure.Data.Configurations;
+        builder.Property(m => m.Category)
+            .IsRequired()
+            .HasMaxLength(100);
 
-                /// <summary>
-                /// Entity configuration for Metric.
-                /// </summary>
-                public class MetricConfiguration : IEntityTypeConfiguration<Metric>
-                {
-                    public void Configure(EntityTypeBuilder<Metric> builder)
-                    {
-                        builder.HasKey(m => m.MetricId);
+        builder.Property(m => m.Value)
+            .IsRequired();
 
-                        builder.Property(m => m.Name)
-                            .IsRequired()
-                            .HasMaxLength(100);
+        builder.Property(m => m.Unit)
+            .HasMaxLength(50);
 
-                        builder.Property(m => m.Category)
-                            .IsRequired()
-                            .HasMaxLength(100);
+        builder.Property(m => m.Tags)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(m => m.Value)
-                            .IsRequired();
+        builder.Property(m => m.Timestamp)
+            .IsRequired();
 
-                        builder.Property(m => m.Unit)
-                            .HasMaxLength(50);
+        builder.Property(m => m.CreatedAt)
+            .IsRequired();
 
-                        builder.Property(m => m.Tags)
-                            .HasColumnType("nvarchar(max)");
+        builder.HasIndex(m => m.Name);
+        builder.HasIndex(m => m.Category);
+        builder.HasIndex(m => m.Timestamp);")
+        });
 
-                        builder.Property(m => m.Timestamp)
-                            .IsRequired();
-
-                        builder.Property(m => m.CreatedAt)
-                            .IsRequired();
-
-                        builder.HasIndex(m => m.Name);
-                        builder.HasIndex(m => m.Category);
-                        builder.HasIndex(m => m.Timestamp);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "MetricConfiguration", directory, CSharp)
+        {
+            Namespace = "Analytics.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateReportConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateReportConfigurationFile(string directory)
     {
-        return new FileModel("ReportConfiguration", directory, CSharp)
+        var classModel = new ClassModel("ReportConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("Report")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("Report")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(r => r.ReportId);
 
-                using Analytics.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(r => r.Name)
+            .IsRequired()
+            .HasMaxLength(200);
 
-                namespace Analytics.Infrastructure.Data.Configurations;
+        builder.Property(r => r.ReportType)
+            .IsRequired()
+            .HasMaxLength(100);
 
-                /// <summary>
-                /// Entity configuration for Report.
-                /// </summary>
-                public class ReportConfiguration : IEntityTypeConfiguration<Report>
-                {
-                    public void Configure(EntityTypeBuilder<Report> builder)
-                    {
-                        builder.HasKey(r => r.ReportId);
+        builder.Property(r => r.Description)
+            .HasMaxLength(1000);
 
-                        builder.Property(r => r.Name)
-                            .IsRequired()
-                            .HasMaxLength(200);
+        builder.Property(r => r.GeneratedBy)
+            .HasMaxLength(100);
 
-                        builder.Property(r => r.ReportType)
-                            .IsRequired()
-                            .HasMaxLength(100);
+        builder.Property(r => r.Data)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(r => r.Description)
-                            .HasMaxLength(1000);
+        builder.Property(r => r.Status)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(50);
 
-                        builder.Property(r => r.GeneratedBy)
-                            .HasMaxLength(100);
+        builder.Property(r => r.CreatedAt)
+            .IsRequired();
 
-                        builder.Property(r => r.Data)
-                            .HasColumnType("nvarchar(max)");
+        builder.HasIndex(r => r.ReportType);
+        builder.HasIndex(r => r.Status);
+        builder.HasIndex(r => r.CreatedAt);")
+        });
 
-                        builder.Property(r => r.Status)
-                            .IsRequired()
-                            .HasConversion<string>()
-                            .HasMaxLength(50);
-
-                        builder.Property(r => r.CreatedAt)
-                            .IsRequired();
-
-                        builder.HasIndex(r => r.ReportType);
-                        builder.HasIndex(r => r.Status);
-                        builder.HasIndex(r => r.CreatedAt);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ReportConfiguration", directory, CSharp)
+        {
+            Namespace = "Analytics.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateEventRepositoryFile(string directory)
+    private static CodeFileModel<ClassModel> CreateEventRepositoryFile(string directory)
     {
-        return new FileModel("EventRepository", directory, CSharp)
+        var classModel = new ClassModel("EventRepository");
+
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Analytics.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+
+        classModel.Implements.Add(new TypeModel("IEventRepository"));
+
+        classModel.Fields.Add(new FieldModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "context",
+            Type = new TypeModel("AnalyticsDbContext"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
+        });
 
-                using Analytics.Core.Entities;
-                using Analytics.Core.Interfaces;
-                using Analytics.Infrastructure.Data;
-                using Microsoft.EntityFrameworkCore;
+        var constructor = new ConstructorModel(classModel, "EventRepository")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "context", Type = new TypeModel("AnalyticsDbContext") }],
+            Body = new ExpressionModel("this.context = context ?? throw new ArgumentNullException(nameof(context));")
+        };
+        classModel.Constructors.Add(constructor);
 
-                namespace Analytics.Infrastructure.Repositories;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Event") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "eventId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Events
+            .FirstOrDefaultAsync(e => e.EventId == eventId, cancellationToken);")
+        });
 
-                /// <summary>
-                /// Repository implementation for Event entities.
-                /// </summary>
-                public class EventRepository : IEventRepository
-                {
-                    private readonly AnalyticsDbContext context;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByTypeAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Event")] }] },
+            Params =
+            [
+                new ParamModel { Name = "eventType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Events
+            .Where(e => e.EventType == eventType)
+            .OrderByDescending(e => e.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public EventRepository(AnalyticsDbContext context)
-                    {
-                        this.context = context ?? throw new ArgumentNullException(nameof(context));
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByDateRangeAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Event")] }] },
+            Params =
+            [
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Events
+            .Where(e => e.Timestamp >= startDate && e.Timestamp <= endDate)
+            .OrderByDescending(e => e.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public async Task<Event?> GetByIdAsync(Guid eventId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Events
-                            .FirstOrDefaultAsync(e => e.EventId == eventId, cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByUserIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Event")] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Events
+            .Where(e => e.UserId == userId)
+            .OrderByDescending(e => e.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public async Task<IEnumerable<Event>> GetByTypeAsync(string eventType, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Events
-                            .Where(e => e.EventType == eventType)
-                            .OrderByDescending(e => e.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Event")] }] },
+            Params =
+            [
+                new ParamModel { Name = "skip", Type = new TypeModel("int"), DefaultValue = "0" },
+                new ParamModel { Name = "take", Type = new TypeModel("int"), DefaultValue = "100" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Events
+            .OrderByDescending(e => e.Timestamp)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public async Task<IEnumerable<Event>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Events
-                            .Where(e => e.Timestamp >= startDate && e.Timestamp <= endDate)
-                            .OrderByDescending(e => e.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Event")] },
+            Params =
+            [
+                new ParamModel { Name = "analyticsEvent", Type = new TypeModel("Event") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"analyticsEvent.EventId = Guid.NewGuid();
+        analyticsEvent.CreatedAt = DateTime.UtcNow;
+        await context.Events.AddAsync(analyticsEvent, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return analyticsEvent;")
+        });
 
-                    public async Task<IEnumerable<Event>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Events
-                            .Where(e => e.UserId == userId)
-                            .OrderByDescending(e => e.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddBatchAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "events", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Event")] } },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"foreach (var analyticsEvent in events)
+        {
+            analyticsEvent.EventId = Guid.NewGuid();
+            analyticsEvent.CreatedAt = DateTime.UtcNow;
+        }
 
-                    public async Task<IEnumerable<Event>> GetAllAsync(int skip = 0, int take = 100, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Events
-                            .OrderByDescending(e => e.Timestamp)
-                            .Skip(skip)
-                            .Take(take)
-                            .ToListAsync(cancellationToken);
-                    }
+        await context.Events.AddRangeAsync(events, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);")
+        });
 
-                    public async Task<Event> AddAsync(Event analyticsEvent, CancellationToken cancellationToken = default)
-                    {
-                        analyticsEvent.EventId = Guid.NewGuid();
-                        analyticsEvent.CreatedAt = DateTime.UtcNow;
-                        await context.Events.AddAsync(analyticsEvent, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-                        return analyticsEvent;
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetCountAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("long")] },
+            Params =
+            [
+                new ParamModel { Name = "eventType", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var query = context.Events.AsQueryable();
 
-                    public async Task AddBatchAsync(IEnumerable<Event> events, CancellationToken cancellationToken = default)
-                    {
-                        foreach (var analyticsEvent in events)
-                        {
-                            analyticsEvent.EventId = Guid.NewGuid();
-                            analyticsEvent.CreatedAt = DateTime.UtcNow;
-                        }
+        if (!string.IsNullOrEmpty(eventType))
+        {
+            query = query.Where(e => e.EventType == eventType);
+        }
 
-                        await context.Events.AddRangeAsync(events, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
+        return await query.LongCountAsync(cancellationToken);")
+        });
 
-                    public async Task<long> GetCountAsync(string? eventType = null, CancellationToken cancellationToken = default)
-                    {
-                        var query = context.Events.AsQueryable();
-
-                        if (!string.IsNullOrEmpty(eventType))
-                        {
-                            query = query.Where(e => e.EventType == eventType);
-                        }
-
-                        return await query.LongCountAsync(cancellationToken);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "EventRepository", directory, CSharp)
+        {
+            Namespace = "Analytics.Infrastructure.Repositories"
         };
     }
 
-    private static FileModel CreateMetricsServiceFile(string directory)
+    private static CodeFileModel<ClassModel> CreateMetricsServiceFile(string directory)
     {
-        return new FileModel("MetricsService", directory, CSharp)
+        var classModel = new ClassModel("MetricsService");
+
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Analytics.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Logging"));
+
+        classModel.Implements.Add(new TypeModel("IMetricsService"));
+
+        classModel.Fields.Add(new FieldModel { Name = "context", Type = new TypeModel("AnalyticsDbContext"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("MetricsService")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "MetricsService")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "context", Type = new TypeModel("AnalyticsDbContext") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("MetricsService")] } }
+            ],
+            Body = new ExpressionModel(@"this.context = context ?? throw new ArgumentNullException(nameof(context));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Analytics.Core.Entities;
-                using Analytics.Core.Interfaces;
-                using Analytics.Infrastructure.Data;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Logging;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "RecordMetricAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Metric")] },
+            Params =
+            [
+                new ParamModel { Name = "metric", Type = new TypeModel("Metric") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"metric.MetricId = Guid.NewGuid();
+        metric.CreatedAt = DateTime.UtcNow;
+        await context.Metrics.AddAsync(metric, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-                namespace Analytics.Infrastructure.Services;
+        logger.LogInformation(""Recorded metric {MetricName} with value {Value}"", metric.Name, metric.Value);
+        return metric;")
+        });
 
-                /// <summary>
-                /// Service implementation for metrics operations.
-                /// </summary>
-                public class MetricsService : IMetricsService
-                {
-                    private readonly AnalyticsDbContext context;
-                    private readonly ILogger<MetricsService> logger;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetMetricsByNameAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Metric")] }] },
+            Params =
+            [
+                new ParamModel { Name = "name", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Metrics
+            .Where(m => m.Name == name)
+            .OrderByDescending(m => m.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public MetricsService(AnalyticsDbContext context, ILogger<MetricsService> logger)
-                    {
-                        this.context = context ?? throw new ArgumentNullException(nameof(context));
-                        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetMetricsByCategoryAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Metric")] }] },
+            Params =
+            [
+                new ParamModel { Name = "category", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Metrics
+            .Where(m => m.Category == category)
+            .OrderByDescending(m => m.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public async Task<Metric> RecordMetricAsync(Metric metric, CancellationToken cancellationToken = default)
-                    {
-                        metric.MetricId = Guid.NewGuid();
-                        metric.CreatedAt = DateTime.UtcNow;
-                        await context.Metrics.AddAsync(metric, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetMetricsByDateRangeAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Metric")] }] },
+            Params =
+            [
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Metrics
+            .Where(m => m.Timestamp >= startDate && m.Timestamp <= endDate)
+            .OrderByDescending(m => m.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                        logger.LogInformation("Recorded metric {MetricName} with value {Value}", metric.Name, metric.Value);
-                        return metric;
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAverageAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("double")] },
+            Params =
+            [
+                new ParamModel { Name = "metricName", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Metrics
+            .Where(m => m.Name == metricName && m.Timestamp >= startDate && m.Timestamp <= endDate)
+            .AverageAsync(m => m.Value, cancellationToken);")
+        });
 
-                    public async Task<IEnumerable<Metric>> GetMetricsByNameAsync(string name, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Metrics
-                            .Where(m => m.Name == name)
-                            .OrderByDescending(m => m.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetSumAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("double")] },
+            Params =
+            [
+                new ParamModel { Name = "metricName", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Metrics
+            .Where(m => m.Name == metricName && m.Timestamp >= startDate && m.Timestamp <= endDate)
+            .SumAsync(m => m.Value, cancellationToken);")
+        });
 
-                    public async Task<IEnumerable<Metric>> GetMetricsByCategoryAsync(string category, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Metrics
-                            .Where(m => m.Category == category)
-                            .OrderByDescending(m => m.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetMinAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("double")] },
+            Params =
+            [
+                new ParamModel { Name = "metricName", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Metrics
+            .Where(m => m.Name == metricName && m.Timestamp >= startDate && m.Timestamp <= endDate)
+            .MinAsync(m => m.Value, cancellationToken);")
+        });
 
-                    public async Task<IEnumerable<Metric>> GetMetricsByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Metrics
-                            .Where(m => m.Timestamp >= startDate && m.Timestamp <= endDate)
-                            .OrderByDescending(m => m.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetMaxAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("double")] },
+            Params =
+            [
+                new ParamModel { Name = "metricName", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Metrics
+            .Where(m => m.Name == metricName && m.Timestamp >= startDate && m.Timestamp <= endDate)
+            .MaxAsync(m => m.Value, cancellationToken);")
+        });
 
-                    public async Task<double> GetAverageAsync(string metricName, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Metrics
-                            .Where(m => m.Name == metricName && m.Timestamp >= startDate && m.Timestamp <= endDate)
-                            .AverageAsync(m => m.Value, cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "CheckThresholdsAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"// Implementation would check configured thresholds and raise events
+        logger.LogDebug(""Checking metric thresholds"");
+        await Task.CompletedTask;")
+        });
 
-                    public async Task<double> GetSumAsync(string metricName, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Metrics
-                            .Where(m => m.Name == metricName && m.Timestamp >= startDate && m.Timestamp <= endDate)
-                            .SumAsync(m => m.Value, cancellationToken);
-                    }
-
-                    public async Task<double> GetMinAsync(string metricName, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Metrics
-                            .Where(m => m.Name == metricName && m.Timestamp >= startDate && m.Timestamp <= endDate)
-                            .MinAsync(m => m.Value, cancellationToken);
-                    }
-
-                    public async Task<double> GetMaxAsync(string metricName, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Metrics
-                            .Where(m => m.Name == metricName && m.Timestamp >= startDate && m.Timestamp <= endDate)
-                            .MaxAsync(m => m.Value, cancellationToken);
-                    }
-
-                    public async Task CheckThresholdsAsync(CancellationToken cancellationToken = default)
-                    {
-                        // Implementation would check configured thresholds and raise events
-                        logger.LogDebug("Checking metric thresholds");
-                        await Task.CompletedTask;
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "MetricsService", directory, CSharp)
+        {
+            Namespace = "Analytics.Infrastructure.Services"
         };
     }
 
-    private static FileModel CreateReportGeneratorFile(string directory)
+    private static CodeFileModel<ClassModel> CreateReportGeneratorFile(string directory)
     {
-        return new FileModel("ReportGenerator", directory, CSharp)
+        var classModel = new ClassModel("ReportGenerator");
+
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Analytics.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Logging"));
+        classModel.Usings.Add(new UsingModel("System.Text.Json"));
+
+        classModel.Implements.Add(new TypeModel("IReportGenerator"));
+
+        classModel.Fields.Add(new FieldModel { Name = "context", Type = new TypeModel("AnalyticsDbContext"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "eventRepository", Type = new TypeModel("IEventRepository"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "metricsService", Type = new TypeModel("IMetricsService"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("ReportGenerator")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "ReportGenerator")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "context", Type = new TypeModel("AnalyticsDbContext") },
+                new ParamModel { Name = "eventRepository", Type = new TypeModel("IEventRepository") },
+                new ParamModel { Name = "metricsService", Type = new TypeModel("IMetricsService") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("ReportGenerator")] } }
+            ],
+            Body = new ExpressionModel(@"this.context = context ?? throw new ArgumentNullException(nameof(context));
+        this.eventRepository = eventRepository ?? throw new ArgumentNullException(nameof(eventRepository));
+        this.metricsService = metricsService ?? throw new ArgumentNullException(nameof(metricsService));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Analytics.Core.Entities;
-                using Analytics.Core.Interfaces;
-                using Analytics.Infrastructure.Data;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Logging;
-                using System.Text.Json;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GenerateReportAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Report")] },
+            Params =
+            [
+                new ParamModel { Name = "name", Type = new TypeModel("string") },
+                new ParamModel { Name = "reportType", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "generatedBy", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var report = new Report
+        {
+            ReportId = Guid.NewGuid(),
+            Name = name,
+            ReportType = reportType,
+            StartDate = startDate,
+            EndDate = endDate,
+            GeneratedBy = generatedBy,
+            Status = ReportStatus.Processing,
+            CreatedAt = DateTime.UtcNow
+        };
 
-                namespace Analytics.Infrastructure.Services;
+        await context.Reports.AddAsync(report, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-                /// <summary>
-                /// Service implementation for report generation.
-                /// </summary>
-                public class ReportGenerator : IReportGenerator
-                {
-                    private readonly AnalyticsDbContext context;
-                    private readonly IEventRepository eventRepository;
-                    private readonly IMetricsService metricsService;
-                    private readonly ILogger<ReportGenerator> logger;
+        logger.LogInformation(""Starting report generation: {ReportName} ({ReportType})"", name, reportType);
 
-                    public ReportGenerator(
-                        AnalyticsDbContext context,
-                        IEventRepository eventRepository,
-                        IMetricsService metricsService,
-                        ILogger<ReportGenerator> logger)
-                    {
-                        this.context = context ?? throw new ArgumentNullException(nameof(context));
-                        this.eventRepository = eventRepository ?? throw new ArgumentNullException(nameof(eventRepository));
-                        this.metricsService = metricsService ?? throw new ArgumentNullException(nameof(metricsService));
-                        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-                    }
+        try
+        {
+            var reportData = await GenerateReportDataAsync(reportType, startDate, endDate, cancellationToken);
+            report.Data = JsonSerializer.Serialize(reportData);
+            report.Status = ReportStatus.Completed;
+            report.CompletedAt = DateTime.UtcNow;
 
-                    public async Task<Report> GenerateReportAsync(
-                        string name,
-                        string reportType,
-                        DateTime startDate,
-                        DateTime endDate,
-                        string? generatedBy = null,
-                        CancellationToken cancellationToken = default)
-                    {
-                        var report = new Report
-                        {
-                            ReportId = Guid.NewGuid(),
-                            Name = name,
-                            ReportType = reportType,
-                            StartDate = startDate,
-                            EndDate = endDate,
-                            GeneratedBy = generatedBy,
-                            Status = ReportStatus.Processing,
-                            CreatedAt = DateTime.UtcNow
-                        };
+            logger.LogInformation(""Report generation completed: {ReportId}"", report.ReportId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, ""Report generation failed: {ReportId}"", report.ReportId);
+            report.Status = ReportStatus.Failed;
+        }
 
-                        await context.Reports.AddAsync(report, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
+        context.Reports.Update(report);
+        await context.SaveChangesAsync(cancellationToken);
 
-                        logger.LogInformation("Starting report generation: {ReportName} ({ReportType})", name, reportType);
+        return report;")
+        });
 
-                        try
-                        {
-                            var reportData = await GenerateReportDataAsync(reportType, startDate, endDate, cancellationToken);
-                            report.Data = JsonSerializer.Serialize(reportData);
-                            report.Status = ReportStatus.Completed;
-                            report.CompletedAt = DateTime.UtcNow;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetReportByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Report") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "reportId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Reports
+            .FirstOrDefaultAsync(r => r.ReportId == reportId, cancellationToken);")
+        });
 
-                            logger.LogInformation("Report generation completed: {ReportId}", report.ReportId);
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.LogError(ex, "Report generation failed: {ReportId}", report.ReportId);
-                            report.Status = ReportStatus.Failed;
-                        }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetReportsByTypeAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Report")] }] },
+            Params =
+            [
+                new ParamModel { Name = "reportType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Reports
+            .Where(r => r.ReportType == reportType)
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync(cancellationToken);")
+        });
 
-                        context.Reports.Update(report);
-                        await context.SaveChangesAsync(cancellationToken);
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllReportsAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Report")] }] },
+            Params =
+            [
+                new ParamModel { Name = "skip", Type = new TypeModel("int"), DefaultValue = "0" },
+                new ParamModel { Name = "take", Type = new TypeModel("int"), DefaultValue = "100" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Reports
+            .OrderByDescending(r => r.CreatedAt)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);")
+        });
 
-                        return report;
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateReportStatusAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Report")] },
+            Params =
+            [
+                new ParamModel { Name = "reportId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "status", Type = new TypeModel("ReportStatus") },
+                new ParamModel { Name = "data", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var report = await context.Reports.FindAsync(new object[] { reportId }, cancellationToken)
+            ?? throw new InvalidOperationException($""Report {reportId} not found"");
 
-                    public async Task<Report?> GetReportByIdAsync(Guid reportId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Reports
-                            .FirstOrDefaultAsync(r => r.ReportId == reportId, cancellationToken);
-                    }
+        report.Status = status;
 
-                    public async Task<IEnumerable<Report>> GetReportsByTypeAsync(string reportType, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Reports
-                            .Where(r => r.ReportType == reportType)
-                            .OrderByDescending(r => r.CreatedAt)
-                            .ToListAsync(cancellationToken);
-                    }
+        if (data != null)
+        {
+            report.Data = data;
+        }
 
-                    public async Task<IEnumerable<Report>> GetAllReportsAsync(int skip = 0, int take = 100, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Reports
-                            .OrderByDescending(r => r.CreatedAt)
-                            .Skip(skip)
-                            .Take(take)
-                            .ToListAsync(cancellationToken);
-                    }
+        if (status == ReportStatus.Completed)
+        {
+            report.CompletedAt = DateTime.UtcNow;
+        }
 
-                    public async Task<Report> UpdateReportStatusAsync(Guid reportId, ReportStatus status, string? data = null, CancellationToken cancellationToken = default)
-                    {
-                        var report = await context.Reports.FindAsync(new object[] { reportId }, cancellationToken)
-                            ?? throw new InvalidOperationException($"Report {reportId} not found");
+        context.Reports.Update(report);
+        await context.SaveChangesAsync(cancellationToken);
 
-                        report.Status = status;
+        return report;")
+        });
 
-                        if (data != null)
-                        {
-                            report.Data = data;
-                        }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GenerateReportDataAsync",
+            AccessModifier = AccessModifier.Private,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("object")] },
+            Params =
+            [
+                new ParamModel { Name = "reportType", Type = new TypeModel("string") },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var events = await eventRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
+        var metrics = await metricsService.GetMetricsByDateRangeAsync(startDate, endDate, cancellationToken);
 
-                        if (status == ReportStatus.Completed)
-                        {
-                            report.CompletedAt = DateTime.UtcNow;
-                        }
+        return new
+        {
+            ReportType = reportType,
+            Period = new { StartDate = startDate, EndDate = endDate },
+            Summary = new
+            {
+                TotalEvents = events.Count(),
+                TotalMetrics = metrics.Count(),
+                EventTypes = events.GroupBy(e => e.EventType).Select(g => new { Type = g.Key, Count = g.Count() }),
+                MetricCategories = metrics.GroupBy(m => m.Category).Select(g => new { Category = g.Key, Count = g.Count() })
+            },
+            GeneratedAt = DateTime.UtcNow
+        };")
+        });
 
-                        context.Reports.Update(report);
-                        await context.SaveChangesAsync(cancellationToken);
-
-                        return report;
-                    }
-
-                    private async Task<object> GenerateReportDataAsync(
-                        string reportType,
-                        DateTime startDate,
-                        DateTime endDate,
-                        CancellationToken cancellationToken)
-                    {
-                        var events = await eventRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
-                        var metrics = await metricsService.GetMetricsByDateRangeAsync(startDate, endDate, cancellationToken);
-
-                        return new
-                        {
-                            ReportType = reportType,
-                            Period = new { StartDate = startDate, EndDate = endDate },
-                            Summary = new
-                            {
-                                TotalEvents = events.Count(),
-                                TotalMetrics = metrics.Count(),
-                                EventTypes = events.GroupBy(e => e.EventType).Select(g => new { Type = g.Key, Count = g.Count() }),
-                                MetricCategories = metrics.GroupBy(m => m.Category).Select(g => new { Category = g.Key, Count = g.Count() })
-                            },
-                            GeneratedAt = DateTime.UtcNow
-                        };
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ReportGenerator", directory, CSharp)
+        {
+            Namespace = "Analytics.Infrastructure.Services"
         };
     }
 
-    private static FileModel CreateInfrastructureConfigureServicesFile(string directory)
+    private static CodeFileModel<ClassModel> CreateInfrastructureConfigureServicesFile(string directory)
     {
-        return new FileModel("ConfigureServices", directory, CSharp)
+        var classModel = new ClassModel("ConfigureServices")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Static = true
+        };
 
-                using Analytics.Core.Interfaces;
-                using Analytics.Infrastructure.Data;
-                using Analytics.Infrastructure.Repositories;
-                using Analytics.Infrastructure.Services;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Configuration;
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Analytics.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Analytics.Infrastructure.Repositories"));
+        classModel.Usings.Add(new UsingModel("Analytics.Infrastructure.Services"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
 
-                namespace Microsoft.Extensions.DependencyInjection;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAnalyticsInfrastructure",
+            AccessModifier = AccessModifier.Public,
+            Static = true,
+            ReturnType = new TypeModel("IServiceCollection"),
+            Params =
+            [
+                new ParamModel { Name = "services", Type = new TypeModel("IServiceCollection"), ExtensionMethodParam = true },
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") }
+            ],
+            Body = new ExpressionModel(@"services.AddDbContext<AnalyticsDbContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString(""AnalyticsDb"") ??
+                @""Server=.\SQLEXPRESS;Database=AnalyticsDb;Trusted_Connection=True;TrustServerCertificate=True""));
 
-                /// <summary>
-                /// Extension methods for configuring Analytics infrastructure services.
-                /// </summary>
-                public static class ConfigureServices
-                {
-                    /// <summary>
-                    /// Adds Analytics infrastructure services to the service collection.
-                    /// </summary>
-                    public static IServiceCollection AddAnalyticsInfrastructure(
-                        this IServiceCollection services,
-                        IConfiguration configuration)
-                    {
-                        services.AddDbContext<AnalyticsDbContext>(options =>
-                            options.UseSqlServer(
-                                configuration.GetConnectionString("AnalyticsDb") ??
-                                @"Server=.\SQLEXPRESS;Database=AnalyticsDb;Trusted_Connection=True;TrustServerCertificate=True"));
+        services.AddScoped<IEventRepository, EventRepository>();
+        services.AddScoped<IMetricsService, MetricsService>();
+        services.AddScoped<IReportGenerator, ReportGenerator>();
 
-                        services.AddScoped<IEventRepository, EventRepository>();
-                        services.AddScoped<IMetricsService, MetricsService>();
-                        services.AddScoped<IReportGenerator, ReportGenerator>();
+        return services;")
+        });
 
-                        return services;
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ConfigureServices", directory, CSharp)
+        {
+            Namespace = "Microsoft.Extensions.DependencyInjection"
         };
     }
 
@@ -1284,294 +1581,327 @@ public class AnalyticsArtifactFactory : IAnalyticsArtifactFactory
 
     #region API Layer Files
 
-    private static FileModel CreateEventsControllerFile(string directory)
+    private static CodeFileModel<ClassModel> CreateEventsControllerFile(string directory)
     {
-        return new FileModel("EventsController", directory, CSharp)
+        var classModel = new ClassModel("EventsController");
+
+        classModel.Usings.Add(new UsingModel("Analytics.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Authorization"));
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Mvc"));
+
+        classModel.Implements.Add(new TypeModel("ControllerBase"));
+
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ApiController" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Route", Template = "\"api/analytics/events\"" });
+
+        classModel.Fields.Add(new FieldModel { Name = "eventRepository", Type = new TypeModel("IEventRepository"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("EventsController")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "EventsController")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "eventRepository", Type = new TypeModel("IEventRepository") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("EventsController")] } }
+            ],
+            Body = new ExpressionModel(@"this.eventRepository = eventRepository;
+        this.logger = logger;")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Analytics.Core.DTOs;
-                using Analytics.Core.Entities;
-                using Analytics.Core.Interfaces;
-                using Microsoft.AspNetCore.Authorization;
-                using Microsoft.AspNetCore.Mvc;
+        var trackEventMethod = new MethodModel
+        {
+            Name = "TrackEvent",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("EventDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("TrackEventRequest"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var analyticsEvent = new Event
+        {
+            EventType = request.EventType,
+            Source = request.Source,
+            UserId = request.UserId,
+            SessionId = request.SessionId,
+            Properties = request.Properties,
+            Timestamp = request.Timestamp ?? DateTime.UtcNow
+        };
 
-                namespace Analytics.Api.Controllers;
+        var createdEvent = await eventRepository.AddAsync(analyticsEvent, cancellationToken);
 
-                /// <summary>
-                /// Controller for analytics event operations.
-                /// </summary>
-                [ApiController]
-                [Route("api/analytics/events")]
-                public class EventsController : ControllerBase
-                {
-                    private readonly IEventRepository eventRepository;
-                    private readonly ILogger<EventsController> logger;
+        logger.LogInformation(""Event tracked: {EventType} from {Source}"", request.EventType, request.Source);
 
-                    public EventsController(
-                        IEventRepository eventRepository,
-                        ILogger<EventsController> logger)
-                    {
-                        this.eventRepository = eventRepository;
-                        this.logger = logger;
-                    }
+        var response = new EventDto
+        {
+            EventId = createdEvent.EventId,
+            EventType = createdEvent.EventType,
+            Source = createdEvent.Source,
+            UserId = createdEvent.UserId,
+            SessionId = createdEvent.SessionId,
+            Properties = createdEvent.Properties,
+            Timestamp = createdEvent.Timestamp
+        };
 
-                    /// <summary>
-                    /// Track a new analytics event.
-                    /// </summary>
-                    [HttpPost]
-                    [AllowAnonymous]
-                    [ProducesResponseType(typeof(EventDto), StatusCodes.Status201Created)]
-                    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-                    public async Task<ActionResult<EventDto>> TrackEvent(
-                        [FromBody] TrackEventRequest request,
-                        CancellationToken cancellationToken)
-                    {
-                        var analyticsEvent = new Event
-                        {
-                            EventType = request.EventType,
-                            Source = request.Source,
-                            UserId = request.UserId,
-                            SessionId = request.SessionId,
-                            Properties = request.Properties,
-                            Timestamp = request.Timestamp ?? DateTime.UtcNow
-                        };
+        return CreatedAtAction(nameof(GetById), new { id = createdEvent.EventId }, response);")
+        };
+        trackEventMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost" });
+        trackEventMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "AllowAnonymous" });
+        trackEventMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(EventDto), StatusCodes.Status201Created" });
+        trackEventMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status400BadRequest" });
+        classModel.Methods.Add(trackEventMethod);
 
-                        var createdEvent = await eventRepository.AddAsync(analyticsEvent, cancellationToken);
+        var getByIdMethod = new MethodModel
+        {
+            Name = "GetById",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("EventDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "id", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var analyticsEvent = await eventRepository.GetByIdAsync(id, cancellationToken);
 
-                        logger.LogInformation("Event tracked: {EventType} from {Source}", request.EventType, request.Source);
+        if (analyticsEvent == null)
+        {
+            return NotFound();
+        }
 
-                        var response = new EventDto
-                        {
-                            EventId = createdEvent.EventId,
-                            EventType = createdEvent.EventType,
-                            Source = createdEvent.Source,
-                            UserId = createdEvent.UserId,
-                            SessionId = createdEvent.SessionId,
-                            Properties = createdEvent.Properties,
-                            Timestamp = createdEvent.Timestamp
-                        };
+        return Ok(new EventDto
+        {
+            EventId = analyticsEvent.EventId,
+            EventType = analyticsEvent.EventType,
+            Source = analyticsEvent.Source,
+            UserId = analyticsEvent.UserId,
+            SessionId = analyticsEvent.SessionId,
+            Properties = analyticsEvent.Properties,
+            Timestamp = analyticsEvent.Timestamp
+        });")
+        };
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"{id:guid}\"" });
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Authorize" });
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(EventDto), StatusCodes.Status200OK" });
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status404NotFound" });
+        classModel.Methods.Add(getByIdMethod);
 
-                        return CreatedAtAction(nameof(GetById), new { id = createdEvent.EventId }, response);
-                    }
+        var getByTypeMethod = new MethodModel
+        {
+            Name = "GetByType",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("EventDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "eventType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var events = await eventRepository.GetByTypeAsync(eventType, cancellationToken);
 
-                    /// <summary>
-                    /// Get an event by ID.
-                    /// </summary>
-                    [HttpGet("{id:guid}")]
-                    [Authorize]
-                    [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
-                    [ProducesResponseType(StatusCodes.Status404NotFound)]
-                    public async Task<ActionResult<EventDto>> GetById(Guid id, CancellationToken cancellationToken)
-                    {
-                        var analyticsEvent = await eventRepository.GetByIdAsync(id, cancellationToken);
+        var eventDtos = events.Select(e => new EventDto
+        {
+            EventId = e.EventId,
+            EventType = e.EventType,
+            Source = e.Source,
+            UserId = e.UserId,
+            SessionId = e.SessionId,
+            Properties = e.Properties,
+            Timestamp = e.Timestamp
+        });
 
-                        if (analyticsEvent == null)
-                        {
-                            return NotFound();
-                        }
+        return Ok(eventDtos);")
+        };
+        getByTypeMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"type/{eventType}\"" });
+        getByTypeMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Authorize" });
+        getByTypeMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(IEnumerable<EventDto>), StatusCodes.Status200OK" });
+        classModel.Methods.Add(getByTypeMethod);
 
-                        return Ok(new EventDto
-                        {
-                            EventId = analyticsEvent.EventId,
-                            EventType = analyticsEvent.EventType,
-                            Source = analyticsEvent.Source,
-                            UserId = analyticsEvent.UserId,
-                            SessionId = analyticsEvent.SessionId,
-                            Properties = analyticsEvent.Properties,
-                            Timestamp = analyticsEvent.Timestamp
-                        });
-                    }
-
-                    /// <summary>
-                    /// Get events by type.
-                    /// </summary>
-                    [HttpGet("type/{eventType}")]
-                    [Authorize]
-                    [ProducesResponseType(typeof(IEnumerable<EventDto>), StatusCodes.Status200OK)]
-                    public async Task<ActionResult<IEnumerable<EventDto>>> GetByType(string eventType, CancellationToken cancellationToken)
-                    {
-                        var events = await eventRepository.GetByTypeAsync(eventType, cancellationToken);
-
-                        var eventDtos = events.Select(e => new EventDto
-                        {
-                            EventId = e.EventId,
-                            EventType = e.EventType,
-                            Source = e.Source,
-                            UserId = e.UserId,
-                            SessionId = e.SessionId,
-                            Properties = e.Properties,
-                            Timestamp = e.Timestamp
-                        });
-
-                        return Ok(eventDtos);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "EventsController", directory, CSharp)
+        {
+            Namespace = "Analytics.Api.Controllers"
         };
     }
 
-    private static FileModel CreateMetricsControllerFile(string directory)
+    private static CodeFileModel<ClassModel> CreateMetricsControllerFile(string directory)
     {
-        return new FileModel("MetricsController", directory, CSharp)
+        var classModel = new ClassModel("MetricsController");
+
+        classModel.Usings.Add(new UsingModel("Analytics.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Analytics.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Authorization"));
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Mvc"));
+
+        classModel.Implements.Add(new TypeModel("ControllerBase"));
+
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ApiController" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Route", Template = "\"api/analytics/metrics\"" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Authorize" });
+
+        classModel.Fields.Add(new FieldModel { Name = "metricsService", Type = new TypeModel("IMetricsService"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("MetricsController")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "MetricsController")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "metricsService", Type = new TypeModel("IMetricsService") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("MetricsController")] } }
+            ],
+            Body = new ExpressionModel(@"this.metricsService = metricsService;
+        this.logger = logger;")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Analytics.Core.DTOs;
-                using Analytics.Core.Entities;
-                using Analytics.Core.Interfaces;
-                using Microsoft.AspNetCore.Authorization;
-                using Microsoft.AspNetCore.Mvc;
+        var getMetricsMethod = new MethodModel
+        {
+            Name = "GetMetrics",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("MetricDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("MetricsQueryRequest"), Attribute = "[FromQuery]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"IEnumerable<Metric> metrics;
 
-                namespace Analytics.Api.Controllers;
+        if (!string.IsNullOrEmpty(request.Name))
+        {
+            metrics = await metricsService.GetMetricsByNameAsync(request.Name, cancellationToken);
+        }
+        else if (!string.IsNullOrEmpty(request.Category))
+        {
+            metrics = await metricsService.GetMetricsByCategoryAsync(request.Category, cancellationToken);
+        }
+        else if (request.StartDate.HasValue && request.EndDate.HasValue)
+        {
+            metrics = await metricsService.GetMetricsByDateRangeAsync(
+                request.StartDate.Value,
+                request.EndDate.Value,
+                cancellationToken);
+        }
+        else
+        {
+            metrics = await metricsService.GetMetricsByDateRangeAsync(
+                DateTime.UtcNow.AddDays(-7),
+                DateTime.UtcNow,
+                cancellationToken);
+        }
 
-                /// <summary>
-                /// Controller for metrics operations.
-                /// </summary>
-                [ApiController]
-                [Route("api/analytics/metrics")]
-                [Authorize]
-                public class MetricsController : ControllerBase
-                {
-                    private readonly IMetricsService metricsService;
-                    private readonly ILogger<MetricsController> logger;
+        var metricDtos = metrics.Select(m => new MetricDto
+        {
+            MetricId = m.MetricId,
+            Name = m.Name,
+            Category = m.Category,
+            Value = m.Value,
+            Unit = m.Unit,
+            Tags = m.Tags,
+            Timestamp = m.Timestamp
+        });
 
-                    public MetricsController(
-                        IMetricsService metricsService,
-                        ILogger<MetricsController> logger)
-                    {
-                        this.metricsService = metricsService;
-                        this.logger = logger;
-                    }
+        return Ok(metricDtos);")
+        };
+        getMetricsMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet" });
+        getMetricsMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(IEnumerable<MetricDto>), StatusCodes.Status200OK" });
+        classModel.Methods.Add(getMetricsMethod);
 
-                    /// <summary>
-                    /// Get metrics with optional filtering.
-                    /// </summary>
-                    [HttpGet]
-                    [ProducesResponseType(typeof(IEnumerable<MetricDto>), StatusCodes.Status200OK)]
-                    public async Task<ActionResult<IEnumerable<MetricDto>>> GetMetrics(
-                        [FromQuery] MetricsQueryRequest request,
-                        CancellationToken cancellationToken)
-                    {
-                        IEnumerable<Metric> metrics;
+        var recordMetricMethod = new MethodModel
+        {
+            Name = "RecordMetric",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("MetricDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("MetricDto"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var metric = new Metric
+        {
+            Name = request.Name,
+            Category = request.Category,
+            Value = request.Value,
+            Unit = request.Unit,
+            Tags = request.Tags,
+            Timestamp = request.Timestamp != default ? request.Timestamp : DateTime.UtcNow
+        };
 
-                        if (!string.IsNullOrEmpty(request.Name))
-                        {
-                            metrics = await metricsService.GetMetricsByNameAsync(request.Name, cancellationToken);
-                        }
-                        else if (!string.IsNullOrEmpty(request.Category))
-                        {
-                            metrics = await metricsService.GetMetricsByCategoryAsync(request.Category, cancellationToken);
-                        }
-                        else if (request.StartDate.HasValue && request.EndDate.HasValue)
-                        {
-                            metrics = await metricsService.GetMetricsByDateRangeAsync(
-                                request.StartDate.Value,
-                                request.EndDate.Value,
-                                cancellationToken);
-                        }
-                        else
-                        {
-                            metrics = await metricsService.GetMetricsByDateRangeAsync(
-                                DateTime.UtcNow.AddDays(-7),
-                                DateTime.UtcNow,
-                                cancellationToken);
-                        }
+        var createdMetric = await metricsService.RecordMetricAsync(metric, cancellationToken);
 
-                        var metricDtos = metrics.Select(m => new MetricDto
-                        {
-                            MetricId = m.MetricId,
-                            Name = m.Name,
-                            Category = m.Category,
-                            Value = m.Value,
-                            Unit = m.Unit,
-                            Tags = m.Tags,
-                            Timestamp = m.Timestamp
-                        });
+        logger.LogInformation(""Metric recorded: {MetricName} = {Value}"", metric.Name, metric.Value);
 
-                        return Ok(metricDtos);
-                    }
+        var response = new MetricDto
+        {
+            MetricId = createdMetric.MetricId,
+            Name = createdMetric.Name,
+            Category = createdMetric.Category,
+            Value = createdMetric.Value,
+            Unit = createdMetric.Unit,
+            Tags = createdMetric.Tags,
+            Timestamp = createdMetric.Timestamp
+        };
 
-                    /// <summary>
-                    /// Record a new metric.
-                    /// </summary>
-                    [HttpPost]
-                    [ProducesResponseType(typeof(MetricDto), StatusCodes.Status201Created)]
-                    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-                    public async Task<ActionResult<MetricDto>> RecordMetric(
-                        [FromBody] MetricDto request,
-                        CancellationToken cancellationToken)
-                    {
-                        var metric = new Metric
-                        {
-                            Name = request.Name,
-                            Category = request.Category,
-                            Value = request.Value,
-                            Unit = request.Unit,
-                            Tags = request.Tags,
-                            Timestamp = request.Timestamp != default ? request.Timestamp : DateTime.UtcNow
-                        };
+        return CreatedAtAction(nameof(GetMetrics), response);")
+        };
+        recordMetricMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost" });
+        recordMetricMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(MetricDto), StatusCodes.Status201Created" });
+        recordMetricMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status400BadRequest" });
+        classModel.Methods.Add(recordMetricMethod);
 
-                        var createdMetric = await metricsService.RecordMetricAsync(metric, cancellationToken);
+        var getAggregatedMetricMethod = new MethodModel
+        {
+            Name = "GetAggregatedMetric",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("object")] }] },
+            Params =
+            [
+                new ParamModel { Name = "name", Type = new TypeModel("string"), Attribute = "[FromQuery]" },
+                new ParamModel { Name = "aggregation", Type = new TypeModel("string"), Attribute = "[FromQuery]" },
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime"), Attribute = "[FromQuery]" },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime"), Attribute = "[FromQuery]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"double result = aggregation.ToLowerInvariant() switch
+        {
+            ""average"" or ""avg"" => await metricsService.GetAverageAsync(name, startDate, endDate, cancellationToken),
+            ""sum"" => await metricsService.GetSumAsync(name, startDate, endDate, cancellationToken),
+            ""min"" => await metricsService.GetMinAsync(name, startDate, endDate, cancellationToken),
+            ""max"" => await metricsService.GetMaxAsync(name, startDate, endDate, cancellationToken),
+            _ => throw new ArgumentException($""Unknown aggregation type: {aggregation}"")
+        };
 
-                        logger.LogInformation("Metric recorded: {MetricName} = {Value}", metric.Name, metric.Value);
+        return Ok(new
+        {
+            MetricName = name,
+            Aggregation = aggregation,
+            Value = result,
+            StartDate = startDate,
+            EndDate = endDate
+        });")
+        };
+        getAggregatedMetricMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"aggregate\"" });
+        getAggregatedMetricMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(object), StatusCodes.Status200OK" });
+        getAggregatedMetricMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status400BadRequest" });
+        classModel.Methods.Add(getAggregatedMetricMethod);
 
-                        var response = new MetricDto
-                        {
-                            MetricId = createdMetric.MetricId,
-                            Name = createdMetric.Name,
-                            Category = createdMetric.Category,
-                            Value = createdMetric.Value,
-                            Unit = createdMetric.Unit,
-                            Tags = createdMetric.Tags,
-                            Timestamp = createdMetric.Timestamp
-                        };
-
-                        return CreatedAtAction(nameof(GetMetrics), response);
-                    }
-
-                    /// <summary>
-                    /// Get aggregated metric value.
-                    /// </summary>
-                    [HttpGet("aggregate")]
-                    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-                    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-                    public async Task<ActionResult<object>> GetAggregatedMetric(
-                        [FromQuery] string name,
-                        [FromQuery] string aggregation,
-                        [FromQuery] DateTime startDate,
-                        [FromQuery] DateTime endDate,
-                        CancellationToken cancellationToken)
-                    {
-                        double result = aggregation.ToLowerInvariant() switch
-                        {
-                            "average" or "avg" => await metricsService.GetAverageAsync(name, startDate, endDate, cancellationToken),
-                            "sum" => await metricsService.GetSumAsync(name, startDate, endDate, cancellationToken),
-                            "min" => await metricsService.GetMinAsync(name, startDate, endDate, cancellationToken),
-                            "max" => await metricsService.GetMaxAsync(name, startDate, endDate, cancellationToken),
-                            _ => throw new ArgumentException($"Unknown aggregation type: {aggregation}")
-                        };
-
-                        return Ok(new
-                        {
-                            MetricName = name,
-                            Aggregation = aggregation,
-                            Value = result,
-                            StartDate = startDate,
-                            EndDate = endDate
-                        });
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "MetricsController", directory, CSharp)
+        {
+            Namespace = "Analytics.Api.Controllers"
         };
     }
 
     private static FileModel CreateReportsControllerFile(string directory)
     {
+        // Keep as FileModel - contains inner class GenerateReportRequest
         return new FileModel("ReportsController", directory, CSharp)
         {
             Body = """
@@ -1725,6 +2055,7 @@ public class AnalyticsArtifactFactory : IAnalyticsArtifactFactory
 
     private static FileModel CreateProgramFile(string directory)
     {
+        // Keep as FileModel - top-level statements
         return new FileModel("Program", directory, CSharp)
         {
             Body = """
@@ -1845,6 +2176,7 @@ public class AnalyticsArtifactFactory : IAnalyticsArtifactFactory
 
     private static FileModel CreateAppSettingsFile(string directory)
     {
+        // Keep as FileModel - JSON file
         return new FileModel("appsettings", directory, ".json")
         {
             Body = """
@@ -1875,6 +2207,7 @@ public class AnalyticsArtifactFactory : IAnalyticsArtifactFactory
 
     private static FileModel CreateAppSettingsDevelopmentFile(string directory)
     {
+        // Keep as FileModel - JSON file
         return new FileModel("appsettings.Development", directory, ".json")
         {
             Body = """

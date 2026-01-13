@@ -2,11 +2,23 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Constructors;
+using Endpoint.DotNet.Syntax.Expressions;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
+using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Engineering.Microservices.Tagging;
+
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 public class TaggingArtifactFactory : ITaggingArtifactFactory
 {
@@ -26,391 +38,29 @@ public class TaggingArtifactFactory : ITaggingArtifactFactory
         var dtosDir = Path.Combine(project.Directory, "DTOs");
 
         // Entities
-        project.Files.Add(new FileModel("Tag", entitiesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Tagging.Core.Entities;
-
-                public class Tag
-                {
-                    public Guid TagId { get; set; }
-                    public required string Name { get; set; }
-                    public string? Description { get; set; }
-                    public Guid? CategoryId { get; set; }
-                    public Category? Category { get; set; }
-                    public string? Color { get; set; }
-                    public bool IsActive { get; set; } = true;
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                    public DateTime? UpdatedAt { get; set; }
-                    public ICollection<EntityTag> EntityTags { get; set; } = new List<EntityTag>();
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("Category", entitiesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Tagging.Core.Entities;
-
-                public class Category
-                {
-                    public Guid CategoryId { get; set; }
-                    public required string Name { get; set; }
-                    public string? Description { get; set; }
-                    public Guid? ParentCategoryId { get; set; }
-                    public Category? ParentCategory { get; set; }
-                    public bool IsActive { get; set; } = true;
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                    public DateTime? UpdatedAt { get; set; }
-                    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
-                    public ICollection<Category> SubCategories { get; set; } = new List<Category>();
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("EntityTag", entitiesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Tagging.Core.Entities;
-
-                public class EntityTag
-                {
-                    public Guid EntityTagId { get; set; }
-                    public Guid TagId { get; set; }
-                    public Tag Tag { get; set; } = null!;
-                    public required string EntityType { get; set; }
-                    public Guid EntityId { get; set; }
-                    public Guid? TaggedBy { get; set; }
-                    public DateTime TaggedAt { get; set; } = DateTime.UtcNow;
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("Taxonomy", entitiesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Tagging.Core.Entities;
-
-                public class Taxonomy
-                {
-                    public Guid TaxonomyId { get; set; }
-                    public required string Name { get; set; }
-                    public string? Description { get; set; }
-                    public bool IsHierarchical { get; set; } = false;
-                    public bool AllowMultiple { get; set; } = true;
-                    public bool IsActive { get; set; } = true;
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                    public DateTime? UpdatedAt { get; set; }
-                }
-                """
-        });
+        project.Files.Add(CreateTagEntityFile(entitiesDir));
+        project.Files.Add(CreateCategoryEntityFile(entitiesDir));
+        project.Files.Add(CreateEntityTagFile(entitiesDir));
+        project.Files.Add(CreateTaxonomyEntityFile(entitiesDir));
 
         // Interfaces
-        project.Files.Add(new FileModel("ITagRepository", interfacesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Tagging.Core.Entities;
-
-                namespace Tagging.Core.Interfaces;
-
-                public interface ITagRepository
-                {
-                    Task<Tag?> GetByIdAsync(Guid tagId, CancellationToken cancellationToken = default);
-                    Task<Tag?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<Tag>> GetAllAsync(CancellationToken cancellationToken = default);
-                    Task<IEnumerable<Tag>> GetByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken = default);
-                    Task<Tag> AddAsync(Tag tag, CancellationToken cancellationToken = default);
-                    Task UpdateAsync(Tag tag, CancellationToken cancellationToken = default);
-                    Task DeleteAsync(Guid tagId, CancellationToken cancellationToken = default);
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("ITaggingService", interfacesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Tagging.Core.DTOs;
-
-                namespace Tagging.Core.Interfaces;
-
-                public interface ITaggingService
-                {
-                    Task<TagDto> CreateTagAsync(CreateTagRequest request, CancellationToken cancellationToken = default);
-                    Task<TagDto?> GetTagByIdAsync(Guid tagId, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<TagDto>> GetAllTagsAsync(CancellationToken cancellationToken = default);
-                    Task<EntityTagDto> TagEntityAsync(TagEntityRequest request, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<TagDto>> GetTagsForEntityAsync(string entityType, Guid entityId, CancellationToken cancellationToken = default);
-                    Task UntagEntityAsync(string entityType, Guid entityId, Guid tagId, CancellationToken cancellationToken = default);
-                    Task MergeTagsAsync(Guid sourceTagId, Guid targetTagId, CancellationToken cancellationToken = default);
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("ITaxonomyService", interfacesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Tagging.Core.DTOs;
-
-                namespace Tagging.Core.Interfaces;
-
-                public interface ITaxonomyService
-                {
-                    Task<TaxonomyDto> CreateTaxonomyAsync(CreateTaxonomyRequest request, CancellationToken cancellationToken = default);
-                    Task<TaxonomyDto?> GetTaxonomyByIdAsync(Guid taxonomyId, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<TaxonomyDto>> GetAllTaxonomiesAsync(CancellationToken cancellationToken = default);
-                    Task UpdateTaxonomyAsync(Guid taxonomyId, UpdateTaxonomyRequest request, CancellationToken cancellationToken = default);
-                    Task DeleteTaxonomyAsync(Guid taxonomyId, CancellationToken cancellationToken = default);
-                }
-                """
-        });
+        project.Files.Add(CreateITagRepositoryFile(interfacesDir));
+        project.Files.Add(CreateITaggingServiceFile(interfacesDir));
+        project.Files.Add(CreateITaxonomyServiceFile(interfacesDir));
 
         // Events
-        project.Files.Add(new FileModel("TagCreatedEvent", eventsDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Tagging.Core.Events;
-
-                public sealed class TagCreatedEvent
-                {
-                    public Guid TagId { get; init; }
-                    public required string Name { get; init; }
-                    public Guid? CategoryId { get; init; }
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("EntityTaggedEvent", eventsDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Tagging.Core.Events;
-
-                public sealed class EntityTaggedEvent
-                {
-                    public Guid EntityTagId { get; init; }
-                    public Guid TagId { get; init; }
-                    public required string EntityType { get; init; }
-                    public Guid EntityId { get; init; }
-                    public Guid? TaggedBy { get; init; }
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("TagMergedEvent", eventsDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Tagging.Core.Events;
-
-                public sealed class TagMergedEvent
-                {
-                    public Guid SourceTagId { get; init; }
-                    public Guid TargetTagId { get; init; }
-                    public int EntitiesRetagged { get; init; }
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
-        });
+        project.Files.Add(CreateTagCreatedEventFile(eventsDir));
+        project.Files.Add(CreateEntityTaggedEventFile(eventsDir));
+        project.Files.Add(CreateTagMergedEventFile(eventsDir));
 
         // DTOs
-        project.Files.Add(new FileModel("TagDto", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Tagging.Core.DTOs;
-
-                public sealed class TagDto
-                {
-                    public Guid TagId { get; init; }
-                    public required string Name { get; init; }
-                    public string? Description { get; init; }
-                    public Guid? CategoryId { get; init; }
-                    public string? CategoryName { get; init; }
-                    public string? Color { get; init; }
-                    public bool IsActive { get; init; }
-                    public DateTime CreatedAt { get; init; }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("EntityTagDto", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Tagging.Core.DTOs;
-
-                public sealed class EntityTagDto
-                {
-                    public Guid EntityTagId { get; init; }
-                    public Guid TagId { get; init; }
-                    public required string TagName { get; init; }
-                    public required string EntityType { get; init; }
-                    public Guid EntityId { get; init; }
-                    public DateTime TaggedAt { get; init; }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("TaxonomyDto", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Tagging.Core.DTOs;
-
-                public sealed class TaxonomyDto
-                {
-                    public Guid TaxonomyId { get; init; }
-                    public required string Name { get; init; }
-                    public string? Description { get; init; }
-                    public bool IsHierarchical { get; init; }
-                    public bool AllowMultiple { get; init; }
-                    public bool IsActive { get; init; }
-                    public DateTime CreatedAt { get; init; }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("CreateTagRequest", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using System.ComponentModel.DataAnnotations;
-
-                namespace Tagging.Core.DTOs;
-
-                public sealed class CreateTagRequest
-                {
-                    [Required]
-                    [MaxLength(100)]
-                    public required string Name { get; init; }
-
-                    [MaxLength(500)]
-                    public string? Description { get; init; }
-
-                    public Guid? CategoryId { get; init; }
-
-                    [MaxLength(7)]
-                    public string? Color { get; init; }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("TagEntityRequest", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using System.ComponentModel.DataAnnotations;
-
-                namespace Tagging.Core.DTOs;
-
-                public sealed class TagEntityRequest
-                {
-                    [Required]
-                    public Guid TagId { get; init; }
-
-                    [Required]
-                    public required string EntityType { get; init; }
-
-                    [Required]
-                    public Guid EntityId { get; init; }
-
-                    public Guid? TaggedBy { get; init; }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("CreateTaxonomyRequest", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using System.ComponentModel.DataAnnotations;
-
-                namespace Tagging.Core.DTOs;
-
-                public sealed class CreateTaxonomyRequest
-                {
-                    [Required]
-                    [MaxLength(100)]
-                    public required string Name { get; init; }
-
-                    [MaxLength(500)]
-                    public string? Description { get; init; }
-
-                    public bool IsHierarchical { get; init; } = false;
-
-                    public bool AllowMultiple { get; init; } = true;
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("UpdateTaxonomyRequest", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using System.ComponentModel.DataAnnotations;
-
-                namespace Tagging.Core.DTOs;
-
-                public sealed class UpdateTaxonomyRequest
-                {
-                    [MaxLength(100)]
-                    public string? Name { get; init; }
-
-                    [MaxLength(500)]
-                    public string? Description { get; init; }
-
-                    public bool? IsHierarchical { get; init; }
-
-                    public bool? AllowMultiple { get; init; }
-
-                    public bool? IsActive { get; init; }
-                }
-                """
-        });
+        project.Files.Add(CreateTagDtoFile(dtosDir));
+        project.Files.Add(CreateEntityTagDtoFile(dtosDir));
+        project.Files.Add(CreateTaxonomyDtoFile(dtosDir));
+        project.Files.Add(CreateCreateTagRequestFile(dtosDir));
+        project.Files.Add(CreateTagEntityRequestFile(dtosDir));
+        project.Files.Add(CreateCreateTaxonomyRequestFile(dtosDir));
+        project.Files.Add(CreateUpdateTaxonomyRequestFile(dtosDir));
     }
 
     public void AddInfrastructureFiles(ProjectModel project, string microserviceName)
@@ -420,448 +70,11 @@ public class TaggingArtifactFactory : ITaggingArtifactFactory
         var repositoriesDir = Path.Combine(project.Directory, "Repositories");
         var servicesDir = Path.Combine(project.Directory, "Services");
 
-        project.Files.Add(new FileModel("TaggingDbContext", dataDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Tagging.Core.Entities;
-
-                namespace Tagging.Infrastructure.Data;
-
-                public class TaggingDbContext : DbContext
-                {
-                    public TaggingDbContext(DbContextOptions<TaggingDbContext> options) : base(options) { }
-
-                    public DbSet<Tag> Tags => Set<Tag>();
-                    public DbSet<Category> Categories => Set<Category>();
-                    public DbSet<EntityTag> EntityTags => Set<EntityTag>();
-                    public DbSet<Taxonomy> Taxonomies => Set<Taxonomy>();
-
-                    protected override void OnModelCreating(ModelBuilder modelBuilder)
-                    {
-                        modelBuilder.Entity<Tag>(entity =>
-                        {
-                            entity.HasKey(t => t.TagId);
-                            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
-                            entity.HasIndex(t => t.Name).IsUnique();
-                            entity.Property(t => t.Color).HasMaxLength(7);
-                            entity.HasOne(t => t.Category).WithMany(c => c.Tags).HasForeignKey(t => t.CategoryId);
-                        });
-
-                        modelBuilder.Entity<Category>(entity =>
-                        {
-                            entity.HasKey(c => c.CategoryId);
-                            entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
-                            entity.HasIndex(c => c.Name).IsUnique();
-                            entity.HasOne(c => c.ParentCategory).WithMany(c => c.SubCategories).HasForeignKey(c => c.ParentCategoryId);
-                        });
-
-                        modelBuilder.Entity<EntityTag>(entity =>
-                        {
-                            entity.HasKey(et => et.EntityTagId);
-                            entity.Property(et => et.EntityType).IsRequired().HasMaxLength(100);
-                            entity.HasIndex(et => new { et.TagId, et.EntityType, et.EntityId }).IsUnique();
-                            entity.HasOne(et => et.Tag).WithMany(t => t.EntityTags).HasForeignKey(et => et.TagId);
-                        });
-
-                        modelBuilder.Entity<Taxonomy>(entity =>
-                        {
-                            entity.HasKey(t => t.TaxonomyId);
-                            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
-                            entity.HasIndex(t => t.Name).IsUnique();
-                        });
-                    }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("TagRepository", repositoriesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Tagging.Core.Entities;
-                using Tagging.Core.Interfaces;
-                using Tagging.Infrastructure.Data;
-
-                namespace Tagging.Infrastructure.Repositories;
-
-                public class TagRepository : ITagRepository
-                {
-                    private readonly TaggingDbContext context;
-
-                    public TagRepository(TaggingDbContext context)
-                    {
-                        this.context = context;
-                    }
-
-                    public async Task<Tag?> GetByIdAsync(Guid tagId, CancellationToken cancellationToken = default)
-                        => await context.Tags.Include(t => t.Category).FirstOrDefaultAsync(t => t.TagId == tagId, cancellationToken);
-
-                    public async Task<Tag?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
-                        => await context.Tags.Include(t => t.Category).FirstOrDefaultAsync(t => t.Name == name, cancellationToken);
-
-                    public async Task<IEnumerable<Tag>> GetAllAsync(CancellationToken cancellationToken = default)
-                        => await context.Tags.Include(t => t.Category).Where(t => t.IsActive).ToListAsync(cancellationToken);
-
-                    public async Task<IEnumerable<Tag>> GetByCategoryIdAsync(Guid categoryId, CancellationToken cancellationToken = default)
-                        => await context.Tags.Include(t => t.Category).Where(t => t.CategoryId == categoryId && t.IsActive).ToListAsync(cancellationToken);
-
-                    public async Task<Tag> AddAsync(Tag tag, CancellationToken cancellationToken = default)
-                    {
-                        tag.TagId = Guid.NewGuid();
-                        await context.Tags.AddAsync(tag, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-                        return tag;
-                    }
-
-                    public async Task UpdateAsync(Tag tag, CancellationToken cancellationToken = default)
-                    {
-                        tag.UpdatedAt = DateTime.UtcNow;
-                        context.Tags.Update(tag);
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
-
-                    public async Task DeleteAsync(Guid tagId, CancellationToken cancellationToken = default)
-                    {
-                        var tag = await context.Tags.FindAsync(new object[] { tagId }, cancellationToken);
-                        if (tag != null)
-                        {
-                            context.Tags.Remove(tag);
-                            await context.SaveChangesAsync(cancellationToken);
-                        }
-                    }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("TaggingService", servicesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Tagging.Core.DTOs;
-                using Tagging.Core.Entities;
-                using Tagging.Core.Interfaces;
-                using Tagging.Infrastructure.Data;
-
-                namespace Tagging.Infrastructure.Services;
-
-                public class TaggingService : ITaggingService
-                {
-                    private readonly ITagRepository repository;
-                    private readonly TaggingDbContext context;
-
-                    public TaggingService(ITagRepository repository, TaggingDbContext context)
-                    {
-                        this.repository = repository;
-                        this.context = context;
-                    }
-
-                    public async Task<TagDto> CreateTagAsync(CreateTagRequest request, CancellationToken cancellationToken = default)
-                    {
-                        var tag = new Tag
-                        {
-                            Name = request.Name,
-                            Description = request.Description,
-                            CategoryId = request.CategoryId,
-                            Color = request.Color
-                        };
-
-                        var created = await repository.AddAsync(tag, cancellationToken);
-                        var category = created.CategoryId.HasValue
-                            ? await context.Categories.FindAsync(new object[] { created.CategoryId.Value }, cancellationToken)
-                            : null;
-
-                        return new TagDto
-                        {
-                            TagId = created.TagId,
-                            Name = created.Name,
-                            Description = created.Description,
-                            CategoryId = created.CategoryId,
-                            CategoryName = category?.Name,
-                            Color = created.Color,
-                            IsActive = created.IsActive,
-                            CreatedAt = created.CreatedAt
-                        };
-                    }
-
-                    public async Task<TagDto?> GetTagByIdAsync(Guid tagId, CancellationToken cancellationToken = default)
-                    {
-                        var tag = await repository.GetByIdAsync(tagId, cancellationToken);
-                        if (tag == null) return null;
-
-                        return new TagDto
-                        {
-                            TagId = tag.TagId,
-                            Name = tag.Name,
-                            Description = tag.Description,
-                            CategoryId = tag.CategoryId,
-                            CategoryName = tag.Category?.Name,
-                            Color = tag.Color,
-                            IsActive = tag.IsActive,
-                            CreatedAt = tag.CreatedAt
-                        };
-                    }
-
-                    public async Task<IEnumerable<TagDto>> GetAllTagsAsync(CancellationToken cancellationToken = default)
-                    {
-                        var tags = await repository.GetAllAsync(cancellationToken);
-                        return tags.Select(t => new TagDto
-                        {
-                            TagId = t.TagId,
-                            Name = t.Name,
-                            Description = t.Description,
-                            CategoryId = t.CategoryId,
-                            CategoryName = t.Category?.Name,
-                            Color = t.Color,
-                            IsActive = t.IsActive,
-                            CreatedAt = t.CreatedAt
-                        });
-                    }
-
-                    public async Task<EntityTagDto> TagEntityAsync(TagEntityRequest request, CancellationToken cancellationToken = default)
-                    {
-                        var tag = await repository.GetByIdAsync(request.TagId, cancellationToken)
-                            ?? throw new InvalidOperationException($"Tag with ID {request.TagId} not found.");
-
-                        var entityTag = new EntityTag
-                        {
-                            EntityTagId = Guid.NewGuid(),
-                            TagId = request.TagId,
-                            EntityType = request.EntityType,
-                            EntityId = request.EntityId,
-                            TaggedBy = request.TaggedBy
-                        };
-
-                        await context.EntityTags.AddAsync(entityTag, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-
-                        return new EntityTagDto
-                        {
-                            EntityTagId = entityTag.EntityTagId,
-                            TagId = entityTag.TagId,
-                            TagName = tag.Name,
-                            EntityType = entityTag.EntityType,
-                            EntityId = entityTag.EntityId,
-                            TaggedAt = entityTag.TaggedAt
-                        };
-                    }
-
-                    public async Task<IEnumerable<TagDto>> GetTagsForEntityAsync(string entityType, Guid entityId, CancellationToken cancellationToken = default)
-                    {
-                        var entityTags = await context.EntityTags
-                            .Include(et => et.Tag)
-                            .ThenInclude(t => t.Category)
-                            .Where(et => et.EntityType == entityType && et.EntityId == entityId)
-                            .ToListAsync(cancellationToken);
-
-                        return entityTags.Select(et => new TagDto
-                        {
-                            TagId = et.Tag.TagId,
-                            Name = et.Tag.Name,
-                            Description = et.Tag.Description,
-                            CategoryId = et.Tag.CategoryId,
-                            CategoryName = et.Tag.Category?.Name,
-                            Color = et.Tag.Color,
-                            IsActive = et.Tag.IsActive,
-                            CreatedAt = et.Tag.CreatedAt
-                        });
-                    }
-
-                    public async Task UntagEntityAsync(string entityType, Guid entityId, Guid tagId, CancellationToken cancellationToken = default)
-                    {
-                        var entityTag = await context.EntityTags
-                            .FirstOrDefaultAsync(et => et.EntityType == entityType && et.EntityId == entityId && et.TagId == tagId, cancellationToken);
-
-                        if (entityTag != null)
-                        {
-                            context.EntityTags.Remove(entityTag);
-                            await context.SaveChangesAsync(cancellationToken);
-                        }
-                    }
-
-                    public async Task MergeTagsAsync(Guid sourceTagId, Guid targetTagId, CancellationToken cancellationToken = default)
-                    {
-                        var sourceTag = await repository.GetByIdAsync(sourceTagId, cancellationToken)
-                            ?? throw new InvalidOperationException($"Source tag with ID {sourceTagId} not found.");
-
-                        var targetTag = await repository.GetByIdAsync(targetTagId, cancellationToken)
-                            ?? throw new InvalidOperationException($"Target tag with ID {targetTagId} not found.");
-
-                        var entityTags = await context.EntityTags
-                            .Where(et => et.TagId == sourceTagId)
-                            .ToListAsync(cancellationToken);
-
-                        foreach (var entityTag in entityTags)
-                        {
-                            var existingTarget = await context.EntityTags
-                                .AnyAsync(et => et.TagId == targetTagId && et.EntityType == entityTag.EntityType && et.EntityId == entityTag.EntityId, cancellationToken);
-
-                            if (!existingTarget)
-                            {
-                                entityTag.TagId = targetTagId;
-                            }
-                            else
-                            {
-                                context.EntityTags.Remove(entityTag);
-                            }
-                        }
-
-                        sourceTag.IsActive = false;
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("TaxonomyService", servicesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Tagging.Core.DTOs;
-                using Tagging.Core.Entities;
-                using Tagging.Core.Interfaces;
-                using Tagging.Infrastructure.Data;
-
-                namespace Tagging.Infrastructure.Services;
-
-                public class TaxonomyService : ITaxonomyService
-                {
-                    private readonly TaggingDbContext context;
-
-                    public TaxonomyService(TaggingDbContext context)
-                    {
-                        this.context = context;
-                    }
-
-                    public async Task<TaxonomyDto> CreateTaxonomyAsync(CreateTaxonomyRequest request, CancellationToken cancellationToken = default)
-                    {
-                        var taxonomy = new Taxonomy
-                        {
-                            TaxonomyId = Guid.NewGuid(),
-                            Name = request.Name,
-                            Description = request.Description,
-                            IsHierarchical = request.IsHierarchical,
-                            AllowMultiple = request.AllowMultiple
-                        };
-
-                        await context.Taxonomies.AddAsync(taxonomy, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-
-                        return new TaxonomyDto
-                        {
-                            TaxonomyId = taxonomy.TaxonomyId,
-                            Name = taxonomy.Name,
-                            Description = taxonomy.Description,
-                            IsHierarchical = taxonomy.IsHierarchical,
-                            AllowMultiple = taxonomy.AllowMultiple,
-                            IsActive = taxonomy.IsActive,
-                            CreatedAt = taxonomy.CreatedAt
-                        };
-                    }
-
-                    public async Task<TaxonomyDto?> GetTaxonomyByIdAsync(Guid taxonomyId, CancellationToken cancellationToken = default)
-                    {
-                        var taxonomy = await context.Taxonomies.FindAsync(new object[] { taxonomyId }, cancellationToken);
-                        if (taxonomy == null) return null;
-
-                        return new TaxonomyDto
-                        {
-                            TaxonomyId = taxonomy.TaxonomyId,
-                            Name = taxonomy.Name,
-                            Description = taxonomy.Description,
-                            IsHierarchical = taxonomy.IsHierarchical,
-                            AllowMultiple = taxonomy.AllowMultiple,
-                            IsActive = taxonomy.IsActive,
-                            CreatedAt = taxonomy.CreatedAt
-                        };
-                    }
-
-                    public async Task<IEnumerable<TaxonomyDto>> GetAllTaxonomiesAsync(CancellationToken cancellationToken = default)
-                    {
-                        var taxonomies = await context.Taxonomies.Where(t => t.IsActive).ToListAsync(cancellationToken);
-                        return taxonomies.Select(t => new TaxonomyDto
-                        {
-                            TaxonomyId = t.TaxonomyId,
-                            Name = t.Name,
-                            Description = t.Description,
-                            IsHierarchical = t.IsHierarchical,
-                            AllowMultiple = t.AllowMultiple,
-                            IsActive = t.IsActive,
-                            CreatedAt = t.CreatedAt
-                        });
-                    }
-
-                    public async Task UpdateTaxonomyAsync(Guid taxonomyId, UpdateTaxonomyRequest request, CancellationToken cancellationToken = default)
-                    {
-                        var taxonomy = await context.Taxonomies.FindAsync(new object[] { taxonomyId }, cancellationToken)
-                            ?? throw new InvalidOperationException($"Taxonomy with ID {taxonomyId} not found.");
-
-                        if (request.Name != null) taxonomy.Name = request.Name;
-                        if (request.Description != null) taxonomy.Description = request.Description;
-                        if (request.IsHierarchical.HasValue) taxonomy.IsHierarchical = request.IsHierarchical.Value;
-                        if (request.AllowMultiple.HasValue) taxonomy.AllowMultiple = request.AllowMultiple.Value;
-                        if (request.IsActive.HasValue) taxonomy.IsActive = request.IsActive.Value;
-                        taxonomy.UpdatedAt = DateTime.UtcNow;
-
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
-
-                    public async Task DeleteTaxonomyAsync(Guid taxonomyId, CancellationToken cancellationToken = default)
-                    {
-                        var taxonomy = await context.Taxonomies.FindAsync(new object[] { taxonomyId }, cancellationToken);
-                        if (taxonomy != null)
-                        {
-                            context.Taxonomies.Remove(taxonomy);
-                            await context.SaveChangesAsync(cancellationToken);
-                        }
-                    }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("ConfigureServices", project.Directory, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Configuration;
-                using Tagging.Core.Interfaces;
-                using Tagging.Infrastructure.Data;
-                using Tagging.Infrastructure.Repositories;
-                using Tagging.Infrastructure.Services;
-
-                namespace Microsoft.Extensions.DependencyInjection;
-
-                public static class ConfigureServices
-                {
-                    public static IServiceCollection AddTaggingInfrastructure(this IServiceCollection services, IConfiguration configuration)
-                    {
-                        services.AddDbContext<TaggingDbContext>(options =>
-                            options.UseSqlServer(configuration.GetConnectionString("TaggingDb") ??
-                                @"Server=.\SQLEXPRESS;Database=TaggingDb;Trusted_Connection=True;TrustServerCertificate=True"));
-
-                        services.AddScoped<ITagRepository, TagRepository>();
-                        services.AddScoped<ITaggingService, TaggingService>();
-                        services.AddScoped<ITaxonomyService, TaxonomyService>();
-                        return services;
-                    }
-                }
-                """
-        });
+        project.Files.Add(CreateTaggingDbContextFile(dataDir));
+        project.Files.Add(CreateTagRepositoryFile(repositoriesDir));
+        project.Files.Add(CreateTaggingServiceFile(servicesDir));
+        project.Files.Add(CreateTaxonomyServiceFile(servicesDir));
+        project.Files.Add(CreateInfrastructureConfigureServicesFile(project.Directory));
     }
 
     public void AddApiFiles(ProjectModel project, string microserviceName)
@@ -869,102 +82,1432 @@ public class TaggingArtifactFactory : ITaggingArtifactFactory
         logger.LogInformation("Adding Tagging.Api files");
         var controllersDir = Path.Combine(project.Directory, "Controllers");
 
-        project.Files.Add(new FileModel("TagsController", controllersDir, CSharp)
+        project.Files.Add(CreateTagsControllerFile(controllersDir));
+        project.Files.Add(CreateProgramFile(project.Directory));
+        project.Files.Add(CreateAppSettingsFile(project.Directory));
+    }
+
+    #region Core Layer - Entities
+
+    private static CodeFileModel<ClassModel> CreateTagEntityFile(string directory)
+    {
+        var classModel = new ClassModel("Tag");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "CategoryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Category") { Nullable = true }, "Category", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Color", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "UpdatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("ICollection") { GenericTypeParameters = [new TypeModel("EntityTag")] }, "EntityTags", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<EntityTag>()" });
+
+        return new CodeFileModel<ClassModel>(classModel, "Tag", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "Tagging.Core.Entities"
+        };
+    }
 
-                using Microsoft.AspNetCore.Mvc;
-                using Tagging.Core.DTOs;
-                using Tagging.Core.Interfaces;
+    private static CodeFileModel<ClassModel> CreateCategoryEntityFile(string directory)
+    {
+        var classModel = new ClassModel("Category");
 
-                namespace Tagging.Api.Controllers;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "CategoryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "ParentCategoryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Category") { Nullable = true }, "ParentCategory", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "UpdatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("ICollection") { GenericTypeParameters = [new TypeModel("Tag")] }, "Tags", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<Tag>()" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("ICollection") { GenericTypeParameters = [new TypeModel("Category")] }, "SubCategories", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<Category>()" });
 
-                [ApiController]
-                [Route("api/[controller]")]
-                public class TagsController : ControllerBase
-                {
-                    private readonly ITaggingService service;
+        return new CodeFileModel<ClassModel>(classModel, "Category", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.Entities"
+        };
+    }
 
-                    public TagsController(ITaggingService service)
-                    {
-                        this.service = service;
-                    }
+    private static CodeFileModel<ClassModel> CreateEntityTagFile(string directory)
+    {
+        var classModel = new ClassModel("EntityTag");
 
-                    [HttpPost]
-                    public async Task<ActionResult<TagDto>> Create([FromBody] CreateTagRequest request, CancellationToken cancellationToken)
-                    {
-                        var tag = await service.CreateTagAsync(request, cancellationToken);
-                        return CreatedAtAction(nameof(GetById), new { id = tag.TagId }, tag);
-                    }
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityTagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Tag"), "Tag", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "null!" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "TaggedBy", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "TaggedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
 
-                    [HttpGet]
-                    public async Task<ActionResult<IEnumerable<TagDto>>> GetAll(CancellationToken cancellationToken)
-                    {
-                        var tags = await service.GetAllTagsAsync(cancellationToken);
-                        return Ok(tags);
-                    }
+        return new CodeFileModel<ClassModel>(classModel, "EntityTag", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.Entities"
+        };
+    }
 
-                    [HttpGet("{id:guid}")]
-                    public async Task<ActionResult<TagDto>> GetById(Guid id, CancellationToken cancellationToken)
-                    {
-                        var tag = await service.GetTagByIdAsync(id, cancellationToken);
-                        if (tag == null) return NotFound();
-                        return Ok(tag);
-                    }
+    private static CodeFileModel<ClassModel> CreateTaxonomyEntityFile(string directory)
+    {
+        var classModel = new ClassModel("Taxonomy");
 
-                    [HttpPost("{entityType}/{entityId:guid}")]
-                    public async Task<ActionResult<EntityTagDto>> TagEntity(string entityType, Guid entityId, [FromBody] TagEntityBodyRequest body, CancellationToken cancellationToken)
-                    {
-                        var request = new TagEntityRequest
-                        {
-                            TagId = body.TagId,
-                            EntityType = entityType,
-                            EntityId = entityId,
-                            TaggedBy = body.TaggedBy
-                        };
-                        var entityTag = await service.TagEntityAsync(request, cancellationToken);
-                        return Created($"/api/tags/{entityType}/{entityId}", entityTag);
-                    }
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TaxonomyId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsHierarchical", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "false" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "AllowMultiple", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "UpdatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
 
-                    [HttpGet("{entityType}/{entityId:guid}")]
-                    public async Task<ActionResult<IEnumerable<TagDto>>> GetTagsForEntity(string entityType, Guid entityId, CancellationToken cancellationToken)
-                    {
-                        var tags = await service.GetTagsForEntityAsync(entityType, entityId, cancellationToken);
-                        return Ok(tags);
-                    }
+        return new CodeFileModel<ClassModel>(classModel, "Taxonomy", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.Entities"
+        };
+    }
 
-                    [HttpDelete("{entityType}/{entityId:guid}/{tagId:guid}")]
-                    public async Task<IActionResult> UntagEntity(string entityType, Guid entityId, Guid tagId, CancellationToken cancellationToken)
-                    {
-                        await service.UntagEntityAsync(entityType, entityId, tagId, cancellationToken);
-                        return NoContent();
-                    }
+    #endregion
 
-                    [HttpPost("merge")]
-                    public async Task<IActionResult> MergeTags([FromBody] MergeTagsRequest request, CancellationToken cancellationToken)
-                    {
-                        await service.MergeTagsAsync(request.SourceTagId, request.TargetTagId, cancellationToken);
-                        return NoContent();
-                    }
-                }
+    #region Core Layer - Interfaces
 
-                public sealed class TagEntityBodyRequest
-                {
-                    public Guid TagId { get; init; }
-                    public Guid? TaggedBy { get; init; }
-                }
+    private static CodeFileModel<InterfaceModel> CreateITagRepositoryFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("ITagRepository");
 
-                public sealed class MergeTagsRequest
-                {
-                    public Guid SourceTagId { get; init; }
-                    public Guid TargetTagId { get; init; }
-                }
-                """
+        interfaceModel.Usings.Add(new UsingModel("Tagging.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Tag") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "tagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("Program", project.Directory, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByNameAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Tag") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "name", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Tag")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByCategoryIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Tag")] }] },
+            Params =
+            [
+                new ParamModel { Name = "categoryId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Tag")] },
+            Params =
+            [
+                new ParamModel { Name = "tag", Type = new TypeModel("Tag") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "tag", Type = new TypeModel("Tag") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "tagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ITagRepository", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.Interfaces"
+        };
+    }
+
+    private static CodeFileModel<InterfaceModel> CreateITaggingServiceFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("ITaggingService");
+
+        interfaceModel.Usings.Add(new UsingModel("Tagging.Core.DTOs"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "CreateTagAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("TagDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateTagRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetTagByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("TagDto") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "tagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllTagsAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TagDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "TagEntityAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("EntityTagDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("TagEntityRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetTagsForEntityAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TagDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "UntagEntityAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "tagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "MergeTagsAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "sourceTagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "targetTagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ITaggingService", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.Interfaces"
+        };
+    }
+
+    private static CodeFileModel<InterfaceModel> CreateITaxonomyServiceFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("ITaxonomyService");
+
+        interfaceModel.Usings.Add(new UsingModel("Tagging.Core.DTOs"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "CreateTaxonomyAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("TaxonomyDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateTaxonomyRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetTaxonomyByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("TaxonomyDto") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "taxonomyId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllTaxonomiesAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TaxonomyDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateTaxonomyAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "taxonomyId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "request", Type = new TypeModel("UpdateTaxonomyRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteTaxonomyAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "taxonomyId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ITaxonomyService", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.Interfaces"
+        };
+    }
+
+    #endregion
+
+    #region Core Layer - Events
+
+    private static CodeFileModel<ClassModel> CreateTagCreatedEventFile(string directory)
+    {
+        var classModel = new ClassModel("TagCreatedEvent")
+        {
+            Sealed = true
+        };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "CategoryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "TagCreatedEvent", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.Events"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateEntityTaggedEventFile(string directory)
+    {
+        var classModel = new ClassModel("EntityTaggedEvent")
+        {
+            Sealed = true
+        };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityTagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "TaggedBy", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "EntityTaggedEvent", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.Events"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateTagMergedEventFile(string directory)
+    {
+        var classModel = new ClassModel("TagMergedEvent")
+        {
+            Sealed = true
+        };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "SourceTagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TargetTagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int"), "EntitiesRetagged", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "TagMergedEvent", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.Events"
+        };
+    }
+
+    #endregion
+
+    #region Core Layer - DTOs
+
+    private static CodeFileModel<ClassModel> CreateTagDtoFile(string directory)
+    {
+        var classModel = new ClassModel("TagDto")
+        {
+            Sealed = true
+        };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "CategoryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "CategoryName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Color", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "TagDto", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.DTOs"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateEntityTagDtoFile(string directory)
+    {
+        var classModel = new ClassModel("EntityTagDto")
+        {
+            Sealed = true
+        };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityTagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "TagName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "TaggedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "EntityTagDto", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.DTOs"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateTaxonomyDtoFile(string directory)
+    {
+        var classModel = new ClassModel("TaxonomyDto")
+        {
+            Sealed = true
+        };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TaxonomyId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsHierarchical", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "AllowMultiple", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "TaxonomyDto", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.DTOs"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateCreateTagRequestFile(string directory)
+    {
+        var classModel = new ClassModel("CreateTagRequest")
+        {
+            Sealed = true
+        };
+
+        classModel.Usings.Add(new UsingModel("System.ComponentModel.DataAnnotations"));
+
+        var nameProperty = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true);
+        nameProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Required" });
+        nameProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "MaxLength", Template = "100" });
+        classModel.Properties.Add(nameProperty);
+
+        var descriptionProperty = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]);
+        descriptionProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "MaxLength", Template = "500" });
+        classModel.Properties.Add(descriptionProperty);
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "CategoryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+
+        var colorProperty = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Color", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]);
+        colorProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "MaxLength", Template = "7" });
+        classModel.Properties.Add(colorProperty);
+
+        return new CodeFileModel<ClassModel>(classModel, "CreateTagRequest", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.DTOs"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateTagEntityRequestFile(string directory)
+    {
+        var classModel = new ClassModel("TagEntityRequest")
+        {
+            Sealed = true
+        };
+
+        classModel.Usings.Add(new UsingModel("System.ComponentModel.DataAnnotations"));
+
+        var tagIdProperty = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TagId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]);
+        tagIdProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Required" });
+        classModel.Properties.Add(tagIdProperty);
+
+        var entityTypeProperty = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true);
+        entityTypeProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Required" });
+        classModel.Properties.Add(entityTypeProperty);
+
+        var entityIdProperty = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]);
+        entityIdProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Required" });
+        classModel.Properties.Add(entityIdProperty);
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "TaggedBy", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "TagEntityRequest", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.DTOs"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateCreateTaxonomyRequestFile(string directory)
+    {
+        var classModel = new ClassModel("CreateTaxonomyRequest")
+        {
+            Sealed = true
+        };
+
+        classModel.Usings.Add(new UsingModel("System.ComponentModel.DataAnnotations"));
+
+        var nameProperty = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true);
+        nameProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Required" });
+        nameProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "MaxLength", Template = "100" });
+        classModel.Properties.Add(nameProperty);
+
+        var descriptionProperty = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]);
+        descriptionProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "MaxLength", Template = "500" });
+        classModel.Properties.Add(descriptionProperty);
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsHierarchical", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "false" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "AllowMultiple", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "true" });
+
+        return new CodeFileModel<ClassModel>(classModel, "CreateTaxonomyRequest", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.DTOs"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateUpdateTaxonomyRequestFile(string directory)
+    {
+        var classModel = new ClassModel("UpdateTaxonomyRequest")
+        {
+            Sealed = true
+        };
+
+        classModel.Usings.Add(new UsingModel("System.ComponentModel.DataAnnotations"));
+
+        var nameProperty = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]);
+        nameProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "MaxLength", Template = "100" });
+        classModel.Properties.Add(nameProperty);
+
+        var descriptionProperty = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]);
+        descriptionProperty.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "MaxLength", Template = "500" });
+        classModel.Properties.Add(descriptionProperty);
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool") { Nullable = true }, "IsHierarchical", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool") { Nullable = true }, "AllowMultiple", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool") { Nullable = true }, "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "UpdateTaxonomyRequest", directory, CSharp)
+        {
+            Namespace = "Tagging.Core.DTOs"
+        };
+    }
+
+    #endregion
+
+    #region Infrastructure Layer
+
+    private static CodeFileModel<ClassModel> CreateTaggingDbContextFile(string directory)
+    {
+        var classModel = new ClassModel("TaggingDbContext");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.Entities"));
+
+        classModel.Implements.Add(new TypeModel("DbContext"));
+
+        var constructor = new ConstructorModel(classModel, "TaggingDbContext")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "options", Type = new TypeModel("DbContextOptions") { GenericTypeParameters = [new TypeModel("TaggingDbContext")] } }],
+            BaseParams = ["options"]
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Tag")] }, "Tags", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Tag>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Category")] }, "Categories", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Category>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("EntityTag")] }, "EntityTags", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<EntityTag>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Taxonomy")] }, "Taxonomies", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Taxonomy>()")]));
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "OnModelCreating",
+            AccessModifier = AccessModifier.Protected,
+            Override = true,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "modelBuilder", Type = new TypeModel("ModelBuilder") }],
+            Body = new ExpressionModel(@"modelBuilder.Entity<Tag>(entity =>
+        {
+            entity.HasKey(t => t.TagId);
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            entity.HasIndex(t => t.Name).IsUnique();
+            entity.Property(t => t.Color).HasMaxLength(7);
+            entity.HasOne(t => t.Category).WithMany(c => c.Tags).HasForeignKey(t => t.CategoryId);
+        });
+
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.HasKey(c => c.CategoryId);
+            entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
+            entity.HasIndex(c => c.Name).IsUnique();
+            entity.HasOne(c => c.ParentCategory).WithMany(c => c.SubCategories).HasForeignKey(c => c.ParentCategoryId);
+        });
+
+        modelBuilder.Entity<EntityTag>(entity =>
+        {
+            entity.HasKey(et => et.EntityTagId);
+            entity.Property(et => et.EntityType).IsRequired().HasMaxLength(100);
+            entity.HasIndex(et => new { et.TagId, et.EntityType, et.EntityId }).IsUnique();
+            entity.HasOne(et => et.Tag).WithMany(t => t.EntityTags).HasForeignKey(et => et.TagId);
+        });
+
+        modelBuilder.Entity<Taxonomy>(entity =>
+        {
+            entity.HasKey(t => t.TaxonomyId);
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            entity.HasIndex(t => t.Name).IsUnique();
+        });")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "TaggingDbContext", directory, CSharp)
+        {
+            Namespace = "Tagging.Infrastructure.Data"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateTagRepositoryFile(string directory)
+    {
+        var classModel = new ClassModel("TagRepository");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Tagging.Infrastructure.Data"));
+
+        classModel.Implements.Add(new TypeModel("ITagRepository"));
+
+        classModel.Fields.Add(new FieldModel
+        {
+            Name = "context",
+            Type = new TypeModel("TaggingDbContext"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
+        });
+
+        var constructor = new ConstructorModel(classModel, "TagRepository")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "context", Type = new TypeModel("TaggingDbContext") }],
+            Body = new ExpressionModel("this.context = context;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Tag") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "tagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Tags.Include(t => t.Category).FirstOrDefaultAsync(t => t.TagId == tagId, cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByNameAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Tag") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "name", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Tags.Include(t => t.Category).FirstOrDefaultAsync(t => t.Name == name, cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Tag")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Tags.Include(t => t.Category).Where(t => t.IsActive).ToListAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByCategoryIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Tag")] }] },
+            Params =
+            [
+                new ParamModel { Name = "categoryId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Tags.Include(t => t.Category).Where(t => t.CategoryId == categoryId && t.IsActive).ToListAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Tag")] },
+            Params =
+            [
+                new ParamModel { Name = "tag", Type = new TypeModel("Tag") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"tag.TagId = Guid.NewGuid();
+        await context.Tags.AddAsync(tag, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return tag;")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "tag", Type = new TypeModel("Tag") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"tag.UpdatedAt = DateTime.UtcNow;
+        context.Tags.Update(tag);
+        await context.SaveChangesAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "tagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var tag = await context.Tags.FindAsync(new object[] { tagId }, cancellationToken);
+        if (tag != null)
+        {
+            context.Tags.Remove(tag);
+            await context.SaveChangesAsync(cancellationToken);
+        }")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "TagRepository", directory, CSharp)
+        {
+            Namespace = "Tagging.Infrastructure.Repositories"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateTaggingServiceFile(string directory)
+    {
+        var classModel = new ClassModel("TaggingService");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Tagging.Infrastructure.Data"));
+
+        classModel.Implements.Add(new TypeModel("ITaggingService"));
+
+        classModel.Fields.Add(new FieldModel { Name = "repository", Type = new TypeModel("ITagRepository"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "context", Type = new TypeModel("TaggingDbContext"), AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "TaggingService")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "repository", Type = new TypeModel("ITagRepository") },
+                new ParamModel { Name = "context", Type = new TypeModel("TaggingDbContext") }
+            ],
+            Body = new ExpressionModel(@"this.repository = repository;
+        this.context = context;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "CreateTagAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("TagDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateTagRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var tag = new Tag
+        {
+            Name = request.Name,
+            Description = request.Description,
+            CategoryId = request.CategoryId,
+            Color = request.Color
+        };
+
+        var created = await repository.AddAsync(tag, cancellationToken);
+        var category = created.CategoryId.HasValue
+            ? await context.Categories.FindAsync(new object[] { created.CategoryId.Value }, cancellationToken)
+            : null;
+
+        return new TagDto
+        {
+            TagId = created.TagId,
+            Name = created.Name,
+            Description = created.Description,
+            CategoryId = created.CategoryId,
+            CategoryName = category?.Name,
+            Color = created.Color,
+            IsActive = created.IsActive,
+            CreatedAt = created.CreatedAt
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetTagByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("TagDto") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "tagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var tag = await repository.GetByIdAsync(tagId, cancellationToken);
+        if (tag == null) return null;
+
+        return new TagDto
+        {
+            TagId = tag.TagId,
+            Name = tag.Name,
+            Description = tag.Description,
+            CategoryId = tag.CategoryId,
+            CategoryName = tag.Category?.Name,
+            Color = tag.Color,
+            IsActive = tag.IsActive,
+            CreatedAt = tag.CreatedAt
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllTagsAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TagDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var tags = await repository.GetAllAsync(cancellationToken);
+        return tags.Select(t => new TagDto
+        {
+            TagId = t.TagId,
+            Name = t.Name,
+            Description = t.Description,
+            CategoryId = t.CategoryId,
+            CategoryName = t.Category?.Name,
+            Color = t.Color,
+            IsActive = t.IsActive,
+            CreatedAt = t.CreatedAt
+        });")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "TagEntityAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("EntityTagDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("TagEntityRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var tag = await repository.GetByIdAsync(request.TagId, cancellationToken)
+            ?? throw new InvalidOperationException($""Tag with ID {request.TagId} not found."");
+
+        var entityTag = new EntityTag
+        {
+            EntityTagId = Guid.NewGuid(),
+            TagId = request.TagId,
+            EntityType = request.EntityType,
+            EntityId = request.EntityId,
+            TaggedBy = request.TaggedBy
+        };
+
+        await context.EntityTags.AddAsync(entityTag, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return new EntityTagDto
+        {
+            EntityTagId = entityTag.EntityTagId,
+            TagId = entityTag.TagId,
+            TagName = tag.Name,
+            EntityType = entityTag.EntityType,
+            EntityId = entityTag.EntityId,
+            TaggedAt = entityTag.TaggedAt
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetTagsForEntityAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TagDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var entityTags = await context.EntityTags
+            .Include(et => et.Tag)
+            .ThenInclude(t => t.Category)
+            .Where(et => et.EntityType == entityType && et.EntityId == entityId)
+            .ToListAsync(cancellationToken);
+
+        return entityTags.Select(et => new TagDto
+        {
+            TagId = et.Tag.TagId,
+            Name = et.Tag.Name,
+            Description = et.Tag.Description,
+            CategoryId = et.Tag.CategoryId,
+            CategoryName = et.Tag.Category?.Name,
+            Color = et.Tag.Color,
+            IsActive = et.Tag.IsActive,
+            CreatedAt = et.Tag.CreatedAt
+        });")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UntagEntityAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "tagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var entityTag = await context.EntityTags
+            .FirstOrDefaultAsync(et => et.EntityType == entityType && et.EntityId == entityId && et.TagId == tagId, cancellationToken);
+
+        if (entityTag != null)
+        {
+            context.EntityTags.Remove(entityTag);
+            await context.SaveChangesAsync(cancellationToken);
+        }")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "MergeTagsAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "sourceTagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "targetTagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var sourceTag = await repository.GetByIdAsync(sourceTagId, cancellationToken)
+            ?? throw new InvalidOperationException($""Source tag with ID {sourceTagId} not found."");
+
+        var targetTag = await repository.GetByIdAsync(targetTagId, cancellationToken)
+            ?? throw new InvalidOperationException($""Target tag with ID {targetTagId} not found."");
+
+        var entityTags = await context.EntityTags
+            .Where(et => et.TagId == sourceTagId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var entityTag in entityTags)
+        {
+            var existingTarget = await context.EntityTags
+                .AnyAsync(et => et.TagId == targetTagId && et.EntityType == entityTag.EntityType && et.EntityId == entityTag.EntityId, cancellationToken);
+
+            if (!existingTarget)
+            {
+                entityTag.TagId = targetTagId;
+            }
+            else
+            {
+                context.EntityTags.Remove(entityTag);
+            }
+        }
+
+        sourceTag.IsActive = false;
+        await context.SaveChangesAsync(cancellationToken);")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "TaggingService", directory, CSharp)
+        {
+            Namespace = "Tagging.Infrastructure.Services"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateTaxonomyServiceFile(string directory)
+    {
+        var classModel = new ClassModel("TaxonomyService");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Tagging.Infrastructure.Data"));
+
+        classModel.Implements.Add(new TypeModel("ITaxonomyService"));
+
+        classModel.Fields.Add(new FieldModel { Name = "context", Type = new TypeModel("TaggingDbContext"), AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "TaxonomyService")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "context", Type = new TypeModel("TaggingDbContext") }],
+            Body = new ExpressionModel("this.context = context;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "CreateTaxonomyAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("TaxonomyDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateTaxonomyRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var taxonomy = new Taxonomy
+        {
+            TaxonomyId = Guid.NewGuid(),
+            Name = request.Name,
+            Description = request.Description,
+            IsHierarchical = request.IsHierarchical,
+            AllowMultiple = request.AllowMultiple
+        };
+
+        await context.Taxonomies.AddAsync(taxonomy, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return new TaxonomyDto
+        {
+            TaxonomyId = taxonomy.TaxonomyId,
+            Name = taxonomy.Name,
+            Description = taxonomy.Description,
+            IsHierarchical = taxonomy.IsHierarchical,
+            AllowMultiple = taxonomy.AllowMultiple,
+            IsActive = taxonomy.IsActive,
+            CreatedAt = taxonomy.CreatedAt
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetTaxonomyByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("TaxonomyDto") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "taxonomyId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var taxonomy = await context.Taxonomies.FindAsync(new object[] { taxonomyId }, cancellationToken);
+        if (taxonomy == null) return null;
+
+        return new TaxonomyDto
+        {
+            TaxonomyId = taxonomy.TaxonomyId,
+            Name = taxonomy.Name,
+            Description = taxonomy.Description,
+            IsHierarchical = taxonomy.IsHierarchical,
+            AllowMultiple = taxonomy.AllowMultiple,
+            IsActive = taxonomy.IsActive,
+            CreatedAt = taxonomy.CreatedAt
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllTaxonomiesAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TaxonomyDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var taxonomies = await context.Taxonomies.Where(t => t.IsActive).ToListAsync(cancellationToken);
+        return taxonomies.Select(t => new TaxonomyDto
+        {
+            TaxonomyId = t.TaxonomyId,
+            Name = t.Name,
+            Description = t.Description,
+            IsHierarchical = t.IsHierarchical,
+            AllowMultiple = t.AllowMultiple,
+            IsActive = t.IsActive,
+            CreatedAt = t.CreatedAt
+        });")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateTaxonomyAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "taxonomyId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "request", Type = new TypeModel("UpdateTaxonomyRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var taxonomy = await context.Taxonomies.FindAsync(new object[] { taxonomyId }, cancellationToken)
+            ?? throw new InvalidOperationException($""Taxonomy with ID {taxonomyId} not found."");
+
+        if (request.Name != null) taxonomy.Name = request.Name;
+        if (request.Description != null) taxonomy.Description = request.Description;
+        if (request.IsHierarchical.HasValue) taxonomy.IsHierarchical = request.IsHierarchical.Value;
+        if (request.AllowMultiple.HasValue) taxonomy.AllowMultiple = request.AllowMultiple.Value;
+        if (request.IsActive.HasValue) taxonomy.IsActive = request.IsActive.Value;
+        taxonomy.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteTaxonomyAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "taxonomyId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var taxonomy = await context.Taxonomies.FindAsync(new object[] { taxonomyId }, cancellationToken);
+        if (taxonomy != null)
+        {
+            context.Taxonomies.Remove(taxonomy);
+            await context.SaveChangesAsync(cancellationToken);
+        }")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "TaxonomyService", directory, CSharp)
+        {
+            Namespace = "Tagging.Infrastructure.Services"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateInfrastructureConfigureServicesFile(string directory)
+    {
+        var classModel = new ClassModel("ConfigureServices")
+        {
+            Static = true
+        };
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Tagging.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Tagging.Infrastructure.Repositories"));
+        classModel.Usings.Add(new UsingModel("Tagging.Infrastructure.Services"));
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddTaggingInfrastructure",
+            AccessModifier = AccessModifier.Public,
+            Static = true,
+            ReturnType = new TypeModel("IServiceCollection"),
+            Params =
+            [
+                new ParamModel { Name = "services", Type = new TypeModel("IServiceCollection"), ExtensionMethodParam = true },
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") }
+            ],
+            Body = new ExpressionModel(@"services.AddDbContext<TaggingDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString(""TaggingDb"") ??
+                @""Server=.\SQLEXPRESS;Database=TaggingDb;Trusted_Connection=True;TrustServerCertificate=True""));
+
+        services.AddScoped<ITagRepository, TagRepository>();
+        services.AddScoped<ITaggingService, TaggingService>();
+        services.AddScoped<ITaxonomyService, TaxonomyService>();
+        return services;")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "ConfigureServices", directory, CSharp)
+        {
+            Namespace = "Microsoft.Extensions.DependencyInjection"
+        };
+    }
+
+    #endregion
+
+    #region API Layer
+
+    private static CodeFileModel<ClassModel> CreateTagsControllerFile(string directory)
+    {
+        var classModel = new ClassModel("TagsController");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Mvc"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Tagging.Core.Interfaces"));
+
+        classModel.Implements.Add(new TypeModel("ControllerBase"));
+
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ApiController" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Route", Template = "\"api/[controller]\"" });
+
+        classModel.Fields.Add(new FieldModel { Name = "service", Type = new TypeModel("ITaggingService"), AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "TagsController")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "service", Type = new TypeModel("ITaggingService") }],
+            Body = new ExpressionModel("this.service = service;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        var createMethod = new MethodModel
+        {
+            Name = "Create",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("TagDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateTagRequest"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var tag = await service.CreateTagAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = tag.TagId }, tag);")
+        };
+        createMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost" });
+        classModel.Methods.Add(createMethod);
+
+        var getAllMethod = new MethodModel
+        {
+            Name = "GetAll",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TagDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var tags = await service.GetAllTagsAsync(cancellationToken);
+        return Ok(tags);")
+        };
+        getAllMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet" });
+        classModel.Methods.Add(getAllMethod);
+
+        var getByIdMethod = new MethodModel
+        {
+            Name = "GetById",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("TagDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "id", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var tag = await service.GetTagByIdAsync(id, cancellationToken);
+        if (tag == null) return NotFound();
+        return Ok(tag);")
+        };
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"{id:guid}\"" });
+        classModel.Methods.Add(getByIdMethod);
+
+        var tagEntityMethod = new MethodModel
+        {
+            Name = "TagEntity",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("EntityTagDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "body", Type = new TypeModel("TagEntityBodyRequest"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var request = new TagEntityRequest
+        {
+            TagId = body.TagId,
+            EntityType = entityType,
+            EntityId = entityId,
+            TaggedBy = body.TaggedBy
+        };
+        var entityTag = await service.TagEntityAsync(request, cancellationToken);
+        return Created($""/api/tags/{entityType}/{entityId}"", entityTag);")
+        };
+        tagEntityMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost", Template = "\"{entityType}/{entityId:guid}\"" });
+        classModel.Methods.Add(tagEntityMethod);
+
+        var getTagsForEntityMethod = new MethodModel
+        {
+            Name = "GetTagsForEntity",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TagDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var tags = await service.GetTagsForEntityAsync(entityType, entityId, cancellationToken);
+        return Ok(tags);")
+        };
+        getTagsForEntityMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"{entityType}/{entityId:guid}\"" });
+        classModel.Methods.Add(getTagsForEntityMethod);
+
+        var untagEntityMethod = new MethodModel
+        {
+            Name = "UntagEntity",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IActionResult")] },
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "tagId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"await service.UntagEntityAsync(entityType, entityId, tagId, cancellationToken);
+        return NoContent();")
+        };
+        untagEntityMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpDelete", Template = "\"{entityType}/{entityId:guid}/{tagId:guid}\"" });
+        classModel.Methods.Add(untagEntityMethod);
+
+        var mergeTagsMethod = new MethodModel
+        {
+            Name = "MergeTags",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IActionResult")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("MergeTagsRequest"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"await service.MergeTagsAsync(request.SourceTagId, request.TargetTagId, cancellationToken);
+        return NoContent();")
+        };
+        mergeTagsMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost", Template = "\"merge\"" });
+        classModel.Methods.Add(mergeTagsMethod);
+
+        return new CodeFileModel<ClassModel>(classModel, "TagsController", directory, CSharp)
+        {
+            Namespace = "Tagging.Api.Controllers"
+        };
+    }
+
+    private static FileModel CreateProgramFile(string directory)
+    {
+        return new FileModel("Program", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -991,9 +1534,12 @@ public class TaggingArtifactFactory : ITaggingArtifactFactory
                 app.MapHealthChecks("/health");
                 app.Run();
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("appsettings", project.Directory, ".json")
+    private static FileModel CreateAppSettingsFile(string directory)
+    {
+        return new FileModel("appsettings", directory, ".json")
         {
             Body = """
                 {
@@ -1008,6 +1554,8 @@ public class TaggingArtifactFactory : ITaggingArtifactFactory
                   "AllowedHosts": "*"
                 }
                 """
-        });
+        };
     }
+
+    #endregion
 }
