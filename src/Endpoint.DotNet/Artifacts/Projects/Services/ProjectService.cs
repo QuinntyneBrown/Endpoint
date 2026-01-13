@@ -82,23 +82,7 @@ public class ProjectService : IProjectService
         {
             var lines = new List<string>();
 
-            // Normalize paths to use consistent separators
-            var normalizedSolutionDir = solutionDirectory.Replace('\\', '/').TrimEnd('/');
-            var normalizedProjectPath = model.Path.Replace('\\', '/');
-            
-            // Get relative path
-            string relativePath;
-            if (normalizedProjectPath.StartsWith(normalizedSolutionDir + "/"))
-            {
-                relativePath = normalizedProjectPath.Substring(normalizedSolutionDir.Length + 1);
-            }
-            else
-            {
-                relativePath = normalizedProjectPath;
-            }
-            
-            // Convert to backslashes for .sln file (Visual Studio always uses backslashes)
-            relativePath = relativePath.Replace('/', '\\');
+            var relativePath = GetRelativePathForSolution(solutionDirectory, model.Path);
 
             var projectEntry = new string[2]
             {
@@ -128,23 +112,7 @@ public class ProjectService : IProjectService
         var lines = fileSystem.File.ReadAllLines(solutionPath).ToList();
         var projectGuid = $"{{{Guid.NewGuid().ToString().ToUpper()}}}";
         
-        // Normalize paths to use consistent separators
-        var normalizedSolutionDir = solutionDirectory.Replace('\\', '/').TrimEnd('/');
-        var normalizedProjectPath = model.Path.Replace('\\', '/');
-        
-        // Get relative path
-        string relativePath;
-        if (normalizedProjectPath.StartsWith(normalizedSolutionDir + "/"))
-        {
-            relativePath = normalizedProjectPath.Substring(normalizedSolutionDir.Length + 1);
-        }
-        else
-        {
-            relativePath = normalizedProjectPath;
-        }
-        
-        // Convert to backslashes for .sln file (Visual Studio always uses backslashes)
-        relativePath = relativePath.Replace('/', '\\');
+        var relativePath = GetRelativePathForSolution(solutionDirectory, model.Path);
 
         // Find the solution folder GUID if project is in a subfolder (e.g., "src")
         string solutionFolderGuid = null;
@@ -319,6 +287,27 @@ public class ProjectService : IProjectService
         }
 
         return -1;
+    }
+
+    private string GetRelativePathForSolution(string solutionDirectory, string projectPath)
+    {
+        // Normalize paths to use consistent separators
+        var normalizedSolutionDir = solutionDirectory.Replace('\\', '/').TrimEnd('/');
+        var normalizedProjectPath = projectPath.Replace('\\', '/');
+        
+        // Get relative path
+        string relativePath;
+        if (normalizedProjectPath.StartsWith(normalizedSolutionDir + "/"))
+        {
+            relativePath = normalizedProjectPath.Substring(normalizedSolutionDir.Length + 1);
+        }
+        else
+        {
+            relativePath = normalizedProjectPath;
+        }
+        
+        // Convert to backslashes for .sln file (Visual Studio always uses backslashes)
+        return relativePath.Replace('/', '\\');
     }
 
     public async Task AddEndpointPostBuildTargetElement(string csprojFilePath)
