@@ -36,7 +36,8 @@ public static class ConfigureServices
 {
     public static void AddEngineeringServices(this IServiceCollection services)
     {
-        services.AddSingleton<IApiArtifactFactory,ApiArtifactFactory>();
+        services.AddApiGatewayServices();
+        services.AddRedisPubSubServices();
         services.AddSingleton<ICodeParser, CodeParser>();
 
         // Register HttpClient for HtmlParserService
