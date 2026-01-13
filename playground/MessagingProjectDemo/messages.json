@@ -1,0 +1,233 @@
+{
+  "$schema": "https://endpoint.dev/schemas/messaging/v1.0.json",
+  "projectName": "ECommerce",
+  "namespace": "ECommerce.Messaging",
+  "description": "Shared messaging project for e-commerce microservices",
+  "version": "1.0.0",
+  "useLz4Compression": true,
+  "includeRedisPubSub": true,
+  "messages": [
+    {
+      "name": "OrderCreated",
+      "kind": "Event",
+      "messageType": "com.ecommerce.orders.v1.OrderCreated",
+      "description": "Event raised when a new order is created in the system",
+      "schemaVersion": 1,
+      "aggregateType": "Order",
+      "channel": "orders",
+      "properties": [
+        {
+          "name": "OrderId",
+          "type": "Guid",
+          "required": true,
+          "description": "The unique identifier of the order"
+        },
+        {
+          "name": "CustomerId",
+          "type": "Guid",
+          "required": true,
+          "description": "The customer who placed the order"
+        },
+        {
+          "name": "TotalAmount",
+          "type": "decimal",
+          "required": true,
+          "description": "The total amount of the order"
+        },
+        {
+          "name": "Currency",
+          "type": "string",
+          "required": true,
+          "defaultValue": "\"USD\"",
+          "description": "The currency code"
+        },
+        {
+          "name": "OrderItems",
+          "type": "string",
+          "isCollection": true,
+          "collectionType": "List",
+          "description": "The item IDs in the order"
+        }
+      ]
+    },
+    {
+      "name": "OrderShipped",
+      "kind": "Event",
+      "messageType": "com.ecommerce.orders.v1.OrderShipped",
+      "description": "Event raised when an order is shipped",
+      "aggregateType": "Order",
+      "channel": "orders",
+      "properties": [
+        {
+          "name": "OrderId",
+          "type": "Guid",
+          "required": true,
+          "description": "The order that was shipped"
+        },
+        {
+          "name": "TrackingNumber",
+          "type": "string",
+          "required": true,
+          "description": "The shipping tracking number"
+        },
+        {
+          "name": "Carrier",
+          "type": "string",
+          "required": true,
+          "description": "The shipping carrier name"
+        },
+        {
+          "name": "EstimatedDelivery",
+          "type": "DateTimeOffset",
+          "nullable": true,
+          "description": "The estimated delivery date"
+        }
+      ]
+    },
+    {
+      "name": "OrderCancelled",
+      "kind": "Event",
+      "messageType": "com.ecommerce.orders.v1.OrderCancelled",
+      "description": "Event raised when an order is cancelled",
+      "aggregateType": "Order",
+      "channel": "orders",
+      "properties": [
+        {
+          "name": "OrderId",
+          "type": "Guid",
+          "required": true
+        },
+        {
+          "name": "Reason",
+          "type": "string",
+          "required": true,
+          "description": "The cancellation reason"
+        },
+        {
+          "name": "RefundAmount",
+          "type": "decimal",
+          "nullable": true,
+          "description": "The amount to refund"
+        }
+      ]
+    },
+    {
+      "name": "ProcessPayment",
+      "kind": "Command",
+      "messageType": "com.ecommerce.payments.v1.ProcessPayment",
+      "description": "Command to process a payment for an order",
+      "channel": "payments",
+      "properties": [
+        {
+          "name": "PaymentId",
+          "type": "Guid",
+          "required": true,
+          "description": "The payment identifier"
+        },
+        {
+          "name": "OrderId",
+          "type": "Guid",
+          "required": true,
+          "description": "The order to pay for"
+        },
+        {
+          "name": "Amount",
+          "type": "decimal",
+          "required": true,
+          "description": "The payment amount"
+        },
+        {
+          "name": "Currency",
+          "type": "string",
+          "required": true,
+          "defaultValue": "\"USD\""
+        },
+        {
+          "name": "PaymentMethod",
+          "type": "string",
+          "required": true,
+          "description": "The payment method (e.g., CreditCard, PayPal)"
+        }
+      ]
+    },
+    {
+      "name": "PaymentProcessed",
+      "kind": "Event",
+      "messageType": "com.ecommerce.payments.v1.PaymentProcessed",
+      "description": "Event raised when a payment is successfully processed",
+      "aggregateType": "Payment",
+      "channel": "payments",
+      "properties": [
+        {
+          "name": "PaymentId",
+          "type": "Guid",
+          "required": true
+        },
+        {
+          "name": "OrderId",
+          "type": "Guid",
+          "required": true
+        },
+        {
+          "name": "Amount",
+          "type": "decimal",
+          "required": true
+        },
+        {
+          "name": "TransactionId",
+          "type": "string",
+          "required": true,
+          "description": "The external transaction reference"
+        }
+      ]
+    },
+    {
+      "name": "InventoryReserved",
+      "kind": "Event",
+      "messageType": "com.ecommerce.inventory.v1.InventoryReserved",
+      "description": "Event raised when inventory is reserved for an order",
+      "aggregateType": "Inventory",
+      "channel": "inventory",
+      "properties": [
+        {
+          "name": "ReservationId",
+          "type": "Guid",
+          "required": true
+        },
+        {
+          "name": "OrderId",
+          "type": "Guid",
+          "required": true
+        },
+        {
+          "name": "ProductId",
+          "type": "Guid",
+          "required": true
+        },
+        {
+          "name": "Quantity",
+          "type": "int",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "channels": [
+    {
+      "name": "orders",
+      "description": "Channel for order-related events",
+      "publishedMessages": ["OrderCreated", "OrderShipped", "OrderCancelled"]
+    },
+    {
+      "name": "payments",
+      "description": "Channel for payment-related messages",
+      "publishedMessages": ["PaymentProcessed"],
+      "subscribedMessages": ["ProcessPayment"]
+    },
+    {
+      "name": "inventory",
+      "description": "Channel for inventory-related events",
+      "publishedMessages": ["InventoryReserved"]
+    }
+  ]
+}
