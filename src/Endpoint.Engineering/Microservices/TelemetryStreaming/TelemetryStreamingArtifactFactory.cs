@@ -353,16 +353,15 @@ public class TelemetryStreamingArtifactFactory : ITelemetryStreamingArtifactFact
                                             // Messages would be sent via SignalR hub here
                                         }
                                     }
-
-                                    await Task.Delay(subscription.UpdateRateMs, stoppingToken);
                                 }
+
+                                // Wait before next cycle - subscriptions are checked at a base rate
+                                await Task.Delay(1000, stoppingToken);
                             }
                             catch (Exception ex)
                             {
                                 logger.LogError(ex, "Error occurred while publishing telemetry");
                             }
-
-                            await Task.Delay(1000, stoppingToken);
                         }
 
                         logger.LogInformation("Telemetry Publisher Service is stopping");

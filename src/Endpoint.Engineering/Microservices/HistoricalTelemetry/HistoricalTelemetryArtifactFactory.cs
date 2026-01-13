@@ -97,6 +97,7 @@ public class HistoricalTelemetryArtifactFactory : IHistoricalTelemetryArtifactFa
                 public interface IHistoricalTelemetryRepository
                 {
                     Task<HistoricalTelemetryRecord> AddAsync(HistoricalTelemetryRecord record, CancellationToken cancellationToken = default);
+                    Task AddRangeAsync(IEnumerable<HistoricalTelemetryRecord> records, CancellationToken cancellationToken = default);
                     Task<IEnumerable<HistoricalTelemetryRecord>> GetBySourceAsync(string source, DateTime startTime, DateTime endTime, int page, int pageSize, CancellationToken cancellationToken = default);
                     Task<IEnumerable<HistoricalTelemetryRecord>> GetByMetricAsync(string metricName, DateTime startTime, DateTime endTime, int page, int pageSize, CancellationToken cancellationToken = default);
                     Task<IEnumerable<HistoricalTelemetryRecord>> GetBySourceAndMetricAsync(string source, string metricName, DateTime startTime, DateTime endTime, int page, int pageSize, CancellationToken cancellationToken = default);
@@ -323,6 +324,12 @@ public class HistoricalTelemetryArtifactFactory : IHistoricalTelemetryArtifactFa
                         return record;
                     }
 
+                    public async Task AddRangeAsync(IEnumerable<HistoricalTelemetryRecord> records, CancellationToken cancellationToken = default)
+                    {
+                        await context.TelemetryRecords.AddRangeAsync(records, cancellationToken);
+                        await context.SaveChangesAsync(cancellationToken);
+                    }
+
                     public async Task<IEnumerable<HistoricalTelemetryRecord>> GetBySourceAsync(string source, DateTime startTime, DateTime endTime, int page, int pageSize, CancellationToken cancellationToken = default)
                     {
                         return await context.TelemetryRecords
@@ -415,9 +422,15 @@ public class HistoricalTelemetryArtifactFactory : IHistoricalTelemetryArtifactFa
 
                     public async Task PersistBatchAsync(IEnumerable<HistoricalTelemetryRecord> records, CancellationToken cancellationToken = default)
                     {
-                        foreach (var record in records)
+                        try
                         {
-                            await PersistTelemetryAsync(record, cancellationToken);
+                            await repository.AddRangeAsync(records, cancellationToken);
+                            logger.LogDebug("Persisted batch of {Count} telemetry records", records.Count());
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError(ex, "Error persisting batch of telemetry records");
+                            throw;
                         }
                     }
                 }
