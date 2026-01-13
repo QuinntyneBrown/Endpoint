@@ -36,6 +36,7 @@ public static class ConfigureServices
 {
     public static void AddEngineeringServices(this IServiceCollection services)
     {
+        services.AddSingleton<IApiArtifactFactory,ApiArtifactFactory>();
         services.AddSingleton<ICodeParser, CodeParser>();
 
         // Register HttpClient for HtmlParserService
@@ -78,3 +79,4 @@ public static class ConfigureServices
         services.AddSingleton<IMicroserviceFactory, MicroserviceFactory>();
     }
 }
+

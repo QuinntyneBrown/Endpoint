@@ -45,6 +45,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeParseDemo", "playground
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlParseDemo", "playground\HtmlParseDemo\HtmlParseDemo.csproj", "{4151E092-316B-756D-F42B-FF008D91C7D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGatewayAddDemo", "playground\ApiGatewayAddDemo\ApiGatewayAddDemo.csproj", "{C37CE93B-E679-4EDE-8577-4E108CC1202B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -235,6 +237,18 @@ Global
 		{4151E092-316B-756D-F42B-FF008D91C7D8}.Release|x64.Build.0 = Release|Any CPU
 		{4151E092-316B-756D-F42B-FF008D91C7D8}.Release|x86.ActiveCfg = Release|Any CPU
 		{4151E092-316B-756D-F42B-FF008D91C7D8}.Release|x86.Build.0 = Release|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Debug|x64.Build.0 = Debug|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Debug|x86.Build.0 = Debug|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Release|x64.ActiveCfg = Release|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Release|x64.Build.0 = Release|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Release|x86.ActiveCfg = Release|Any CPU
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -255,6 +269,7 @@ Global
 		{4195F8DC-763C-4953-97EC-A1A680A609FB} = {12E5C810-18C6-BE57-4EA6-3F3BE821652E}
 		{09CDF78A-7891-11D7-9382-D7D841EDF3BF} = {12E5C810-18C6-BE57-4EA6-3F3BE821652E}
 		{4151E092-316B-756D-F42B-FF008D91C7D8} = {12E5C810-18C6-BE57-4EA6-3F3BE821652E}
+		{C37CE93B-E679-4EDE-8577-4E108CC1202B} = {12E5C810-18C6-BE57-4EA6-3F3BE821652E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC7102AF-7E9C-4980-9861-48A3B74465E0}
