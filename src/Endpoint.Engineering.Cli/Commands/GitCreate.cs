@@ -17,7 +17,7 @@ namespace Endpoint.Engineering.Cli.Commands;
 [Verb("git-create")]
 public class GitCreateRequest : IRequest
 {
-    [Option('n', "name")]
+    [Option('n', "name", Required = true)]
     public string RepositoryName { get; set; }
 
     [Option('d', Required = false)]

@@ -29,33 +29,59 @@ public class GitGenerationStrategy : IArtifactGenerationStrategy<GitModel>
     {
         logger.LogInformation("Generating Git Repository. {repositoryName}", model.RepositoryName);
 
-        var client = new GitHubClient(new ProductHeaderValue(model.Username))
+        var githubToken = Environment.GetEnvironmentVariable("GithubPersonalAccessToken", EnvironmentVariableTarget.Machine);
+        
+        if (!string.IsNullOrEmpty(githubToken) && !string.IsNullOrEmpty(model.Username))
         {
-            Credentials = new Credentials(Environment.GetEnvironmentVariable("GithubPersonalAccessToken", EnvironmentVariableTarget.Machine)),
-        };
+            var client = new GitHubClient(new ProductHeaderValue(model.Username))
+            {
+                Credentials = new Credentials(githubToken),
+            };
 
-        client.Repository.Create(new NewRepository(model.RepositoryName)).GetAwaiter().GetResult();
+            client.Repository.Create(new NewRepository(model.RepositoryName)).GetAwaiter().GetResult();
+        }
+        else
+        {
+            logger.LogWarning("GitHub token or username not configured. Skipping GitHub repository creation.");
+        }
 
-        commandService.Start($"git init", $@"{model.Directory}");
+        if (!fileSystem.Directory.Exists(model.Directory))
+        {
+            fileSystem.Directory.CreateDirectory(model.Directory);
+        }
 
-        commandService.Start($"git config user.name {model.Username}", model.Directory);
+        commandService.Start($"git init -b main", $@"{model.Directory}");
 
-        commandService.Start($"git config user.email {model.Email}", model.Directory);
+        if (!string.IsNullOrEmpty(model.Username))
+        {
+            commandService.Start($"git config user.name {model.Username}", model.Directory);
+        }
+
+        if (!string.IsNullOrEmpty(model.Email))
+        {
+            commandService.Start($"git config user.email {model.Email}", model.Directory);
+        }
 
         fileSystem.File.WriteAllText(Path.Combine(model.Directory, ".gitignore"), string.Join(Environment.NewLine, templateLocator.Get("GitIgnoreFile")));
 
-        commandService.Start($"git remote add origin https://{model.Username}:{model.PersonalAccessToken}@github.com/{model.Username}/{model.RepositoryName}.git", model.Directory);
+        if (!string.IsNullOrEmpty(model.Username) && !string.IsNullOrEmpty(model.PersonalAccessToken))
+        {
+            commandService.Start($"git remote add origin https://{model.Username}:{model.PersonalAccessToken}@github.com/{model.Username}/{model.RepositoryName}.git", model.Directory);
+        }
 
         commandService.Start("git add -A", model.Directory);
 
         commandService.Start("git commit -m initial", model.Directory);
 
-        commandService.Start("git push --set-upstream origin master", model.Directory);
+        if (!string.IsNullOrEmpty(model.Username) && !string.IsNullOrEmpty(model.PersonalAccessToken))
+        {
+            commandService.Start("git push --set-upstream origin main", model.Directory);
 
-        commandService.Start("git checkout -b gh-pages", model.Directory);
+            commandService.Start("git checkout -b gh-pages", model.Directory);
 
-        commandService.Start("git push --set-upstream origin gh-pages", model.Directory);
+            commandService.Start("git push --set-upstream origin gh-pages", model.Directory);
 
-        commandService.Start("git checkout -", model.Directory);
+            commandService.Start("git checkout -", model.Directory);
+        }
     }
 }
