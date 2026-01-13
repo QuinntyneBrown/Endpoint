@@ -63,33 +63,12 @@ try
 
     await mediator.Send(listRequest);
 
-    // Test generating ALL 24 microservices
+    // Test generating the three requested microservices
     var microservicesToTest = new[]
     {
-        "Identity",
-        "Tenant",
-        "Notification",
-        "DocumentStorage",
-        "Search",
-        "Analytics",
-        "Billing",
-        "OcrVision",
-        "Scheduling",
-        "Audit",
-        "Export",
-        "Email",
-        "Integration",
-        "Media",
-        "Geolocation",
-        "Tagging",
-        "Collaboration",
-        "Calculation",
-        "Import",
-        "Cache",
-        "RateLimiting",
-        "Localization",
-        "Workflow",
-        "Backup"
+        "HistoricalTelemetry",
+        "TelemetryStreaming",
+        "ConfigurationManagement"
     };
 
     foreach (var microserviceName in microservicesToTest)

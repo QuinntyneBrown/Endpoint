@@ -126,11 +126,6 @@ public interface IMicroserviceFactory
     Task<SolutionModel> CreateWorkflowMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Creates a Backup microservice that manages data backup and disaster recovery.
-    /// </summary>
-    Task<SolutionModel> CreateBackupMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Creates a Configuration Management microservice that acts as the single source of truth for definitions and configuration files.
     /// </summary>
     Task<SolutionModel> CreateConfigurationManagementMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
