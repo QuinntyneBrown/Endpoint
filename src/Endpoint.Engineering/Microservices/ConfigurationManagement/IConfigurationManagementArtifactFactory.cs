@@ -14,5 +14,7 @@ public interface IConfigurationManagementArtifactFactory
 
     void AddInfrastructureFiles(ProjectModel project, string microserviceName);
 
+    void AddInfrastructureSeederFiles(ProjectModel project);
+
     void AddApiFiles(ProjectModel project, string microserviceName);
 }
