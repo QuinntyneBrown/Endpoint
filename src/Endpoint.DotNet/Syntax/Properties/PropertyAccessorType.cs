@@ -7,4 +7,5 @@ public enum PropertyAccessorType
 {
     Get,
     Set,
+    Init,
 }

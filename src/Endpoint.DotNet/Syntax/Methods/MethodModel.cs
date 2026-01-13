@@ -30,6 +30,10 @@ public class MethodModel : SyntaxModel
 
     public List<string> GenericConstraints { get; set; } = [];
 
+    public List<string> GenericTypeParameters { get; set; } = [];
+
+    public List<string> GenericTypeParameterConstraints { get; set; } = [];
+
     public string Name { get; set; }
 
     public bool Override { get; set; }

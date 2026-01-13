@@ -9,6 +9,12 @@ using Endpoint.Engineering.Messaging.Artifacts;
 using Endpoint.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Endpoint.Engineering.Cli.Commands;
 
@@ -16,7 +22,7 @@ namespace Endpoint.Engineering.Cli.Commands;
 /// Command to add a shared Messaging project to a solution.
 /// </summary>
 [Verb("messaging-project-add", HelpText = "Add a shared Messaging project with Redis pub/sub and MessagePack support")]
-public class MessagingProjectAddRequest : IRequest
+public class MessagingProjectAddRequest : IRequest<MediatR.Unit>
 {
     /// <summary>
     /// Gets or sets the path to a JSON file containing message definitions.
@@ -64,7 +70,7 @@ public class MessagingProjectAddRequest : IRequest
 /// <summary>
 /// Handler for the MessagingProjectAddRequest command.
 /// </summary>
-public class MessagingProjectAddRequestHandler : IRequestHandler<MessagingProjectAddRequest>
+public class MessagingProjectAddRequestHandler : IRequestHandler<MessagingProjectAddRequest, MediatR.Unit>
 {
     private readonly ILogger<MessagingProjectAddRequestHandler> _logger;
     private readonly IMessagingArtifactFactory _messagingFactory;
@@ -93,12 +99,12 @@ public class MessagingProjectAddRequestHandler : IRequestHandler<MessagingProjec
     }
 
     /// <inheritdoc/>
-    public async Task Handle(MessagingProjectAddRequest request, CancellationToken cancellationToken)
+    public async Task<MediatR.Unit> Handle(MessagingProjectAddRequest request, CancellationToken cancellationToken)
     {
         if (request.GenerateSample)
         {
             await GenerateSampleDefinitionFile(request.Directory, cancellationToken);
-            return;
+            return MediatR.Unit.Value;
         }
 
         var filePaths = GetFilePaths(request);
@@ -107,7 +113,7 @@ public class MessagingProjectAddRequestHandler : IRequestHandler<MessagingProjec
         {
             _logger.LogError("Either a definition file path (-f or -p) or project name (-n) is required.");
             _logger.LogInformation("Use --generate-sample to create a sample message definition file.");
-            return;
+            return MediatR.Unit.Value;
         }
 
         try
@@ -161,6 +167,8 @@ public class MessagingProjectAddRequestHandler : IRequestHandler<MessagingProjec
         {
             _logger.LogError(ex, "Error creating messaging project");
         }
+
+        return MediatR.Unit.Value;
     }
 
     private List<string> GetFilePaths(MessagingProjectAddRequest request)
