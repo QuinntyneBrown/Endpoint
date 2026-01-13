@@ -2,11 +2,20 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Expressions;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Engineering.Microservices.Identity;
+
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 /// <summary>
 /// Factory for creating Identity microservice artifacts according to identity-microservice.spec.md.
@@ -114,23 +123,13 @@ public class IdentityArtifactFactory : IIdentityArtifactFactory
 
     #region Core Layer Files
 
-    private static FileModel CreateIAggregateRootFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIAggregateRootFile(string directory)
     {
-        return new FileModel("IAggregateRoot", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IAggregateRoot");
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IAggregateRoot", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Identity.Core.Entities;
-
-                /// <summary>
-                /// Marker interface for aggregate roots.
-                /// </summary>
-                public interface IAggregateRoot
-                {
-                }
-                """
+            Namespace = "Identity.Core.Entities"
         };
     }
 
@@ -855,209 +854,272 @@ public class IdentityArtifactFactory : IIdentityArtifactFactory
         };
     }
 
-    private static FileModel CreateUserConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateUserConfigurationFile(string directory)
     {
-        return new FileModel("UserConfiguration", directory, CSharp)
+        var classModel = new ClassModel("UserConfiguration");
+
+        // Add XML documentation comment
+        classModel.Usings.Add(new UsingModel("Identity.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        // Implement IEntityTypeConfiguration<User>
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            GenericTypeParameters = [new("User")]
+        });
 
-                using Identity.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-                namespace Identity.Infrastructure.Data.Configurations;
-
-                /// <summary>
-                /// Entity configuration for User.
-                /// </summary>
-                public class UserConfiguration : IEntityTypeConfiguration<User>
+        // Create Configure method
+        var configureMethod = new MethodModel
+        {
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params =
+            [
+                new()
                 {
-                    public void Configure(EntityTypeBuilder<User> builder)
+                    Name = "builder",
+                    Type = new TypeModel("EntityTypeBuilder")
                     {
-                        builder.HasKey(u => u.UserId);
-
-                        builder.Property(u => u.Username)
-                            .IsRequired()
-                            .HasMaxLength(100);
-
-                        builder.Property(u => u.Email)
-                            .IsRequired()
-                            .HasMaxLength(255);
-
-                        builder.Property(u => u.PasswordHash)
-                            .IsRequired()
-                            .HasMaxLength(255);
-
-                        builder.Property(u => u.CreatedAt)
-                            .IsRequired();
-
-                        builder.HasIndex(u => u.Username)
-                            .IsUnique();
-
-                        builder.HasIndex(u => u.Email)
-                            .IsUnique();
+                        GenericTypeParameters = [new("User")]
                     }
                 }
-                """
+            ],
+            Body = new ExpressionModel(@"builder.HasKey(u => u.UserId);
+
+        builder.Property(u => u.Username)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(u => u.Email)
+            .IsRequired()
+            .HasMaxLength(255);
+
+        builder.Property(u => u.PasswordHash)
+            .IsRequired()
+            .HasMaxLength(255);
+
+        builder.Property(u => u.CreatedAt)
+            .IsRequired();
+
+        builder.HasIndex(u => u.Username)
+            .IsUnique();
+
+        builder.HasIndex(u => u.Email)
+            .IsUnique();")
+        };
+
+        classModel.Methods.Add(configureMethod);
+
+        return new CodeFileModel<ClassModel>(classModel, "UserConfiguration", directory, CSharp)
+        {
+            Namespace = "Identity.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateRoleConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateRoleConfigurationFile(string directory)
     {
-        return new FileModel("RoleConfiguration", directory, CSharp)
+        var classModel = new ClassModel("RoleConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Identity.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            GenericTypeParameters = [new("Role")]
+        });
 
-                using Identity.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-                namespace Identity.Infrastructure.Data.Configurations;
-
-                /// <summary>
-                /// Entity configuration for Role.
-                /// </summary>
-                public class RoleConfiguration : IEntityTypeConfiguration<Role>
+        var configureMethod = new MethodModel
+        {
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params =
+            [
+                new()
                 {
-                    public void Configure(EntityTypeBuilder<Role> builder)
+                    Name = "builder",
+                    Type = new TypeModel("EntityTypeBuilder")
                     {
-                        builder.HasKey(r => r.RoleId);
-
-                        builder.Property(r => r.Name)
-                            .IsRequired()
-                            .HasMaxLength(100);
-
-                        builder.Property(r => r.Description)
-                            .HasMaxLength(500);
-
-                        builder.HasIndex(r => r.Name)
-                            .IsUnique();
+                        GenericTypeParameters = [new("Role")]
                     }
                 }
-                """
+            ],
+            Body = new ExpressionModel(@"builder.HasKey(r => r.RoleId);
+
+        builder.Property(r => r.Name)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(r => r.Description)
+            .HasMaxLength(500);
+
+        builder.HasIndex(r => r.Name)
+            .IsUnique();")
+        };
+
+        classModel.Methods.Add(configureMethod);
+
+        return new CodeFileModel<ClassModel>(classModel, "RoleConfiguration", directory, CSharp)
+        {
+            Namespace = "Identity.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreatePermissionConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreatePermissionConfigurationFile(string directory)
     {
-        return new FileModel("PermissionConfiguration", directory, CSharp)
+        var classModel = new ClassModel("PermissionConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Identity.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            GenericTypeParameters = [new("Permission")]
+        });
 
-                using Identity.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-                namespace Identity.Infrastructure.Data.Configurations;
-
-                /// <summary>
-                /// Entity configuration for Permission.
-                /// </summary>
-                public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
+        var configureMethod = new MethodModel
+        {
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params =
+            [
+                new()
                 {
-                    public void Configure(EntityTypeBuilder<Permission> builder)
+                    Name = "builder",
+                    Type = new TypeModel("EntityTypeBuilder")
                     {
-                        builder.HasKey(p => p.PermissionId);
-
-                        builder.Property(p => p.Name)
-                            .IsRequired()
-                            .HasMaxLength(100);
-
-                        builder.Property(p => p.Resource)
-                            .IsRequired()
-                            .HasMaxLength(100);
-
-                        builder.Property(p => p.Action)
-                            .IsRequired()
-                            .HasMaxLength(50);
-
-                        builder.HasIndex(p => new { p.Resource, p.Action })
-                            .IsUnique();
+                        GenericTypeParameters = [new("Permission")]
                     }
                 }
-                """
+            ],
+            Body = new ExpressionModel(@"builder.HasKey(p => p.PermissionId);
+
+        builder.Property(p => p.Name)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(p => p.Resource)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(p => p.Action)
+            .IsRequired()
+            .HasMaxLength(50);
+
+        builder.HasIndex(p => new { p.Resource, p.Action })
+            .IsUnique();")
+        };
+
+        classModel.Methods.Add(configureMethod);
+
+        return new CodeFileModel<ClassModel>(classModel, "PermissionConfiguration", directory, CSharp)
+        {
+            Namespace = "Identity.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateUserRoleConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateUserRoleConfigurationFile(string directory)
     {
-        return new FileModel("UserRoleConfiguration", directory, CSharp)
+        var classModel = new ClassModel("UserRoleConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Identity.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            GenericTypeParameters = [new("UserRole")]
+        });
 
-                using Identity.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-                namespace Identity.Infrastructure.Data.Configurations;
-
-                /// <summary>
-                /// Entity configuration for UserRole.
-                /// </summary>
-                public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
+        var configureMethod = new MethodModel
+        {
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params =
+            [
+                new()
                 {
-                    public void Configure(EntityTypeBuilder<UserRole> builder)
+                    Name = "builder",
+                    Type = new TypeModel("EntityTypeBuilder")
                     {
-                        builder.HasKey(ur => new { ur.UserId, ur.RoleId });
-
-                        builder.HasOne(ur => ur.User)
-                            .WithMany(u => u.UserRoles)
-                            .HasForeignKey(ur => ur.UserId)
-                            .OnDelete(DeleteBehavior.Cascade);
-
-                        builder.HasOne(ur => ur.Role)
-                            .WithMany(r => r.UserRoles)
-                            .HasForeignKey(ur => ur.RoleId)
-                            .OnDelete(DeleteBehavior.Cascade);
+                        GenericTypeParameters = [new("UserRole")]
                     }
                 }
-                """
+            ],
+            Body = new ExpressionModel(@"builder.HasKey(ur => new { ur.UserId, ur.RoleId });
+
+        builder.HasOne(ur => ur.User)
+            .WithMany(u => u.UserRoles)
+            .HasForeignKey(ur => ur.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(ur => ur.Role)
+            .WithMany(r => r.UserRoles)
+            .HasForeignKey(ur => ur.RoleId)
+            .OnDelete(DeleteBehavior.Cascade);")
+        };
+
+        classModel.Methods.Add(configureMethod);
+
+        return new CodeFileModel<ClassModel>(classModel, "UserRoleConfiguration", directory, CSharp)
+        {
+            Namespace = "Identity.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateRolePermissionConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateRolePermissionConfigurationFile(string directory)
     {
-        return new FileModel("RolePermissionConfiguration", directory, CSharp)
+        var classModel = new ClassModel("RolePermissionConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Identity.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            GenericTypeParameters = [new("RolePermission")]
+        });
 
-                using Identity.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-                namespace Identity.Infrastructure.Data.Configurations;
-
-                /// <summary>
-                /// Entity configuration for RolePermission.
-                /// </summary>
-                public class RolePermissionConfiguration : IEntityTypeConfiguration<RolePermission>
+        var configureMethod = new MethodModel
+        {
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params =
+            [
+                new()
                 {
-                    public void Configure(EntityTypeBuilder<RolePermission> builder)
+                    Name = "builder",
+                    Type = new TypeModel("EntityTypeBuilder")
                     {
-                        builder.HasKey(rp => new { rp.RoleId, rp.PermissionId });
-
-                        builder.HasOne(rp => rp.Role)
-                            .WithMany(r => r.RolePermissions)
-                            .HasForeignKey(rp => rp.RoleId)
-                            .OnDelete(DeleteBehavior.Cascade);
-
-                        builder.HasOne(rp => rp.Permission)
-                            .WithMany(p => p.RolePermissions)
-                            .HasForeignKey(rp => rp.PermissionId)
-                            .OnDelete(DeleteBehavior.Cascade);
+                        GenericTypeParameters = [new("RolePermission")]
                     }
                 }
-                """
+            ],
+            Body = new ExpressionModel(@"builder.HasKey(rp => new { rp.RoleId, rp.PermissionId });
+
+        builder.HasOne(rp => rp.Role)
+            .WithMany(r => r.RolePermissions)
+            .HasForeignKey(rp => rp.RoleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(rp => rp.Permission)
+            .WithMany(p => p.RolePermissions)
+            .HasForeignKey(rp => rp.PermissionId)
+            .OnDelete(DeleteBehavior.Cascade);")
+        };
+
+        classModel.Methods.Add(configureMethod);
+
+        return new CodeFileModel<ClassModel>(classModel, "RolePermissionConfiguration", directory, CSharp)
+        {
+            Namespace = "Identity.Infrastructure.Data.Configurations"
         };
     }
 

@@ -22,7 +22,8 @@
       "Bash(mkdir:*)",
       "Bash(del \"playground\\EventDrivenMicroservices\\run.bat\")",
       "Bash(./event-driven-microservices.bat)",
-      "Bash(git log:*)"
+      "Bash(git log:*)",
+      "Bash(Select-String -Pattern \"Error|Build FAILED|Build succeeded\" -Context 2)"
     ],
     "deny": [],
     "ask": []
