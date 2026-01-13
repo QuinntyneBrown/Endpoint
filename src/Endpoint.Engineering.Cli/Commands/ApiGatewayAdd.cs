@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Artifacts.Abstractions;
+using Endpoint.DotNet.Artifacts.Projects.Services;
 using Endpoint.Engineering.Api;
 using Endpoint.Engineering.Api.Models;
 using Endpoint.Services;
@@ -44,6 +45,7 @@ public class ApiGatewayAddRequestHandler : IRequestHandler<ApiGatewayAddRequest>
     private readonly IFileSystem _fileSystem;
     private readonly IApiArtifactFactory _artifactFactory;
     private readonly IArtifactGenerator _artifactGenerator;
+    private readonly IProjectService _projectService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ApiGatewayAddRequestHandler"/> class.
@@ -53,24 +55,28 @@ public class ApiGatewayAddRequestHandler : IRequestHandler<ApiGatewayAddRequest>
     /// <param name="fileSystem">The file system abstraction.</param>
     /// <param name="artifactFactory">The artifact factory.</param>
     /// <param name="artifactGenerator">The artifact generator.</param>
+    /// <param name="projectService">The project service.</param>
     public ApiGatewayAddRequestHandler(
         ILogger<ApiGatewayAddRequestHandler> logger,
         IFileProvider fileProvider,
         IFileSystem fileSystem,
         IApiArtifactFactory artifactFactory,
-        IArtifactGenerator artifactGenerator)
+        IArtifactGenerator artifactGenerator,
+        IProjectService projectService)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(fileProvider);
         ArgumentNullException.ThrowIfNull(fileSystem);
         ArgumentNullException.ThrowIfNull(artifactFactory);
         ArgumentNullException.ThrowIfNull(artifactGenerator);
+        ArgumentNullException.ThrowIfNull(projectService);
 
         _logger = logger;
         _fileProvider = fileProvider;
         _fileSystem = fileSystem;
         _artifactFactory = artifactFactory;
         _artifactGenerator = artifactGenerator;
+        _projectService = projectService;
     }
 
     /// <inheritdoc/>
@@ -113,6 +119,9 @@ public class ApiGatewayAddRequestHandler : IRequestHandler<ApiGatewayAddRequest>
 
         // Generate the API Gateway project
         await _artifactGenerator.GenerateAsync(projectModel);
+
+        // Add project to solution
+        await _projectService.AddToSolution(projectModel);
 
         _logger.LogInformation("API Gateway project '{ProjectName}' added successfully!", projectModel.Name);
     }

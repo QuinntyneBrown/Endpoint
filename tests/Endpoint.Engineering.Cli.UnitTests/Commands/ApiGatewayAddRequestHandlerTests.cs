@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.IO.Abstractions.TestingHelpers;
 using Endpoint.Artifacts.Abstractions;
+using Endpoint.DotNet.Artifacts.Projects.Services;
 using Endpoint.Engineering.Cli.Commands;
 using Endpoint.Engineering.Api;
 using Endpoint.Engineering.Api.Models;
@@ -24,6 +25,7 @@ public class ApiGatewayAddRequestHandlerTests
     private readonly MockFileSystem _fileSystem;
     private readonly Mock<IApiArtifactFactory> _artifactFactoryMock;
     private readonly Mock<IArtifactGenerator> _artifactGeneratorMock;
+    private readonly Mock<IProjectService> _projectServiceMock;
     private readonly ApiGatewayAddRequestHandler _handler;
 
     public ApiGatewayAddRequestHandlerTests()
@@ -33,13 +35,15 @@ public class ApiGatewayAddRequestHandlerTests
         _fileSystem = new MockFileSystem();
         _artifactFactoryMock = new Mock<IApiArtifactFactory>();
         _artifactGeneratorMock = new Mock<IArtifactGenerator>();
+        _projectServiceMock = new Mock<IProjectService>();
 
         _handler = new ApiGatewayAddRequestHandler(
             _loggerMock.Object,
             _fileProviderMock.Object,
             _fileSystem,
             _artifactFactoryMock.Object,
-            _artifactGeneratorMock.Object);
+            _artifactGeneratorMock.Object,
+            _projectServiceMock.Object);
     }
 
     [Fact]
@@ -51,7 +55,8 @@ public class ApiGatewayAddRequestHandlerTests
             _fileProviderMock.Object,
             _fileSystem,
             _artifactFactoryMock.Object,
-            _artifactGeneratorMock.Object));
+            _artifactGeneratorMock.Object,
+            _projectServiceMock.Object));
     }
 
     [Fact]
@@ -63,7 +68,8 @@ public class ApiGatewayAddRequestHandlerTests
             null!,
             _fileSystem,
             _artifactFactoryMock.Object,
-            _artifactGeneratorMock.Object));
+            _artifactGeneratorMock.Object,
+            _projectServiceMock.Object));
     }
 
     [Fact]
@@ -75,7 +81,8 @@ public class ApiGatewayAddRequestHandlerTests
             _fileProviderMock.Object,
             null!,
             _artifactFactoryMock.Object,
-            _artifactGeneratorMock.Object));
+            _artifactGeneratorMock.Object,
+            _projectServiceMock.Object));
     }
 
     [Fact]
@@ -87,7 +94,8 @@ public class ApiGatewayAddRequestHandlerTests
             _fileProviderMock.Object,
             _fileSystem,
             null!,
-            _artifactGeneratorMock.Object));
+            _artifactGeneratorMock.Object,
+            _projectServiceMock.Object));
     }
 
     [Fact]
@@ -99,6 +107,20 @@ public class ApiGatewayAddRequestHandlerTests
             _fileProviderMock.Object,
             _fileSystem,
             _artifactFactoryMock.Object,
+            null!,
+            _projectServiceMock.Object));
+    }
+
+    [Fact]
+    public void Constructor_ShouldThrowArgumentNullException_WhenProjectServiceIsNull()
+    {
+        // Arrange & Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new ApiGatewayAddRequestHandler(
+            _loggerMock.Object,
+            _fileProviderMock.Object,
+            _fileSystem,
+            _artifactFactoryMock.Object,
+            _artifactGeneratorMock.Object,
             null!));
     }
 
