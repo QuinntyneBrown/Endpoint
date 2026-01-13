@@ -97,11 +97,11 @@ public class ApiGatewayAddRequestHandler : IRequestHandler<ApiGatewayAddRequest>
         var solutionName = request.Name ?? _fileSystem.Path.GetFileNameWithoutExtension(solutionPath);
         var solutionDirectory = _fileSystem.Path.GetDirectoryName(solutionPath)!;
 
-        // Determine the src directory (prefer src subdirectory if it exists)
+        // Determine the src directory (always use src; create if missing)
         var srcDirectory = _fileSystem.Path.Combine(solutionDirectory, "src");
         if (!_fileSystem.Directory.Exists(srcDirectory))
         {
-            srcDirectory = solutionDirectory;
+            _fileSystem.Directory.CreateDirectory(srcDirectory);
         }
 
         _logger.LogInformation("Found solution: {SolutionName} at {SolutionPath}", solutionName, solutionPath);

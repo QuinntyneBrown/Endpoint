@@ -11,6 +11,7 @@ using Endpoint.DotNet.Artifacts;
 using Endpoint.DotNet.Artifacts.Projects.Services;
 using Endpoint.DotNet.Services;
 using Endpoint.Engineering.Microservices;
+using Endpoint.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -35,6 +36,7 @@ public class PredefinedMicroserviceAddRequestHandler : IRequestHandler<Predefine
     private readonly IMicroserviceFactory microserviceFactory;
     private readonly IProjectService projectService;
     private readonly IFileSystem fileSystem;
+    private readonly IFileProvider fileProvider;
     private readonly IArtifactGenerator artifactGenerator;
 
     public PredefinedMicroserviceAddRequestHandler(
@@ -42,12 +44,14 @@ public class PredefinedMicroserviceAddRequestHandler : IRequestHandler<Predefine
         IMicroserviceFactory microserviceFactory,
         IProjectService projectService,
         IFileSystem fileSystem,
+        IFileProvider fileProvider,
         IArtifactGenerator artifactGenerator)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.microserviceFactory = microserviceFactory ?? throw new ArgumentNullException(nameof(microserviceFactory));
         this.projectService = projectService ?? throw new ArgumentNullException(nameof(projectService));
         this.fileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
+        this.fileProvider = fileProvider ?? throw new ArgumentNullException(nameof(fileProvider));
         this.artifactGenerator = artifactGenerator ?? throw new ArgumentNullException(nameof(artifactGenerator));
     }
 
@@ -73,7 +77,8 @@ public class PredefinedMicroserviceAddRequestHandler : IRequestHandler<Predefine
 
         try
         {
-            var solutionModel = await microserviceFactory.CreateByNameAsync(request.Name, request.Directory, cancellationToken);
+            var solutionCreationRoot = ResolveSrcRootDirectory(request.Directory);
+            var solutionModel = await microserviceFactory.CreateByNameAsync(request.Name, solutionCreationRoot, cancellationToken);
 
             logger.LogInformation("Creating microservice directory structure");
 
@@ -99,5 +104,27 @@ public class PredefinedMicroserviceAddRequestHandler : IRequestHandler<Predefine
             logger.LogError("{Message}", ex.Message);
             logger.LogInformation("Use --list to see available predefined microservices.");
         }
+    }
+
+    private string ResolveSrcRootDirectory(string directory)
+    {
+        // Prefer: <solution-directory>/src (create if needed)
+        // Fallback: <directory>/src
+        var solutionPath = fileProvider.Get("*.sln", directory, 0);
+
+        var baseDirectory = solutionPath == Endpoint.Constants.FileNotFound
+            ? directory
+            : fileSystem.Path.GetDirectoryName(solutionPath)!;
+
+        var srcDirectory = fileSystem.Path.Combine(baseDirectory, "src");
+
+        if (!fileSystem.Directory.Exists(srcDirectory))
+        {
+            fileSystem.Directory.CreateDirectory(srcDirectory);
+        }
+
+        logger.LogInformation("Creating microservice under: {SrcDirectory}", srcDirectory);
+
+        return srcDirectory;
     }
 }

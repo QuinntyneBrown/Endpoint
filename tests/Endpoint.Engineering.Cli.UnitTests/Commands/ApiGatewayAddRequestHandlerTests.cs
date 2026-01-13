@@ -246,7 +246,7 @@ public class ApiGatewayAddRequestHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldUseSolutionDirectory_WhenSrcDoesNotExist()
+    public async Task Handle_ShouldUseSrcDirectory_WhenSrcDoesNotExist()
     {
         // Arrange
         var request = new ApiGatewayAddRequest
@@ -260,8 +260,8 @@ public class ApiGatewayAddRequestHandlerTests
 
         // Note: Not adding /test/path/src to file system
 
-        var projectModel = new ApiGatewayModel("TestApp", "/test/path");
-        _artifactFactoryMock.Setup(x => x.CreateApiGatewayProjectAsync(It.Is<ApiGatewayInputModel>(m => !m.Directory.Contains("src")), It.IsAny<CancellationToken>()))
+        var projectModel = new ApiGatewayModel("TestApp", "/test/path/src");
+        _artifactFactoryMock.Setup(x => x.CreateApiGatewayProjectAsync(It.Is<ApiGatewayInputModel>(m => m.Directory.Contains("src")), It.IsAny<CancellationToken>()))
             .ReturnsAsync(projectModel);
 
         // Act
@@ -269,7 +269,7 @@ public class ApiGatewayAddRequestHandlerTests
 
         // Assert
         _artifactFactoryMock.Verify(x => x.CreateApiGatewayProjectAsync(
-            It.Is<ApiGatewayInputModel>(m => !m.Directory.Contains("src")),
+            It.Is<ApiGatewayInputModel>(m => m.Directory.Contains("src")),
             It.IsAny<CancellationToken>()), Times.Once);
     }
 }

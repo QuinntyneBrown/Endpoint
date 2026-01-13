@@ -104,7 +104,10 @@ public class MicroserviceFactory : IMicroserviceFactory
         "TelemetryStreaming",
         "HistoricalTelemetry",
         "GitAnalysis",
-        "RealtimeNotification"
+        "RealtimeNotification",
+        // Friendly aliases
+        "Real Time Notification Microservice",
+        "Git Processing Microservice"
     };
 
     public MicroserviceFactory(
@@ -175,7 +178,9 @@ public class MicroserviceFactory : IMicroserviceFactory
 
     public async Task<SolutionModel> CreateByNameAsync(string name, string directory, CancellationToken cancellationToken = default)
     {
-        return name.ToLowerInvariant() switch
+        var normalized = NormalizeMicroserviceName(name);
+
+        return normalized switch
         {
             "identity" => await CreateIdentityMicroserviceAsync(directory, cancellationToken),
             "tenant" => await CreateTenantMicroserviceAsync(directory, cancellationToken),
@@ -204,9 +209,25 @@ public class MicroserviceFactory : IMicroserviceFactory
             "telemetrystreaming" => await CreateTelemetryStreamingMicroserviceAsync(directory, cancellationToken),
             "historicaltelemetry" => await CreateHistoricalTelemetryMicroserviceAsync(directory, cancellationToken),
             "gitanalysis" => await CreateGitAnalysisMicroserviceAsync(directory, cancellationToken),
+            // Alias: "Git Processing Microservice"
+            "gitprocessing" => await CreateGitAnalysisMicroserviceAsync(directory, cancellationToken),
             "realtimenotification" => await CreateRealtimeNotificationMicroserviceAsync(directory, cancellationToken),
             _ => throw new ArgumentException($"Unknown microservice: {name}. Available microservices: {string.Join(", ", AvailableMicroserviceNames)}", nameof(name))
         };
+    }
+
+    private static string NormalizeMicroserviceName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return string.Empty;
+        }
+
+        // Strip spaces/punctuation by keeping only letters and digits.
+        // Then remove an optional "microservice" suffix.
+        var compact = new string(name.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+
+        return compact.Replace("microservice", string.Empty);
     }
 
     public async Task<SolutionModel> CreateIdentityMicroserviceAsync(string directory, CancellationToken cancellationToken = default)
