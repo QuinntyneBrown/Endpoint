@@ -34,4 +34,6 @@ public class CodeFileModel<T> : FileModel
     public List<UsingModel> Usings { get; set; }
 
     public string Namespace { get; set; }
+
+    public string AdditionalCode { get; set; }
 }

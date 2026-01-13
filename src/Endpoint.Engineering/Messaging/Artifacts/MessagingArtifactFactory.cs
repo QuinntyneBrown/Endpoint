@@ -818,7 +818,7 @@ public class MessagingArtifactFactory : IMessagingArtifactFactory
         {
             return prop.CollectionType switch
             {
-                "Array" => $" = Array.Empty<{GetCSharpType(prop with { IsCollection = false })}>();",
+                "Array" => $" = Array.Empty<{GetCSharpType(new MessagePropertyDefinition { Name = prop.Name, Type = prop.Type, Required = prop.Required, Nullable = prop.Nullable, Description = prop.Description, DefaultValue = prop.DefaultValue, IsCollection = false, CollectionType = prop.CollectionType })}>();",
                 _ => " = [];"
             };
         }

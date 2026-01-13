@@ -1,6 +1,7 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using Endpoint.DotNet.Syntax.Attributes;
 using Endpoint.DotNet.Syntax.Types;
 
@@ -27,6 +28,8 @@ public class ParamModel : SyntaxModel
     public TypeModel Type { get; set; }
 
     public AttributeModel Attribute { get; set; }
+
+    public List<AttributeModel> Attributes { get; set; } = [];
 
     public string DefaultValue { get; set; }
 

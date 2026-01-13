@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Endpoint.DotNet.Syntax.Attributes;
 using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Expressions;
 using Endpoint.DotNet.Syntax.Interfaces;
 using Endpoint.DotNet.Syntax.Types;
 
@@ -58,6 +59,8 @@ public class PropertyModel : SyntaxModel
     public TypeDeclarationModel Parent { get; set; }
 
     public string DefaultValue { get; set; }
+
+    public ExpressionModel Body { get; set; }
 
     public bool IsClassProperty => Parent is ClassModel;
 

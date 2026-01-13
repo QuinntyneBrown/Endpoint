@@ -26,11 +26,15 @@ public class PropertyAccessorModel
 
     public static PropertyAccessorModel Set => new PropertyAccessorModel(PropertyAccessorType.Set);
 
+    public static PropertyAccessorModel Init => new PropertyAccessorModel(PropertyAccessorType.Init);
+
     public static PropertyAccessorModel PrivateSet => new PropertyAccessorModel("private", PropertyAccessorType.Set);
 
     public static List<PropertyAccessorModel> GetPrivateSet => new List<PropertyAccessorModel>() { Get, PrivateSet };
 
     public static List<PropertyAccessorModel> GetSet => new List<PropertyAccessorModel>() { Get, Set };
+
+    public static List<PropertyAccessorModel> GetInit => new List<PropertyAccessorModel>() { Get, Init };
 
     public string AccessModifier { get; private set; }
 

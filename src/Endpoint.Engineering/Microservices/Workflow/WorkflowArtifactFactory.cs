@@ -13,6 +13,7 @@ using Endpoint.DotNet.Syntax.Interfaces;
 using Endpoint.DotNet.Syntax.Methods;
 using Endpoint.DotNet.Syntax.Params;
 using Endpoint.DotNet.Syntax.Properties;
+using Endpoint.DotNet.Syntax.Attributes;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
@@ -691,27 +692,27 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
             BaseParams = ["options"]
         });
 
-        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Core.Entities.Workflow")] }, "Workflows", [new PropertyAccessorModel(PropertyAccessorType.Get, null)])
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Core.Entities.Workflow")] }, "Workflows", [new PropertyAccessorModel(PropertyAccessorType.Get)])
         {
             Body = new ExpressionModel("Set<Core.Entities.Workflow>()")
         });
 
-        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("WorkflowInstance")] }, "WorkflowInstances", [new PropertyAccessorModel(PropertyAccessorType.Get, null)])
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("WorkflowInstance")] }, "WorkflowInstances", [new PropertyAccessorModel(PropertyAccessorType.Get)])
         {
             Body = new ExpressionModel("Set<WorkflowInstance>()")
         });
 
-        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("WorkflowStep")] }, "WorkflowSteps", [new PropertyAccessorModel(PropertyAccessorType.Get, null)])
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("WorkflowStep")] }, "WorkflowSteps", [new PropertyAccessorModel(PropertyAccessorType.Get)])
         {
             Body = new ExpressionModel("Set<WorkflowStep>()")
         });
 
-        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("ApprovalRequest")] }, "ApprovalRequests", [new PropertyAccessorModel(PropertyAccessorType.Get, null)])
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("ApprovalRequest")] }, "ApprovalRequests", [new PropertyAccessorModel(PropertyAccessorType.Get)])
         {
             Body = new ExpressionModel("Set<ApprovalRequest>()")
         });
 
-        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("WorkflowHistory")] }, "WorkflowHistories", [new PropertyAccessorModel(PropertyAccessorType.Get, null)])
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("WorkflowHistory")] }, "WorkflowHistories", [new PropertyAccessorModel(PropertyAccessorType.Get)])
         {
             Body = new ExpressionModel("Set<WorkflowHistory>()")
         });
@@ -773,7 +774,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
     {
         var classModel = new ClassModel("WorkflowRepository")
         {
-            Implements = ["IWorkflowRepository"]
+            Implements = [new TypeModel("IWorkflowRepository")]
         };
         classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
         classModel.Usings.Add(new UsingModel("Workflow.Core.Entities"));
@@ -785,7 +786,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
             Name = "context",
             Type = new TypeModel("WorkflowDbContext"),
             AccessModifier = AccessModifier.Private,
-            Readonly = true
+            ReadOnly = true
         });
 
         classModel.Constructors.Add(new ConstructorModel(classModel, classModel.Name)
@@ -946,7 +947,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
     {
         var classModel = new ClassModel("WorkflowEngine")
         {
-            Implements = ["IWorkflowEngine"]
+            Implements = [new TypeModel("IWorkflowEngine")]
         };
         classModel.Usings.Add(new UsingModel("Workflow.Core.Entities"));
         classModel.Usings.Add(new UsingModel("Workflow.Core.Interfaces"));
@@ -956,7 +957,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
             Name = "repository",
             Type = new TypeModel("IWorkflowRepository"),
             AccessModifier = AccessModifier.Private,
-            Readonly = true
+            ReadOnly = true
         });
 
         classModel.Fields.Add(new FieldModel
@@ -964,7 +965,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
             Name = "stateManager",
             Type = new TypeModel("IStateManager"),
             AccessModifier = AccessModifier.Private,
-            Readonly = true
+            ReadOnly = true
         });
 
         classModel.Constructors.Add(new ConstructorModel(classModel, classModel.Name)
@@ -1135,7 +1136,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
     {
         var classModel = new ClassModel("StateManager")
         {
-            Implements = ["IStateManager"]
+            Implements = [new TypeModel("IStateManager")]
         };
         classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
         classModel.Usings.Add(new UsingModel("Workflow.Core.Entities"));
@@ -1147,7 +1148,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
             Name = "context",
             Type = new TypeModel("WorkflowDbContext"),
             AccessModifier = AccessModifier.Private,
-            Readonly = true
+            ReadOnly = true
         });
 
         classModel.Constructors.Add(new ConstructorModel(classModel, classModel.Name)
@@ -1300,7 +1301,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
             Name = "repository",
             Type = new TypeModel("IWorkflowRepository"),
             AccessModifier = AccessModifier.Private,
-            Readonly = true
+            ReadOnly = true
         });
 
         classModel.Fields.Add(new FieldModel
@@ -1308,7 +1309,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
             Name = "engine",
             Type = new TypeModel("IWorkflowEngine"),
             AccessModifier = AccessModifier.Private,
-            Readonly = true
+            ReadOnly = true
         });
 
         classModel.Constructors.Add(new ConstructorModel(classModel, classModel.Name)
@@ -1460,7 +1461,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
             Name = "repository",
             Type = new TypeModel("IWorkflowRepository"),
             AccessModifier = AccessModifier.Private,
-            Readonly = true
+            ReadOnly = true
         });
 
         classModel.Fields.Add(new FieldModel
@@ -1468,7 +1469,7 @@ public class WorkflowArtifactFactory : IWorkflowArtifactFactory
             Name = "engine",
             Type = new TypeModel("IWorkflowEngine"),
             AccessModifier = AccessModifier.Private,
-            Readonly = true
+            ReadOnly = true
         });
 
         classModel.Constructors.Add(new ConstructorModel(classModel, classModel.Name)

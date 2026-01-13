@@ -43,6 +43,10 @@ public class ClassModel : InterfaceModel
 
     public bool Static { get; set; }
 
+    public bool Sealed { get; set; }
+
+    public string BaseClass { get; set; }
+
     public override void AddMethod(MethodModel method)
     {
         method.Interface = false;
