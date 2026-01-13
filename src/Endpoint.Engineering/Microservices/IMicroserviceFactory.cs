@@ -141,6 +141,16 @@ public interface IMicroserviceFactory
     Task<SolutionModel> CreateHistoricalTelemetryMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Creates a Git Analysis microservice that handles Git operations including branch isolation, diff generation, and .gitignore parsing.
+    /// </summary>
+    Task<SolutionModel> CreateGitAnalysisMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Creates a Realtime Notification microservice that provides WebSocket/SignalR based notifications with Redis Pub/Sub integration.
+    /// </summary>
+    Task<SolutionModel> CreateRealtimeNotificationMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Creates a microservice by name.
     /// </summary>
     Task<SolutionModel> CreateByNameAsync(string name, string directory, CancellationToken cancellationToken = default);

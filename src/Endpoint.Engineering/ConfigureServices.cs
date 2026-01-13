@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Engineering.AI.Services;
+using Endpoint.Engineering.Api;
 using Endpoint.Engineering.Microservices;
 using Endpoint.Engineering.Microservices.Analytics;
 using Endpoint.Engineering.Microservices.Audit;
@@ -29,6 +30,8 @@ using Endpoint.Engineering.Microservices.Workflow;
 using Endpoint.Engineering.Microservices.ConfigurationManagement;
 using Endpoint.Engineering.Microservices.TelemetryStreaming;
 using Endpoint.Engineering.Microservices.HistoricalTelemetry;
+using Endpoint.Engineering.Microservices.GitAnalysis;
+using Endpoint.Engineering.Microservices.RealtimeNotification;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -75,6 +78,8 @@ public static class ConfigureServices
         services.AddSingleton<IConfigurationManagementArtifactFactory, ConfigurationManagementArtifactFactory>();
         services.AddSingleton<ITelemetryStreamingArtifactFactory, TelemetryStreamingArtifactFactory>();
         services.AddSingleton<IHistoricalTelemetryArtifactFactory, HistoricalTelemetryArtifactFactory>();
+        services.AddSingleton<IGitAnalysisArtifactFactory, GitAnalysisArtifactFactory>();
+        services.AddSingleton<IRealtimeNotificationArtifactFactory, RealtimeNotificationArtifactFactory>();
 
         // Register MicroserviceFactory for predefined microservice creation
         services.AddSingleton<IMicroserviceFactory, MicroserviceFactory>();
