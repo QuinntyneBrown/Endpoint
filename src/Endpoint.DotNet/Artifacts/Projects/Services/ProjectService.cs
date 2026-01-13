@@ -82,9 +82,27 @@ public class ProjectService : IProjectService
         {
             var lines = new List<string>();
 
+            // Normalize paths to use consistent separators
+            var normalizedSolutionDir = solutionDirectory.Replace('\\', '/').TrimEnd('/');
+            var normalizedProjectPath = model.Path.Replace('\\', '/');
+            
+            // Get relative path
+            string relativePath;
+            if (normalizedProjectPath.StartsWith(normalizedSolutionDir + "/"))
+            {
+                relativePath = normalizedProjectPath.Substring(normalizedSolutionDir.Length + 1);
+            }
+            else
+            {
+                relativePath = normalizedProjectPath;
+            }
+            
+            // Convert to backslashes for .sln file (Visual Studio always uses backslashes)
+            relativePath = relativePath.Replace('/', '\\');
+
             var projectEntry = new string[2]
             {
-                "Project(\"{" + $"{Guid.NewGuid()}".ToUpper() + "}\") = \"" + model.Name + "\", \"" + model.Path.Replace($"{solutionDirectory}{Path.DirectorySeparatorChar}", string.Empty) + "\", \"{" + $"{Guid.NewGuid()}".ToUpper() + "}\"",
+                "Project(\"{" + $"{Guid.NewGuid()}".ToUpper() + "}\") = \"" + model.Name + "\", \"" + relativePath + "\", \"{" + $"{Guid.NewGuid()}".ToUpper() + "}\"",
                 "EndProject",
             };
 
