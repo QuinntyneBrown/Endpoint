@@ -27,6 +27,9 @@ using Endpoint.Engineering.Microservices.Search;
 using Endpoint.Engineering.Microservices.Tagging;
 using Endpoint.Engineering.Microservices.Tenant;
 using Endpoint.Engineering.Microservices.Workflow;
+using Endpoint.Engineering.Microservices.ConfigurationManagement;
+using Endpoint.Engineering.Microservices.TelemetryStreaming;
+using Endpoint.Engineering.Microservices.HistoricalTelemetry;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -69,6 +72,9 @@ public static class ConfigureServices
         services.AddSingleton<ILocalizationArtifactFactory, LocalizationArtifactFactory>();
         services.AddSingleton<IWorkflowArtifactFactory, WorkflowArtifactFactory>();
         services.AddSingleton<IBackupArtifactFactory, BackupArtifactFactory>();
+        services.AddSingleton<IConfigurationManagementArtifactFactory, ConfigurationManagementArtifactFactory>();
+        services.AddSingleton<ITelemetryStreamingArtifactFactory, TelemetryStreamingArtifactFactory>();
+        services.AddSingleton<IHistoricalTelemetryArtifactFactory, HistoricalTelemetryArtifactFactory>();
 
         // Register MicroserviceFactory for predefined microservice creation
         services.AddSingleton<IMicroserviceFactory, MicroserviceFactory>();
