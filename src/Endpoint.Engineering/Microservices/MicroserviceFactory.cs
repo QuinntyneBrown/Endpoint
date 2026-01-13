@@ -844,15 +844,16 @@ public class MicroserviceFactory : IMicroserviceFactory
     {
         logger.LogInformation("Creating ConfigurationManagement microservice with full implementation");
 
-        var solutionModel = new SolutionModel("ConfigurationManagement", directory);
+        var solutionModel = new SolutionModel("EventMonitoring.ConfigurationManagement", directory);
 
-        var coreProject = await CreateCoreProjectAsync("ConfigurationManagement", solutionModel.SrcDirectory, Array.Empty<PackageModel>());
-        var infrastructureProject = await CreateInfrastructureProjectAsync("ConfigurationManagement", solutionModel.SrcDirectory);
-        var apiProject = await CreateApiProjectAsync("ConfigurationManagement", solutionModel.SrcDirectory);
+        var coreProject = await CreateCoreProjectAsync("EventMonitoring.ConfigurationManagement", solutionModel.SrcDirectory, Array.Empty<PackageModel>());
+        var infrastructureProject = await CreateInfrastructureProjectAsync("EventMonitoring.ConfigurationManagement", solutionModel.SrcDirectory);
+        var apiProject = await CreateApiProjectAsync("EventMonitoring.ConfigurationManagement", solutionModel.SrcDirectory);
 
         configurationManagementArtifactFactory.AddCoreFiles(coreProject);
-        configurationManagementArtifactFactory.AddInfrastructureFiles(infrastructureProject, "ConfigurationManagement");
-        configurationManagementArtifactFactory.AddApiFiles(apiProject, "ConfigurationManagement");
+        configurationManagementArtifactFactory.AddInfrastructureFiles(infrastructureProject, "EventMonitoring.ConfigurationManagement");
+        configurationManagementArtifactFactory.AddInfrastructureSeederFiles(infrastructureProject);
+        configurationManagementArtifactFactory.AddApiFiles(apiProject, "EventMonitoring.ConfigurationManagement");
 
         solutionModel.Projects.Add(coreProject);
         solutionModel.Projects.Add(infrastructureProject);

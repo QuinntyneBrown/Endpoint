@@ -36,7 +36,7 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                namespace ConfigurationManagement.Core.Entities;
+                namespace EventMonitoring.ConfigurationManagement.Core.Entities;
 
                 public class ConfigurationFile
                 {
@@ -60,7 +60,7 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                namespace ConfigurationManagement.Core.Entities;
+                namespace EventMonitoring.ConfigurationManagement.Core.Entities;
 
                 public class ConfigurationFileItem
                 {
@@ -87,9 +87,9 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using ConfigurationManagement.Core.Entities;
+                using EventMonitoring.ConfigurationManagement.Core.Entities;
 
-                namespace ConfigurationManagement.Core.Interfaces;
+                namespace EventMonitoring.ConfigurationManagement.Core.Interfaces;
 
                 public interface IConfigurationFileRepository
                 {
@@ -109,9 +109,9 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using ConfigurationManagement.Core.Entities;
+                using EventMonitoring.ConfigurationManagement.Core.Entities;
 
-                namespace ConfigurationManagement.Core.Interfaces;
+                namespace EventMonitoring.ConfigurationManagement.Core.Interfaces;
 
                 public interface IConfigurationFileItemRepository
                 {
@@ -131,7 +131,7 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                namespace ConfigurationManagement.Core.Events;
+                namespace EventMonitoring.ConfigurationManagement.Core.Events;
 
                 public record ConfigurationFileCreatedEvent(Guid ConfigurationFileId, string Name, string Path, DateTime CreatedAt);
                 """
@@ -143,7 +143,7 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                namespace ConfigurationManagement.Core.Events;
+                namespace EventMonitoring.ConfigurationManagement.Core.Events;
 
                 public record ConfigurationFileUpdatedEvent(Guid ConfigurationFileId, string Name, DateTime UpdatedAt);
                 """
@@ -156,7 +156,7 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                namespace ConfigurationManagement.Core.DTOs;
+                namespace EventMonitoring.ConfigurationManagement.Core.DTOs;
 
                 public class ConfigurationFileDto
                 {
@@ -178,7 +178,7 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                namespace ConfigurationManagement.Core.DTOs;
+                namespace EventMonitoring.ConfigurationManagement.Core.DTOs;
 
                 public class ConfigurationFileItemDto
                 {
@@ -208,10 +208,10 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using ConfigurationManagement.Core.Entities;
+                using EventMonitoring.ConfigurationManagement.Core.Entities;
                 using Microsoft.EntityFrameworkCore;
 
-                namespace ConfigurationManagement.Infrastructure.Data;
+                namespace EventMonitoring.ConfigurationManagement.Infrastructure.Data;
 
                 public class ConfigurationManagementDbContext : DbContext
                 {
@@ -239,11 +239,11 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using ConfigurationManagement.Core.Entities;
+                using EventMonitoring.ConfigurationManagement.Core.Entities;
                 using Microsoft.EntityFrameworkCore;
                 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-                namespace ConfigurationManagement.Infrastructure.Data.Configurations;
+                namespace EventMonitoring.ConfigurationManagement.Infrastructure.Data.Configurations;
 
                 public class ConfigurationFileConfiguration : IEntityTypeConfiguration<ConfigurationFile>
                 {
@@ -268,11 +268,11 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using ConfigurationManagement.Core.Entities;
+                using EventMonitoring.ConfigurationManagement.Core.Entities;
                 using Microsoft.EntityFrameworkCore;
                 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-                namespace ConfigurationManagement.Infrastructure.Data.Configurations;
+                namespace EventMonitoring.ConfigurationManagement.Infrastructure.Data.Configurations;
 
                 public class ConfigurationFileItemConfiguration : IEntityTypeConfiguration<ConfigurationFileItem>
                 {
@@ -293,12 +293,12 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using ConfigurationManagement.Core.Entities;
-                using ConfigurationManagement.Core.Interfaces;
-                using ConfigurationManagement.Infrastructure.Data;
+                using EventMonitoring.ConfigurationManagement.Core.Entities;
+                using EventMonitoring.ConfigurationManagement.Core.Interfaces;
+                using EventMonitoring.ConfigurationManagement.Infrastructure.Data;
                 using Microsoft.EntityFrameworkCore;
 
-                namespace ConfigurationManagement.Infrastructure.Repositories;
+                namespace EventMonitoring.ConfigurationManagement.Infrastructure.Repositories;
 
                 public class ConfigurationFileRepository : IConfigurationFileRepository
                 {
@@ -362,12 +362,12 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using ConfigurationManagement.Core.Entities;
-                using ConfigurationManagement.Core.Interfaces;
-                using ConfigurationManagement.Infrastructure.Data;
+                using EventMonitoring.ConfigurationManagement.Core.Entities;
+                using EventMonitoring.ConfigurationManagement.Core.Interfaces;
+                using EventMonitoring.ConfigurationManagement.Infrastructure.Data;
                 using Microsoft.EntityFrameworkCore;
 
-                namespace ConfigurationManagement.Infrastructure.Repositories;
+                namespace EventMonitoring.ConfigurationManagement.Infrastructure.Repositories;
 
                 public class ConfigurationFileItemRepository : IConfigurationFileItemRepository
                 {
@@ -423,14 +423,14 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using ConfigurationManagement.Core.Interfaces;
-                using ConfigurationManagement.Infrastructure.Data;
-                using ConfigurationManagement.Infrastructure.Repositories;
+                using EventMonitoring.ConfigurationManagement.Core.Interfaces;
+                using EventMonitoring.ConfigurationManagement.Infrastructure.Data;
+                using EventMonitoring.ConfigurationManagement.Infrastructure.Repositories;
                 using Microsoft.EntityFrameworkCore;
                 using Microsoft.Extensions.Configuration;
                 using Microsoft.Extensions.DependencyInjection;
 
-                namespace ConfigurationManagement.Infrastructure;
+                namespace EventMonitoring.ConfigurationManagement.Infrastructure;
 
                 public static class ConfigureServices
                 {
@@ -462,11 +462,11 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using ConfigurationManagement.Core.DTOs;
-                using ConfigurationManagement.Core.Interfaces;
+                using EventMonitoring.ConfigurationManagement.Core.DTOs;
+                using EventMonitoring.ConfigurationManagement.Core.Interfaces;
                 using Microsoft.AspNetCore.Mvc;
 
-                namespace ConfigurationManagement.Api.Controllers;
+                namespace EventMonitoring.ConfigurationManagement.Api.Controllers;
 
                 [ApiController]
                 [Route("api/[controller]")]
@@ -553,14 +553,36 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 """
         });
 
-        // Program.cs
+        // appsettings.json with SQL Express connection string
+        project.Files.Add(new FileModel("appsettings", project.Directory, ".json")
+        {
+            Body = """
+                {
+                  "ConnectionStrings": {
+                    "DefaultConnection": "Server=.\\SQLEXPRESS;Database=ConfigurationManagement;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+                  },
+                  "Logging": {
+                    "LogLevel": {
+                      "Default": "Information",
+                      "Microsoft.AspNetCore": "Warning",
+                      "Microsoft.EntityFrameworkCore": "Warning"
+                    }
+                  },
+                  "AllowedHosts": "*"
+                }
+                """
+        });
+
+        // Program.cs with database migration and seeding
         project.Files.Add(new FileModel("Program", project.Directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using ConfigurationManagement.Infrastructure;
+                using EventMonitoring.ConfigurationManagement.Infrastructure;
+                using EventMonitoring.ConfigurationManagement.Infrastructure.Data;
+                using Microsoft.EntityFrameworkCore;
 
                 var builder = WebApplication.CreateBuilder(args);
 
@@ -570,6 +592,14 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 builder.Services.AddInfrastructureServices(builder.Configuration);
 
                 var app = builder.Build();
+
+                // Apply migrations and seed database
+                using (var scope = app.Services.CreateScope())
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<ConfigurationManagementDbContext>();
+                    dbContext.Database.Migrate();
+                    await DatabaseSeeder.SeedAsync(dbContext);
+                }
 
                 if (app.Environment.IsDevelopment())
                 {
@@ -582,6 +612,186 @@ public class ConfigurationManagementArtifactFactory : IConfigurationManagementAr
                 app.MapControllers();
 
                 app.Run();
+                """
+        });
+    }
+
+    public void AddInfrastructureSeederFiles(ProjectModel project)
+    {
+        logger.LogInformation("Adding ConfigurationManagement.Infrastructure seeder files");
+
+        var dataDir = Path.Combine(project.Directory, "Data");
+
+        // Database seeder with 10 configuration files
+        project.Files.Add(new FileModel("DatabaseSeeder", dataDir, CSharp)
+        {
+            Body = """
+                // Copyright (c) Quinntyne Brown. All Rights Reserved.
+                // Licensed under the MIT License. See License.txt in the project root for license information.
+
+                using EventMonitoring.ConfigurationManagement.Core.Entities;
+                using Microsoft.EntityFrameworkCore;
+
+                namespace EventMonitoring.ConfigurationManagement.Infrastructure.Data;
+
+                public static class DatabaseSeeder
+                {
+                    public static async Task SeedAsync(ConfigurationManagementDbContext context)
+                    {
+                        if (await context.ConfigurationFiles.AnyAsync())
+                        {
+                            return; // Database already seeded
+                        }
+
+                        var configurationFiles = new List<ConfigurationFile>
+                        {
+                            new ConfigurationFile
+                            {
+                                ConfigurationFileId = Guid.NewGuid(),
+                                Name = "Application Settings",
+                                Path = "/config/appsettings.json",
+                                ContentType = "application/json",
+                                Description = "Main application configuration settings",
+                                Version = "1.0.0",
+                                Items = new List<ConfigurationFileItem>
+                                {
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "AppName", Value = "EventMonitoring", ValueType = ConfigurationValueType.String },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "MaxConnections", Value = "100", ValueType = ConfigurationValueType.Integer },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "EnableLogging", Value = "true", ValueType = ConfigurationValueType.Boolean }
+                                }
+                            },
+                            new ConfigurationFile
+                            {
+                                ConfigurationFileId = Guid.NewGuid(),
+                                Name = "Telemetry Settings",
+                                Path = "/config/telemetry.json",
+                                ContentType = "application/json",
+                                Description = "Telemetry streaming configuration",
+                                Version = "1.0.0",
+                                Items = new List<ConfigurationFileItem>
+                                {
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "UpdateRateMs", Value = "200", ValueType = ConfigurationValueType.Integer },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "BufferSize", Value = "1000", ValueType = ConfigurationValueType.Integer }
+                                }
+                            },
+                            new ConfigurationFile
+                            {
+                                ConfigurationFileId = Guid.NewGuid(),
+                                Name = "Database Settings",
+                                Path = "/config/database.json",
+                                ContentType = "application/json",
+                                Description = "Database connection and pool settings",
+                                Version = "1.0.0",
+                                Items = new List<ConfigurationFileItem>
+                                {
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "ConnectionTimeout", Value = "30", ValueType = ConfigurationValueType.Integer },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "MaxPoolSize", Value = "50", ValueType = ConfigurationValueType.Integer }
+                                }
+                            },
+                            new ConfigurationFile
+                            {
+                                ConfigurationFileId = Guid.NewGuid(),
+                                Name = "Logging Configuration",
+                                Path = "/config/logging.json",
+                                ContentType = "application/json",
+                                Description = "Logging levels and output configuration",
+                                Version = "1.0.0",
+                                Items = new List<ConfigurationFileItem>
+                                {
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "MinLevel", Value = "Information", ValueType = ConfigurationValueType.String },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "WriteToFile", Value = "true", ValueType = ConfigurationValueType.Boolean }
+                                }
+                            },
+                            new ConfigurationFile
+                            {
+                                ConfigurationFileId = Guid.NewGuid(),
+                                Name = "Security Settings",
+                                Path = "/config/security.json",
+                                ContentType = "application/json",
+                                Description = "Security and authentication configuration",
+                                Version = "1.0.0",
+                                Items = new List<ConfigurationFileItem>
+                                {
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "TokenExpiryMinutes", Value = "60", ValueType = ConfigurationValueType.Integer },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "RequireHttps", Value = "true", ValueType = ConfigurationValueType.Boolean }
+                                }
+                            },
+                            new ConfigurationFile
+                            {
+                                ConfigurationFileId = Guid.NewGuid(),
+                                Name = "Redis Cache Settings",
+                                Path = "/config/redis.json",
+                                ContentType = "application/json",
+                                Description = "Redis cache and pub/sub configuration",
+                                Version = "1.0.0",
+                                Items = new List<ConfigurationFileItem>
+                                {
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "Host", Value = "localhost", ValueType = ConfigurationValueType.String },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "Port", Value = "6379", ValueType = ConfigurationValueType.Integer }
+                                }
+                            },
+                            new ConfigurationFile
+                            {
+                                ConfigurationFileId = Guid.NewGuid(),
+                                Name = "API Gateway Settings",
+                                Path = "/config/gateway.json",
+                                ContentType = "application/json",
+                                Description = "API Gateway routing and CORS configuration",
+                                Version = "1.0.0",
+                                Items = new List<ConfigurationFileItem>
+                                {
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "CorsOrigin", Value = "http://localhost:4200", ValueType = ConfigurationValueType.String },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "RateLimitPerMinute", Value = "1000", ValueType = ConfigurationValueType.Integer }
+                                }
+                            },
+                            new ConfigurationFile
+                            {
+                                ConfigurationFileId = Guid.NewGuid(),
+                                Name = "Historical Data Settings",
+                                Path = "/config/historical.json",
+                                ContentType = "application/json",
+                                Description = "Historical telemetry storage configuration",
+                                Version = "1.0.0",
+                                Items = new List<ConfigurationFileItem>
+                                {
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "RetentionDays", Value = "90", ValueType = ConfigurationValueType.Integer },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "PageSize", Value = "100", ValueType = ConfigurationValueType.Integer }
+                                }
+                            },
+                            new ConfigurationFile
+                            {
+                                ConfigurationFileId = Guid.NewGuid(),
+                                Name = "Dashboard Settings",
+                                Path = "/config/dashboard.json",
+                                ContentType = "application/json",
+                                Description = "Dashboard layout and tile configuration",
+                                Version = "1.0.0",
+                                Items = new List<ConfigurationFileItem>
+                                {
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "DefaultColumns", Value = "12", ValueType = ConfigurationValueType.Integer },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "AnimationEnabled", Value = "true", ValueType = ConfigurationValueType.Boolean }
+                                }
+                            },
+                            new ConfigurationFile
+                            {
+                                ConfigurationFileId = Guid.NewGuid(),
+                                Name = "Space Vehicle Telemetry",
+                                Path = "/config/vehicle-telemetry.json",
+                                ContentType = "application/json",
+                                Description = "Space vehicle telemetry types and thresholds",
+                                Version = "1.0.0",
+                                Items = new List<ConfigurationFileItem>
+                                {
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "TelemetryTypes", Value = "50", ValueType = ConfigurationValueType.Integer },
+                                    new ConfigurationFileItem { ConfigurationFileItemId = Guid.NewGuid(), Key = "AlertThreshold", Value = "0.95", ValueType = ConfigurationValueType.String }
+                                }
+                            }
+                        };
+
+                        await context.ConfigurationFiles.AddRangeAsync(configurationFiles);
+                        await context.SaveChangesAsync();
+                    }
+                }
                 """
         });
     }
