@@ -1,0 +1,44 @@
+import { moduleMetadata, Story, Meta } from '@storybook/angular';
+import { {{ namePascalCase }}Component } from '{{ componentPath }}';
+
+export default {
+  title: '{{ title }}',
+  component: {{ namePascalCase }}Component,
+  decorators: [
+    moduleMetadata({
+      declarations: [],
+      imports: [],
+    }),
+  ],
+  argTypes: {
+    // Define your component's input properties and their controls here
+    // Example:
+    // label: {
+    //   control: 'text',
+    //   description: 'The label text for the component',
+    // },
+    // disabled: {
+    //   control: 'boolean',
+    //   description: 'Whether the component is disabled',
+    // },
+  },
+} as Meta<{{ namePascalCase }}Component>;
+
+const Template: Story<{{ namePascalCase }}Component> = (args: {{ namePascalCase }}Component) => ({
+  props: args,
+});
+
+export const Default = Template.bind({});
+Default.args = {
+  // Set default values for your component's inputs here
+};
+
+export const Primary = Template.bind({});
+Primary.args = {
+  // Set primary variant values here
+};
+
+export const Secondary = Template.bind({});
+Secondary.args = {
+  // Set secondary variant values here
+};

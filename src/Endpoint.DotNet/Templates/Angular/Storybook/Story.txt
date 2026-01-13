@@ -1,0 +1,44 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { {{ namePascalCase }}Component } from '{{ componentPath }}';
+
+const meta: Meta<{{ namePascalCase }}Component> = {
+  title: '{{ title }}',
+  component: {{ namePascalCase }}Component,
+  tags: ['autodocs'],
+  argTypes: {
+    // Define your component's input properties and their controls here
+    // Example:
+    // label: {
+    //   control: 'text',
+    //   description: 'The label text for the component',
+    // },
+    // disabled: {
+    //   control: 'boolean',
+    //   description: 'Whether the component is disabled',
+    // },
+  },
+};
+
+export default meta;
+type Story = StoryObj<{{ namePascalCase }}Component>;
+
+export const Default: Story = {
+  args: {
+    // Set default values for your component's inputs here
+    // Example:
+    // label: 'Default Label',
+    // disabled: false,
+  },
+};
+
+export const Primary: Story = {
+  args: {
+    // Set primary variant values here
+  },
+};
+
+export const Secondary: Story = {
+  args: {
+    // Set secondary variant values here
+  },
+};
