@@ -535,11 +535,19 @@ public class GitAnalysisArtifactFactory : IGitAnalysisArtifactFactory
                     private bool MatchesPattern(string path, string pattern)
                     {
                         // Convert gitignore pattern to regex
-                        var regexPattern = "^" + Regex.Escape(pattern)
-                            .Replace("\\*\\*/", "(.*/)?")
+                        // Handle ** for any directory depth first
+                        pattern = pattern.Replace("**/", "|||DOUBLESTAR|||");
+                        
+                        // Escape the pattern
+                        var regexPattern = Regex.Escape(pattern);
+                        
+                        // Replace placeholders and escaped wildcards
+                        regexPattern = regexPattern
+                            .Replace("|||DOUBLESTAR|||", "(.*/)?")
                             .Replace("\\*", "[^/]*")
-                            .Replace("\\?", "[^/]")
-                            + "$";
+                            .Replace("\\?", "[^/]");
+                        
+                        regexPattern = "^" + regexPattern + "$";
 
                         return Regex.IsMatch(path, regexPattern, RegexOptions.IgnoreCase);
                     }

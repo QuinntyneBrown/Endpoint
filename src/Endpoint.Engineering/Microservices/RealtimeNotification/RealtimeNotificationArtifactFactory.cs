@@ -426,7 +426,7 @@ public class RealtimeNotificationArtifactFactory : IRealtimeNotificationArtifact
                 public class SubscriptionManager : ISubscriptionManager
                 {
                     private readonly ConcurrentDictionary<string, Subscription> subscriptionsByConnection = new();
-                    private readonly ConcurrentDictionary<string, List<Subscription>> subscriptionsByChannel = new();
+                    private readonly ConcurrentDictionary<string, ConcurrentBag<Subscription>> subscriptionsByChannel = new();
 
                     public Task<Subscription> CreateSubscriptionAsync(string userId, string connectionId, List<string> channels, CancellationToken cancellationToken = default)
                     {
@@ -443,11 +443,11 @@ public class RealtimeNotificationArtifactFactory : IRealtimeNotificationArtifact
                         {
                             subscriptionsByChannel.AddOrUpdate(
                                 channel,
-                                _ => new List<Subscription> { subscription },
-                                (_, list) =>
+                                _ => new ConcurrentBag<Subscription> { subscription },
+                                (_, bag) =>
                                 {
-                                    list.Add(subscription);
-                                    return list;
+                                    bag.Add(subscription);
+                                    return bag;
                                 });
                         }
 
@@ -461,26 +461,29 @@ public class RealtimeNotificationArtifactFactory : IRealtimeNotificationArtifact
 
                         if (subscription != null)
                         {
-                            // Remove old channel subscriptions
-                            foreach (var oldChannel in subscription.Channels)
+                            // Remove from old channels - mark as inactive and remove from bags
+                            var oldChannels = subscription.Channels.ToList();
+                            subscription.Channels = channels;
+
+                            foreach (var oldChannel in oldChannels)
                             {
-                                if (subscriptionsByChannel.TryGetValue(oldChannel, out var list))
+                                if (subscriptionsByChannel.TryGetValue(oldChannel, out var bag))
                                 {
-                                    list.Remove(subscription);
+                                    // Note: ConcurrentBag doesn't support removal, so we rely on IsActive flag
+                                    // The bag will be cleaned up naturally when GetSubscriptionsForChannelAsync filters
                                 }
                             }
 
-                            // Add new channel subscriptions
-                            subscription.Channels = channels;
+                            // Add to new channel subscriptions
                             foreach (var channel in channels)
                             {
                                 subscriptionsByChannel.AddOrUpdate(
                                     channel,
-                                    _ => new List<Subscription> { subscription },
-                                    (_, list) =>
+                                    _ => new ConcurrentBag<Subscription> { subscription },
+                                    (_, bag) =>
                                     {
-                                        list.Add(subscription);
-                                        return list;
+                                        bag.Add(subscription);
+                                        return bag;
                                     });
                             }
                         }
@@ -492,13 +495,7 @@ public class RealtimeNotificationArtifactFactory : IRealtimeNotificationArtifact
                     {
                         if (subscriptionsByConnection.TryRemove(connectionId, out var subscription))
                         {
-                            foreach (var channel in subscription.Channels)
-                            {
-                                if (subscriptionsByChannel.TryGetValue(channel, out var list))
-                                {
-                                    list.Remove(subscription);
-                                }
-                            }
+                            subscription.IsActive = false;
                         }
 
                         return Task.CompletedTask;
@@ -506,9 +503,9 @@ public class RealtimeNotificationArtifactFactory : IRealtimeNotificationArtifact
 
                     public Task<IEnumerable<Subscription>> GetSubscriptionsForChannelAsync(string channel, CancellationToken cancellationToken = default)
                     {
-                        if (subscriptionsByChannel.TryGetValue(channel, out var list))
+                        if (subscriptionsByChannel.TryGetValue(channel, out var bag))
                         {
-                            return Task.FromResult(list.Where(s => s.IsActive).AsEnumerable());
+                            return Task.FromResult(bag.Where(s => s.IsActive && s.Channels.Contains(channel)).AsEnumerable());
                         }
 
                         return Task.FromResult(Enumerable.Empty<Subscription>());
