@@ -131,6 +131,21 @@ public interface IMicroserviceFactory
     Task<SolutionModel> CreateBackupMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Creates a Configuration Management microservice that acts as the single source of truth for definitions and configuration files.
+    /// </summary>
+    Task<SolutionModel> CreateConfigurationManagementMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Creates a Telemetry Streaming microservice that handles high-frequency, real-time data flow telemetry types.
+    /// </summary>
+    Task<SolutionModel> CreateTelemetryStreamingMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Creates a Historical Telemetry microservice that manages long-term storage and retrieval of telemetry data.
+    /// </summary>
+    Task<SolutionModel> CreateHistoricalTelemetryMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Creates a microservice by name.
     /// </summary>
     Task<SolutionModel> CreateByNameAsync(string name, string directory, CancellationToken cancellationToken = default);

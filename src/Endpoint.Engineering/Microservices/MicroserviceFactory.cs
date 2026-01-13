@@ -29,6 +29,9 @@ using Endpoint.Engineering.Microservices.Search;
 using Endpoint.Engineering.Microservices.Tagging;
 using Endpoint.Engineering.Microservices.Tenant;
 using Endpoint.Engineering.Microservices.Workflow;
+using Endpoint.Engineering.Microservices.ConfigurationManagement;
+using Endpoint.Engineering.Microservices.TelemetryStreaming;
+using Endpoint.Engineering.Microservices.HistoricalTelemetry;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Engineering.Microservices;
@@ -66,6 +69,9 @@ public class MicroserviceFactory : IMicroserviceFactory
     private readonly ILocalizationArtifactFactory localizationArtifactFactory;
     private readonly IWorkflowArtifactFactory workflowArtifactFactory;
     private readonly IBackupArtifactFactory backupArtifactFactory;
+    private readonly IConfigurationManagementArtifactFactory configurationManagementArtifactFactory;
+    private readonly ITelemetryStreamingArtifactFactory telemetryStreamingArtifactFactory;
+    private readonly IHistoricalTelemetryArtifactFactory historicalTelemetryArtifactFactory;
 
     private static readonly IReadOnlyList<string> AvailableMicroserviceNames = new[]
     {
@@ -92,7 +98,10 @@ public class MicroserviceFactory : IMicroserviceFactory
         "RateLimiting",
         "Localization",
         "Workflow",
-        "Backup"
+        "Backup",
+        "ConfigurationManagement",
+        "TelemetryStreaming",
+        "HistoricalTelemetry"
     };
 
     public MicroserviceFactory(
@@ -121,7 +130,10 @@ public class MicroserviceFactory : IMicroserviceFactory
         IRateLimitingArtifactFactory rateLimitingArtifactFactory,
         ILocalizationArtifactFactory localizationArtifactFactory,
         IWorkflowArtifactFactory workflowArtifactFactory,
-        IBackupArtifactFactory backupArtifactFactory)
+        IBackupArtifactFactory backupArtifactFactory,
+        IConfigurationManagementArtifactFactory configurationManagementArtifactFactory,
+        ITelemetryStreamingArtifactFactory telemetryStreamingArtifactFactory,
+        IHistoricalTelemetryArtifactFactory historicalTelemetryArtifactFactory)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.projectFactory = projectFactory ?? throw new ArgumentNullException(nameof(projectFactory));
@@ -149,6 +161,9 @@ public class MicroserviceFactory : IMicroserviceFactory
         this.localizationArtifactFactory = localizationArtifactFactory ?? throw new ArgumentNullException(nameof(localizationArtifactFactory));
         this.workflowArtifactFactory = workflowArtifactFactory ?? throw new ArgumentNullException(nameof(workflowArtifactFactory));
         this.backupArtifactFactory = backupArtifactFactory ?? throw new ArgumentNullException(nameof(backupArtifactFactory));
+        this.configurationManagementArtifactFactory = configurationManagementArtifactFactory ?? throw new ArgumentNullException(nameof(configurationManagementArtifactFactory));
+        this.telemetryStreamingArtifactFactory = telemetryStreamingArtifactFactory ?? throw new ArgumentNullException(nameof(telemetryStreamingArtifactFactory));
+        this.historicalTelemetryArtifactFactory = historicalTelemetryArtifactFactory ?? throw new ArgumentNullException(nameof(historicalTelemetryArtifactFactory));
     }
 
     public IReadOnlyList<string> GetAvailableMicroservices() => AvailableMicroserviceNames;
@@ -181,6 +196,9 @@ public class MicroserviceFactory : IMicroserviceFactory
             "localization" => await CreateLocalizationMicroserviceAsync(directory, cancellationToken),
             "workflow" => await CreateWorkflowMicroserviceAsync(directory, cancellationToken),
             "backup" => await CreateBackupMicroserviceAsync(directory, cancellationToken),
+            "configurationmanagement" => await CreateConfigurationManagementMicroserviceAsync(directory, cancellationToken),
+            "telemetrystreaming" => await CreateTelemetryStreamingMicroserviceAsync(directory, cancellationToken),
+            "historicaltelemetry" => await CreateHistoricalTelemetryMicroserviceAsync(directory, cancellationToken),
             _ => throw new ArgumentException($"Unknown microservice: {name}. Available microservices: {string.Join(", ", AvailableMicroserviceNames)}", nameof(name))
         };
     }
@@ -845,6 +863,84 @@ public class MicroserviceFactory : IMicroserviceFactory
         backupArtifactFactory.AddCoreFiles(coreProject);
         backupArtifactFactory.AddInfrastructureFiles(infrastructureProject, "Backup");
         backupArtifactFactory.AddApiFiles(apiProject, "Backup");
+
+        solutionModel.Projects.Add(coreProject);
+        solutionModel.Projects.Add(infrastructureProject);
+        solutionModel.Projects.Add(apiProject);
+
+        solutionModel.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+        solutionModel.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
+
+        return solutionModel;
+    }
+
+    public async Task<SolutionModel> CreateConfigurationManagementMicroserviceAsync(string directory, CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation("Creating ConfigurationManagement microservice with full implementation");
+
+        var solutionModel = new SolutionModel("ConfigurationManagement", directory);
+
+        var coreProject = await CreateCoreProjectAsync("ConfigurationManagement", solutionModel.SrcDirectory, Array.Empty<PackageModel>());
+        var infrastructureProject = await CreateInfrastructureProjectAsync("ConfigurationManagement", solutionModel.SrcDirectory);
+        var apiProject = await CreateApiProjectAsync("ConfigurationManagement", solutionModel.SrcDirectory);
+
+        configurationManagementArtifactFactory.AddCoreFiles(coreProject);
+        configurationManagementArtifactFactory.AddInfrastructureFiles(infrastructureProject, "ConfigurationManagement");
+        configurationManagementArtifactFactory.AddApiFiles(apiProject, "ConfigurationManagement");
+
+        solutionModel.Projects.Add(coreProject);
+        solutionModel.Projects.Add(infrastructureProject);
+        solutionModel.Projects.Add(apiProject);
+
+        solutionModel.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+        solutionModel.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
+
+        return solutionModel;
+    }
+
+    public async Task<SolutionModel> CreateTelemetryStreamingMicroserviceAsync(string directory, CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation("Creating TelemetryStreaming microservice with full implementation");
+
+        var solutionModel = new SolutionModel("TelemetryStreaming", directory);
+
+        var coreProject = await CreateCoreProjectAsync("TelemetryStreaming", solutionModel.SrcDirectory, new[]
+        {
+            new PackageModel("Microsoft.AspNetCore.SignalR", "1.1.0")
+        });
+        var infrastructureProject = await CreateInfrastructureProjectAsync("TelemetryStreaming", solutionModel.SrcDirectory);
+        var apiProject = await CreateApiProjectAsync("TelemetryStreaming", solutionModel.SrcDirectory);
+
+        telemetryStreamingArtifactFactory.AddCoreFiles(coreProject);
+        telemetryStreamingArtifactFactory.AddInfrastructureFiles(infrastructureProject, "TelemetryStreaming");
+        telemetryStreamingArtifactFactory.AddApiFiles(apiProject, "TelemetryStreaming");
+
+        solutionModel.Projects.Add(coreProject);
+        solutionModel.Projects.Add(infrastructureProject);
+        solutionModel.Projects.Add(apiProject);
+
+        solutionModel.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+        solutionModel.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
+
+        return solutionModel;
+    }
+
+    public async Task<SolutionModel> CreateHistoricalTelemetryMicroserviceAsync(string directory, CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation("Creating HistoricalTelemetry microservice with full implementation");
+
+        var solutionModel = new SolutionModel("HistoricalTelemetry", directory);
+
+        var coreProject = await CreateCoreProjectAsync("HistoricalTelemetry", solutionModel.SrcDirectory, new[]
+        {
+            new PackageModel("StackExchange.Redis", "2.7.10")
+        });
+        var infrastructureProject = await CreateInfrastructureProjectAsync("HistoricalTelemetry", solutionModel.SrcDirectory);
+        var apiProject = await CreateApiProjectAsync("HistoricalTelemetry", solutionModel.SrcDirectory);
+
+        historicalTelemetryArtifactFactory.AddCoreFiles(coreProject);
+        historicalTelemetryArtifactFactory.AddInfrastructureFiles(infrastructureProject, "HistoricalTelemetry");
+        historicalTelemetryArtifactFactory.AddApiFiles(apiProject, "HistoricalTelemetry");
 
         solutionModel.Projects.Add(coreProject);
         solutionModel.Projects.Add(infrastructureProject);
