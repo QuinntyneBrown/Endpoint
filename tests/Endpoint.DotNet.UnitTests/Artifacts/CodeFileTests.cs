@@ -44,7 +44,11 @@ public class CodeFileTests
 
         var classModel = new ClassModel() { Name = "Foo" };
 
-        var model = new CodeFileModel<ClassModel>(classModel, classModel.Name, "C:\\", ".cs");
+        // Use a path that works on both Windows and Linux
+        var testDirectory = "test";
+        mockFileSystem.AddDirectory(testDirectory);
+        
+        var model = new CodeFileModel<ClassModel>(classModel, classModel.Name, testDirectory, ".cs", mockFileSystem);
 
         var artifactGenerator = ActivatorUtilities.CreateInstance<ClassCodeFileArtifactGenerationStrategy>(serviceProvider);
 
@@ -52,7 +56,8 @@ public class CodeFileTests
         await artifactGenerator.GenerateAsync(model);
 
         // ASSERT
-        var actual = mockFileSystem.FileSystem.File.ReadAllText("C:\\Foo.cs");
+        var expectedPath = mockFileSystem.Path.Combine(testDirectory, "Foo.cs");
+        var actual = mockFileSystem.File.ReadAllText(expectedPath);
 
         Assert.Equal(expected.RemoveTrivia(), actual.RemoveTrivia());
     }

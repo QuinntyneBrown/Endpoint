@@ -54,6 +54,21 @@ public class ProjectService : IProjectService
         var solution = fileProvider.Get("*.sln", model.Directory);
         var solutionName = Path.GetFileName(solution);
         var solutionDirectory = fileSystem.Path.GetDirectoryName(solution);
+        
+        // Handle case where GetDirectoryName returns null (e.g., for root paths or invalid paths)
+        if (string.IsNullOrEmpty(solutionDirectory))
+        {
+            // Fall back to manually extracting directory from path
+            var lastSeparatorIndex = Math.Max(solution.LastIndexOf('\\'), solution.LastIndexOf('/'));
+            if (lastSeparatorIndex > 0)
+            {
+                solutionDirectory = solution.Substring(0, lastSeparatorIndex);
+            }
+            else
+            {
+                solutionDirectory = string.Empty;
+            }
+        }
 
         if (model.Extension == ".csproj")
         {
@@ -94,11 +109,28 @@ public class ProjectService : IProjectService
     {
         var lines = fileSystem.File.ReadAllLines(solutionPath).ToList();
         var projectGuid = $"{{{Guid.NewGuid().ToString().ToUpper()}}}";
-        var relativePath = model.Path.Replace($"{solutionDirectory}{Path.DirectorySeparatorChar}", string.Empty);
+        
+        // Normalize paths to use consistent separators
+        var normalizedSolutionDir = solutionDirectory.Replace('\\', '/').TrimEnd('/');
+        var normalizedProjectPath = model.Path.Replace('\\', '/');
+        
+        // Get relative path
+        string relativePath;
+        if (normalizedProjectPath.StartsWith(normalizedSolutionDir + "/"))
+        {
+            relativePath = normalizedProjectPath.Substring(normalizedSolutionDir.Length + 1);
+        }
+        else
+        {
+            relativePath = normalizedProjectPath;
+        }
+        
+        // Convert to backslashes for .sln file (Visual Studio always uses backslashes)
+        relativePath = relativePath.Replace('/', '\\');
 
         // Find the solution folder GUID if project is in a subfolder (e.g., "src")
         string solutionFolderGuid = null;
-        var pathParts = relativePath.Split(Path.DirectorySeparatorChar);
+        var pathParts = relativePath.Split('\\');  // Split on backslash since we normalized to backslashes
         if (pathParts.Length > 2)
         {
             var folderName = pathParts[0];
