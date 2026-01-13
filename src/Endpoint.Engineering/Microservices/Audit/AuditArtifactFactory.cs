@@ -2,11 +2,23 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Constructors;
+using Endpoint.DotNet.Syntax.Expressions;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
+using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Engineering.Microservices.Audit;
+
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 /// <summary>
 /// Factory for creating Audit microservice artifacts according to audit-microservice.spec.md.
@@ -92,101 +104,57 @@ public class AuditArtifactFactory : IAuditArtifactFactory
 
     #region Core Layer Files
 
-    private static FileModel CreateIAggregateRootFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIAggregateRootFile(string directory)
     {
-        return new FileModel("IAggregateRoot", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IAggregateRoot");
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IAggregateRoot", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Audit.Core.Entities;
-
-                /// <summary>
-                /// Marker interface for aggregate roots.
-                /// </summary>
-                public interface IAggregateRoot
-                {
-                }
-                """
+            Namespace = "Audit.Core.Entities"
         };
     }
 
-    private static FileModel CreateAuditEntryEntityFile(string directory)
+    private static CodeFileModel<ClassModel> CreateAuditEntryEntityFile(string directory)
     {
-        return new FileModel("AuditEntry", directory, CSharp)
+        var classModel = new ClassModel("AuditEntry");
+
+        classModel.Implements.Add(new TypeModel("IAggregateRoot"));
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "AuditEntryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Action", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "UserName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "IpAddress", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "OldValues", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "NewValues", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "AffectedColumns", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "Timestamp", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("ICollection") { GenericTypeParameters = [new TypeModel("ChangeLog")] }, "ChangeLogs", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<ChangeLog>()" });
+
+        return new CodeFileModel<ClassModel>(classModel, "AuditEntry", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Audit.Core.Entities;
-
-                /// <summary>
-                /// AuditEntry entity representing a tracked audit record.
-                /// </summary>
-                public class AuditEntry : IAggregateRoot
-                {
-                    public Guid AuditEntryId { get; set; }
-
-                    public required string EntityId { get; set; }
-
-                    public required string EntityType { get; set; }
-
-                    public required string Action { get; set; }
-
-                    public string? UserId { get; set; }
-
-                    public string? UserName { get; set; }
-
-                    public string? IpAddress { get; set; }
-
-                    public string? OldValues { get; set; }
-
-                    public string? NewValues { get; set; }
-
-                    public string? AffectedColumns { get; set; }
-
-                    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-
-                    public string? CorrelationId { get; set; }
-
-                    public ICollection<ChangeLog> ChangeLogs { get; set; } = new List<ChangeLog>();
-                }
-                """
+            Namespace = "Audit.Core.Entities"
         };
     }
 
-    private static FileModel CreateChangeLogEntityFile(string directory)
+    private static CodeFileModel<ClassModel> CreateChangeLogEntityFile(string directory)
     {
-        return new FileModel("ChangeLog", directory, CSharp)
+        var classModel = new ClassModel("ChangeLog");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "ChangeLogId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "AuditEntryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("AuditEntry"), "AuditEntry", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "null!" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "PropertyName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "OldValue", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "NewValue", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "PropertyType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+
+        return new CodeFileModel<ClassModel>(classModel, "ChangeLog", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Audit.Core.Entities;
-
-                /// <summary>
-                /// ChangeLog entity representing a single property change within an audit entry.
-                /// </summary>
-                public class ChangeLog
-                {
-                    public Guid ChangeLogId { get; set; }
-
-                    public Guid AuditEntryId { get; set; }
-
-                    public AuditEntry AuditEntry { get; set; } = null!;
-
-                    public required string PropertyName { get; set; }
-
-                    public string? OldValue { get; set; }
-
-                    public string? NewValue { get; set; }
-
-                    public required string PropertyType { get; set; }
-                }
-                """
+            Namespace = "Audit.Core.Entities"
         };
     }
 
@@ -217,223 +185,298 @@ public class AuditArtifactFactory : IAuditArtifactFactory
         };
     }
 
-    private static FileModel CreateIAuditRepositoryFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIAuditRepositoryFile(string directory)
     {
-        return new FileModel("IAuditRepository", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IAuditRepository");
+
+        interfaceModel.Usings.Add(new UsingModel("Audit.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "GetByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "auditEntryId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                using Audit.Core.Entities;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByEntityIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                namespace Audit.Core.Interfaces;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByEntityTypeAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                /// <summary>
-                /// Repository interface for AuditEntry entities.
-                /// </summary>
-                public interface IAuditRepository
-                {
-                    Task<AuditEntry?> GetByIdAsync(Guid auditEntryId, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByUserIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<AuditEntry>> GetByEntityIdAsync(string entityId, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByDateRangeAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<AuditEntry>> GetByEntityTypeAsync(string entityType, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "skip", Type = new TypeModel("int"), DefaultValue = "0" },
+                new ParamModel { Name = "take", Type = new TypeModel("int"), DefaultValue = "100" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<AuditEntry>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry")] },
+            Params =
+            [
+                new ParamModel { Name = "auditEntry", Type = new TypeModel("AuditEntry") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<AuditEntry>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "AddBatchAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "auditEntries", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] } },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<AuditEntry>> GetAllAsync(int skip = 0, int take = 100, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetCountAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("long")] },
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<AuditEntry> AddAsync(AuditEntry auditEntry, CancellationToken cancellationToken = default);
-
-                    Task AddBatchAsync(IEnumerable<AuditEntry> auditEntries, CancellationToken cancellationToken = default);
-
-                    Task<long> GetCountAsync(string? entityType = null, CancellationToken cancellationToken = default);
-                }
-                """
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IAuditRepository", directory, CSharp)
+        {
+            Namespace = "Audit.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateIAuditServiceFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIAuditServiceFile(string directory)
     {
-        return new FileModel("IAuditService", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IAuditService");
+
+        interfaceModel.Usings.Add(new UsingModel("Audit.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "LogAuditAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry")] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "action", Type = new TypeModel("string") },
+                new ParamModel { Name = "userId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "userName", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "ipAddress", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "oldValues", Type = new TypeModel("object") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "newValues", Type = new TypeModel("object") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "affectedColumns", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("string")], Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "correlationId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                using Audit.Core.Entities;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "LogCreateAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry")] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "newValues", Type = new TypeModel("object") },
+                new ParamModel { Name = "userId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "userName", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "ipAddress", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "correlationId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                namespace Audit.Core.Interfaces;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "LogUpdateAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry")] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "oldValues", Type = new TypeModel("object") },
+                new ParamModel { Name = "newValues", Type = new TypeModel("object") },
+                new ParamModel { Name = "affectedColumns", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("string")], Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "userId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "userName", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "ipAddress", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "correlationId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                /// <summary>
-                /// Service interface for audit operations.
-                /// </summary>
-                public interface IAuditService
-                {
-                    Task<AuditEntry> LogAuditAsync(
-                        string entityId,
-                        string entityType,
-                        string action,
-                        string? userId = null,
-                        string? userName = null,
-                        string? ipAddress = null,
-                        object? oldValues = null,
-                        object? newValues = null,
-                        IEnumerable<string>? affectedColumns = null,
-                        string? correlationId = null,
-                        CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "LogDeleteAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry")] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "oldValues", Type = new TypeModel("object") },
+                new ParamModel { Name = "userId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "userName", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "ipAddress", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "correlationId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<AuditEntry> LogCreateAsync(
-                        string entityId,
-                        string entityType,
-                        object newValues,
-                        string? userId = null,
-                        string? userName = null,
-                        string? ipAddress = null,
-                        string? correlationId = null,
-                        CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetEntityHistoryAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<AuditEntry> LogUpdateAsync(
-                        string entityId,
-                        string entityType,
-                        object oldValues,
-                        object newValues,
-                        IEnumerable<string>? affectedColumns = null,
-                        string? userId = null,
-                        string? userName = null,
-                        string? ipAddress = null,
-                        string? correlationId = null,
-                        CancellationToken cancellationToken = default);
-
-                    Task<AuditEntry> LogDeleteAsync(
-                        string entityId,
-                        string entityType,
-                        object oldValues,
-                        string? userId = null,
-                        string? userName = null,
-                        string? ipAddress = null,
-                        string? correlationId = null,
-                        CancellationToken cancellationToken = default);
-
-                    Task<IEnumerable<AuditEntry>> GetEntityHistoryAsync(
-                        string entityId,
-                        CancellationToken cancellationToken = default);
-                }
-                """
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IAuditService", directory, CSharp)
+        {
+            Namespace = "Audit.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateAuditEntryCreatedEventFile(string directory)
+    private static CodeFileModel<ClassModel> CreateAuditEntryCreatedEventFile(string directory)
     {
-        return new FileModel("AuditEntryCreatedEvent", directory, CSharp)
+        var classModel = new ClassModel("AuditEntryCreatedEvent")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using Audit.Core.Interfaces;
+        classModel.Usings.Add(new UsingModel("Audit.Core.Interfaces"));
 
-                namespace Audit.Core.Events;
+        classModel.Implements.Add(new TypeModel("IDomainEvent"));
 
-                /// <summary>
-                /// Event raised when a new audit entry is created.
-                /// </summary>
-                public sealed class AuditEntryCreatedEvent : IDomainEvent
-                {
-                    public Guid AggregateId { get; init; }
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "AggregateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "AggregateType", [new PropertyAccessorModel(PropertyAccessorType.Get, "\"AuditEntry\"")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Action", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                    public string AggregateType => "AuditEntry";
-
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-
-                    public required string CorrelationId { get; init; }
-
-                    public required string EntityId { get; init; }
-
-                    public required string EntityType { get; init; }
-
-                    public required string Action { get; init; }
-
-                    public string? UserId { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "AuditEntryCreatedEvent", directory, CSharp)
+        {
+            Namespace = "Audit.Core.Events"
         };
     }
 
-    private static FileModel CreateAuditEntryDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateAuditEntryDtoFile(string directory)
     {
-        return new FileModel("AuditEntryDto", directory, CSharp)
+        var classModel = new ClassModel("AuditEntryDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                namespace Audit.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "AuditEntryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Action", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "UserName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "IpAddress", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "OldValues", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "NewValues", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "AffectedColumns", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "Timestamp", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("IReadOnlyList") { GenericTypeParameters = [new TypeModel("ChangeLogDto")] }, "ChangeLogs", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "Array.Empty<ChangeLogDto>()" });
 
-                /// <summary>
-                /// Data transfer object for AuditEntry.
-                /// </summary>
-                public sealed class AuditEntryDto
-                {
-                    public Guid AuditEntryId { get; init; }
-
-                    public required string EntityId { get; init; }
-
-                    public required string EntityType { get; init; }
-
-                    public required string Action { get; init; }
-
-                    public string? UserId { get; init; }
-
-                    public string? UserName { get; init; }
-
-                    public string? IpAddress { get; init; }
-
-                    public string? OldValues { get; init; }
-
-                    public string? NewValues { get; init; }
-
-                    public string? AffectedColumns { get; init; }
-
-                    public DateTime Timestamp { get; init; }
-
-                    public string? CorrelationId { get; init; }
-
-                    public IReadOnlyList<ChangeLogDto> ChangeLogs { get; init; } = Array.Empty<ChangeLogDto>();
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "AuditEntryDto", directory, CSharp)
+        {
+            Namespace = "Audit.Core.DTOs"
         };
     }
 
-    private static FileModel CreateChangeLogDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateChangeLogDtoFile(string directory)
     {
-        return new FileModel("ChangeLogDto", directory, CSharp)
+        var classModel = new ClassModel("ChangeLogDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                namespace Audit.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "ChangeLogId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "PropertyName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "OldValue", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "NewValue", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "PropertyType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
 
-                /// <summary>
-                /// Data transfer object for ChangeLog.
-                /// </summary>
-                public sealed class ChangeLogDto
-                {
-                    public Guid ChangeLogId { get; init; }
-
-                    public required string PropertyName { get; init; }
-
-                    public string? OldValue { get; init; }
-
-                    public string? NewValue { get; init; }
-
-                    public required string PropertyType { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ChangeLogDto", directory, CSharp)
+        {
+            Namespace = "Audit.Core.DTOs"
         };
     }
 
@@ -441,471 +484,584 @@ public class AuditArtifactFactory : IAuditArtifactFactory
 
     #region Infrastructure Layer Files
 
-    private static FileModel CreateAuditDbContextFile(string directory)
+    private static CodeFileModel<ClassModel> CreateAuditDbContextFile(string directory)
     {
-        return new FileModel("AuditDbContext", directory, CSharp)
+        var classModel = new ClassModel("AuditDbContext");
+
+        classModel.Usings.Add(new UsingModel("Audit.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+
+        classModel.Implements.Add(new TypeModel("DbContext"));
+
+        var constructor = new ConstructorModel(classModel, "AuditDbContext")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "options", Type = new TypeModel("DbContextOptions") { GenericTypeParameters = [new TypeModel("AuditDbContext")] } }],
+            BaseParams = ["options"]
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Audit.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("AuditEntry")] }, "AuditEntries", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<AuditEntry>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("ChangeLog")] }, "ChangeLogs", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<ChangeLog>()")]));
 
-                namespace Audit.Infrastructure.Data;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "OnModelCreating",
+            AccessModifier = AccessModifier.Protected,
+            Override = true,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "modelBuilder", Type = new TypeModel("ModelBuilder") }],
+            Body = new ExpressionModel(@"base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AuditDbContext).Assembly);")
+        });
 
-                /// <summary>
-                /// Entity Framework Core DbContext for Audit microservice.
-                /// </summary>
-                public class AuditDbContext : DbContext
-                {
-                    public AuditDbContext(DbContextOptions<AuditDbContext> options)
-                        : base(options)
-                    {
-                    }
-
-                    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
-
-                    public DbSet<ChangeLog> ChangeLogs => Set<ChangeLog>();
-
-                    protected override void OnModelCreating(ModelBuilder modelBuilder)
-                    {
-                        base.OnModelCreating(modelBuilder);
-                        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AuditDbContext).Assembly);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "AuditDbContext", directory, CSharp)
+        {
+            Namespace = "Audit.Infrastructure.Data"
         };
     }
 
-    private static FileModel CreateAuditEntryConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateAuditEntryConfigurationFile(string directory)
     {
-        return new FileModel("AuditEntryConfiguration", directory, CSharp)
+        var classModel = new ClassModel("AuditEntryConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Audit.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("AuditEntry")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("AuditEntry")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(a => a.AuditEntryId);
 
-                using Audit.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(a => a.EntityId)
+            .IsRequired()
+            .HasMaxLength(100);
 
-                namespace Audit.Infrastructure.Data.Configurations;
+        builder.Property(a => a.EntityType)
+            .IsRequired()
+            .HasMaxLength(200);
 
-                /// <summary>
-                /// Entity configuration for AuditEntry.
-                /// </summary>
-                public class AuditEntryConfiguration : IEntityTypeConfiguration<AuditEntry>
-                {
-                    public void Configure(EntityTypeBuilder<AuditEntry> builder)
-                    {
-                        builder.HasKey(a => a.AuditEntryId);
+        builder.Property(a => a.Action)
+            .IsRequired()
+            .HasMaxLength(50);
 
-                        builder.Property(a => a.EntityId)
-                            .IsRequired()
-                            .HasMaxLength(100);
+        builder.Property(a => a.UserId)
+            .HasMaxLength(100);
 
-                        builder.Property(a => a.EntityType)
-                            .IsRequired()
-                            .HasMaxLength(200);
+        builder.Property(a => a.UserName)
+            .HasMaxLength(200);
 
-                        builder.Property(a => a.Action)
-                            .IsRequired()
-                            .HasMaxLength(50);
+        builder.Property(a => a.IpAddress)
+            .HasMaxLength(50);
 
-                        builder.Property(a => a.UserId)
-                            .HasMaxLength(100);
+        builder.Property(a => a.OldValues)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(a => a.UserName)
-                            .HasMaxLength(200);
+        builder.Property(a => a.NewValues)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(a => a.IpAddress)
-                            .HasMaxLength(50);
+        builder.Property(a => a.AffectedColumns)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(a => a.OldValues)
-                            .HasColumnType("nvarchar(max)");
+        builder.Property(a => a.Timestamp)
+            .IsRequired();
 
-                        builder.Property(a => a.NewValues)
-                            .HasColumnType("nvarchar(max)");
+        builder.Property(a => a.CorrelationId)
+            .HasMaxLength(100);
 
-                        builder.Property(a => a.AffectedColumns)
-                            .HasColumnType("nvarchar(max)");
+        builder.HasIndex(a => a.EntityId);
+        builder.HasIndex(a => a.EntityType);
+        builder.HasIndex(a => a.UserId);
+        builder.HasIndex(a => a.Timestamp);
+        builder.HasIndex(a => a.CorrelationId);")
+        });
 
-                        builder.Property(a => a.Timestamp)
-                            .IsRequired();
-
-                        builder.Property(a => a.CorrelationId)
-                            .HasMaxLength(100);
-
-                        builder.HasIndex(a => a.EntityId);
-                        builder.HasIndex(a => a.EntityType);
-                        builder.HasIndex(a => a.UserId);
-                        builder.HasIndex(a => a.Timestamp);
-                        builder.HasIndex(a => a.CorrelationId);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "AuditEntryConfiguration", directory, CSharp)
+        {
+            Namespace = "Audit.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateChangeLogConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateChangeLogConfigurationFile(string directory)
     {
-        return new FileModel("ChangeLogConfiguration", directory, CSharp)
+        var classModel = new ClassModel("ChangeLogConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Audit.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("ChangeLog")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("ChangeLog")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(c => c.ChangeLogId);
 
-                using Audit.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(c => c.PropertyName)
+            .IsRequired()
+            .HasMaxLength(200);
 
-                namespace Audit.Infrastructure.Data.Configurations;
+        builder.Property(c => c.OldValue)
+            .HasColumnType(""nvarchar(max)"");
 
-                /// <summary>
-                /// Entity configuration for ChangeLog.
-                /// </summary>
-                public class ChangeLogConfiguration : IEntityTypeConfiguration<ChangeLog>
-                {
-                    public void Configure(EntityTypeBuilder<ChangeLog> builder)
-                    {
-                        builder.HasKey(c => c.ChangeLogId);
+        builder.Property(c => c.NewValue)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(c => c.PropertyName)
-                            .IsRequired()
-                            .HasMaxLength(200);
+        builder.Property(c => c.PropertyType)
+            .IsRequired()
+            .HasMaxLength(200);
 
-                        builder.Property(c => c.OldValue)
-                            .HasColumnType("nvarchar(max)");
+        builder.HasOne(c => c.AuditEntry)
+            .WithMany(a => a.ChangeLogs)
+            .HasForeignKey(c => c.AuditEntryId)
+            .OnDelete(DeleteBehavior.Cascade);")
+        });
 
-                        builder.Property(c => c.NewValue)
-                            .HasColumnType("nvarchar(max)");
-
-                        builder.Property(c => c.PropertyType)
-                            .IsRequired()
-                            .HasMaxLength(200);
-
-                        builder.HasOne(c => c.AuditEntry)
-                            .WithMany(a => a.ChangeLogs)
-                            .HasForeignKey(c => c.AuditEntryId)
-                            .OnDelete(DeleteBehavior.Cascade);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ChangeLogConfiguration", directory, CSharp)
+        {
+            Namespace = "Audit.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateAuditRepositoryFile(string directory)
+    private static CodeFileModel<ClassModel> CreateAuditRepositoryFile(string directory)
     {
-        return new FileModel("AuditRepository", directory, CSharp)
+        var classModel = new ClassModel("AuditRepository");
+
+        classModel.Usings.Add(new UsingModel("Audit.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Audit.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Audit.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+
+        classModel.Implements.Add(new TypeModel("IAuditRepository"));
+
+        classModel.Fields.Add(new FieldModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "context",
+            Type = new TypeModel("AuditDbContext"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
+        });
 
-                using Audit.Core.Entities;
-                using Audit.Core.Interfaces;
-                using Audit.Infrastructure.Data;
-                using Microsoft.EntityFrameworkCore;
+        var constructor = new ConstructorModel(classModel, "AuditRepository")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "context", Type = new TypeModel("AuditDbContext") }],
+            Body = new ExpressionModel("this.context = context ?? throw new ArgumentNullException(nameof(context));")
+        };
+        classModel.Constructors.Add(constructor);
 
-                namespace Audit.Infrastructure.Repositories;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "auditEntryId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.AuditEntries
+            .Include(a => a.ChangeLogs)
+            .FirstOrDefaultAsync(a => a.AuditEntryId == auditEntryId, cancellationToken);")
+        });
 
-                /// <summary>
-                /// Repository implementation for AuditEntry entities.
-                /// </summary>
-                public class AuditRepository : IAuditRepository
-                {
-                    private readonly AuditDbContext context;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByEntityIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.AuditEntries
+            .Include(a => a.ChangeLogs)
+            .Where(a => a.EntityId == entityId)
+            .OrderByDescending(a => a.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public AuditRepository(AuditDbContext context)
-                    {
-                        this.context = context ?? throw new ArgumentNullException(nameof(context));
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByEntityTypeAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.AuditEntries
+            .Include(a => a.ChangeLogs)
+            .Where(a => a.EntityType == entityType)
+            .OrderByDescending(a => a.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public async Task<AuditEntry?> GetByIdAsync(Guid auditEntryId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.AuditEntries
-                            .Include(a => a.ChangeLogs)
-                            .FirstOrDefaultAsync(a => a.AuditEntryId == auditEntryId, cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByUserIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.AuditEntries
+            .Include(a => a.ChangeLogs)
+            .Where(a => a.UserId == userId)
+            .OrderByDescending(a => a.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public async Task<IEnumerable<AuditEntry>> GetByEntityIdAsync(string entityId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.AuditEntries
-                            .Include(a => a.ChangeLogs)
-                            .Where(a => a.EntityId == entityId)
-                            .OrderByDescending(a => a.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByDateRangeAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "startDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "endDate", Type = new TypeModel("DateTime") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.AuditEntries
+            .Include(a => a.ChangeLogs)
+            .Where(a => a.Timestamp >= startDate && a.Timestamp <= endDate)
+            .OrderByDescending(a => a.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public async Task<IEnumerable<AuditEntry>> GetByEntityTypeAsync(string entityType, CancellationToken cancellationToken = default)
-                    {
-                        return await context.AuditEntries
-                            .Include(a => a.ChangeLogs)
-                            .Where(a => a.EntityType == entityType)
-                            .OrderByDescending(a => a.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "skip", Type = new TypeModel("int"), DefaultValue = "0" },
+                new ParamModel { Name = "take", Type = new TypeModel("int"), DefaultValue = "100" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.AuditEntries
+            .Include(a => a.ChangeLogs)
+            .OrderByDescending(a => a.Timestamp)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public async Task<IEnumerable<AuditEntry>> GetByUserIdAsync(string userId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.AuditEntries
-                            .Include(a => a.ChangeLogs)
-                            .Where(a => a.UserId == userId)
-                            .OrderByDescending(a => a.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry")] },
+            Params =
+            [
+                new ParamModel { Name = "auditEntry", Type = new TypeModel("AuditEntry") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"auditEntry.AuditEntryId = Guid.NewGuid();
+        auditEntry.Timestamp = DateTime.UtcNow;
+        await context.AuditEntries.AddAsync(auditEntry, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return auditEntry;")
+        });
 
-                    public async Task<IEnumerable<AuditEntry>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
-                    {
-                        return await context.AuditEntries
-                            .Include(a => a.ChangeLogs)
-                            .Where(a => a.Timestamp >= startDate && a.Timestamp <= endDate)
-                            .OrderByDescending(a => a.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddBatchAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "auditEntries", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] } },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"foreach (var auditEntry in auditEntries)
+        {
+            auditEntry.AuditEntryId = Guid.NewGuid();
+            auditEntry.Timestamp = DateTime.UtcNow;
+        }
 
-                    public async Task<IEnumerable<AuditEntry>> GetAllAsync(int skip = 0, int take = 100, CancellationToken cancellationToken = default)
-                    {
-                        return await context.AuditEntries
-                            .Include(a => a.ChangeLogs)
-                            .OrderByDescending(a => a.Timestamp)
-                            .Skip(skip)
-                            .Take(take)
-                            .ToListAsync(cancellationToken);
-                    }
+        await context.AuditEntries.AddRangeAsync(auditEntries, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);")
+        });
 
-                    public async Task<AuditEntry> AddAsync(AuditEntry auditEntry, CancellationToken cancellationToken = default)
-                    {
-                        auditEntry.AuditEntryId = Guid.NewGuid();
-                        auditEntry.Timestamp = DateTime.UtcNow;
-                        await context.AuditEntries.AddAsync(auditEntry, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-                        return auditEntry;
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetCountAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("long")] },
+            Params =
+            [
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var query = context.AuditEntries.AsQueryable();
 
-                    public async Task AddBatchAsync(IEnumerable<AuditEntry> auditEntries, CancellationToken cancellationToken = default)
-                    {
-                        foreach (var auditEntry in auditEntries)
-                        {
-                            auditEntry.AuditEntryId = Guid.NewGuid();
-                            auditEntry.Timestamp = DateTime.UtcNow;
-                        }
+        if (!string.IsNullOrEmpty(entityType))
+        {
+            query = query.Where(a => a.EntityType == entityType);
+        }
 
-                        await context.AuditEntries.AddRangeAsync(auditEntries, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
+        return await query.LongCountAsync(cancellationToken);")
+        });
 
-                    public async Task<long> GetCountAsync(string? entityType = null, CancellationToken cancellationToken = default)
-                    {
-                        var query = context.AuditEntries.AsQueryable();
-
-                        if (!string.IsNullOrEmpty(entityType))
-                        {
-                            query = query.Where(a => a.EntityType == entityType);
-                        }
-
-                        return await query.LongCountAsync(cancellationToken);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "AuditRepository", directory, CSharp)
+        {
+            Namespace = "Audit.Infrastructure.Repositories"
         };
     }
 
-    private static FileModel CreateAuditServiceFile(string directory)
+    private static CodeFileModel<ClassModel> CreateAuditServiceFile(string directory)
     {
-        return new FileModel("AuditService", directory, CSharp)
+        var classModel = new ClassModel("AuditService");
+
+        classModel.Usings.Add(new UsingModel("System.Text.Json"));
+        classModel.Usings.Add(new UsingModel("Audit.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Audit.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Logging"));
+
+        classModel.Implements.Add(new TypeModel("IAuditService"));
+
+        classModel.Fields.Add(new FieldModel { Name = "auditRepository", Type = new TypeModel("IAuditRepository"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("AuditService")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "AuditService")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "auditRepository", Type = new TypeModel("IAuditRepository") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("AuditService")] } }
+            ],
+            Body = new ExpressionModel(@"this.auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using System.Text.Json;
-                using Audit.Core.Entities;
-                using Audit.Core.Interfaces;
-                using Microsoft.Extensions.Logging;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "LogAuditAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry")] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "action", Type = new TypeModel("string") },
+                new ParamModel { Name = "userId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "userName", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "ipAddress", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "oldValues", Type = new TypeModel("object") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "newValues", Type = new TypeModel("object") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "affectedColumns", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("string")], Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "correlationId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var auditEntry = new AuditEntry
+        {
+            EntityId = entityId,
+            EntityType = entityType,
+            Action = action,
+            UserId = userId,
+            UserName = userName,
+            IpAddress = ipAddress,
+            OldValues = oldValues != null ? JsonSerializer.Serialize(oldValues) : null,
+            NewValues = newValues != null ? JsonSerializer.Serialize(newValues) : null,
+            AffectedColumns = affectedColumns != null ? string.Join("","", affectedColumns) : null,
+            CorrelationId = correlationId ?? Guid.NewGuid().ToString()
+        };
 
-                namespace Audit.Infrastructure.Services;
+        var createdEntry = await auditRepository.AddAsync(auditEntry, cancellationToken);
 
-                /// <summary>
-                /// Service implementation for audit operations.
-                /// </summary>
-                public class AuditService : IAuditService
-                {
-                    private readonly IAuditRepository auditRepository;
-                    private readonly ILogger<AuditService> logger;
+        logger.LogInformation(
+            ""Audit entry created: {Action} on {EntityType} ({EntityId}) by {UserId}"",
+            action,
+            entityType,
+            entityId,
+            userId);
 
-                    public AuditService(IAuditRepository auditRepository, ILogger<AuditService> logger)
-                    {
-                        this.auditRepository = auditRepository ?? throw new ArgumentNullException(nameof(auditRepository));
-                        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-                    }
+        return createdEntry;")
+        });
 
-                    public async Task<AuditEntry> LogAuditAsync(
-                        string entityId,
-                        string entityType,
-                        string action,
-                        string? userId = null,
-                        string? userName = null,
-                        string? ipAddress = null,
-                        object? oldValues = null,
-                        object? newValues = null,
-                        IEnumerable<string>? affectedColumns = null,
-                        string? correlationId = null,
-                        CancellationToken cancellationToken = default)
-                    {
-                        var auditEntry = new AuditEntry
-                        {
-                            EntityId = entityId,
-                            EntityType = entityType,
-                            Action = action,
-                            UserId = userId,
-                            UserName = userName,
-                            IpAddress = ipAddress,
-                            OldValues = oldValues != null ? JsonSerializer.Serialize(oldValues) : null,
-                            NewValues = newValues != null ? JsonSerializer.Serialize(newValues) : null,
-                            AffectedColumns = affectedColumns != null ? string.Join(",", affectedColumns) : null,
-                            CorrelationId = correlationId ?? Guid.NewGuid().ToString()
-                        };
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "LogCreateAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry")] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "newValues", Type = new TypeModel("object") },
+                new ParamModel { Name = "userId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "userName", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "ipAddress", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "correlationId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await LogAuditAsync(
+            entityId,
+            entityType,
+            ""Create"",
+            userId,
+            userName,
+            ipAddress,
+            null,
+            newValues,
+            null,
+            correlationId,
+            cancellationToken);")
+        });
 
-                        var createdEntry = await auditRepository.AddAsync(auditEntry, cancellationToken);
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "LogUpdateAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry")] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "oldValues", Type = new TypeModel("object") },
+                new ParamModel { Name = "newValues", Type = new TypeModel("object") },
+                new ParamModel { Name = "affectedColumns", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("string")], Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "userId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "userName", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "ipAddress", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "correlationId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await LogAuditAsync(
+            entityId,
+            entityType,
+            ""Update"",
+            userId,
+            userName,
+            ipAddress,
+            oldValues,
+            newValues,
+            affectedColumns,
+            correlationId,
+            cancellationToken);")
+        });
 
-                        logger.LogInformation(
-                            "Audit entry created: {Action} on {EntityType} ({EntityId}) by {UserId}",
-                            action,
-                            entityType,
-                            entityId,
-                            userId);
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "LogDeleteAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("AuditEntry")] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "oldValues", Type = new TypeModel("object") },
+                new ParamModel { Name = "userId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "userName", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "ipAddress", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "correlationId", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await LogAuditAsync(
+            entityId,
+            entityType,
+            ""Delete"",
+            userId,
+            userName,
+            ipAddress,
+            oldValues,
+            null,
+            null,
+            correlationId,
+            cancellationToken);")
+        });
 
-                        return createdEntry;
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetEntityHistoryAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntry")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await auditRepository.GetByEntityIdAsync(entityId, cancellationToken);")
+        });
 
-                    public async Task<AuditEntry> LogCreateAsync(
-                        string entityId,
-                        string entityType,
-                        object newValues,
-                        string? userId = null,
-                        string? userName = null,
-                        string? ipAddress = null,
-                        string? correlationId = null,
-                        CancellationToken cancellationToken = default)
-                    {
-                        return await LogAuditAsync(
-                            entityId,
-                            entityType,
-                            "Create",
-                            userId,
-                            userName,
-                            ipAddress,
-                            null,
-                            newValues,
-                            null,
-                            correlationId,
-                            cancellationToken);
-                    }
-
-                    public async Task<AuditEntry> LogUpdateAsync(
-                        string entityId,
-                        string entityType,
-                        object oldValues,
-                        object newValues,
-                        IEnumerable<string>? affectedColumns = null,
-                        string? userId = null,
-                        string? userName = null,
-                        string? ipAddress = null,
-                        string? correlationId = null,
-                        CancellationToken cancellationToken = default)
-                    {
-                        return await LogAuditAsync(
-                            entityId,
-                            entityType,
-                            "Update",
-                            userId,
-                            userName,
-                            ipAddress,
-                            oldValues,
-                            newValues,
-                            affectedColumns,
-                            correlationId,
-                            cancellationToken);
-                    }
-
-                    public async Task<AuditEntry> LogDeleteAsync(
-                        string entityId,
-                        string entityType,
-                        object oldValues,
-                        string? userId = null,
-                        string? userName = null,
-                        string? ipAddress = null,
-                        string? correlationId = null,
-                        CancellationToken cancellationToken = default)
-                    {
-                        return await LogAuditAsync(
-                            entityId,
-                            entityType,
-                            "Delete",
-                            userId,
-                            userName,
-                            ipAddress,
-                            oldValues,
-                            null,
-                            null,
-                            correlationId,
-                            cancellationToken);
-                    }
-
-                    public async Task<IEnumerable<AuditEntry>> GetEntityHistoryAsync(
-                        string entityId,
-                        CancellationToken cancellationToken = default)
-                    {
-                        return await auditRepository.GetByEntityIdAsync(entityId, cancellationToken);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "AuditService", directory, CSharp)
+        {
+            Namespace = "Audit.Infrastructure.Services"
         };
     }
 
-    private static FileModel CreateInfrastructureConfigureServicesFile(string directory)
+    private static CodeFileModel<ClassModel> CreateInfrastructureConfigureServicesFile(string directory)
     {
-        return new FileModel("ConfigureServices", directory, CSharp)
+        var classModel = new ClassModel("ConfigureServices")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Static = true
+        };
 
-                using Audit.Core.Interfaces;
-                using Audit.Infrastructure.Data;
-                using Audit.Infrastructure.Repositories;
-                using Audit.Infrastructure.Services;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Configuration;
+        classModel.Usings.Add(new UsingModel("Audit.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Audit.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Audit.Infrastructure.Repositories"));
+        classModel.Usings.Add(new UsingModel("Audit.Infrastructure.Services"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.DependencyInjection"));
 
-                namespace Microsoft.Extensions.DependencyInjection;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAuditInfrastructure",
+            AccessModifier = AccessModifier.Public,
+            Static = true,
+            ReturnType = new TypeModel("IServiceCollection"),
+            Params =
+            [
+                new ParamModel { Name = "services", Type = new TypeModel("IServiceCollection"), ExtensionMethodParam = true },
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") }
+            ],
+            Body = new ExpressionModel(@"services.AddDbContext<AuditDbContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString(""AuditDb"") ??
+                @""Server=.\SQLEXPRESS;Database=AuditDb;Trusted_Connection=True;TrustServerCertificate=True""));
 
-                /// <summary>
-                /// Extension methods for configuring Audit infrastructure services.
-                /// </summary>
-                public static class ConfigureServices
-                {
-                    /// <summary>
-                    /// Adds Audit infrastructure services to the service collection.
-                    /// </summary>
-                    public static IServiceCollection AddAuditInfrastructure(
-                        this IServiceCollection services,
-                        IConfiguration configuration)
-                    {
-                        services.AddDbContext<AuditDbContext>(options =>
-                            options.UseSqlServer(
-                                configuration.GetConnectionString("AuditDb") ??
-                                @"Server=.\SQLEXPRESS;Database=AuditDb;Trusted_Connection=True;TrustServerCertificate=True"));
+        services.AddScoped<IAuditRepository, AuditRepository>();
+        services.AddScoped<IAuditService, AuditService>();
 
-                        services.AddScoped<IAuditRepository, AuditRepository>();
-                        services.AddScoped<IAuditService, AuditService>();
+        return services;")
+        });
 
-                        return services;
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ConfigureServices", directory, CSharp)
+        {
+            Namespace = "Microsoft.Extensions.DependencyInjection"
         };
     }
 
@@ -913,158 +1069,174 @@ public class AuditArtifactFactory : IAuditArtifactFactory
 
     #region API Layer Files
 
-    private static FileModel CreateAuditControllerFile(string directory)
+    private static CodeFileModel<ClassModel> CreateAuditControllerFile(string directory)
     {
-        return new FileModel("AuditController", directory, CSharp)
+        var classModel = new ClassModel("AuditController");
+
+        classModel.Usings.Add(new UsingModel("Audit.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Audit.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Authorization"));
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Mvc"));
+
+        classModel.Implements.Add(new TypeModel("ControllerBase"));
+
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ApiController" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Route", Template = "\"api/audit\"" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Authorize" });
+
+        classModel.Fields.Add(new FieldModel { Name = "auditRepository", Type = new TypeModel("IAuditRepository"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("AuditController")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "AuditController")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "auditRepository", Type = new TypeModel("IAuditRepository") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("AuditController")] } }
+            ],
+            Body = new ExpressionModel(@"this.auditRepository = auditRepository;
+        this.logger = logger;")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Audit.Core.DTOs;
-                using Audit.Core.Interfaces;
-                using Microsoft.AspNetCore.Authorization;
-                using Microsoft.AspNetCore.Mvc;
+        var getEntriesMethod = new MethodModel
+        {
+            Name = "GetEntries",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntryDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "skip", Type = new TypeModel("int"), Attribute = "[FromQuery]", DefaultValue = "0" },
+                new ParamModel { Name = "take", Type = new TypeModel("int"), Attribute = "[FromQuery]", DefaultValue = "100" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var entries = await auditRepository.GetAllAsync(skip, take, cancellationToken);
 
-                namespace Audit.Api.Controllers;
+        var entryDtos = entries.Select(e => new AuditEntryDto
+        {
+            AuditEntryId = e.AuditEntryId,
+            EntityId = e.EntityId,
+            EntityType = e.EntityType,
+            Action = e.Action,
+            UserId = e.UserId,
+            UserName = e.UserName,
+            IpAddress = e.IpAddress,
+            OldValues = e.OldValues,
+            NewValues = e.NewValues,
+            AffectedColumns = e.AffectedColumns,
+            Timestamp = e.Timestamp,
+            CorrelationId = e.CorrelationId,
+            ChangeLogs = e.ChangeLogs.Select(c => new ChangeLogDto
+            {
+                ChangeLogId = c.ChangeLogId,
+                PropertyName = c.PropertyName,
+                OldValue = c.OldValue,
+                NewValue = c.NewValue,
+                PropertyType = c.PropertyType
+            }).ToList()
+        });
 
-                /// <summary>
-                /// Controller for audit operations.
-                /// </summary>
-                [ApiController]
-                [Route("api/audit")]
-                [Authorize]
-                public class AuditController : ControllerBase
-                {
-                    private readonly IAuditRepository auditRepository;
-                    private readonly ILogger<AuditController> logger;
+        return Ok(entryDtos);")
+        };
+        getEntriesMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"entries\"" });
+        getEntriesMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(IEnumerable<AuditEntryDto>), StatusCodes.Status200OK" });
+        classModel.Methods.Add(getEntriesMethod);
 
-                    public AuditController(
-                        IAuditRepository auditRepository,
-                        ILogger<AuditController> logger)
-                    {
-                        this.auditRepository = auditRepository;
-                        this.logger = logger;
-                    }
+        var getByIdMethod = new MethodModel
+        {
+            Name = "GetById",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("AuditEntryDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "id", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var entry = await auditRepository.GetByIdAsync(id, cancellationToken);
 
-                    /// <summary>
-                    /// Get all audit entries with pagination.
-                    /// </summary>
-                    [HttpGet("entries")]
-                    [ProducesResponseType(typeof(IEnumerable<AuditEntryDto>), StatusCodes.Status200OK)]
-                    public async Task<ActionResult<IEnumerable<AuditEntryDto>>> GetEntries(
-                        [FromQuery] int skip = 0,
-                        [FromQuery] int take = 100,
-                        CancellationToken cancellationToken = default)
-                    {
-                        var entries = await auditRepository.GetAllAsync(skip, take, cancellationToken);
+        if (entry == null)
+        {
+            return NotFound();
+        }
 
-                        var entryDtos = entries.Select(e => new AuditEntryDto
-                        {
-                            AuditEntryId = e.AuditEntryId,
-                            EntityId = e.EntityId,
-                            EntityType = e.EntityType,
-                            Action = e.Action,
-                            UserId = e.UserId,
-                            UserName = e.UserName,
-                            IpAddress = e.IpAddress,
-                            OldValues = e.OldValues,
-                            NewValues = e.NewValues,
-                            AffectedColumns = e.AffectedColumns,
-                            Timestamp = e.Timestamp,
-                            CorrelationId = e.CorrelationId,
-                            ChangeLogs = e.ChangeLogs.Select(c => new ChangeLogDto
-                            {
-                                ChangeLogId = c.ChangeLogId,
-                                PropertyName = c.PropertyName,
-                                OldValue = c.OldValue,
-                                NewValue = c.NewValue,
-                                PropertyType = c.PropertyType
-                            }).ToList()
-                        });
+        return Ok(new AuditEntryDto
+        {
+            AuditEntryId = entry.AuditEntryId,
+            EntityId = entry.EntityId,
+            EntityType = entry.EntityType,
+            Action = entry.Action,
+            UserId = entry.UserId,
+            UserName = entry.UserName,
+            IpAddress = entry.IpAddress,
+            OldValues = entry.OldValues,
+            NewValues = entry.NewValues,
+            AffectedColumns = entry.AffectedColumns,
+            Timestamp = entry.Timestamp,
+            CorrelationId = entry.CorrelationId,
+            ChangeLogs = entry.ChangeLogs.Select(c => new ChangeLogDto
+            {
+                ChangeLogId = c.ChangeLogId,
+                PropertyName = c.PropertyName,
+                OldValue = c.OldValue,
+                NewValue = c.NewValue,
+                PropertyType = c.PropertyType
+            }).ToList()
+        });")
+        };
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"entries/{id:guid}\"" });
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(AuditEntryDto), StatusCodes.Status200OK" });
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status404NotFound" });
+        classModel.Methods.Add(getByIdMethod);
 
-                        return Ok(entryDtos);
-                    }
+        var getByEntityIdMethod = new MethodModel
+        {
+            Name = "GetByEntityId",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("AuditEntryDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var entries = await auditRepository.GetByEntityIdAsync(entityId, cancellationToken);
 
-                    /// <summary>
-                    /// Get an audit entry by ID.
-                    /// </summary>
-                    [HttpGet("entries/{id:guid}")]
-                    [ProducesResponseType(typeof(AuditEntryDto), StatusCodes.Status200OK)]
-                    [ProducesResponseType(StatusCodes.Status404NotFound)]
-                    public async Task<ActionResult<AuditEntryDto>> GetById(Guid id, CancellationToken cancellationToken)
-                    {
-                        var entry = await auditRepository.GetByIdAsync(id, cancellationToken);
+        var entryDtos = entries.Select(e => new AuditEntryDto
+        {
+            AuditEntryId = e.AuditEntryId,
+            EntityId = e.EntityId,
+            EntityType = e.EntityType,
+            Action = e.Action,
+            UserId = e.UserId,
+            UserName = e.UserName,
+            IpAddress = e.IpAddress,
+            OldValues = e.OldValues,
+            NewValues = e.NewValues,
+            AffectedColumns = e.AffectedColumns,
+            Timestamp = e.Timestamp,
+            CorrelationId = e.CorrelationId,
+            ChangeLogs = e.ChangeLogs.Select(c => new ChangeLogDto
+            {
+                ChangeLogId = c.ChangeLogId,
+                PropertyName = c.PropertyName,
+                OldValue = c.OldValue,
+                NewValue = c.NewValue,
+                PropertyType = c.PropertyType
+            }).ToList()
+        });
 
-                        if (entry == null)
-                        {
-                            return NotFound();
-                        }
+        return Ok(entryDtos);")
+        };
+        getByEntityIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"entity/{entityId}\"" });
+        getByEntityIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(IEnumerable<AuditEntryDto>), StatusCodes.Status200OK" });
+        classModel.Methods.Add(getByEntityIdMethod);
 
-                        return Ok(new AuditEntryDto
-                        {
-                            AuditEntryId = entry.AuditEntryId,
-                            EntityId = entry.EntityId,
-                            EntityType = entry.EntityType,
-                            Action = entry.Action,
-                            UserId = entry.UserId,
-                            UserName = entry.UserName,
-                            IpAddress = entry.IpAddress,
-                            OldValues = entry.OldValues,
-                            NewValues = entry.NewValues,
-                            AffectedColumns = entry.AffectedColumns,
-                            Timestamp = entry.Timestamp,
-                            CorrelationId = entry.CorrelationId,
-                            ChangeLogs = entry.ChangeLogs.Select(c => new ChangeLogDto
-                            {
-                                ChangeLogId = c.ChangeLogId,
-                                PropertyName = c.PropertyName,
-                                OldValue = c.OldValue,
-                                NewValue = c.NewValue,
-                                PropertyType = c.PropertyType
-                            }).ToList()
-                        });
-                    }
-
-                    /// <summary>
-                    /// Get audit entries by entity ID.
-                    /// </summary>
-                    [HttpGet("entity/{entityId}")]
-                    [ProducesResponseType(typeof(IEnumerable<AuditEntryDto>), StatusCodes.Status200OK)]
-                    public async Task<ActionResult<IEnumerable<AuditEntryDto>>> GetByEntityId(
-                        string entityId,
-                        CancellationToken cancellationToken)
-                    {
-                        var entries = await auditRepository.GetByEntityIdAsync(entityId, cancellationToken);
-
-                        var entryDtos = entries.Select(e => new AuditEntryDto
-                        {
-                            AuditEntryId = e.AuditEntryId,
-                            EntityId = e.EntityId,
-                            EntityType = e.EntityType,
-                            Action = e.Action,
-                            UserId = e.UserId,
-                            UserName = e.UserName,
-                            IpAddress = e.IpAddress,
-                            OldValues = e.OldValues,
-                            NewValues = e.NewValues,
-                            AffectedColumns = e.AffectedColumns,
-                            Timestamp = e.Timestamp,
-                            CorrelationId = e.CorrelationId,
-                            ChangeLogs = e.ChangeLogs.Select(c => new ChangeLogDto
-                            {
-                                ChangeLogId = c.ChangeLogId,
-                                PropertyName = c.PropertyName,
-                                OldValue = c.OldValue,
-                                NewValue = c.NewValue,
-                                PropertyType = c.PropertyType
-                            }).ToList()
-                        });
-
-                        return Ok(entryDtos);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "AuditController", directory, CSharp)
+        {
+            Namespace = "Audit.Api.Controllers"
         };
     }
 

@@ -2,11 +2,23 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Constructors;
+using Endpoint.DotNet.Syntax.Expressions;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
+using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Engineering.Microservices.Notification;
+
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 public class NotificationArtifactFactory : INotificationArtifactFactory
 {
@@ -26,245 +38,24 @@ public class NotificationArtifactFactory : INotificationArtifactFactory
         var dtosDir = Path.Combine(project.Directory, "DTOs");
 
         // Entities
-        project.Files.Add(new FileModel("Notification", entitiesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Notification.Core.Entities;
-
-                public class Notification
-                {
-                    public Guid NotificationId { get; set; }
-                    public Guid UserId { get; set; }
-                    public Guid? TemplateId { get; set; }
-                    public required string Title { get; set; }
-                    public required string Body { get; set; }
-                    public NotificationType Type { get; set; } = NotificationType.Info;
-                    public NotificationStatus Status { get; set; } = NotificationStatus.Pending;
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                    public DateTime? SentAt { get; set; }
-                    public DateTime? DeliveredAt { get; set; }
-                    public NotificationTemplate? Template { get; set; }
-                }
-
-                public enum NotificationType { Info, Warning, Error, Success }
-                public enum NotificationStatus { Pending, Sent, Delivered, Failed }
-                """
-        });
-
-        project.Files.Add(new FileModel("NotificationTemplate", entitiesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Notification.Core.Entities;
-
-                public class NotificationTemplate
-                {
-                    public Guid TemplateId { get; set; }
-                    public required string Name { get; set; }
-                    public required string Subject { get; set; }
-                    public required string BodyTemplate { get; set; }
-                    public NotificationType Type { get; set; } = NotificationType.Info;
-                    public bool IsActive { get; set; } = true;
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                    public DateTime? UpdatedAt { get; set; }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("NotificationPreference", entitiesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Notification.Core.Entities;
-
-                public class NotificationPreference
-                {
-                    public Guid PreferenceId { get; set; }
-                    public Guid UserId { get; set; }
-                    public bool EmailEnabled { get; set; } = true;
-                    public bool PushEnabled { get; set; } = true;
-                    public bool SmsEnabled { get; set; } = false;
-                    public bool InAppEnabled { get; set; } = true;
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                    public DateTime? UpdatedAt { get; set; }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("NotificationHistory", entitiesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Notification.Core.Entities;
-
-                public class NotificationHistory
-                {
-                    public Guid HistoryId { get; set; }
-                    public Guid NotificationId { get; set; }
-                    public Notification Notification { get; set; } = null!;
-                    public required string Action { get; set; }
-                    public string? Details { get; set; }
-                    public DateTime OccurredAt { get; set; } = DateTime.UtcNow;
-                }
-                """
-        });
+        project.Files.Add(CreateNotificationFile(entitiesDir));
+        project.Files.Add(CreateNotificationEnumsFile(entitiesDir));
+        project.Files.Add(CreateNotificationTemplateFile(entitiesDir));
+        project.Files.Add(CreateNotificationPreferenceFile(entitiesDir));
+        project.Files.Add(CreateNotificationHistoryFile(entitiesDir));
 
         // Interfaces
-        project.Files.Add(new FileModel("INotificationRepository", interfacesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Notification.Core.Entities;
-
-                namespace Notification.Core.Interfaces;
-
-                public interface INotificationRepository
-                {
-                    Task<Entities.Notification?> GetByIdAsync(Guid notificationId, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<Entities.Notification>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<Entities.Notification>> GetAllAsync(CancellationToken cancellationToken = default);
-                    Task<Entities.Notification> AddAsync(Entities.Notification notification, CancellationToken cancellationToken = default);
-                    Task UpdateAsync(Entities.Notification notification, CancellationToken cancellationToken = default);
-                    Task DeleteAsync(Guid notificationId, CancellationToken cancellationToken = default);
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("INotificationService", interfacesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Notification.Core.DTOs;
-
-                namespace Notification.Core.Interfaces;
-
-                public interface INotificationService
-                {
-                    Task<NotificationDto> SendAsync(SendNotificationRequest request, CancellationToken cancellationToken = default);
-                    Task<NotificationDto?> GetByIdAsync(Guid notificationId, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<NotificationDto>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-                    Task MarkAsDeliveredAsync(Guid notificationId, CancellationToken cancellationToken = default);
-                }
-                """
-        });
+        project.Files.Add(CreateINotificationRepositoryFile(interfacesDir));
+        project.Files.Add(CreateINotificationServiceFile(interfacesDir));
 
         // Events
-        project.Files.Add(new FileModel("NotificationSentEvent", eventsDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Notification.Core.Events;
-
-                public sealed class NotificationSentEvent
-                {
-                    public Guid NotificationId { get; init; }
-                    public Guid UserId { get; init; }
-                    public required string Title { get; init; }
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("NotificationDeliveredEvent", eventsDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Notification.Core.Events;
-
-                public sealed class NotificationDeliveredEvent
-                {
-                    public Guid NotificationId { get; init; }
-                    public Guid UserId { get; init; }
-                    public DateTime DeliveredAt { get; init; } = DateTime.UtcNow;
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("NotificationFailedEvent", eventsDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Notification.Core.Events;
-
-                public sealed class NotificationFailedEvent
-                {
-                    public Guid NotificationId { get; init; }
-                    public Guid UserId { get; init; }
-                    public required string Reason { get; init; }
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
-        });
+        project.Files.Add(CreateNotificationSentEventFile(eventsDir));
+        project.Files.Add(CreateNotificationDeliveredEventFile(eventsDir));
+        project.Files.Add(CreateNotificationFailedEventFile(eventsDir));
 
         // DTOs
-        project.Files.Add(new FileModel("NotificationDto", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Notification.Core.DTOs;
-
-                public sealed class NotificationDto
-                {
-                    public Guid NotificationId { get; init; }
-                    public Guid UserId { get; init; }
-                    public required string Title { get; init; }
-                    public required string Body { get; init; }
-                    public string Type { get; init; } = "Info";
-                    public string Status { get; init; } = "Pending";
-                    public DateTime CreatedAt { get; init; }
-                    public DateTime? SentAt { get; init; }
-                    public DateTime? DeliveredAt { get; init; }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("SendNotificationRequest", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using System.ComponentModel.DataAnnotations;
-
-                namespace Notification.Core.DTOs;
-
-                public sealed class SendNotificationRequest
-                {
-                    [Required]
-                    public Guid UserId { get; init; }
-
-                    [Required]
-                    public required string Title { get; init; }
-
-                    [Required]
-                    public required string Body { get; init; }
-
-                    public Guid? TemplateId { get; init; }
-                }
-                """
-        });
+        project.Files.Add(CreateNotificationDtoFile(dtosDir));
+        project.Files.Add(CreateSendNotificationRequestFile(dtosDir));
     }
 
     public void AddInfrastructureFiles(ProjectModel project, string microserviceName)
@@ -274,244 +65,10 @@ public class NotificationArtifactFactory : INotificationArtifactFactory
         var repositoriesDir = Path.Combine(project.Directory, "Repositories");
         var servicesDir = Path.Combine(project.Directory, "Services");
 
-        project.Files.Add(new FileModel("NotificationDbContext", dataDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Notification.Core.Entities;
-
-                namespace Notification.Infrastructure.Data;
-
-                public class NotificationDbContext : DbContext
-                {
-                    public NotificationDbContext(DbContextOptions<NotificationDbContext> options) : base(options) { }
-
-                    public DbSet<Core.Entities.Notification> Notifications => Set<Core.Entities.Notification>();
-                    public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
-                    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
-                    public DbSet<NotificationHistory> NotificationHistories => Set<NotificationHistory>();
-
-                    protected override void OnModelCreating(ModelBuilder modelBuilder)
-                    {
-                        modelBuilder.Entity<Core.Entities.Notification>(entity =>
-                        {
-                            entity.HasKey(n => n.NotificationId);
-                            entity.Property(n => n.Title).IsRequired().HasMaxLength(200);
-                            entity.Property(n => n.Body).IsRequired();
-                            entity.HasOne(n => n.Template).WithMany().HasForeignKey(n => n.TemplateId);
-                        });
-
-                        modelBuilder.Entity<NotificationTemplate>(entity =>
-                        {
-                            entity.HasKey(t => t.TemplateId);
-                            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
-                            entity.HasIndex(t => t.Name).IsUnique();
-                        });
-
-                        modelBuilder.Entity<NotificationPreference>(entity =>
-                        {
-                            entity.HasKey(p => p.PreferenceId);
-                            entity.HasIndex(p => p.UserId).IsUnique();
-                        });
-
-                        modelBuilder.Entity<NotificationHistory>(entity =>
-                        {
-                            entity.HasKey(h => h.HistoryId);
-                            entity.HasOne(h => h.Notification).WithMany().HasForeignKey(h => h.NotificationId);
-                        });
-                    }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("NotificationRepository", repositoriesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Notification.Core.Interfaces;
-                using Notification.Infrastructure.Data;
-
-                namespace Notification.Infrastructure.Repositories;
-
-                public class NotificationRepository : INotificationRepository
-                {
-                    private readonly NotificationDbContext context;
-
-                    public NotificationRepository(NotificationDbContext context)
-                    {
-                        this.context = context;
-                    }
-
-                    public async Task<Core.Entities.Notification?> GetByIdAsync(Guid notificationId, CancellationToken cancellationToken = default)
-                        => await context.Notifications.Include(n => n.Template).FirstOrDefaultAsync(n => n.NotificationId == notificationId, cancellationToken);
-
-                    public async Task<IEnumerable<Core.Entities.Notification>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
-                        => await context.Notifications.Include(n => n.Template).Where(n => n.UserId == userId).OrderByDescending(n => n.CreatedAt).ToListAsync(cancellationToken);
-
-                    public async Task<IEnumerable<Core.Entities.Notification>> GetAllAsync(CancellationToken cancellationToken = default)
-                        => await context.Notifications.Include(n => n.Template).ToListAsync(cancellationToken);
-
-                    public async Task<Core.Entities.Notification> AddAsync(Core.Entities.Notification notification, CancellationToken cancellationToken = default)
-                    {
-                        notification.NotificationId = Guid.NewGuid();
-                        await context.Notifications.AddAsync(notification, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-                        return notification;
-                    }
-
-                    public async Task UpdateAsync(Core.Entities.Notification notification, CancellationToken cancellationToken = default)
-                    {
-                        context.Notifications.Update(notification);
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
-
-                    public async Task DeleteAsync(Guid notificationId, CancellationToken cancellationToken = default)
-                    {
-                        var notification = await context.Notifications.FindAsync(new object[] { notificationId }, cancellationToken);
-                        if (notification != null)
-                        {
-                            context.Notifications.Remove(notification);
-                            await context.SaveChangesAsync(cancellationToken);
-                        }
-                    }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("NotificationService", servicesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Notification.Core.DTOs;
-                using Notification.Core.Entities;
-                using Notification.Core.Interfaces;
-
-                namespace Notification.Infrastructure.Services;
-
-                public class NotificationService : INotificationService
-                {
-                    private readonly INotificationRepository repository;
-
-                    public NotificationService(INotificationRepository repository)
-                    {
-                        this.repository = repository;
-                    }
-
-                    public async Task<NotificationDto> SendAsync(SendNotificationRequest request, CancellationToken cancellationToken = default)
-                    {
-                        var notification = new Core.Entities.Notification
-                        {
-                            UserId = request.UserId,
-                            Title = request.Title,
-                            Body = request.Body,
-                            TemplateId = request.TemplateId,
-                            Status = NotificationStatus.Sent,
-                            SentAt = DateTime.UtcNow
-                        };
-
-                        var created = await repository.AddAsync(notification, cancellationToken);
-
-                        return new NotificationDto
-                        {
-                            NotificationId = created.NotificationId,
-                            UserId = created.UserId,
-                            Title = created.Title,
-                            Body = created.Body,
-                            Type = created.Type.ToString(),
-                            Status = created.Status.ToString(),
-                            CreatedAt = created.CreatedAt,
-                            SentAt = created.SentAt
-                        };
-                    }
-
-                    public async Task<NotificationDto?> GetByIdAsync(Guid notificationId, CancellationToken cancellationToken = default)
-                    {
-                        var notification = await repository.GetByIdAsync(notificationId, cancellationToken);
-                        if (notification == null) return null;
-
-                        return new NotificationDto
-                        {
-                            NotificationId = notification.NotificationId,
-                            UserId = notification.UserId,
-                            Title = notification.Title,
-                            Body = notification.Body,
-                            Type = notification.Type.ToString(),
-                            Status = notification.Status.ToString(),
-                            CreatedAt = notification.CreatedAt,
-                            SentAt = notification.SentAt,
-                            DeliveredAt = notification.DeliveredAt
-                        };
-                    }
-
-                    public async Task<IEnumerable<NotificationDto>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
-                    {
-                        var notifications = await repository.GetByUserIdAsync(userId, cancellationToken);
-                        return notifications.Select(n => new NotificationDto
-                        {
-                            NotificationId = n.NotificationId,
-                            UserId = n.UserId,
-                            Title = n.Title,
-                            Body = n.Body,
-                            Type = n.Type.ToString(),
-                            Status = n.Status.ToString(),
-                            CreatedAt = n.CreatedAt,
-                            SentAt = n.SentAt,
-                            DeliveredAt = n.DeliveredAt
-                        });
-                    }
-
-                    public async Task MarkAsDeliveredAsync(Guid notificationId, CancellationToken cancellationToken = default)
-                    {
-                        var notification = await repository.GetByIdAsync(notificationId, cancellationToken);
-                        if (notification != null)
-                        {
-                            notification.Status = NotificationStatus.Delivered;
-                            notification.DeliveredAt = DateTime.UtcNow;
-                            await repository.UpdateAsync(notification, cancellationToken);
-                        }
-                    }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("ConfigureServices", project.Directory, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Configuration;
-                using Notification.Core.Interfaces;
-                using Notification.Infrastructure.Data;
-                using Notification.Infrastructure.Repositories;
-                using Notification.Infrastructure.Services;
-
-                namespace Microsoft.Extensions.DependencyInjection;
-
-                public static class ConfigureServices
-                {
-                    public static IServiceCollection AddNotificationInfrastructure(this IServiceCollection services, IConfiguration configuration)
-                    {
-                        services.AddDbContext<NotificationDbContext>(options =>
-                            options.UseSqlServer(configuration.GetConnectionString("NotificationDb") ??
-                                @"Server=.\SQLEXPRESS;Database=NotificationDb;Trusted_Connection=True;TrustServerCertificate=True"));
-
-                        services.AddScoped<INotificationRepository, NotificationRepository>();
-                        services.AddScoped<INotificationService, NotificationService>();
-                        return services;
-                    }
-                }
-                """
-        });
+        project.Files.Add(CreateNotificationDbContextFile(dataDir));
+        project.Files.Add(CreateNotificationRepositoryFile(repositoriesDir));
+        project.Files.Add(CreateNotificationServiceFile(servicesDir));
+        project.Files.Add(CreateInfrastructureConfigureServicesFile(project.Directory));
     }
 
     public void AddApiFiles(ProjectModel project, string microserviceName)
@@ -519,55 +76,822 @@ public class NotificationArtifactFactory : INotificationArtifactFactory
         logger.LogInformation("Adding Notification.Api files");
         var controllersDir = Path.Combine(project.Directory, "Controllers");
 
-        project.Files.Add(new FileModel("NotificationsController", controllersDir, CSharp)
+        project.Files.Add(CreateNotificationsControllerFile(controllersDir));
+        project.Files.Add(CreateProgramFile(project.Directory));
+        project.Files.Add(CreateAppSettingsFile(project.Directory));
+    }
+
+    #region Core Layer Files
+
+    private static CodeFileModel<ClassModel> CreateNotificationFile(string directory)
+    {
+        var classModel = new ClassModel("Notification");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "NotificationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "TemplateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Title", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Body", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("NotificationType"), "Type", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "NotificationType.Info" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("NotificationStatus"), "Status", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "NotificationStatus.Pending" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "SentAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "DeliveredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("NotificationTemplate") { Nullable = true }, "Template", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "Notification", directory, CSharp)
+        {
+            Namespace = "Notification.Core.Entities"
+        };
+    }
+
+    private static FileModel CreateNotificationEnumsFile(string directory)
+    {
+        return new FileModel("NotificationEnums", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
                 // Licensed under the MIT License. See License.txt in the project root for license information.
 
-                using Microsoft.AspNetCore.Mvc;
-                using Notification.Core.DTOs;
-                using Notification.Core.Interfaces;
+                namespace Notification.Core.Entities;
 
-                namespace Notification.Api.Controllers;
-
-                [ApiController]
-                [Route("api/[controller]")]
-                public class NotificationsController : ControllerBase
-                {
-                    private readonly INotificationService service;
-
-                    public NotificationsController(INotificationService service)
-                    {
-                        this.service = service;
-                    }
-
-                    [HttpPost("send")]
-                    public async Task<ActionResult<NotificationDto>> Send([FromBody] SendNotificationRequest request, CancellationToken cancellationToken)
-                    {
-                        var notification = await service.SendAsync(request, cancellationToken);
-                        return CreatedAtAction(nameof(GetById), new { id = notification.NotificationId }, notification);
-                    }
-
-                    [HttpGet("{id:guid}")]
-                    public async Task<ActionResult<NotificationDto>> GetById(Guid id, CancellationToken cancellationToken)
-                    {
-                        var notification = await service.GetByIdAsync(id, cancellationToken);
-                        if (notification == null) return NotFound();
-                        return Ok(notification);
-                    }
-
-                    [HttpGet("user/{userId:guid}")]
-                    public async Task<ActionResult<IEnumerable<NotificationDto>>> GetByUserId(Guid userId, CancellationToken cancellationToken)
-                    {
-                        var notifications = await service.GetByUserIdAsync(userId, cancellationToken);
-                        return Ok(notifications);
-                    }
-                }
+                public enum NotificationType { Info, Warning, Error, Success }
+                public enum NotificationStatus { Pending, Sent, Delivered, Failed }
                 """
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateNotificationTemplateFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationTemplate");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TemplateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Subject", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "BodyTemplate", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("NotificationType"), "Type", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "NotificationType.Info" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "UpdatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationTemplate", directory, CSharp)
+        {
+            Namespace = "Notification.Core.Entities"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateNotificationPreferenceFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationPreference");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "PreferenceId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "EmailEnabled", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "PushEnabled", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "SmsEnabled", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "false" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "InAppEnabled", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "UpdatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationPreference", directory, CSharp)
+        {
+            Namespace = "Notification.Core.Entities"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateNotificationHistoryFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationHistory");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "HistoryId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "NotificationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Notification"), "Notification", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "null!" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Action", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Details", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationHistory", directory, CSharp)
+        {
+            Namespace = "Notification.Core.Entities"
+        };
+    }
+
+    private static CodeFileModel<InterfaceModel> CreateINotificationRepositoryFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("INotificationRepository");
+
+        interfaceModel.Usings.Add(new UsingModel("Notification.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Entities.Notification") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "notificationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("Program", project.Directory, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByUserIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Entities.Notification")] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Entities.Notification")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Entities.Notification")] },
+            Params =
+            [
+                new ParamModel { Name = "notification", Type = new TypeModel("Entities.Notification") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "notification", Type = new TypeModel("Entities.Notification") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "notificationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "INotificationRepository", directory, CSharp)
+        {
+            Namespace = "Notification.Core.Interfaces"
+        };
+    }
+
+    private static CodeFileModel<InterfaceModel> CreateINotificationServiceFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("INotificationService");
+
+        interfaceModel.Usings.Add(new UsingModel("Notification.Core.DTOs"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "SendAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("NotificationDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("SendNotificationRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("NotificationDto") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "notificationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByUserIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("NotificationDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "MarkAsDeliveredAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "notificationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "INotificationService", directory, CSharp)
+        {
+            Namespace = "Notification.Core.Interfaces"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateNotificationSentEventFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationSentEvent")
+        {
+            Sealed = true
+        };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "NotificationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Title", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationSentEvent", directory, CSharp)
+        {
+            Namespace = "Notification.Core.Events"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateNotificationDeliveredEventFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationDeliveredEvent")
+        {
+            Sealed = true
+        };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "NotificationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "DeliveredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationDeliveredEvent", directory, CSharp)
+        {
+            Namespace = "Notification.Core.Events"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateNotificationFailedEventFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationFailedEvent")
+        {
+            Sealed = true
+        };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "NotificationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Reason", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationFailedEvent", directory, CSharp)
+        {
+            Namespace = "Notification.Core.Events"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateNotificationDtoFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationDto")
+        {
+            Sealed = true
+        };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "NotificationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Title", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Body", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Type", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "\"Info\"" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Status", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "\"Pending\"" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "SentAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "DeliveredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationDto", directory, CSharp)
+        {
+            Namespace = "Notification.Core.DTOs"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateSendNotificationRequestFile(string directory)
+    {
+        var classModel = new ClassModel("SendNotificationRequest")
+        {
+            Sealed = true
+        };
+
+        classModel.Usings.Add(new UsingModel("System.ComponentModel.DataAnnotations"));
+
+        var userIdProp = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]);
+        userIdProp.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Required" });
+        classModel.Properties.Add(userIdProp);
+
+        var titleProp = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Title", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true);
+        titleProp.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Required" });
+        classModel.Properties.Add(titleProp);
+
+        var bodyProp = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Body", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true);
+        bodyProp.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Required" });
+        classModel.Properties.Add(bodyProp);
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "TemplateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "SendNotificationRequest", directory, CSharp)
+        {
+            Namespace = "Notification.Core.DTOs"
+        };
+    }
+
+    #endregion
+
+    #region Infrastructure Layer Files
+
+    private static CodeFileModel<ClassModel> CreateNotificationDbContextFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationDbContext");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Notification.Core.Entities"));
+
+        classModel.Implements.Add(new TypeModel("DbContext"));
+
+        var constructor = new ConstructorModel(classModel, "NotificationDbContext")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "options", Type = new TypeModel("DbContextOptions") { GenericTypeParameters = [new TypeModel("NotificationDbContext")] } }],
+            BaseParams = ["options"]
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Core.Entities.Notification")] }, "Notifications", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Core.Entities.Notification>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("NotificationTemplate")] }, "NotificationTemplates", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<NotificationTemplate>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("NotificationPreference")] }, "NotificationPreferences", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<NotificationPreference>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("NotificationHistory")] }, "NotificationHistories", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<NotificationHistory>()")]));
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "OnModelCreating",
+            AccessModifier = AccessModifier.Protected,
+            Override = true,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "modelBuilder", Type = new TypeModel("ModelBuilder") }],
+            Body = new ExpressionModel(@"modelBuilder.Entity<Core.Entities.Notification>(entity =>
+        {
+            entity.HasKey(n => n.NotificationId);
+            entity.Property(n => n.Title).IsRequired().HasMaxLength(200);
+            entity.Property(n => n.Body).IsRequired();
+            entity.HasOne(n => n.Template).WithMany().HasForeignKey(n => n.TemplateId);
+        });
+
+        modelBuilder.Entity<NotificationTemplate>(entity =>
+        {
+            entity.HasKey(t => t.TemplateId);
+            entity.Property(t => t.Name).IsRequired().HasMaxLength(100);
+            entity.HasIndex(t => t.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<NotificationPreference>(entity =>
+        {
+            entity.HasKey(p => p.PreferenceId);
+            entity.HasIndex(p => p.UserId).IsUnique();
+        });
+
+        modelBuilder.Entity<NotificationHistory>(entity =>
+        {
+            entity.HasKey(h => h.HistoryId);
+            entity.HasOne(h => h.Notification).WithMany().HasForeignKey(h => h.NotificationId);
+        });")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationDbContext", directory, CSharp)
+        {
+            Namespace = "Notification.Infrastructure.Data"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateNotificationRepositoryFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationRepository");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Notification.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Notification.Infrastructure.Data"));
+
+        classModel.Implements.Add(new TypeModel("INotificationRepository"));
+
+        classModel.Fields.Add(new FieldModel
+        {
+            Name = "context",
+            Type = new TypeModel("NotificationDbContext"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
+        });
+
+        var constructor = new ConstructorModel(classModel, "NotificationRepository")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "context", Type = new TypeModel("NotificationDbContext") }],
+            Body = new ExpressionModel("this.context = context;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Core.Entities.Notification") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "notificationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Notifications.Include(n => n.Template).FirstOrDefaultAsync(n => n.NotificationId == notificationId, cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByUserIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Core.Entities.Notification")] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Notifications.Include(n => n.Template).Where(n => n.UserId == userId).OrderByDescending(n => n.CreatedAt).ToListAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Core.Entities.Notification")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Notifications.Include(n => n.Template).ToListAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Core.Entities.Notification")] },
+            Params =
+            [
+                new ParamModel { Name = "notification", Type = new TypeModel("Core.Entities.Notification") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"notification.NotificationId = Guid.NewGuid();
+        await context.Notifications.AddAsync(notification, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return notification;")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "notification", Type = new TypeModel("Core.Entities.Notification") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"context.Notifications.Update(notification);
+        await context.SaveChangesAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "notificationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var notification = await context.Notifications.FindAsync(new object[] { notificationId }, cancellationToken);
+        if (notification != null)
+        {
+            context.Notifications.Remove(notification);
+            await context.SaveChangesAsync(cancellationToken);
+        }")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationRepository", directory, CSharp)
+        {
+            Namespace = "Notification.Infrastructure.Repositories"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateNotificationServiceFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationService");
+
+        classModel.Usings.Add(new UsingModel("Notification.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Notification.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Notification.Core.Interfaces"));
+
+        classModel.Implements.Add(new TypeModel("INotificationService"));
+
+        classModel.Fields.Add(new FieldModel
+        {
+            Name = "repository",
+            Type = new TypeModel("INotificationRepository"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
+        });
+
+        var constructor = new ConstructorModel(classModel, "NotificationService")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "repository", Type = new TypeModel("INotificationRepository") }],
+            Body = new ExpressionModel("this.repository = repository;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "SendAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("NotificationDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("SendNotificationRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var notification = new Core.Entities.Notification
+        {
+            UserId = request.UserId,
+            Title = request.Title,
+            Body = request.Body,
+            TemplateId = request.TemplateId,
+            Status = NotificationStatus.Sent,
+            SentAt = DateTime.UtcNow
+        };
+
+        var created = await repository.AddAsync(notification, cancellationToken);
+
+        return new NotificationDto
+        {
+            NotificationId = created.NotificationId,
+            UserId = created.UserId,
+            Title = created.Title,
+            Body = created.Body,
+            Type = created.Type.ToString(),
+            Status = created.Status.ToString(),
+            CreatedAt = created.CreatedAt,
+            SentAt = created.SentAt
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("NotificationDto") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "notificationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var notification = await repository.GetByIdAsync(notificationId, cancellationToken);
+        if (notification == null) return null;
+
+        return new NotificationDto
+        {
+            NotificationId = notification.NotificationId,
+            UserId = notification.UserId,
+            Title = notification.Title,
+            Body = notification.Body,
+            Type = notification.Type.ToString(),
+            Status = notification.Status.ToString(),
+            CreatedAt = notification.CreatedAt,
+            SentAt = notification.SentAt,
+            DeliveredAt = notification.DeliveredAt
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByUserIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("NotificationDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var notifications = await repository.GetByUserIdAsync(userId, cancellationToken);
+        return notifications.Select(n => new NotificationDto
+        {
+            NotificationId = n.NotificationId,
+            UserId = n.UserId,
+            Title = n.Title,
+            Body = n.Body,
+            Type = n.Type.ToString(),
+            Status = n.Status.ToString(),
+            CreatedAt = n.CreatedAt,
+            SentAt = n.SentAt,
+            DeliveredAt = n.DeliveredAt
+        });")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "MarkAsDeliveredAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "notificationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var notification = await repository.GetByIdAsync(notificationId, cancellationToken);
+        if (notification != null)
+        {
+            notification.Status = NotificationStatus.Delivered;
+            notification.DeliveredAt = DateTime.UtcNow;
+            await repository.UpdateAsync(notification, cancellationToken);
+        }")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationService", directory, CSharp)
+        {
+            Namespace = "Notification.Infrastructure.Services"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateInfrastructureConfigureServicesFile(string directory)
+    {
+        var classModel = new ClassModel("ConfigureServices")
+        {
+            Static = true
+        };
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
+        classModel.Usings.Add(new UsingModel("Notification.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Notification.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Notification.Infrastructure.Repositories"));
+        classModel.Usings.Add(new UsingModel("Notification.Infrastructure.Services"));
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddNotificationInfrastructure",
+            AccessModifier = AccessModifier.Public,
+            Static = true,
+            ReturnType = new TypeModel("IServiceCollection"),
+            Params =
+            [
+                new ParamModel { Name = "services", Type = new TypeModel("IServiceCollection"), ExtensionMethodParam = true },
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") }
+            ],
+            Body = new ExpressionModel(@"services.AddDbContext<NotificationDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString(""NotificationDb"") ??
+                @""Server=.\SQLEXPRESS;Database=NotificationDb;Trusted_Connection=True;TrustServerCertificate=True""));
+
+        services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<INotificationService, NotificationService>();
+        return services;")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "ConfigureServices", directory, CSharp)
+        {
+            Namespace = "Microsoft.Extensions.DependencyInjection"
+        };
+    }
+
+    #endregion
+
+    #region API Layer Files
+
+    private static CodeFileModel<ClassModel> CreateNotificationsControllerFile(string directory)
+    {
+        var classModel = new ClassModel("NotificationsController");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Mvc"));
+        classModel.Usings.Add(new UsingModel("Notification.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Notification.Core.Interfaces"));
+
+        classModel.Implements.Add(new TypeModel("ControllerBase"));
+
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ApiController" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Route", Template = "\"api/[controller]\"" });
+
+        classModel.Fields.Add(new FieldModel
+        {
+            Name = "service",
+            Type = new TypeModel("INotificationService"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
+        });
+
+        var constructor = new ConstructorModel(classModel, "NotificationsController")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "service", Type = new TypeModel("INotificationService") }],
+            Body = new ExpressionModel("this.service = service;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        var sendMethod = new MethodModel
+        {
+            Name = "Send",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("NotificationDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("SendNotificationRequest"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var notification = await service.SendAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = notification.NotificationId }, notification);")
+        };
+        sendMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost", Template = "\"send\"" });
+        classModel.Methods.Add(sendMethod);
+
+        var getByIdMethod = new MethodModel
+        {
+            Name = "GetById",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("NotificationDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "id", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var notification = await service.GetByIdAsync(id, cancellationToken);
+        if (notification == null) return NotFound();
+        return Ok(notification);")
+        };
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"{id:guid}\"" });
+        classModel.Methods.Add(getByIdMethod);
+
+        var getByUserIdMethod = new MethodModel
+        {
+            Name = "GetByUserId",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("NotificationDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var notifications = await service.GetByUserIdAsync(userId, cancellationToken);
+        return Ok(notifications);")
+        };
+        getByUserIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"user/{userId:guid}\"" });
+        classModel.Methods.Add(getByUserIdMethod);
+
+        return new CodeFileModel<ClassModel>(classModel, "NotificationsController", directory, CSharp)
+        {
+            Namespace = "Notification.Api.Controllers"
+        };
+    }
+
+    private static FileModel CreateProgramFile(string directory)
+    {
+        return new FileModel("Program", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -594,9 +918,12 @@ public class NotificationArtifactFactory : INotificationArtifactFactory
                 app.MapHealthChecks("/health");
                 app.Run();
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("appsettings", project.Directory, ".json")
+    private static FileModel CreateAppSettingsFile(string directory)
+    {
+        return new FileModel("appsettings", directory, ".json")
         {
             Body = """
                 {
@@ -611,6 +938,8 @@ public class NotificationArtifactFactory : INotificationArtifactFactory
                   "AllowedHosts": "*"
                 }
                 """
-        });
+        };
     }
+
+    #endregion
 }

@@ -2,11 +2,23 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Constructors;
+using Endpoint.DotNet.Syntax.Expressions;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
+using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Engineering.Microservices.TelemetryStreaming;
+
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 /// <summary>
 /// Factory for creating Telemetry Streaming microservice artifacts.
@@ -29,65 +41,102 @@ public class TelemetryStreamingArtifactFactory : ITelemetryStreamingArtifactFact
         var eventsDir = Path.Combine(project.Directory, "Events");
         var dtosDir = Path.Combine(project.Directory, "DTOs");
 
-        // TelemetryMessage entity per REQ-STREAM-008 (Name, Ust, Value)
-        project.Files.Add(new FileModel("TelemetryMessage", entitiesDir, CSharp)
+        // Entities
+        project.Files.Add(CreateTelemetryMessageFile(entitiesDir));
+        project.Files.Add(CreateTelemetrySubscriptionFile(entitiesDir));
+        project.Files.Add(CreateSpaceVehicleTelemetryTypesFile(entitiesDir));
+
+        // Interfaces
+        project.Files.Add(CreateITelemetryGeneratorFile(interfacesDir));
+        project.Files.Add(CreateISubscriptionManagerFile(interfacesDir));
+        project.Files.Add(CreateITelemetryPublisherFile(interfacesDir));
+
+        // Events (records - keep as FileModel)
+        project.Files.Add(CreateTelemetrySubscriptionCreatedEventFile(eventsDir));
+        project.Files.Add(CreateTelemetryDataPublishedEventFile(eventsDir));
+
+        // DTOs
+        project.Files.Add(CreateTelemetryMessageDtoFile(dtosDir));
+        project.Files.Add(CreateSubscriptionRequestDtoFile(dtosDir));
+    }
+
+    public void AddInfrastructureFiles(ProjectModel project, string microserviceName)
+    {
+        logger.LogInformation("Adding TelemetryStreaming.Infrastructure files");
+
+        var servicesDir = Path.Combine(project.Directory, "Services");
+        var backgroundServicesDir = Path.Combine(project.Directory, "BackgroundServices");
+
+        // Services
+        project.Files.Add(CreateTelemetryGeneratorFile(servicesDir));
+        project.Files.Add(CreateSubscriptionManagerFile(servicesDir));
+
+        // Background Services
+        project.Files.Add(CreateTelemetryPublisherServiceFile(backgroundServicesDir));
+
+        // ConfigureServices
+        project.Files.Add(CreateInfrastructureConfigureServicesFile(project.Directory));
+    }
+
+    public void AddApiFiles(ProjectModel project, string microserviceName)
+    {
+        logger.LogInformation("Adding TelemetryStreaming.Api files");
+
+        var hubsDir = Path.Combine(project.Directory, "Hubs");
+        var servicesDir = Path.Combine(project.Directory, "Services");
+
+        // Services
+        project.Files.Add(CreateSignalRTelemetryPublisherFile(servicesDir));
+
+        // Hubs
+        project.Files.Add(CreateTelemetryHubFile(hubsDir));
+
+        // Configuration files (keep as FileModel)
+        project.Files.Add(CreateAppSettingsFile(project.Directory));
+        project.Files.Add(CreateProgramFile(project.Directory));
+    }
+
+    #region Core Layer Files
+
+    private static CodeFileModel<ClassModel> CreateTelemetryMessageFile(string directory)
+    {
+        var classModel = new ClassModel("TelemetryMessage");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "TelemetryMessageId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "Ust", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Value", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+
+        return new CodeFileModel<ClassModel>(classModel, "TelemetryMessage", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "EventMonitoring.TelemetryStreaming.Core.Entities"
+        };
+    }
 
-                namespace EventMonitoring.TelemetryStreaming.Core.Entities;
+    private static CodeFileModel<ClassModel> CreateTelemetrySubscriptionFile(string directory)
+    {
+        var classModel = new ClassModel("TelemetrySubscription");
 
-                /// <summary>
-                /// Telemetry message with Name, Ust (UTC timestamp), and Value per REQ-STREAM-008.
-                /// </summary>
-                public class TelemetryMessage
-                {
-                    public Guid TelemetryMessageId { get; set; }
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "SubscriptionId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ConnectionId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ClientId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("List") { GenericTypeParameters = [new TypeModel("string")] }, "SubscribedMetrics", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<string>()" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("List") { GenericTypeParameters = [new TypeModel("string")] }, "SubscribedSources", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<string>()" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int"), "UpdateRateMs", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "200" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "LastUpdateAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
 
-                    /// <summary>
-                    /// Name of the telemetry metric (e.g., "PropulsionTemperature", "BatteryVoltage").
-                    /// </summary>
-                    public required string Name { get; set; }
-
-                    /// <summary>
-                    /// UTC timestamp when the telemetry was recorded.
-                    /// </summary>
-                    public DateTime Ust { get; set; } = DateTime.UtcNow;
-
-                    /// <summary>
-                    /// Value as string - can represent numeric, boolean, or enum values.
-                    /// </summary>
-                    public required string Value { get; set; }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("TelemetrySubscription", entitiesDir, CSharp)
+        return new CodeFileModel<ClassModel>(classModel, "TelemetrySubscription", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "EventMonitoring.TelemetryStreaming.Core.Entities"
+        };
+    }
 
-                namespace EventMonitoring.TelemetryStreaming.Core.Entities;
-
-                public class TelemetrySubscription
-                {
-                    public Guid SubscriptionId { get; set; }
-                    public required string ConnectionId { get; set; }
-                    public required string ClientId { get; set; }
-                    public List<string> SubscribedMetrics { get; set; } = new List<string>();
-                    public List<string> SubscribedSources { get; set; } = new List<string>();
-                    public int UpdateRateMs { get; set; } = 200;
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                    public DateTime? LastUpdateAt { get; set; }
-                    public bool IsActive { get; set; } = true;
-                }
-                """
-        });
-
-        // TelemetryTypes - 50 space vehicle telemetry types per REQ-STREAM-006
-        project.Files.Add(new FileModel("SpaceVehicleTelemetryTypes", entitiesDir, CSharp)
+    private static FileModel CreateSpaceVehicleTelemetryTypesFile(string directory)
+    {
+        // Static class with complex array initialization - keep as FileModel
+        return new FileModel("SpaceVehicleTelemetryTypes", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -170,52 +219,142 @@ public class TelemetryStreamingArtifactFactory : ITelemetryStreamingArtifactFact
                     public static int Count => AllTypes.Length;
                 }
                 """
-        });
+        };
+    }
 
-        // Interfaces
-        project.Files.Add(new FileModel("ITelemetryGenerator", interfacesDir, CSharp)
+    private static CodeFileModel<InterfaceModel> CreateITelemetryGeneratorFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("ITelemetryGenerator");
+
+        interfaceModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using EventMonitoring.TelemetryStreaming.Core.Entities;
-
-                namespace EventMonitoring.TelemetryStreaming.Core.Interfaces;
-
-                public interface ITelemetryGenerator
-                {
-                    TelemetryMessage Generate(string name);
-                    IEnumerable<TelemetryMessage> GenerateBatch(IEnumerable<string> names);
-                    IEnumerable<TelemetryMessage> GenerateAll();
-                }
-                """
+            Name = "Generate",
+            Interface = true,
+            ReturnType = new TypeModel("TelemetryMessage"),
+            Params = [new ParamModel { Name = "name", Type = new TypeModel("string") }]
         });
 
-        project.Files.Add(new FileModel("ISubscriptionManager", interfacesDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using EventMonitoring.TelemetryStreaming.Core.Entities;
-
-                namespace EventMonitoring.TelemetryStreaming.Core.Interfaces;
-
-                public interface ISubscriptionManager
-                {
-                    TelemetrySubscription CreateSubscription(string connectionId, string clientId);
-                    void UpdateSubscription(Guid subscriptionId, List<string> metrics, List<string> sources, int updateRate);
-                    TelemetrySubscription? GetSubscription(string connectionId);
-                    void RemoveSubscription(string connectionId);
-                    IEnumerable<TelemetrySubscription> GetActiveSubscriptions();
-                    IEnumerable<TelemetrySubscription> GetSubscriptionsForMetric(string metricName);
-                }
-                """
+            Name = "GenerateBatch",
+            Interface = true,
+            ReturnType = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TelemetryMessage")] },
+            Params = [new ParamModel { Name = "names", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("string")] } }]
         });
 
-        // Events
-        project.Files.Add(new FileModel("TelemetrySubscriptionCreatedEvent", eventsDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GenerateAll",
+            Interface = true,
+            ReturnType = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TelemetryMessage")] }
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ITelemetryGenerator", directory, CSharp)
+        {
+            Namespace = "EventMonitoring.TelemetryStreaming.Core.Interfaces"
+        };
+    }
+
+    private static CodeFileModel<InterfaceModel> CreateISubscriptionManagerFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("ISubscriptionManager");
+
+        interfaceModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "CreateSubscription",
+            Interface = true,
+            ReturnType = new TypeModel("TelemetrySubscription"),
+            Params =
+            [
+                new ParamModel { Name = "connectionId", Type = new TypeModel("string") },
+                new ParamModel { Name = "clientId", Type = new TypeModel("string") }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateSubscription",
+            Interface = true,
+            ReturnType = new TypeModel("void"),
+            Params =
+            [
+                new ParamModel { Name = "subscriptionId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "metrics", Type = new TypeModel("List") { GenericTypeParameters = [new TypeModel("string")] } },
+                new ParamModel { Name = "sources", Type = new TypeModel("List") { GenericTypeParameters = [new TypeModel("string")] } },
+                new ParamModel { Name = "updateRate", Type = new TypeModel("int") }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetSubscription",
+            Interface = true,
+            ReturnType = new TypeModel("TelemetrySubscription") { Nullable = true },
+            Params = [new ParamModel { Name = "connectionId", Type = new TypeModel("string") }]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "RemoveSubscription",
+            Interface = true,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "connectionId", Type = new TypeModel("string") }]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetActiveSubscriptions",
+            Interface = true,
+            ReturnType = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TelemetrySubscription")] }
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetSubscriptionsForMetric",
+            Interface = true,
+            ReturnType = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TelemetrySubscription")] },
+            Params = [new ParamModel { Name = "metricName", Type = new TypeModel("string") }]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ISubscriptionManager", directory, CSharp)
+        {
+            Namespace = "EventMonitoring.TelemetryStreaming.Core.Interfaces"
+        };
+    }
+
+    private static CodeFileModel<InterfaceModel> CreateITelemetryPublisherFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("ITelemetryPublisher");
+
+        interfaceModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Core.DTOs"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "PublishToClientAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "connectionId", Type = new TypeModel("string") },
+                new ParamModel { Name = "message", Type = new TypeModel("TelemetryMessageDto") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ITelemetryPublisher", directory, CSharp)
+        {
+            Namespace = "EventMonitoring.TelemetryStreaming.Core.Interfaces"
+        };
+    }
+
+    private static FileModel CreateTelemetrySubscriptionCreatedEventFile(string directory)
+    {
+        // Record - keep as FileModel
+        return new FileModel("TelemetrySubscriptionCreatedEvent", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -225,9 +364,13 @@ public class TelemetryStreamingArtifactFactory : ITelemetryStreamingArtifactFact
 
                 public record TelemetrySubscriptionCreatedEvent(Guid SubscriptionId, string ConnectionId, string ClientId, DateTime CreatedAt);
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("TelemetryDataPublishedEvent", eventsDir, CSharp)
+    private static FileModel CreateTelemetryDataPublishedEventFile(string directory)
+    {
+        // Record - keep as FileModel
+        return new FileModel("TelemetryDataPublishedEvent", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -237,78 +380,46 @@ public class TelemetryStreamingArtifactFactory : ITelemetryStreamingArtifactFact
 
                 public record TelemetryDataPublishedEvent(string Name, string Value, DateTime Ust);
                 """
-        });
-
-        // DTOs
-        project.Files.Add(new FileModel("TelemetryMessageDto", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace EventMonitoring.TelemetryStreaming.Core.DTOs;
-
-                /// <summary>
-                /// DTO for telemetry message with Name, Ust, Value per REQ-STREAM-008.
-                /// </summary>
-                public class TelemetryMessageDto
-                {
-                    public required string Name { get; set; }
-                    public DateTime Ust { get; set; }
-                    public required string Value { get; set; }
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("SubscriptionRequestDto", dtosDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace EventMonitoring.TelemetryStreaming.Core.DTOs;
-
-                public class SubscriptionRequestDto
-                {
-                    public required string ClientId { get; set; }
-                    public List<string> Metrics { get; set; } = new List<string>();
-                    public List<string> Sources { get; set; } = new List<string>();
-                    public int UpdateRateMs { get; set; } = 200;
-                }
-                """
-        });
-
-        // ITelemetryPublisher interface for decoupling Infrastructure from SignalR
-        project.Files.Add(new FileModel("ITelemetryPublisher", interfacesDir, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using EventMonitoring.TelemetryStreaming.Core.DTOs;
-
-                namespace EventMonitoring.TelemetryStreaming.Core.Interfaces;
-
-                /// <summary>
-                /// Interface for publishing telemetry to clients.
-                /// </summary>
-                public interface ITelemetryPublisher
-                {
-                    Task PublishToClientAsync(string connectionId, TelemetryMessageDto message, CancellationToken cancellationToken = default);
-                }
-                """
-        });
+        };
     }
 
-    public void AddInfrastructureFiles(ProjectModel project, string microserviceName)
+    private static CodeFileModel<ClassModel> CreateTelemetryMessageDtoFile(string directory)
     {
-        logger.LogInformation("Adding TelemetryStreaming.Infrastructure files");
+        var classModel = new ClassModel("TelemetryMessageDto");
 
-        var servicesDir = Path.Combine(project.Directory, "Services");
-        var backgroundServicesDir = Path.Combine(project.Directory, "BackgroundServices");
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "Ust", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Value", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
 
-        // TelemetryGenerator - generates telemetry for 50 space vehicle types
-        project.Files.Add(new FileModel("TelemetryGenerator", servicesDir, CSharp)
+        return new CodeFileModel<ClassModel>(classModel, "TelemetryMessageDto", directory, CSharp)
+        {
+            Namespace = "EventMonitoring.TelemetryStreaming.Core.DTOs"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateSubscriptionRequestDtoFile(string directory)
+    {
+        var classModel = new ClassModel("SubscriptionRequestDto");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ClientId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("List") { GenericTypeParameters = [new TypeModel("string")] }, "Metrics", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<string>()" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("List") { GenericTypeParameters = [new TypeModel("string")] }, "Sources", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<string>()" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int"), "UpdateRateMs", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "200" });
+
+        return new CodeFileModel<ClassModel>(classModel, "SubscriptionRequestDto", directory, CSharp)
+        {
+            Namespace = "EventMonitoring.TelemetryStreaming.Core.DTOs"
+        };
+    }
+
+    #endregion
+
+    #region Infrastructure Layer Files
+
+    private static FileModel CreateTelemetryGeneratorFile(string directory)
+    {
+        // Complex dictionary initialization - keep as FileModel
+        return new FileModel("TelemetryGenerator", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -420,82 +531,121 @@ public class TelemetryStreamingArtifactFactory : ITelemetryStreamingArtifactFact
                     }
                 }
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("SubscriptionManager", servicesDir, CSharp)
+    private static CodeFileModel<ClassModel> CreateSubscriptionManagerFile(string directory)
+    {
+        var classModel = new ClassModel("SubscriptionManager");
+
+        classModel.Usings.Add(new UsingModel("System.Collections.Concurrent"));
+        classModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Core.Interfaces"));
+
+        classModel.Implements.Add(new TypeModel("ISubscriptionManager"));
+
+        classModel.Fields.Add(new FieldModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using System.Collections.Concurrent;
-                using EventMonitoring.TelemetryStreaming.Core.Entities;
-                using EventMonitoring.TelemetryStreaming.Core.Interfaces;
-
-                namespace EventMonitoring.TelemetryStreaming.Infrastructure.Services;
-
-                /// <summary>
-                /// In-memory subscription manager per REQ-STREAM-003.
-                /// </summary>
-                public class SubscriptionManager : ISubscriptionManager
-                {
-                    private readonly ConcurrentDictionary<string, TelemetrySubscription> subscriptions = new();
-
-                    public TelemetrySubscription CreateSubscription(string connectionId, string clientId)
-                    {
-                        var subscription = new TelemetrySubscription
-                        {
-                            SubscriptionId = Guid.NewGuid(),
-                            ConnectionId = connectionId,
-                            ClientId = clientId,
-                            CreatedAt = DateTime.UtcNow,
-                            IsActive = true
-                        };
-
-                        subscriptions.TryAdd(connectionId, subscription);
-                        return subscription;
-                    }
-
-                    public void UpdateSubscription(Guid subscriptionId, List<string> metrics, List<string> sources, int updateRate)
-                    {
-                        var subscription = subscriptions.Values.FirstOrDefault(s => s.SubscriptionId == subscriptionId);
-                        if (subscription != null)
-                        {
-                            subscription.SubscribedMetrics = metrics;
-                            subscription.SubscribedSources = sources;
-                            subscription.UpdateRateMs = updateRate;
-                            subscription.LastUpdateAt = DateTime.UtcNow;
-                        }
-                    }
-
-                    public TelemetrySubscription? GetSubscription(string connectionId)
-                    {
-                        subscriptions.TryGetValue(connectionId, out var subscription);
-                        return subscription;
-                    }
-
-                    public void RemoveSubscription(string connectionId)
-                    {
-                        subscriptions.TryRemove(connectionId, out _);
-                    }
-
-                    public IEnumerable<TelemetrySubscription> GetActiveSubscriptions()
-                    {
-                        return subscriptions.Values.Where(s => s.IsActive);
-                    }
-
-                    public IEnumerable<TelemetrySubscription> GetSubscriptionsForMetric(string metricName)
-                    {
-                        return subscriptions.Values.Where(s =>
-                            s.IsActive &&
-                            (s.SubscribedMetrics.Count == 0 || s.SubscribedMetrics.Contains(metricName)));
-                    }
-                }
-                """
+            Name = "subscriptions",
+            Type = new TypeModel("ConcurrentDictionary") { GenericTypeParameters = [new TypeModel("string"), new TypeModel("TelemetrySubscription")] },
+            AccessModifier = AccessModifier.Private,
+            Readonly = true,
+            DefaultValue = "new()"
         });
 
-        // Background Service for cyclic telemetry generation at 200ms (5Hz) per REQ-STREAM-004
-        project.Files.Add(new FileModel("TelemetryPublisherService", backgroundServicesDir, CSharp)
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "CreateSubscription",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("TelemetrySubscription"),
+            Params =
+            [
+                new ParamModel { Name = "connectionId", Type = new TypeModel("string") },
+                new ParamModel { Name = "clientId", Type = new TypeModel("string") }
+            ],
+            Body = new ExpressionModel(@"var subscription = new TelemetrySubscription
+        {
+            SubscriptionId = Guid.NewGuid(),
+            ConnectionId = connectionId,
+            ClientId = clientId,
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true
+        };
+
+        subscriptions.TryAdd(connectionId, subscription);
+        return subscription;")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateSubscription",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params =
+            [
+                new ParamModel { Name = "subscriptionId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "metrics", Type = new TypeModel("List") { GenericTypeParameters = [new TypeModel("string")] } },
+                new ParamModel { Name = "sources", Type = new TypeModel("List") { GenericTypeParameters = [new TypeModel("string")] } },
+                new ParamModel { Name = "updateRate", Type = new TypeModel("int") }
+            ],
+            Body = new ExpressionModel(@"var subscription = subscriptions.Values.FirstOrDefault(s => s.SubscriptionId == subscriptionId);
+        if (subscription != null)
+        {
+            subscription.SubscribedMetrics = metrics;
+            subscription.SubscribedSources = sources;
+            subscription.UpdateRateMs = updateRate;
+            subscription.LastUpdateAt = DateTime.UtcNow;
+        }")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetSubscription",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("TelemetrySubscription") { Nullable = true },
+            Params = [new ParamModel { Name = "connectionId", Type = new TypeModel("string") }],
+            Body = new ExpressionModel(@"subscriptions.TryGetValue(connectionId, out var subscription);
+        return subscription;")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "RemoveSubscription",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "connectionId", Type = new TypeModel("string") }],
+            Body = new ExpressionModel("subscriptions.TryRemove(connectionId, out _);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetActiveSubscriptions",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TelemetrySubscription")] },
+            Body = new ExpressionModel("return subscriptions.Values.Where(s => s.IsActive);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetSubscriptionsForMetric",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("TelemetrySubscription")] },
+            Params = [new ParamModel { Name = "metricName", Type = new TypeModel("string") }],
+            Body = new ExpressionModel(@"return subscriptions.Values.Where(s =>
+            s.IsActive &&
+            (s.SubscribedMetrics.Count == 0 || s.SubscribedMetrics.Contains(metricName)));")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "SubscriptionManager", directory, CSharp)
+        {
+            Namespace = "EventMonitoring.TelemetryStreaming.Infrastructure.Services"
+        };
+    }
+
+    private static FileModel CreateTelemetryPublisherServiceFile(string directory)
+    {
+        // Contains multiple classes (TelemetryPublisherService + TelemetryStreamingOptions) - keep as FileModel
+        return new FileModel("TelemetryPublisherService", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -591,177 +741,226 @@ public class TelemetryStreamingArtifactFactory : ITelemetryStreamingArtifactFact
                     public int GenerationRateMs { get; set; } = 200;
                 }
                 """
-        });
-
-        // ConfigureServices
-        project.Files.Add(new FileModel("ConfigureServices", project.Directory, CSharp)
-        {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.Extensions.Configuration;
-                using Microsoft.Extensions.DependencyInjection;
-                using EventMonitoring.TelemetryStreaming.Core.Interfaces;
-                using EventMonitoring.TelemetryStreaming.Infrastructure.BackgroundServices;
-                using EventMonitoring.TelemetryStreaming.Infrastructure.Services;
-
-                namespace EventMonitoring.TelemetryStreaming.Infrastructure;
-
-                public static class ConfigureServices
-                {
-                    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
-                    {
-                        services.Configure<TelemetryStreamingOptions>(configuration.GetSection("TelemetryStreaming"));
-
-                        services.AddSingleton<ITelemetryGenerator, TelemetryGenerator>();
-                        services.AddSingleton<ISubscriptionManager, SubscriptionManager>();
-                        services.AddHostedService<TelemetryPublisherService>();
-
-                        return services;
-                    }
-                }
-                """
-        });
+        };
     }
 
-    public void AddApiFiles(ProjectModel project, string microserviceName)
+    private static CodeFileModel<ClassModel> CreateInfrastructureConfigureServicesFile(string directory)
     {
-        logger.LogInformation("Adding TelemetryStreaming.Api files");
-
-        var hubsDir = Path.Combine(project.Directory, "Hubs");
-        var servicesDir = Path.Combine(project.Directory, "Services");
-
-        // SignalRTelemetryPublisher - implements ITelemetryPublisher using SignalR
-        project.Files.Add(new FileModel("SignalRTelemetryPublisher", servicesDir, CSharp)
+        var classModel = new ClassModel("ConfigureServices")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Static = true
+        };
 
-                using Microsoft.AspNetCore.SignalR;
-                using EventMonitoring.TelemetryStreaming.Api.Hubs;
-                using EventMonitoring.TelemetryStreaming.Core.DTOs;
-                using EventMonitoring.TelemetryStreaming.Core.Interfaces;
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.DependencyInjection"));
+        classModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Infrastructure.BackgroundServices"));
+        classModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Infrastructure.Services"));
 
-                namespace EventMonitoring.TelemetryStreaming.Api.Services;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddInfrastructureServices",
+            AccessModifier = AccessModifier.Public,
+            Static = true,
+            ReturnType = new TypeModel("IServiceCollection"),
+            Params =
+            [
+                new ParamModel { Name = "services", Type = new TypeModel("IServiceCollection"), ExtensionMethodParam = true },
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") }
+            ],
+            Body = new ExpressionModel(@"services.Configure<TelemetryStreamingOptions>(configuration.GetSection(""TelemetryStreaming""));
 
-                /// <summary>
-                /// SignalR implementation of ITelemetryPublisher.
-                /// </summary>
-                public class SignalRTelemetryPublisher : ITelemetryPublisher
-                {
-                    private readonly IHubContext<TelemetryHub> hubContext;
+        services.AddSingleton<ITelemetryGenerator, TelemetryGenerator>();
+        services.AddSingleton<ISubscriptionManager, SubscriptionManager>();
+        services.AddHostedService<TelemetryPublisherService>();
 
-                    public SignalRTelemetryPublisher(IHubContext<TelemetryHub> hubContext)
-                    {
-                        this.hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
-                    }
-
-                    public async Task PublishToClientAsync(string connectionId, TelemetryMessageDto message, CancellationToken cancellationToken = default)
-                    {
-                        await hubContext.Clients.Client(connectionId).SendAsync("ReceiveTelemetry", message, cancellationToken);
-                    }
-                }
-                """
+        return services;")
         });
 
-        // TelemetryHub mapped to /telemetry per REQ-STREAM-001
-        project.Files.Add(new FileModel("TelemetryHub", hubsDir, CSharp)
+        return new CodeFileModel<ClassModel>(classModel, "ConfigureServices", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "EventMonitoring.TelemetryStreaming.Infrastructure"
+        };
+    }
 
-                using Microsoft.AspNetCore.SignalR;
-                using EventMonitoring.TelemetryStreaming.Core.DTOs;
-                using EventMonitoring.TelemetryStreaming.Core.Interfaces;
+    #endregion
 
-                namespace EventMonitoring.TelemetryStreaming.Api.Hubs;
+    #region API Layer Files
 
-                /// <summary>
-                /// SignalR hub for telemetry streaming per REQ-STREAM-001.
-                /// Mapped to /telemetry endpoint.
-                /// </summary>
-                public class TelemetryHub : Hub
-                {
-                    private readonly ILogger<TelemetryHub> logger;
-                    private readonly ISubscriptionManager subscriptionManager;
+    private static CodeFileModel<ClassModel> CreateSignalRTelemetryPublisherFile(string directory)
+    {
+        var classModel = new ClassModel("SignalRTelemetryPublisher");
 
-                    public TelemetryHub(
-                        ILogger<TelemetryHub> logger,
-                        ISubscriptionManager subscriptionManager)
-                    {
-                        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-                        this.subscriptionManager = subscriptionManager ?? throw new ArgumentNullException(nameof(subscriptionManager));
-                    }
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.SignalR"));
+        classModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Api.Hubs"));
+        classModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Core.Interfaces"));
 
-                    public override async Task OnConnectedAsync()
-                    {
-                        logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
-                        await base.OnConnectedAsync();
-                    }
+        classModel.Implements.Add(new TypeModel("ITelemetryPublisher"));
 
-                    public override async Task OnDisconnectedAsync(Exception? exception)
-                    {
-                        logger.LogInformation("Client disconnected: {ConnectionId}", Context.ConnectionId);
-                        subscriptionManager.RemoveSubscription(Context.ConnectionId);
-                        await base.OnDisconnectedAsync(exception);
-                    }
-
-                    /// <summary>
-                    /// Subscribe to telemetry per REQ-STREAM-002.
-                    /// </summary>
-                    public async Task Subscribe(SubscriptionRequestDto request)
-                    {
-                        logger.LogInformation("Client {ClientId} subscribing to metrics: {Metrics}",
-                            request.ClientId, string.Join(", ", request.Metrics));
-
-                        var subscription = subscriptionManager.CreateSubscription(Context.ConnectionId, request.ClientId);
-                        subscriptionManager.UpdateSubscription(
-                            subscription.SubscriptionId,
-                            request.Metrics,
-                            request.Sources,
-                            request.UpdateRateMs);
-
-                        await Clients.Caller.SendAsync("SubscriptionConfirmed", subscription.SubscriptionId);
-                    }
-
-                    /// <summary>
-                    /// Unsubscribe from telemetry per REQ-STREAM-002.
-                    /// </summary>
-                    public async Task Unsubscribe()
-                    {
-                        logger.LogInformation("Client {ConnectionId} unsubscribing from telemetry", Context.ConnectionId);
-                        subscriptionManager.RemoveSubscription(Context.ConnectionId);
-                        await Clients.Caller.SendAsync("UnsubscriptionConfirmed");
-                    }
-
-                    /// <summary>
-                    /// Update existing subscription.
-                    /// </summary>
-                    public async Task UpdateSubscription(SubscriptionRequestDto request)
-                    {
-                        logger.LogInformation("Client updating subscription: {ConnectionId}", Context.ConnectionId);
-                        var subscription = subscriptionManager.GetSubscription(Context.ConnectionId);
-
-                        if (subscription != null)
-                        {
-                            subscriptionManager.UpdateSubscription(
-                                subscription.SubscriptionId,
-                                request.Metrics,
-                                request.Sources,
-                                request.UpdateRateMs);
-
-                            await Clients.Caller.SendAsync("SubscriptionUpdated");
-                        }
-                    }
-                }
-                """
+        classModel.Fields.Add(new FieldModel
+        {
+            Name = "hubContext",
+            Type = new TypeModel("IHubContext") { GenericTypeParameters = [new TypeModel("TelemetryHub")] },
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
         });
 
-        // appsettings.json with TelemetryStreaming configuration
-        project.Files.Add(new FileModel("appsettings", project.Directory, ".json")
+        var constructor = new ConstructorModel(classModel, "SignalRTelemetryPublisher")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "hubContext", Type = new TypeModel("IHubContext") { GenericTypeParameters = [new TypeModel("TelemetryHub")] } }],
+            Body = new ExpressionModel("this.hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));")
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "PublishToClientAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "connectionId", Type = new TypeModel("string") },
+                new ParamModel { Name = "message", Type = new TypeModel("TelemetryMessageDto") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("await hubContext.Clients.Client(connectionId).SendAsync(\"ReceiveTelemetry\", message, cancellationToken);")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "SignalRTelemetryPublisher", directory, CSharp)
+        {
+            Namespace = "EventMonitoring.TelemetryStreaming.Api.Services"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateTelemetryHubFile(string directory)
+    {
+        var classModel = new ClassModel("TelemetryHub");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.SignalR"));
+        classModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("EventMonitoring.TelemetryStreaming.Core.Interfaces"));
+
+        classModel.Implements.Add(new TypeModel("Hub"));
+
+        classModel.Fields.Add(new FieldModel
+        {
+            Name = "logger",
+            Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("TelemetryHub")] },
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
+        });
+
+        classModel.Fields.Add(new FieldModel
+        {
+            Name = "subscriptionManager",
+            Type = new TypeModel("ISubscriptionManager"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
+        });
+
+        var constructor = new ConstructorModel(classModel, "TelemetryHub")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("TelemetryHub")] } },
+                new ParamModel { Name = "subscriptionManager", Type = new TypeModel("ISubscriptionManager") }
+            ],
+            Body = new ExpressionModel(@"this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.subscriptionManager = subscriptionManager ?? throw new ArgumentNullException(nameof(subscriptionManager));")
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "OnConnectedAsync",
+            AccessModifier = AccessModifier.Public,
+            Override = true,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Body = new ExpressionModel(@"logger.LogInformation(""Client connected: {ConnectionId}"", Context.ConnectionId);
+        await base.OnConnectedAsync();")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "OnDisconnectedAsync",
+            AccessModifier = AccessModifier.Public,
+            Override = true,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params = [new ParamModel { Name = "exception", Type = new TypeModel("Exception") { Nullable = true } }],
+            Body = new ExpressionModel(@"logger.LogInformation(""Client disconnected: {ConnectionId}"", Context.ConnectionId);
+        subscriptionManager.RemoveSubscription(Context.ConnectionId);
+        await base.OnDisconnectedAsync(exception);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "Subscribe",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params = [new ParamModel { Name = "request", Type = new TypeModel("SubscriptionRequestDto") }],
+            Body = new ExpressionModel(@"logger.LogInformation(""Client {ClientId} subscribing to metrics: {Metrics}"",
+            request.ClientId, string.Join("", "", request.Metrics));
+
+        var subscription = subscriptionManager.CreateSubscription(Context.ConnectionId, request.ClientId);
+        subscriptionManager.UpdateSubscription(
+            subscription.SubscriptionId,
+            request.Metrics,
+            request.Sources,
+            request.UpdateRateMs);
+
+        await Clients.Caller.SendAsync(""SubscriptionConfirmed"", subscription.SubscriptionId);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "Unsubscribe",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Body = new ExpressionModel(@"logger.LogInformation(""Client {ConnectionId} unsubscribing from telemetry"", Context.ConnectionId);
+        subscriptionManager.RemoveSubscription(Context.ConnectionId);
+        await Clients.Caller.SendAsync(""UnsubscriptionConfirmed"");")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateSubscription",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params = [new ParamModel { Name = "request", Type = new TypeModel("SubscriptionRequestDto") }],
+            Body = new ExpressionModel(@"logger.LogInformation(""Client updating subscription: {ConnectionId}"", Context.ConnectionId);
+        var subscription = subscriptionManager.GetSubscription(Context.ConnectionId);
+
+        if (subscription != null)
+        {
+            subscriptionManager.UpdateSubscription(
+                subscription.SubscriptionId,
+                request.Metrics,
+                request.Sources,
+                request.UpdateRateMs);
+
+            await Clients.Caller.SendAsync(""SubscriptionUpdated"");
+        }")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "TelemetryHub", directory, CSharp)
+        {
+            Namespace = "EventMonitoring.TelemetryStreaming.Api.Hubs"
+        };
+    }
+
+    private static FileModel CreateAppSettingsFile(string directory)
+    {
+        // JSON file - keep as FileModel
+        return new FileModel("appsettings", directory, ".json")
         {
             Body = """
                 {
@@ -778,10 +977,13 @@ public class TelemetryStreamingArtifactFactory : ITelemetryStreamingArtifactFact
                   "AllowedHosts": "*"
                 }
                 """
-        });
+        };
+    }
 
-        // Program.cs
-        project.Files.Add(new FileModel("Program", project.Directory, CSharp)
+    private static FileModel CreateProgramFile(string directory)
+    {
+        // Top-level statements - keep as FileModel
+        return new FileModel("Program", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -818,6 +1020,8 @@ public class TelemetryStreamingArtifactFactory : ITelemetryStreamingArtifactFact
 
                 app.Run();
                 """
-        });
+        };
     }
+
+    #endregion
 }

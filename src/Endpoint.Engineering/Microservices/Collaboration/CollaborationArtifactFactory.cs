@@ -2,12 +2,28 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Constructors;
+using Endpoint.DotNet.Syntax.Expressions;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
+using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Engineering.Microservices.Collaboration;
 
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
+
+/// <summary>
+/// Factory for creating Collaboration microservice artifacts.
+/// Manages sharing, comments, mentions, and activity tracking.
+/// </summary>
 public class CollaborationArtifactFactory : ICollaborationArtifactFactory
 {
     private readonly ILogger<CollaborationArtifactFactory> logger;
@@ -26,7 +42,71 @@ public class CollaborationArtifactFactory : ICollaborationArtifactFactory
         var dtosDir = Path.Combine(project.Directory, "DTOs");
 
         // Entities
-        project.Files.Add(new FileModel("Share", entitiesDir, CSharp)
+        project.Files.Add(CreateShareFile(entitiesDir));
+        project.Files.Add(CreateCommentFile(entitiesDir));
+        project.Files.Add(CreateMentionFile(entitiesDir));
+        project.Files.Add(CreateActivityFile(entitiesDir));
+
+        // Interfaces
+        project.Files.Add(CreateIShareRepositoryFile(interfacesDir));
+        project.Files.Add(CreateICommentRepositoryFile(interfacesDir));
+        project.Files.Add(CreateICollaborationServiceFile(interfacesDir));
+
+        // Events
+        project.Files.Add(CreateEntitySharedEventFile(eventsDir));
+        project.Files.Add(CreateCommentAddedEventFile(eventsDir));
+        project.Files.Add(CreateMentionCreatedEventFile(eventsDir));
+
+        // DTOs
+        project.Files.Add(CreateShareDtoFile(dtosDir));
+        project.Files.Add(CreateCreateShareRequestFile(dtosDir));
+        project.Files.Add(CreateCommentDtoFile(dtosDir));
+        project.Files.Add(CreateCreateCommentRequestFile(dtosDir));
+    }
+
+    public void AddInfrastructureFiles(ProjectModel project, string microserviceName)
+    {
+        logger.LogInformation("Adding Collaboration.Infrastructure files");
+        var dataDir = Path.Combine(project.Directory, "Data");
+        var repositoriesDir = Path.Combine(project.Directory, "Repositories");
+        var servicesDir = Path.Combine(project.Directory, "Services");
+
+        // DbContext
+        project.Files.Add(CreateCollaborationDbContextFile(dataDir));
+
+        // Repositories
+        project.Files.Add(CreateShareRepositoryFile(repositoriesDir));
+        project.Files.Add(CreateCommentRepositoryFile(repositoriesDir));
+
+        // Services
+        project.Files.Add(CreateCollaborationServiceFile(servicesDir));
+
+        // ConfigureServices
+        project.Files.Add(CreateInfrastructureConfigureServicesFile(project.Directory));
+    }
+
+    public void AddApiFiles(ProjectModel project, string microserviceName)
+    {
+        logger.LogInformation("Adding Collaboration.Api files");
+        var controllersDir = Path.Combine(project.Directory, "Controllers");
+
+        // Controllers
+        project.Files.Add(CreateSharesControllerFile(controllersDir));
+        project.Files.Add(CreateCommentsControllerFile(controllersDir));
+
+        // Program.cs
+        project.Files.Add(CreateProgramFile(project.Directory));
+
+        // appsettings.json
+        project.Files.Add(CreateAppSettingsFile(project.Directory));
+    }
+
+    #region Core Layer Files - Entities
+
+    private static FileModel CreateShareFile(string directory)
+    {
+        // Contains enum SharePermission, keeping as FileModel
+        return new FileModel("Share", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -49,228 +129,395 @@ public class CollaborationArtifactFactory : ICollaborationArtifactFactory
 
                 public enum SharePermission { View, Edit, Admin }
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("Comment", entitiesDir, CSharp)
+    private static CodeFileModel<ClassModel> CreateCommentFile(string directory)
+    {
+        var classModel = new ClassModel("Comment");
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "CommentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Content", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "ParentCommentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Comment") { Nullable = true }, "ParentComment", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("ICollection") { GenericTypeParameters = [new TypeModel("Comment")] }, "Replies", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<Comment>()" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("ICollection") { GenericTypeParameters = [new TypeModel("Mention")] }, "Mentions", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<Mention>()" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "UpdatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsDeleted", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "false" });
+
+        return new CodeFileModel<ClassModel>(classModel, "Comment", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "Collaboration.Core.Entities"
+        };
+    }
 
-                namespace Collaboration.Core.Entities;
+    private static CodeFileModel<ClassModel> CreateMentionFile(string directory)
+    {
+        var classModel = new ClassModel("Mention");
 
-                public class Comment
-                {
-                    public Guid CommentId { get; set; }
-                    public Guid EntityId { get; set; }
-                    public required string EntityType { get; set; }
-                    public Guid UserId { get; set; }
-                    public required string Content { get; set; }
-                    public Guid? ParentCommentId { get; set; }
-                    public Comment? ParentComment { get; set; }
-                    public ICollection<Comment> Replies { get; set; } = new List<Comment>();
-                    public ICollection<Mention> Mentions { get; set; } = new List<Mention>();
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                    public DateTime? UpdatedAt { get; set; }
-                    public bool IsDeleted { get; set; } = false;
-                }
-                """
-        });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "MentionId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "CommentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Comment"), "Comment", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "null!" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "MentionedUserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsRead", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "false" });
 
-        project.Files.Add(new FileModel("Mention", entitiesDir, CSharp)
+        return new CodeFileModel<ClassModel>(classModel, "Mention", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "Collaboration.Core.Entities"
+        };
+    }
 
-                namespace Collaboration.Core.Entities;
+    private static CodeFileModel<ClassModel> CreateActivityFile(string directory)
+    {
+        var classModel = new ClassModel("Activity");
 
-                public class Mention
-                {
-                    public Guid MentionId { get; set; }
-                    public Guid CommentId { get; set; }
-                    public Comment Comment { get; set; } = null!;
-                    public Guid MentionedUserId { get; set; }
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-                    public bool IsRead { get; set; } = false;
-                }
-                """
-        });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "ActivityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ActionType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Metadata", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
 
-        project.Files.Add(new FileModel("Activity", entitiesDir, CSharp)
+        return new CodeFileModel<ClassModel>(classModel, "Activity", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "Collaboration.Core.Entities"
+        };
+    }
 
-                namespace Collaboration.Core.Entities;
+    #endregion
 
-                public class Activity
-                {
-                    public Guid ActivityId { get; set; }
-                    public Guid EntityId { get; set; }
-                    public required string EntityType { get; set; }
-                    public Guid UserId { get; set; }
-                    public required string ActionType { get; set; }
-                    public string? Description { get; set; }
-                    public string? Metadata { get; set; }
-                    public DateTime OccurredAt { get; set; } = DateTime.UtcNow;
-                }
-                """
-        });
+    #region Core Layer Files - Interfaces
 
-        // Interfaces
-        project.Files.Add(new FileModel("IShareRepository", interfacesDir, CSharp)
+    private static CodeFileModel<InterfaceModel> CreateIShareRepositoryFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("IShareRepository");
+
+        interfaceModel.Usings.Add(new UsingModel("Collaboration.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Collaboration.Core.Entities;
-
-                namespace Collaboration.Core.Interfaces;
-
-                public interface IShareRepository
-                {
-                    Task<Share?> GetByIdAsync(Guid shareId, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<Share>> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<Share>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-                    Task<Share> AddAsync(Share share, CancellationToken cancellationToken = default);
-                    Task UpdateAsync(Share share, CancellationToken cancellationToken = default);
-                    Task DeleteAsync(Guid shareId, CancellationToken cancellationToken = default);
-                }
-                """
+            Name = "GetByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Share") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "shareId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("ICommentRepository", interfacesDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Collaboration.Core.Entities;
-
-                namespace Collaboration.Core.Interfaces;
-
-                public interface ICommentRepository
-                {
-                    Task<Comment?> GetByIdAsync(Guid commentId, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<Comment>> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default);
-                    Task<Comment> AddAsync(Comment comment, CancellationToken cancellationToken = default);
-                    Task UpdateAsync(Comment comment, CancellationToken cancellationToken = default);
-                    Task DeleteAsync(Guid commentId, CancellationToken cancellationToken = default);
-                }
-                """
+            Name = "GetByEntityIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Share")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("ICollaborationService", interfacesDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Collaboration.Core.DTOs;
-
-                namespace Collaboration.Core.Interfaces;
-
-                public interface ICollaborationService
-                {
-                    Task<ShareDto> ShareEntityAsync(CreateShareRequest request, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<ShareDto>> GetSharesByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default);
-                    Task RevokeShareAsync(Guid shareId, CancellationToken cancellationToken = default);
-                    Task<CommentDto> AddCommentAsync(CreateCommentRequest request, CancellationToken cancellationToken = default);
-                    Task<IEnumerable<CommentDto>> GetCommentsByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default);
-                    Task DeleteCommentAsync(Guid commentId, CancellationToken cancellationToken = default);
-                }
-                """
+            Name = "GetByUserIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Share")] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        // Events
-        project.Files.Add(new FileModel("EntitySharedEvent", eventsDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Collaboration.Core.Events;
-
-                public sealed class EntitySharedEvent
-                {
-                    public Guid ShareId { get; init; }
-                    public Guid EntityId { get; init; }
-                    public required string EntityType { get; init; }
-                    public Guid SharedByUserId { get; init; }
-                    public Guid SharedWithUserId { get; init; }
-                    public required string Permission { get; init; }
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
+            Name = "AddAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Share")] },
+            Params =
+            [
+                new ParamModel { Name = "share", Type = new TypeModel("Share") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("CommentAddedEvent", eventsDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Collaboration.Core.Events;
-
-                public sealed class CommentAddedEvent
-                {
-                    public Guid CommentId { get; init; }
-                    public Guid EntityId { get; init; }
-                    public required string EntityType { get; init; }
-                    public Guid UserId { get; init; }
-                    public required string Content { get; init; }
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
+            Name = "UpdateAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "share", Type = new TypeModel("Share") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("MentionCreatedEvent", eventsDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Collaboration.Core.Events;
-
-                public sealed class MentionCreatedEvent
-                {
-                    public Guid MentionId { get; init; }
-                    public Guid CommentId { get; init; }
-                    public Guid MentionedUserId { get; init; }
-                    public Guid MentionedByUserId { get; init; }
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-                }
-                """
+            Name = "DeleteAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "shareId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        // DTOs
-        project.Files.Add(new FileModel("ShareDto", dtosDir, CSharp)
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IShareRepository", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "Collaboration.Core.Interfaces"
+        };
+    }
 
-                namespace Collaboration.Core.DTOs;
+    private static CodeFileModel<InterfaceModel> CreateICommentRepositoryFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("ICommentRepository");
 
-                public sealed class ShareDto
-                {
-                    public Guid ShareId { get; init; }
-                    public Guid EntityId { get; init; }
-                    public required string EntityType { get; init; }
-                    public Guid SharedByUserId { get; init; }
-                    public Guid SharedWithUserId { get; init; }
-                    public string Permission { get; init; } = "View";
-                    public DateTime SharedAt { get; init; }
-                    public DateTime? ExpiresAt { get; init; }
-                    public bool IsActive { get; init; }
-                }
-                """
+        interfaceModel.Usings.Add(new UsingModel("Collaboration.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Comment") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "commentId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
         });
 
-        project.Files.Add(new FileModel("CreateShareRequest", dtosDir, CSharp)
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByEntityIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Comment")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Comment")] },
+            Params =
+            [
+                new ParamModel { Name = "comment", Type = new TypeModel("Comment") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "comment", Type = new TypeModel("Comment") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "commentId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ICommentRepository", directory, CSharp)
+        {
+            Namespace = "Collaboration.Core.Interfaces"
+        };
+    }
+
+    private static CodeFileModel<InterfaceModel> CreateICollaborationServiceFile(string directory)
+    {
+        var interfaceModel = new InterfaceModel("ICollaborationService");
+
+        interfaceModel.Usings.Add(new UsingModel("Collaboration.Core.DTOs"));
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "ShareEntityAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ShareDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateShareRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetSharesByEntityIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("ShareDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "RevokeShareAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "shareId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "AddCommentAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("CommentDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateCommentRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetCommentsByEntityIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("CommentDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteCommentAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "commentId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ICollaborationService", directory, CSharp)
+        {
+            Namespace = "Collaboration.Core.Interfaces"
+        };
+    }
+
+    #endregion
+
+    #region Core Layer Files - Events
+
+    private static CodeFileModel<ClassModel> CreateEntitySharedEventFile(string directory)
+    {
+        var classModel = new ClassModel("EntitySharedEvent") { Sealed = true };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "ShareId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "SharedByUserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "SharedWithUserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Permission", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "EntitySharedEvent", directory, CSharp)
+        {
+            Namespace = "Collaboration.Core.Events"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateCommentAddedEventFile(string directory)
+    {
+        var classModel = new ClassModel("CommentAddedEvent") { Sealed = true };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "CommentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Content", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "CommentAddedEvent", directory, CSharp)
+        {
+            Namespace = "Collaboration.Core.Events"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateMentionCreatedEventFile(string directory)
+    {
+        var classModel = new ClassModel("MentionCreatedEvent") { Sealed = true };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "MentionId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "CommentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "MentionedUserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "MentionedByUserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+
+        return new CodeFileModel<ClassModel>(classModel, "MentionCreatedEvent", directory, CSharp)
+        {
+            Namespace = "Collaboration.Core.Events"
+        };
+    }
+
+    #endregion
+
+    #region Core Layer Files - DTOs
+
+    private static CodeFileModel<ClassModel> CreateShareDtoFile(string directory)
+    {
+        var classModel = new ClassModel("ShareDto") { Sealed = true };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "ShareId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "SharedByUserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "SharedWithUserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Permission", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "\"View\"" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "SharedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "ExpiresAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "ShareDto", directory, CSharp)
+        {
+            Namespace = "Collaboration.Core.DTOs"
+        };
+    }
+
+    private static FileModel CreateCreateShareRequestFile(string directory)
+    {
+        // Contains [Required] attributes, keeping as FileModel
+        return new FileModel("CreateShareRequest", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -299,32 +546,33 @@ public class CollaborationArtifactFactory : ICollaborationArtifactFactory
                     public DateTime? ExpiresAt { get; init; }
                 }
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("CommentDto", dtosDir, CSharp)
+    private static CodeFileModel<ClassModel> CreateCommentDtoFile(string directory)
+    {
+        var classModel = new ClassModel("CommentDto") { Sealed = true };
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "CommentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "UserId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Content", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid") { Nullable = true }, "ParentCommentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "UpdatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("CommentDto")] }, "Replies", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "Enumerable.Empty<CommentDto>()" });
+
+        return new CodeFileModel<ClassModel>(classModel, "CommentDto", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Namespace = "Collaboration.Core.DTOs"
+        };
+    }
 
-                namespace Collaboration.Core.DTOs;
-
-                public sealed class CommentDto
-                {
-                    public Guid CommentId { get; init; }
-                    public Guid EntityId { get; init; }
-                    public required string EntityType { get; init; }
-                    public Guid UserId { get; init; }
-                    public required string Content { get; init; }
-                    public Guid? ParentCommentId { get; init; }
-                    public DateTime CreatedAt { get; init; }
-                    public DateTime? UpdatedAt { get; init; }
-                    public IEnumerable<CommentDto> Replies { get; init; } = Enumerable.Empty<CommentDto>();
-                }
-                """
-        });
-
-        project.Files.Add(new FileModel("CreateCommentRequest", dtosDir, CSharp)
+    private static FileModel CreateCreateCommentRequestFile(string directory)
+    {
+        // Contains [Required] attributes, keeping as FileModel
+        return new FileModel("CreateCommentRequest", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -353,463 +601,737 @@ public class CollaborationArtifactFactory : ICollaborationArtifactFactory
                     public IEnumerable<Guid> MentionedUserIds { get; init; } = Enumerable.Empty<Guid>();
                 }
                 """
-        });
+        };
     }
 
-    public void AddInfrastructureFiles(ProjectModel project, string microserviceName)
+    #endregion
+
+    #region Infrastructure Layer Files
+
+    private static CodeFileModel<ClassModel> CreateCollaborationDbContextFile(string directory)
     {
-        logger.LogInformation("Adding Collaboration.Infrastructure files");
-        var dataDir = Path.Combine(project.Directory, "Data");
-        var repositoriesDir = Path.Combine(project.Directory, "Repositories");
-        var servicesDir = Path.Combine(project.Directory, "Services");
+        var classModel = new ClassModel("CollaborationDbContext");
 
-        project.Files.Add(new FileModel("CollaborationDbContext", dataDir, CSharp)
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.Entities"));
+
+        classModel.Implements.Add(new TypeModel("DbContext"));
+
+        var constructor = new ConstructorModel(classModel, "CollaborationDbContext")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "options", Type = new TypeModel("DbContextOptions") { GenericTypeParameters = [new TypeModel("CollaborationDbContext")] } }],
+            BaseParams = ["options"]
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Microsoft.EntityFrameworkCore;
-                using Collaboration.Core.Entities;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Share")] }, "Shares", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Share>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Comment")] }, "Comments", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Comment>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Mention")] }, "Mentions", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Mention>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Activity")] }, "Activities", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Activity>()")]));
 
-                namespace Collaboration.Infrastructure.Data;
-
-                public class CollaborationDbContext : DbContext
-                {
-                    public CollaborationDbContext(DbContextOptions<CollaborationDbContext> options) : base(options) { }
-
-                    public DbSet<Share> Shares => Set<Share>();
-                    public DbSet<Comment> Comments => Set<Comment>();
-                    public DbSet<Mention> Mentions => Set<Mention>();
-                    public DbSet<Activity> Activities => Set<Activity>();
-
-                    protected override void OnModelCreating(ModelBuilder modelBuilder)
-                    {
-                        modelBuilder.Entity<Share>(entity =>
-                        {
-                            entity.HasKey(s => s.ShareId);
-                            entity.Property(s => s.EntityType).IsRequired().HasMaxLength(100);
-                            entity.HasIndex(s => new { s.EntityId, s.SharedWithUserId }).IsUnique();
-                        });
-
-                        modelBuilder.Entity<Comment>(entity =>
-                        {
-                            entity.HasKey(c => c.CommentId);
-                            entity.Property(c => c.EntityType).IsRequired().HasMaxLength(100);
-                            entity.Property(c => c.Content).IsRequired();
-                            entity.HasOne(c => c.ParentComment).WithMany(c => c.Replies).HasForeignKey(c => c.ParentCommentId).OnDelete(DeleteBehavior.Restrict);
-                        });
-
-                        modelBuilder.Entity<Mention>(entity =>
-                        {
-                            entity.HasKey(m => m.MentionId);
-                            entity.HasOne(m => m.Comment).WithMany(c => c.Mentions).HasForeignKey(m => m.CommentId);
-                            entity.HasIndex(m => new { m.CommentId, m.MentionedUserId }).IsUnique();
-                        });
-
-                        modelBuilder.Entity<Activity>(entity =>
-                        {
-                            entity.HasKey(a => a.ActivityId);
-                            entity.Property(a => a.EntityType).IsRequired().HasMaxLength(100);
-                            entity.Property(a => a.ActionType).IsRequired().HasMaxLength(50);
-                            entity.HasIndex(a => new { a.EntityId, a.OccurredAt });
-                        });
-                    }
-                }
-                """
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "OnModelCreating",
+            AccessModifier = AccessModifier.Protected,
+            Override = true,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "modelBuilder", Type = new TypeModel("ModelBuilder") }],
+            Body = new ExpressionModel(@"modelBuilder.Entity<Share>(entity =>
+        {
+            entity.HasKey(s => s.ShareId);
+            entity.Property(s => s.EntityType).IsRequired().HasMaxLength(100);
+            entity.HasIndex(s => new { s.EntityId, s.SharedWithUserId }).IsUnique();
         });
 
-        project.Files.Add(new FileModel("ShareRepository", repositoriesDir, CSharp)
+        modelBuilder.Entity<Comment>(entity =>
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Collaboration.Core.Entities;
-                using Collaboration.Core.Interfaces;
-                using Collaboration.Infrastructure.Data;
-
-                namespace Collaboration.Infrastructure.Repositories;
-
-                public class ShareRepository : IShareRepository
-                {
-                    private readonly CollaborationDbContext context;
-
-                    public ShareRepository(CollaborationDbContext context)
-                    {
-                        this.context = context;
-                    }
-
-                    public async Task<Share?> GetByIdAsync(Guid shareId, CancellationToken cancellationToken = default)
-                        => await context.Shares.FirstOrDefaultAsync(s => s.ShareId == shareId, cancellationToken);
-
-                    public async Task<IEnumerable<Share>> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
-                        => await context.Shares.Where(s => s.EntityId == entityId && s.IsActive).ToListAsync(cancellationToken);
-
-                    public async Task<IEnumerable<Share>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
-                        => await context.Shares.Where(s => s.SharedWithUserId == userId && s.IsActive).ToListAsync(cancellationToken);
-
-                    public async Task<Share> AddAsync(Share share, CancellationToken cancellationToken = default)
-                    {
-                        share.ShareId = Guid.NewGuid();
-                        await context.Shares.AddAsync(share, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-                        return share;
-                    }
-
-                    public async Task UpdateAsync(Share share, CancellationToken cancellationToken = default)
-                    {
-                        context.Shares.Update(share);
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
-
-                    public async Task DeleteAsync(Guid shareId, CancellationToken cancellationToken = default)
-                    {
-                        var share = await context.Shares.FindAsync(new object[] { shareId }, cancellationToken);
-                        if (share != null)
-                        {
-                            share.IsActive = false;
-                            await context.SaveChangesAsync(cancellationToken);
-                        }
-                    }
-                }
-                """
+            entity.HasKey(c => c.CommentId);
+            entity.Property(c => c.EntityType).IsRequired().HasMaxLength(100);
+            entity.Property(c => c.Content).IsRequired();
+            entity.HasOne(c => c.ParentComment).WithMany(c => c.Replies).HasForeignKey(c => c.ParentCommentId).OnDelete(DeleteBehavior.Restrict);
         });
 
-        project.Files.Add(new FileModel("CommentRepository", repositoriesDir, CSharp)
+        modelBuilder.Entity<Mention>(entity =>
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Collaboration.Core.Entities;
-                using Collaboration.Core.Interfaces;
-                using Collaboration.Infrastructure.Data;
-
-                namespace Collaboration.Infrastructure.Repositories;
-
-                public class CommentRepository : ICommentRepository
-                {
-                    private readonly CollaborationDbContext context;
-
-                    public CommentRepository(CollaborationDbContext context)
-                    {
-                        this.context = context;
-                    }
-
-                    public async Task<Comment?> GetByIdAsync(Guid commentId, CancellationToken cancellationToken = default)
-                        => await context.Comments.Include(c => c.Mentions).Include(c => c.Replies).FirstOrDefaultAsync(c => c.CommentId == commentId, cancellationToken);
-
-                    public async Task<IEnumerable<Comment>> GetByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
-                        => await context.Comments.Include(c => c.Mentions).Include(c => c.Replies).Where(c => c.EntityId == entityId && !c.IsDeleted && c.ParentCommentId == null).OrderByDescending(c => c.CreatedAt).ToListAsync(cancellationToken);
-
-                    public async Task<Comment> AddAsync(Comment comment, CancellationToken cancellationToken = default)
-                    {
-                        comment.CommentId = Guid.NewGuid();
-                        await context.Comments.AddAsync(comment, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-                        return comment;
-                    }
-
-                    public async Task UpdateAsync(Comment comment, CancellationToken cancellationToken = default)
-                    {
-                        comment.UpdatedAt = DateTime.UtcNow;
-                        context.Comments.Update(comment);
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
-
-                    public async Task DeleteAsync(Guid commentId, CancellationToken cancellationToken = default)
-                    {
-                        var comment = await context.Comments.FindAsync(new object[] { commentId }, cancellationToken);
-                        if (comment != null)
-                        {
-                            comment.IsDeleted = true;
-                            await context.SaveChangesAsync(cancellationToken);
-                        }
-                    }
-                }
-                """
+            entity.HasKey(m => m.MentionId);
+            entity.HasOne(m => m.Comment).WithMany(c => c.Mentions).HasForeignKey(m => m.CommentId);
+            entity.HasIndex(m => new { m.CommentId, m.MentionedUserId }).IsUnique();
         });
 
-        project.Files.Add(new FileModel("CollaborationService", servicesDir, CSharp)
+        modelBuilder.Entity<Activity>(entity =>
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Collaboration.Core.DTOs;
-                using Collaboration.Core.Entities;
-                using Collaboration.Core.Interfaces;
-                using Collaboration.Infrastructure.Data;
-
-                namespace Collaboration.Infrastructure.Services;
-
-                public class CollaborationService : ICollaborationService
-                {
-                    private readonly IShareRepository shareRepository;
-                    private readonly ICommentRepository commentRepository;
-                    private readonly CollaborationDbContext context;
-
-                    public CollaborationService(IShareRepository shareRepository, ICommentRepository commentRepository, CollaborationDbContext context)
-                    {
-                        this.shareRepository = shareRepository;
-                        this.commentRepository = commentRepository;
-                        this.context = context;
-                    }
-
-                    public async Task<ShareDto> ShareEntityAsync(CreateShareRequest request, CancellationToken cancellationToken = default)
-                    {
-                        var share = new Share
-                        {
-                            EntityId = request.EntityId,
-                            EntityType = request.EntityType,
-                            SharedByUserId = request.SharedByUserId,
-                            SharedWithUserId = request.SharedWithUserId,
-                            Permission = Enum.Parse<SharePermission>(request.Permission, true),
-                            ExpiresAt = request.ExpiresAt
-                        };
-
-                        var created = await shareRepository.AddAsync(share, cancellationToken);
-
-                        return new ShareDto
-                        {
-                            ShareId = created.ShareId,
-                            EntityId = created.EntityId,
-                            EntityType = created.EntityType,
-                            SharedByUserId = created.SharedByUserId,
-                            SharedWithUserId = created.SharedWithUserId,
-                            Permission = created.Permission.ToString(),
-                            SharedAt = created.SharedAt,
-                            ExpiresAt = created.ExpiresAt,
-                            IsActive = created.IsActive
-                        };
-                    }
-
-                    public async Task<IEnumerable<ShareDto>> GetSharesByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
-                    {
-                        var shares = await shareRepository.GetByEntityIdAsync(entityId, cancellationToken);
-                        return shares.Select(s => new ShareDto
-                        {
-                            ShareId = s.ShareId,
-                            EntityId = s.EntityId,
-                            EntityType = s.EntityType,
-                            SharedByUserId = s.SharedByUserId,
-                            SharedWithUserId = s.SharedWithUserId,
-                            Permission = s.Permission.ToString(),
-                            SharedAt = s.SharedAt,
-                            ExpiresAt = s.ExpiresAt,
-                            IsActive = s.IsActive
-                        });
-                    }
-
-                    public async Task RevokeShareAsync(Guid shareId, CancellationToken cancellationToken = default)
-                    {
-                        await shareRepository.DeleteAsync(shareId, cancellationToken);
-                    }
-
-                    public async Task<CommentDto> AddCommentAsync(CreateCommentRequest request, CancellationToken cancellationToken = default)
-                    {
-                        var comment = new Comment
-                        {
-                            EntityId = request.EntityId,
-                            EntityType = request.EntityType,
-                            UserId = request.UserId,
-                            Content = request.Content,
-                            ParentCommentId = request.ParentCommentId
-                        };
-
-                        var created = await commentRepository.AddAsync(comment, cancellationToken);
-
-                        // Add mentions
-                        foreach (var mentionedUserId in request.MentionedUserIds)
-                        {
-                            var mention = new Mention
-                            {
-                                MentionId = Guid.NewGuid(),
-                                CommentId = created.CommentId,
-                                MentionedUserId = mentionedUserId
-                            };
-                            await context.Mentions.AddAsync(mention, cancellationToken);
-                        }
-                        await context.SaveChangesAsync(cancellationToken);
-
-                        return new CommentDto
-                        {
-                            CommentId = created.CommentId,
-                            EntityId = created.EntityId,
-                            EntityType = created.EntityType,
-                            UserId = created.UserId,
-                            Content = created.Content,
-                            ParentCommentId = created.ParentCommentId,
-                            CreatedAt = created.CreatedAt
-                        };
-                    }
-
-                    public async Task<IEnumerable<CommentDto>> GetCommentsByEntityIdAsync(Guid entityId, CancellationToken cancellationToken = default)
-                    {
-                        var comments = await commentRepository.GetByEntityIdAsync(entityId, cancellationToken);
-                        return comments.Select(MapCommentToDto);
-                    }
-
-                    public async Task DeleteCommentAsync(Guid commentId, CancellationToken cancellationToken = default)
-                    {
-                        await commentRepository.DeleteAsync(commentId, cancellationToken);
-                    }
-
-                    private static CommentDto MapCommentToDto(Comment comment)
-                    {
-                        return new CommentDto
-                        {
-                            CommentId = comment.CommentId,
-                            EntityId = comment.EntityId,
-                            EntityType = comment.EntityType,
-                            UserId = comment.UserId,
-                            Content = comment.Content,
-                            ParentCommentId = comment.ParentCommentId,
-                            CreatedAt = comment.CreatedAt,
-                            UpdatedAt = comment.UpdatedAt,
-                            Replies = comment.Replies.Where(r => !r.IsDeleted).Select(MapCommentToDto)
-                        };
-                    }
-                }
-                """
+            entity.HasKey(a => a.ActivityId);
+            entity.Property(a => a.EntityType).IsRequired().HasMaxLength(100);
+            entity.Property(a => a.ActionType).IsRequired().HasMaxLength(50);
+            entity.HasIndex(a => new { a.EntityId, a.OccurredAt });
+        });")
         });
 
-        project.Files.Add(new FileModel("ConfigureServices", project.Directory, CSharp)
+        return new CodeFileModel<ClassModel>(classModel, "CollaborationDbContext", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Configuration;
-                using Collaboration.Core.Interfaces;
-                using Collaboration.Infrastructure.Data;
-                using Collaboration.Infrastructure.Repositories;
-                using Collaboration.Infrastructure.Services;
-
-                namespace Microsoft.Extensions.DependencyInjection;
-
-                public static class ConfigureServices
-                {
-                    public static IServiceCollection AddCollaborationInfrastructure(this IServiceCollection services, IConfiguration configuration)
-                    {
-                        services.AddDbContext<CollaborationDbContext>(options =>
-                            options.UseSqlServer(configuration.GetConnectionString("CollaborationDb") ??
-                                @"Server=.\SQLEXPRESS;Database=CollaborationDb;Trusted_Connection=True;TrustServerCertificate=True"));
-
-                        services.AddScoped<IShareRepository, ShareRepository>();
-                        services.AddScoped<ICommentRepository, CommentRepository>();
-                        services.AddScoped<ICollaborationService, CollaborationService>();
-                        return services;
-                    }
-                }
-                """
-        });
+            Namespace = "Collaboration.Infrastructure.Data"
+        };
     }
 
-    public void AddApiFiles(ProjectModel project, string microserviceName)
+    private static CodeFileModel<ClassModel> CreateShareRepositoryFile(string directory)
     {
-        logger.LogInformation("Adding Collaboration.Api files");
-        var controllersDir = Path.Combine(project.Directory, "Controllers");
+        var classModel = new ClassModel("ShareRepository");
 
-        project.Files.Add(new FileModel("SharesController", controllersDir, CSharp)
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Infrastructure.Data"));
+
+        classModel.Implements.Add(new TypeModel("IShareRepository"));
+
+        classModel.Fields.Add(new FieldModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                using Microsoft.AspNetCore.Mvc;
-                using Collaboration.Core.DTOs;
-                using Collaboration.Core.Interfaces;
-
-                namespace Collaboration.Api.Controllers;
-
-                [ApiController]
-                [Route("api/[controller]")]
-                public class SharesController : ControllerBase
-                {
-                    private readonly ICollaborationService service;
-
-                    public SharesController(ICollaborationService service)
-                    {
-                        this.service = service;
-                    }
-
-                    [HttpPost]
-                    public async Task<ActionResult<ShareDto>> Create([FromBody] CreateShareRequest request, CancellationToken cancellationToken)
-                    {
-                        var share = await service.ShareEntityAsync(request, cancellationToken);
-                        return CreatedAtAction(nameof(GetByEntityId), new { entityId = share.EntityId }, share);
-                    }
-
-                    [HttpGet("{entityId:guid}")]
-                    public async Task<ActionResult<IEnumerable<ShareDto>>> GetByEntityId(Guid entityId, CancellationToken cancellationToken)
-                    {
-                        var shares = await service.GetSharesByEntityIdAsync(entityId, cancellationToken);
-                        return Ok(shares);
-                    }
-
-                    [HttpDelete("{shareId:guid}")]
-                    public async Task<IActionResult> Revoke(Guid shareId, CancellationToken cancellationToken)
-                    {
-                        await service.RevokeShareAsync(shareId, cancellationToken);
-                        return NoContent();
-                    }
-                }
-                """
+            Name = "context",
+            Type = new TypeModel("CollaborationDbContext"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
         });
 
-        project.Files.Add(new FileModel("CommentsController", controllersDir, CSharp)
+        var constructor = new ConstructorModel(classModel, "ShareRepository")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "context", Type = new TypeModel("CollaborationDbContext") }],
+            Body = new ExpressionModel("this.context = context;")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Microsoft.AspNetCore.Mvc;
-                using Collaboration.Core.DTOs;
-                using Collaboration.Core.Interfaces;
-
-                namespace Collaboration.Api.Controllers;
-
-                [ApiController]
-                [Route("api/[controller]")]
-                public class CommentsController : ControllerBase
-                {
-                    private readonly ICollaborationService service;
-
-                    public CommentsController(ICollaborationService service)
-                    {
-                        this.service = service;
-                    }
-
-                    [HttpPost]
-                    public async Task<ActionResult<CommentDto>> Create([FromBody] CreateCommentRequest request, CancellationToken cancellationToken)
-                    {
-                        var comment = await service.AddCommentAsync(request, cancellationToken);
-                        return CreatedAtAction(nameof(GetByEntityId), new { entityId = comment.EntityId }, comment);
-                    }
-
-                    [HttpGet("{entityId:guid}")]
-                    public async Task<ActionResult<IEnumerable<CommentDto>>> GetByEntityId(Guid entityId, CancellationToken cancellationToken)
-                    {
-                        var comments = await service.GetCommentsByEntityIdAsync(entityId, cancellationToken);
-                        return Ok(comments);
-                    }
-
-                    [HttpDelete("{commentId:guid}")]
-                    public async Task<IActionResult> Delete(Guid commentId, CancellationToken cancellationToken)
-                    {
-                        await service.DeleteCommentAsync(commentId, cancellationToken);
-                        return NoContent();
-                    }
-                }
-                """
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Share") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "shareId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Shares.FirstOrDefaultAsync(s => s.ShareId == shareId, cancellationToken);")
         });
 
-        project.Files.Add(new FileModel("Program", project.Directory, CSharp)
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByEntityIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Share")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Shares.Where(s => s.EntityId == entityId && s.IsActive).ToListAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByUserIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Share")] }] },
+            Params =
+            [
+                new ParamModel { Name = "userId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Shares.Where(s => s.SharedWithUserId == userId && s.IsActive).ToListAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Share")] },
+            Params =
+            [
+                new ParamModel { Name = "share", Type = new TypeModel("Share") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"share.ShareId = Guid.NewGuid();
+        await context.Shares.AddAsync(share, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return share;")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "share", Type = new TypeModel("Share") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"context.Shares.Update(share);
+        await context.SaveChangesAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "shareId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var share = await context.Shares.FindAsync(new object[] { shareId }, cancellationToken);
+        if (share != null)
+        {
+            share.IsActive = false;
+            await context.SaveChangesAsync(cancellationToken);
+        }")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "ShareRepository", directory, CSharp)
+        {
+            Namespace = "Collaboration.Infrastructure.Repositories"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateCommentRepositoryFile(string directory)
+    {
+        var classModel = new ClassModel("CommentRepository");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Infrastructure.Data"));
+
+        classModel.Implements.Add(new TypeModel("ICommentRepository"));
+
+        classModel.Fields.Add(new FieldModel
+        {
+            Name = "context",
+            Type = new TypeModel("CollaborationDbContext"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
+        });
+
+        var constructor = new ConstructorModel(classModel, "CommentRepository")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "context", Type = new TypeModel("CollaborationDbContext") }],
+            Body = new ExpressionModel("this.context = context;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Comment") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "commentId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Comments.Include(c => c.Mentions).Include(c => c.Replies).FirstOrDefaultAsync(c => c.CommentId == commentId, cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByEntityIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Comment")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("return await context.Comments.Include(c => c.Mentions).Include(c => c.Replies).Where(c => c.EntityId == entityId && !c.IsDeleted && c.ParentCommentId == null).OrderByDescending(c => c.CreatedAt).ToListAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Comment")] },
+            Params =
+            [
+                new ParamModel { Name = "comment", Type = new TypeModel("Comment") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"comment.CommentId = Guid.NewGuid();
+        await context.Comments.AddAsync(comment, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return comment;")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "comment", Type = new TypeModel("Comment") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"comment.UpdatedAt = DateTime.UtcNow;
+        context.Comments.Update(comment);
+        await context.SaveChangesAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "commentId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var comment = await context.Comments.FindAsync(new object[] { commentId }, cancellationToken);
+        if (comment != null)
+        {
+            comment.IsDeleted = true;
+            await context.SaveChangesAsync(cancellationToken);
+        }")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "CommentRepository", directory, CSharp)
+        {
+            Namespace = "Collaboration.Infrastructure.Repositories"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateCollaborationServiceFile(string directory)
+    {
+        var classModel = new ClassModel("CollaborationService");
+
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Infrastructure.Data"));
+
+        classModel.Implements.Add(new TypeModel("ICollaborationService"));
+
+        classModel.Fields.Add(new FieldModel { Name = "shareRepository", Type = new TypeModel("IShareRepository"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "commentRepository", Type = new TypeModel("ICommentRepository"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "context", Type = new TypeModel("CollaborationDbContext"), AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "CollaborationService")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "shareRepository", Type = new TypeModel("IShareRepository") },
+                new ParamModel { Name = "commentRepository", Type = new TypeModel("ICommentRepository") },
+                new ParamModel { Name = "context", Type = new TypeModel("CollaborationDbContext") }
+            ],
+            Body = new ExpressionModel(@"this.shareRepository = shareRepository;
+        this.commentRepository = commentRepository;
+        this.context = context;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "ShareEntityAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ShareDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateShareRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var share = new Share
+        {
+            EntityId = request.EntityId,
+            EntityType = request.EntityType,
+            SharedByUserId = request.SharedByUserId,
+            SharedWithUserId = request.SharedWithUserId,
+            Permission = Enum.Parse<SharePermission>(request.Permission, true),
+            ExpiresAt = request.ExpiresAt
+        };
+
+        var created = await shareRepository.AddAsync(share, cancellationToken);
+
+        return new ShareDto
+        {
+            ShareId = created.ShareId,
+            EntityId = created.EntityId,
+            EntityType = created.EntityType,
+            SharedByUserId = created.SharedByUserId,
+            SharedWithUserId = created.SharedWithUserId,
+            Permission = created.Permission.ToString(),
+            SharedAt = created.SharedAt,
+            ExpiresAt = created.ExpiresAt,
+            IsActive = created.IsActive
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetSharesByEntityIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("ShareDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var shares = await shareRepository.GetByEntityIdAsync(entityId, cancellationToken);
+        return shares.Select(s => new ShareDto
+        {
+            ShareId = s.ShareId,
+            EntityId = s.EntityId,
+            EntityType = s.EntityType,
+            SharedByUserId = s.SharedByUserId,
+            SharedWithUserId = s.SharedWithUserId,
+            Permission = s.Permission.ToString(),
+            SharedAt = s.SharedAt,
+            ExpiresAt = s.ExpiresAt,
+            IsActive = s.IsActive
+        });")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "RevokeShareAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "shareId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("await shareRepository.DeleteAsync(shareId, cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddCommentAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("CommentDto")] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateCommentRequest") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var comment = new Comment
+        {
+            EntityId = request.EntityId,
+            EntityType = request.EntityType,
+            UserId = request.UserId,
+            Content = request.Content,
+            ParentCommentId = request.ParentCommentId
+        };
+
+        var created = await commentRepository.AddAsync(comment, cancellationToken);
+
+        // Add mentions
+        foreach (var mentionedUserId in request.MentionedUserIds)
+        {
+            var mention = new Mention
+            {
+                MentionId = Guid.NewGuid(),
+                CommentId = created.CommentId,
+                MentionedUserId = mentionedUserId
+            };
+            await context.Mentions.AddAsync(mention, cancellationToken);
+        }
+        await context.SaveChangesAsync(cancellationToken);
+
+        return new CommentDto
+        {
+            CommentId = created.CommentId,
+            EntityId = created.EntityId,
+            EntityType = created.EntityType,
+            UserId = created.UserId,
+            Content = created.Content,
+            ParentCommentId = created.ParentCommentId,
+            CreatedAt = created.CreatedAt
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetCommentsByEntityIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("CommentDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var comments = await commentRepository.GetByEntityIdAsync(entityId, cancellationToken);
+        return comments.Select(MapCommentToDto);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteCommentAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "commentId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel("await commentRepository.DeleteAsync(commentId, cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "MapCommentToDto",
+            AccessModifier = AccessModifier.Private,
+            Static = true,
+            ReturnType = new TypeModel("CommentDto"),
+            Params = [new ParamModel { Name = "comment", Type = new TypeModel("Comment") }],
+            Body = new ExpressionModel(@"return new CommentDto
+        {
+            CommentId = comment.CommentId,
+            EntityId = comment.EntityId,
+            EntityType = comment.EntityType,
+            UserId = comment.UserId,
+            Content = comment.Content,
+            ParentCommentId = comment.ParentCommentId,
+            CreatedAt = comment.CreatedAt,
+            UpdatedAt = comment.UpdatedAt,
+            Replies = comment.Replies.Where(r => !r.IsDeleted).Select(MapCommentToDto)
+        };")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "CollaborationService", directory, CSharp)
+        {
+            Namespace = "Collaboration.Infrastructure.Services"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateInfrastructureConfigureServicesFile(string directory)
+    {
+        var classModel = new ClassModel("ConfigureServices")
+        {
+            Static = true
+        };
+
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Infrastructure.Repositories"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Infrastructure.Services"));
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddCollaborationInfrastructure",
+            AccessModifier = AccessModifier.Public,
+            Static = true,
+            ReturnType = new TypeModel("IServiceCollection"),
+            Params =
+            [
+                new ParamModel { Name = "services", Type = new TypeModel("IServiceCollection"), ExtensionMethodParam = true },
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") }
+            ],
+            Body = new ExpressionModel(@"services.AddDbContext<CollaborationDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString(""CollaborationDb"") ??
+                @""Server=.\SQLEXPRESS;Database=CollaborationDb;Trusted_Connection=True;TrustServerCertificate=True""));
+
+        services.AddScoped<IShareRepository, ShareRepository>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<ICollaborationService, CollaborationService>();
+        return services;")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "ConfigureServices", directory, CSharp)
+        {
+            Namespace = "Microsoft.Extensions.DependencyInjection"
+        };
+    }
+
+    #endregion
+
+    #region API Layer Files
+
+    private static CodeFileModel<ClassModel> CreateSharesControllerFile(string directory)
+    {
+        var classModel = new ClassModel("SharesController");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Mvc"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.Interfaces"));
+
+        classModel.Implements.Add(new TypeModel("ControllerBase"));
+
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ApiController" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Route", Template = "\"api/[controller]\"" });
+
+        classModel.Fields.Add(new FieldModel { Name = "service", Type = new TypeModel("ICollaborationService"), AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "SharesController")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "service", Type = new TypeModel("ICollaborationService") }],
+            Body = new ExpressionModel("this.service = service;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        var createMethod = new MethodModel
+        {
+            Name = "Create",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("ShareDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateShareRequest"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var share = await service.ShareEntityAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetByEntityId), new { entityId = share.EntityId }, share);")
+        };
+        createMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost" });
+        classModel.Methods.Add(createMethod);
+
+        var getMethod = new MethodModel
+        {
+            Name = "GetByEntityId",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("ShareDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var shares = await service.GetSharesByEntityIdAsync(entityId, cancellationToken);
+        return Ok(shares);")
+        };
+        getMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"{entityId:guid}\"" });
+        classModel.Methods.Add(getMethod);
+
+        var revokeMethod = new MethodModel
+        {
+            Name = "Revoke",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IActionResult")] },
+            Params =
+            [
+                new ParamModel { Name = "shareId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"await service.RevokeShareAsync(shareId, cancellationToken);
+        return NoContent();")
+        };
+        revokeMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpDelete", Template = "\"{shareId:guid}\"" });
+        classModel.Methods.Add(revokeMethod);
+
+        return new CodeFileModel<ClassModel>(classModel, "SharesController", directory, CSharp)
+        {
+            Namespace = "Collaboration.Api.Controllers"
+        };
+    }
+
+    private static CodeFileModel<ClassModel> CreateCommentsControllerFile(string directory)
+    {
+        var classModel = new ClassModel("CommentsController");
+
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Mvc"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Collaboration.Core.Interfaces"));
+
+        classModel.Implements.Add(new TypeModel("ControllerBase"));
+
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ApiController" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Route", Template = "\"api/[controller]\"" });
+
+        classModel.Fields.Add(new FieldModel { Name = "service", Type = new TypeModel("ICollaborationService"), AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "CommentsController")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "service", Type = new TypeModel("ICollaborationService") }],
+            Body = new ExpressionModel("this.service = service;")
+        };
+        classModel.Constructors.Add(constructor);
+
+        var createMethod = new MethodModel
+        {
+            Name = "Create",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("CommentDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("CreateCommentRequest"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var comment = await service.AddCommentAsync(request, cancellationToken);
+        return CreatedAtAction(nameof(GetByEntityId), new { entityId = comment.EntityId }, comment);")
+        };
+        createMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost" });
+        classModel.Methods.Add(createMethod);
+
+        var getMethod = new MethodModel
+        {
+            Name = "GetByEntityId",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("CommentDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var comments = await service.GetCommentsByEntityIdAsync(entityId, cancellationToken);
+        return Ok(comments);")
+        };
+        getMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"{entityId:guid}\"" });
+        classModel.Methods.Add(getMethod);
+
+        var deleteMethod = new MethodModel
+        {
+            Name = "Delete",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IActionResult")] },
+            Params =
+            [
+                new ParamModel { Name = "commentId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"await service.DeleteCommentAsync(commentId, cancellationToken);
+        return NoContent();")
+        };
+        deleteMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpDelete", Template = "\"{commentId:guid}\"" });
+        classModel.Methods.Add(deleteMethod);
+
+        return new CodeFileModel<ClassModel>(classModel, "CommentsController", directory, CSharp)
+        {
+            Namespace = "Collaboration.Api.Controllers"
+        };
+    }
+
+    private static FileModel CreateProgramFile(string directory)
+    {
+        // Top-level statements, keeping as FileModel
+        return new FileModel("Program", directory, CSharp)
         {
             Body = """
                 // Copyright (c) Quinntyne Brown. All Rights Reserved.
@@ -836,9 +1358,13 @@ public class CollaborationArtifactFactory : ICollaborationArtifactFactory
                 app.MapHealthChecks("/health");
                 app.Run();
                 """
-        });
+        };
+    }
 
-        project.Files.Add(new FileModel("appsettings", project.Directory, ".json")
+    private static FileModel CreateAppSettingsFile(string directory)
+    {
+        // JSON file, keeping as FileModel
+        return new FileModel("appsettings", directory, ".json")
         {
             Body = """
                 {
@@ -853,6 +1379,8 @@ public class CollaborationArtifactFactory : ICollaborationArtifactFactory
                   "AllowedHosts": "*"
                 }
                 """
-        });
+        };
     }
+
+    #endregion
 }

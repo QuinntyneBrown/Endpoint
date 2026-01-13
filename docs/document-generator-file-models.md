@@ -438,35 +438,7 @@ Creates FileModels with full class/interface definitions as raw strings:
 
 ### 19. Other Microservice Artifact Factories
 
-The following factories follow the same pattern as `ConfigurationManagementArtifactFactory`:
-
-| Factory | File Path |
-|---------|-----------|
-| HistoricalTelemetryArtifactFactory | `src/Endpoint.Engineering/Microservices/HistoricalTelemetry/` |
-| TelemetryStreamingArtifactFactory | `src/Endpoint.Engineering/Microservices/TelemetryStreaming/` |
-| AnalyticsArtifactFactory | `src/Endpoint.Engineering/Microservices/Analytics/` |
-| AuditArtifactFactory | `src/Endpoint.Engineering/Microservices/Audit/` |
-| BillingArtifactFactory | `src/Endpoint.Engineering/Microservices/Billing/` |
-| CacheArtifactFactory | `src/Endpoint.Engineering/Microservices/Cache/` |
-| CalculationArtifactFactory | `src/Endpoint.Engineering/Microservices/Calculation/` |
-| CollaborationArtifactFactory | `src/Endpoint.Engineering/Microservices/Collaboration/` |
-| DocumentStorageArtifactFactory | `src/Endpoint.Engineering/Microservices/DocumentStorage/` |
-| EmailArtifactFactory | `src/Endpoint.Engineering/Microservices/Email/` |
-| ExportArtifactFactory | `src/Endpoint.Engineering/Microservices/Export/` |
-| GeolocationArtifactFactory | `src/Endpoint.Engineering/Microservices/Geolocation/` |
-| IdentityArtifactFactory | `src/Endpoint.Engineering/Microservices/Identity/` |
-| ImportArtifactFactory | `src/Endpoint.Engineering/Microservices/Import/` |
-| IntegrationArtifactFactory | `src/Endpoint.Engineering/Microservices/Integration/` |
-| LocalizationArtifactFactory | `src/Endpoint.Engineering/Microservices/Localization/` |
-| MediaArtifactFactory | `src/Endpoint.Engineering/Microservices/Media/` |
-| NotificationArtifactFactory | `src/Endpoint.Engineering/Microservices/Notification/` |
-| OcrVisionArtifactFactory | `src/Endpoint.Engineering/Microservices/OcrVision/` |
-| RateLimitingArtifactFactory | `src/Endpoint.Engineering/Microservices/RateLimiting/` |
-| SchedulingArtifactFactory | `src/Endpoint.Engineering/Microservices/Scheduling/` |
-| SearchArtifactFactory | `src/Endpoint.Engineering/Microservices/Search/` |
-| TaggingArtifactFactory | `src/Endpoint.Engineering/Microservices/Tagging/` |
-| TenantArtifactFactory | `src/Endpoint.Engineering/Microservices/Tenant/` |
-| WorkflowArtifactFactory | `src/Endpoint.Engineering/Microservices/Workflow/` |
+*All factories in this section have been refactored to use `CodeFileModel<ClassModel>` and `CodeFileModel<InterfaceModel>` with strongly typed syntax models instead of raw string literals.*
 
 ---
 
@@ -477,8 +449,8 @@ The following factories follow the same pattern as `ConfigurationManagementArtif
 | Syntax Generation Strategies | 11 | StringBuilder + String Interpolation |
 | File Artifact Strategies | 1 | StringBuilder + String Interpolation |
 | FileFactory Methods | 5 | Model Bodies as Strings / Raw Strings |
-| Microservice Factories | 26 | Raw String Literals (Triple-Quoted) |
-| **Total** | **43** | |
+| Microservice Factories | 1 | Raw String Literals (ConfigurationManagement only - others refactored) |
+| **Total** | **18** | |
 
 ---
 

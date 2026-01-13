@@ -2,11 +2,23 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Constructors;
+using Endpoint.DotNet.Syntax.Expressions;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
+using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Engineering.Microservices.Geolocation;
+
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 /// <summary>
 /// Factory for creating Geolocation microservice artifacts according to geolocation-microservice.spec.md.
@@ -103,272 +115,307 @@ public class GeolocationArtifactFactory : IGeolocationArtifactFactory
 
     #region Core Layer Files
 
-    private static FileModel CreateIAggregateRootFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIAggregateRootFile(string directory)
     {
-        return new FileModel("IAggregateRoot", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IAggregateRoot");
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IAggregateRoot", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Geolocation.Core.Entities;
-
-                /// <summary>
-                /// Marker interface for aggregate roots.
-                /// </summary>
-                public interface IAggregateRoot
-                {
-                }
-                """
+            Namespace = "Geolocation.Core.Entities"
         };
     }
 
-    private static FileModel CreateLocationEntityFile(string directory)
+    private static CodeFileModel<ClassModel> CreateLocationEntityFile(string directory)
     {
-        return new FileModel("Location", directory, CSharp)
+        var classModel = new ClassModel("Location");
+
+        classModel.Implements.Add(new TypeModel("IAggregateRoot"));
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "LocationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Latitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Longitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double") { Nullable = true }, "Altitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double") { Nullable = true }, "Accuracy", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Address", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "City", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "State", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Country", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "PostalCode", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "Timestamp", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "UpdatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "Location", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Geolocation.Core.Entities;
-
-                /// <summary>
-                /// Location entity representing a geographic location.
-                /// </summary>
-                public class Location : IAggregateRoot
-                {
-                    public Guid LocationId { get; set; }
-
-                    public double Latitude { get; set; }
-
-                    public double Longitude { get; set; }
-
-                    public double? Altitude { get; set; }
-
-                    public double? Accuracy { get; set; }
-
-                    public string? Address { get; set; }
-
-                    public string? City { get; set; }
-
-                    public string? State { get; set; }
-
-                    public string? Country { get; set; }
-
-                    public string? PostalCode { get; set; }
-
-                    public string? EntityId { get; set; }
-
-                    public string? EntityType { get; set; }
-
-                    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-                    public DateTime? UpdatedAt { get; set; }
-                }
-                """
+            Namespace = "Geolocation.Core.Entities"
         };
     }
 
-    private static FileModel CreateGeoFenceEntityFile(string directory)
+    private static CodeFileModel<ClassModel> CreateGeoFenceEntityFile(string directory)
     {
-        return new FileModel("GeoFence", directory, CSharp)
+        var classModel = new ClassModel("GeoFence");
+
+        classModel.Implements.Add(new TypeModel("IAggregateRoot"));
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "GeoFenceId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "CenterLatitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "CenterLongitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "RadiusMeters", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Polygon", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "UpdatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "GeoFence", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Geolocation.Core.Entities;
-
-                /// <summary>
-                /// GeoFence entity representing a geographic boundary.
-                /// </summary>
-                public class GeoFence : IAggregateRoot
-                {
-                    public Guid GeoFenceId { get; set; }
-
-                    public required string Name { get; set; }
-
-                    public string? Description { get; set; }
-
-                    public double CenterLatitude { get; set; }
-
-                    public double CenterLongitude { get; set; }
-
-                    public double RadiusMeters { get; set; }
-
-                    public string? Polygon { get; set; }
-
-                    public bool IsActive { get; set; } = true;
-
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-                    public DateTime? UpdatedAt { get; set; }
-                }
-                """
+            Namespace = "Geolocation.Core.Entities"
         };
     }
 
-    private static FileModel CreateRouteEntityFile(string directory)
+    private static CodeFileModel<ClassModel> CreateRouteEntityFile(string directory)
     {
-        return new FileModel("Route", directory, CSharp)
+        var classModel = new ClassModel("Route");
+
+        classModel.Implements.Add(new TypeModel("IAggregateRoot"));
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "RouteId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "StartLatitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "StartLongitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "EndLatitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "EndLongitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double") { Nullable = true }, "DistanceMeters", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int") { Nullable = true }, "DurationSeconds", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "EncodedPolyline", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Waypoints", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "UpdatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "Route", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Geolocation.Core.Entities;
-
-                /// <summary>
-                /// Route entity representing a path between locations.
-                /// </summary>
-                public class Route : IAggregateRoot
-                {
-                    public Guid RouteId { get; set; }
-
-                    public required string Name { get; set; }
-
-                    public string? Description { get; set; }
-
-                    public double StartLatitude { get; set; }
-
-                    public double StartLongitude { get; set; }
-
-                    public double EndLatitude { get; set; }
-
-                    public double EndLongitude { get; set; }
-
-                    public double? DistanceMeters { get; set; }
-
-                    public int? DurationSeconds { get; set; }
-
-                    public string? EncodedPolyline { get; set; }
-
-                    public string? Waypoints { get; set; }
-
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-                    public DateTime? UpdatedAt { get; set; }
-                }
-                """
+            Namespace = "Geolocation.Core.Entities"
         };
     }
 
-    private static FileModel CreateIDomainEventFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIDomainEventFile(string directory)
     {
-        return new FileModel("IDomainEvent", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IDomainEvent");
+
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("Guid"), "AggregateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("string"), "AggregateType", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("string"), "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IDomainEvent", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace Geolocation.Core.Interfaces;
-
-                /// <summary>
-                /// Interface for domain events.
-                /// </summary>
-                public interface IDomainEvent
-                {
-                    Guid AggregateId { get; }
-
-                    string AggregateType { get; }
-
-                    DateTime OccurredAt { get; }
-
-                    string CorrelationId { get; }
-                }
-                """
+            Namespace = "Geolocation.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateILocationRepositoryFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateILocationRepositoryFile(string directory)
     {
-        return new FileModel("ILocationRepository", directory, CSharp)
+        var interfaceModel = new InterfaceModel("ILocationRepository");
+
+        interfaceModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "GetByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Location") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "locationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                using Geolocation.Core.Entities;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Location")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                namespace Geolocation.Core.Interfaces;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByEntityAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Location")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                /// <summary>
-                /// Repository interface for Location entities.
-                /// </summary>
-                public interface ILocationRepository
-                {
-                    Task<Location?> GetByIdAsync(Guid locationId, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetWithinRadiusAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Location")] }] },
+            Params =
+            [
+                new ParamModel { Name = "latitude", Type = new TypeModel("double") },
+                new ParamModel { Name = "longitude", Type = new TypeModel("double") },
+                new ParamModel { Name = "radiusMeters", Type = new TypeModel("double") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Location>> GetAllAsync(CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Location")] },
+            Params =
+            [
+                new ParamModel { Name = "location", Type = new TypeModel("Location") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Location>> GetByEntityAsync(string entityId, string entityType, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "location", Type = new TypeModel("Location") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<Location>> GetWithinRadiusAsync(double latitude, double longitude, double radiusMeters, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "locationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<Location> AddAsync(Location location, CancellationToken cancellationToken = default);
-
-                    Task UpdateAsync(Location location, CancellationToken cancellationToken = default);
-
-                    Task DeleteAsync(Guid locationId, CancellationToken cancellationToken = default);
-                }
-                """
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "ILocationRepository", directory, CSharp)
+        {
+            Namespace = "Geolocation.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateIGeocodingServiceFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIGeocodingServiceFile(string directory)
     {
-        return new FileModel("IGeocodingService", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IGeocodingService");
+
+        interfaceModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "GeocodeAddressAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Location") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "address", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                using Geolocation.Core.Entities;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "ReverseGeocodeAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("string") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "latitude", Type = new TypeModel("double") },
+                new ParamModel { Name = "longitude", Type = new TypeModel("double") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                namespace Geolocation.Core.Interfaces;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "SearchAddressAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Location")] }] },
+            Params =
+            [
+                new ParamModel { Name = "query", Type = new TypeModel("string") },
+                new ParamModel { Name = "maxResults", Type = new TypeModel("int"), DefaultValue = "10" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                /// <summary>
-                /// Service interface for geocoding operations.
-                /// </summary>
-                public interface IGeocodingService
-                {
-                    Task<Location?> GeocodeAddressAsync(string address, CancellationToken cancellationToken = default);
-
-                    Task<string?> ReverseGeocodeAsync(double latitude, double longitude, CancellationToken cancellationToken = default);
-
-                    Task<IEnumerable<Location>> SearchAddressAsync(string query, int maxResults = 10, CancellationToken cancellationToken = default);
-                }
-                """
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IGeocodingService", directory, CSharp)
+        {
+            Namespace = "Geolocation.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateIRoutingServiceFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIRoutingServiceFile(string directory)
     {
-        return new FileModel("IRoutingService", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IRoutingService");
+
+        interfaceModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "CalculateRouteAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Route") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "startLat", Type = new TypeModel("double") },
+                new ParamModel { Name = "startLon", Type = new TypeModel("double") },
+                new ParamModel { Name = "endLat", Type = new TypeModel("double") },
+                new ParamModel { Name = "endLon", Type = new TypeModel("double") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                using Geolocation.Core.Entities;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "CalculateDistanceAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("double")] },
+            Params =
+            [
+                new ParamModel { Name = "lat1", Type = new TypeModel("double") },
+                new ParamModel { Name = "lon1", Type = new TypeModel("double") },
+                new ParamModel { Name = "lat2", Type = new TypeModel("double") },
+                new ParamModel { Name = "lon2", Type = new TypeModel("double") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                namespace Geolocation.Core.Interfaces;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "CalculateRouteWithWaypointsAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Route") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "waypoints", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("(double Latitude, double Longitude)")] } },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                /// <summary>
-                /// Service interface for routing operations.
-                /// </summary>
-                public interface IRoutingService
-                {
-                    Task<Route?> CalculateRouteAsync(double startLat, double startLon, double endLat, double endLon, CancellationToken cancellationToken = default);
-
-                    Task<double> CalculateDistanceAsync(double lat1, double lon1, double lat2, double lon2, CancellationToken cancellationToken = default);
-
-                    Task<Route?> CalculateRouteWithWaypointsAsync(IEnumerable<(double Latitude, double Longitude)> waypoints, CancellationToken cancellationToken = default);
-                }
-                """
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IRoutingService", directory, CSharp)
+        {
+            Namespace = "Geolocation.Core.Interfaces"
         };
     }
 
@@ -493,120 +540,75 @@ public class GeolocationArtifactFactory : IGeolocationArtifactFactory
         };
     }
 
-    private static FileModel CreateLocationDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateLocationDtoFile(string directory)
     {
-        return new FileModel("LocationDto", directory, CSharp)
+        var classModel = new ClassModel("LocationDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                namespace Geolocation.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "LocationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Latitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Longitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double") { Nullable = true }, "Altitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double") { Nullable = true }, "Accuracy", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Address", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "City", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "State", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Country", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "PostalCode", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "EntityId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "EntityType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "Timestamp", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
 
-                /// <summary>
-                /// Data transfer object for Location.
-                /// </summary>
-                public sealed class LocationDto
-                {
-                    public Guid LocationId { get; init; }
-
-                    public double Latitude { get; init; }
-
-                    public double Longitude { get; init; }
-
-                    public double? Altitude { get; init; }
-
-                    public double? Accuracy { get; init; }
-
-                    public string? Address { get; init; }
-
-                    public string? City { get; init; }
-
-                    public string? State { get; init; }
-
-                    public string? Country { get; init; }
-
-                    public string? PostalCode { get; init; }
-
-                    public string? EntityId { get; init; }
-
-                    public string? EntityType { get; init; }
-
-                    public DateTime Timestamp { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "LocationDto", directory, CSharp)
+        {
+            Namespace = "Geolocation.Core.DTOs"
         };
     }
 
-    private static FileModel CreateGeoFenceDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateGeoFenceDtoFile(string directory)
     {
-        return new FileModel("GeoFenceDto", directory, CSharp)
+        var classModel = new ClassModel("GeoFenceDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                namespace Geolocation.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "GeoFenceId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "CenterLatitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "CenterLongitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "RadiusMeters", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "IsActive", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
 
-                /// <summary>
-                /// Data transfer object for GeoFence.
-                /// </summary>
-                public sealed class GeoFenceDto
-                {
-                    public Guid GeoFenceId { get; init; }
-
-                    public required string Name { get; init; }
-
-                    public string? Description { get; init; }
-
-                    public double CenterLatitude { get; init; }
-
-                    public double CenterLongitude { get; init; }
-
-                    public double RadiusMeters { get; init; }
-
-                    public bool IsActive { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "GeoFenceDto", directory, CSharp)
+        {
+            Namespace = "Geolocation.Core.DTOs"
         };
     }
 
-    private static FileModel CreateRouteDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateRouteDtoFile(string directory)
     {
-        return new FileModel("RouteDto", directory, CSharp)
+        var classModel = new ClassModel("RouteDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                namespace Geolocation.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "RouteId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "Name", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Description", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "StartLatitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "StartLongitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "EndLatitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "EndLongitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double") { Nullable = true }, "DistanceMeters", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int") { Nullable = true }, "DurationSeconds", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "EncodedPolyline", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
 
-                /// <summary>
-                /// Data transfer object for Route.
-                /// </summary>
-                public sealed class RouteDto
-                {
-                    public Guid RouteId { get; init; }
-
-                    public required string Name { get; init; }
-
-                    public string? Description { get; init; }
-
-                    public double StartLatitude { get; init; }
-
-                    public double StartLongitude { get; init; }
-
-                    public double EndLatitude { get; init; }
-
-                    public double EndLongitude { get; init; }
-
-                    public double? DistanceMeters { get; init; }
-
-                    public int? DurationSeconds { get; init; }
-
-                    public string? EncodedPolyline { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "RouteDto", directory, CSharp)
+        {
+            Namespace = "Geolocation.Core.DTOs"
         };
     }
 
@@ -634,36 +636,24 @@ public class GeolocationArtifactFactory : IGeolocationArtifactFactory
         };
     }
 
-    private static FileModel CreateGeocodeResponseFile(string directory)
+    private static CodeFileModel<ClassModel> CreateGeocodeResponseFile(string directory)
     {
-        return new FileModel("GeocodeResponse", directory, CSharp)
+        var classModel = new ClassModel("GeocodeResponse")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                namespace Geolocation.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Latitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Longitude", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "FormattedAddress", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "City", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "State", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Country", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "PostalCode", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
 
-                /// <summary>
-                /// Response model for geocoding result.
-                /// </summary>
-                public sealed class GeocodeResponse
-                {
-                    public double Latitude { get; init; }
-
-                    public double Longitude { get; init; }
-
-                    public string? FormattedAddress { get; init; }
-
-                    public string? City { get; init; }
-
-                    public string? State { get; init; }
-
-                    public string? Country { get; init; }
-
-                    public string? PostalCode { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "GeocodeResponse", directory, CSharp)
+        {
+            Namespace = "Geolocation.Core.DTOs"
         };
     }
 
@@ -704,30 +694,21 @@ public class GeolocationArtifactFactory : IGeolocationArtifactFactory
         };
     }
 
-    private static FileModel CreateDistanceResponseFile(string directory)
+    private static CodeFileModel<ClassModel> CreateDistanceResponseFile(string directory)
     {
-        return new FileModel("DistanceResponse", directory, CSharp)
+        var classModel = new ClassModel("DistanceResponse")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                namespace Geolocation.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "DistanceMeters", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "DistanceKilometers", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "DistanceMiles", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int") { Nullable = true }, "EstimatedDurationSeconds", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
 
-                /// <summary>
-                /// Response model for distance calculation result.
-                /// </summary>
-                public sealed class DistanceResponse
-                {
-                    public double DistanceMeters { get; init; }
-
-                    public double DistanceKilometers { get; init; }
-
-                    public double DistanceMiles { get; init; }
-
-                    public int? EstimatedDurationSeconds { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "DistanceResponse", directory, CSharp)
+        {
+            Namespace = "Geolocation.Core.DTOs"
         };
     }
 
@@ -735,542 +716,665 @@ public class GeolocationArtifactFactory : IGeolocationArtifactFactory
 
     #region Infrastructure Layer Files
 
-    private static FileModel CreateGeolocationDbContextFile(string directory)
+    private static CodeFileModel<ClassModel> CreateGeolocationDbContextFile(string directory)
     {
-        return new FileModel("GeolocationDbContext", directory, CSharp)
+        var classModel = new ClassModel("GeolocationDbContext");
+
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+
+        classModel.Implements.Add(new TypeModel("DbContext"));
+
+        var constructor = new ConstructorModel(classModel, "GeolocationDbContext")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "options", Type = new TypeModel("DbContextOptions") { GenericTypeParameters = [new TypeModel("GeolocationDbContext")] } }],
+            BaseParams = ["options"]
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Geolocation.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Location")] }, "Locations", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Location>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("GeoFence")] }, "GeoFences", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<GeoFence>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("Route")] }, "Routes", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<Route>()")]));
 
-                namespace Geolocation.Infrastructure.Data;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "OnModelCreating",
+            AccessModifier = AccessModifier.Protected,
+            Override = true,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "modelBuilder", Type = new TypeModel("ModelBuilder") }],
+            Body = new ExpressionModel(@"base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(GeolocationDbContext).Assembly);")
+        });
 
-                /// <summary>
-                /// Entity Framework Core DbContext for Geolocation microservice.
-                /// </summary>
-                public class GeolocationDbContext : DbContext
-                {
-                    public GeolocationDbContext(DbContextOptions<GeolocationDbContext> options)
-                        : base(options)
-                    {
-                    }
-
-                    public DbSet<Location> Locations => Set<Location>();
-
-                    public DbSet<GeoFence> GeoFences => Set<GeoFence>();
-
-                    public DbSet<Route> Routes => Set<Route>();
-
-                    protected override void OnModelCreating(ModelBuilder modelBuilder)
-                    {
-                        base.OnModelCreating(modelBuilder);
-                        modelBuilder.ApplyConfigurationsFromAssembly(typeof(GeolocationDbContext).Assembly);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "GeolocationDbContext", directory, CSharp)
+        {
+            Namespace = "Geolocation.Infrastructure.Data"
         };
     }
 
-    private static FileModel CreateLocationConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateLocationConfigurationFile(string directory)
     {
-        return new FileModel("LocationConfiguration", directory, CSharp)
+        var classModel = new ClassModel("LocationConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("Location")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("Location")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(l => l.LocationId);
 
-                using Geolocation.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(l => l.Latitude)
+            .IsRequired();
 
-                namespace Geolocation.Infrastructure.Data.Configurations;
+        builder.Property(l => l.Longitude)
+            .IsRequired();
 
-                /// <summary>
-                /// Entity configuration for Location.
-                /// </summary>
-                public class LocationConfiguration : IEntityTypeConfiguration<Location>
-                {
-                    public void Configure(EntityTypeBuilder<Location> builder)
-                    {
-                        builder.HasKey(l => l.LocationId);
+        builder.Property(l => l.Address)
+            .HasMaxLength(500);
 
-                        builder.Property(l => l.Latitude)
-                            .IsRequired();
+        builder.Property(l => l.City)
+            .HasMaxLength(100);
 
-                        builder.Property(l => l.Longitude)
-                            .IsRequired();
+        builder.Property(l => l.State)
+            .HasMaxLength(100);
 
-                        builder.Property(l => l.Address)
-                            .HasMaxLength(500);
+        builder.Property(l => l.Country)
+            .HasMaxLength(100);
 
-                        builder.Property(l => l.City)
-                            .HasMaxLength(100);
+        builder.Property(l => l.PostalCode)
+            .HasMaxLength(20);
 
-                        builder.Property(l => l.State)
-                            .HasMaxLength(100);
+        builder.Property(l => l.EntityId)
+            .HasMaxLength(100);
 
-                        builder.Property(l => l.Country)
-                            .HasMaxLength(100);
+        builder.Property(l => l.EntityType)
+            .HasMaxLength(100);
 
-                        builder.Property(l => l.PostalCode)
-                            .HasMaxLength(20);
+        builder.Property(l => l.Timestamp)
+            .IsRequired();
 
-                        builder.Property(l => l.EntityId)
-                            .HasMaxLength(100);
+        builder.HasIndex(l => new { l.Latitude, l.Longitude });
 
-                        builder.Property(l => l.EntityType)
-                            .HasMaxLength(100);
+        builder.HasIndex(l => new { l.EntityId, l.EntityType });")
+        });
 
-                        builder.Property(l => l.Timestamp)
-                            .IsRequired();
-
-                        builder.HasIndex(l => new { l.Latitude, l.Longitude });
-
-                        builder.HasIndex(l => new { l.EntityId, l.EntityType });
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "LocationConfiguration", directory, CSharp)
+        {
+            Namespace = "Geolocation.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateGeoFenceConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateGeoFenceConfigurationFile(string directory)
     {
-        return new FileModel("GeoFenceConfiguration", directory, CSharp)
+        var classModel = new ClassModel("GeoFenceConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("GeoFence")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("GeoFence")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(g => g.GeoFenceId);
 
-                using Geolocation.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(g => g.Name)
+            .IsRequired()
+            .HasMaxLength(200);
 
-                namespace Geolocation.Infrastructure.Data.Configurations;
+        builder.Property(g => g.Description)
+            .HasMaxLength(1000);
 
-                /// <summary>
-                /// Entity configuration for GeoFence.
-                /// </summary>
-                public class GeoFenceConfiguration : IEntityTypeConfiguration<GeoFence>
-                {
-                    public void Configure(EntityTypeBuilder<GeoFence> builder)
-                    {
-                        builder.HasKey(g => g.GeoFenceId);
+        builder.Property(g => g.CenterLatitude)
+            .IsRequired();
 
-                        builder.Property(g => g.Name)
-                            .IsRequired()
-                            .HasMaxLength(200);
+        builder.Property(g => g.CenterLongitude)
+            .IsRequired();
 
-                        builder.Property(g => g.Description)
-                            .HasMaxLength(1000);
+        builder.Property(g => g.RadiusMeters)
+            .IsRequired();
 
-                        builder.Property(g => g.CenterLatitude)
-                            .IsRequired();
+        builder.HasIndex(g => g.Name);
 
-                        builder.Property(g => g.CenterLongitude)
-                            .IsRequired();
+        builder.HasIndex(g => new { g.CenterLatitude, g.CenterLongitude });")
+        });
 
-                        builder.Property(g => g.RadiusMeters)
-                            .IsRequired();
-
-                        builder.HasIndex(g => g.Name);
-
-                        builder.HasIndex(g => new { g.CenterLatitude, g.CenterLongitude });
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "GeoFenceConfiguration", directory, CSharp)
+        {
+            Namespace = "Geolocation.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateRouteConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateRouteConfigurationFile(string directory)
     {
-        return new FileModel("RouteConfiguration", directory, CSharp)
+        var classModel = new ClassModel("RouteConfiguration");
+
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("Route")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("Route")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(r => r.RouteId);
 
-                using Geolocation.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(r => r.Name)
+            .IsRequired()
+            .HasMaxLength(200);
 
-                namespace Geolocation.Infrastructure.Data.Configurations;
+        builder.Property(r => r.Description)
+            .HasMaxLength(1000);
 
-                /// <summary>
-                /// Entity configuration for Route.
-                /// </summary>
-                public class RouteConfiguration : IEntityTypeConfiguration<Route>
-                {
-                    public void Configure(EntityTypeBuilder<Route> builder)
-                    {
-                        builder.HasKey(r => r.RouteId);
+        builder.Property(r => r.StartLatitude)
+            .IsRequired();
 
-                        builder.Property(r => r.Name)
-                            .IsRequired()
-                            .HasMaxLength(200);
+        builder.Property(r => r.StartLongitude)
+            .IsRequired();
 
-                        builder.Property(r => r.Description)
-                            .HasMaxLength(1000);
+        builder.Property(r => r.EndLatitude)
+            .IsRequired();
 
-                        builder.Property(r => r.StartLatitude)
-                            .IsRequired();
+        builder.Property(r => r.EndLongitude)
+            .IsRequired();
 
-                        builder.Property(r => r.StartLongitude)
-                            .IsRequired();
+        builder.HasIndex(r => r.Name);")
+        });
 
-                        builder.Property(r => r.EndLatitude)
-                            .IsRequired();
-
-                        builder.Property(r => r.EndLongitude)
-                            .IsRequired();
-
-                        builder.HasIndex(r => r.Name);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "RouteConfiguration", directory, CSharp)
+        {
+            Namespace = "Geolocation.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateLocationRepositoryFile(string directory)
+    private static CodeFileModel<ClassModel> CreateLocationRepositoryFile(string directory)
     {
-        return new FileModel("LocationRepository", directory, CSharp)
+        var classModel = new ClassModel("LocationRepository");
+
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Geolocation.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+
+        classModel.Implements.Add(new TypeModel("ILocationRepository"));
+
+        classModel.Fields.Add(new FieldModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "context",
+            Type = new TypeModel("GeolocationDbContext"),
+            AccessModifier = AccessModifier.Private,
+            Readonly = true
+        });
 
-                using Geolocation.Core.Entities;
-                using Geolocation.Core.Interfaces;
-                using Geolocation.Infrastructure.Data;
-                using Microsoft.EntityFrameworkCore;
+        var constructor = new ConstructorModel(classModel, "LocationRepository")
+        {
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "context", Type = new TypeModel("GeolocationDbContext") }],
+            Body = new ExpressionModel("this.context = context ?? throw new ArgumentNullException(nameof(context));")
+        };
+        classModel.Constructors.Add(constructor);
 
-                namespace Geolocation.Infrastructure.Repositories;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Location") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "locationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Locations
+            .FirstOrDefaultAsync(l => l.LocationId == locationId, cancellationToken);")
+        });
 
-                /// <summary>
-                /// Repository implementation for Location entities.
-                /// </summary>
-                public class LocationRepository : ILocationRepository
-                {
-                    private readonly GeolocationDbContext context;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAllAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Location")] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Locations
+            .OrderByDescending(l => l.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public LocationRepository(GeolocationDbContext context)
-                    {
-                        this.context = context ?? throw new ArgumentNullException(nameof(context));
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetByEntityAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Location")] }] },
+            Params =
+            [
+                new ParamModel { Name = "entityId", Type = new TypeModel("string") },
+                new ParamModel { Name = "entityType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.Locations
+            .Where(l => l.EntityId == entityId && l.EntityType == entityType)
+            .OrderByDescending(l => l.Timestamp)
+            .ToListAsync(cancellationToken);")
+        });
 
-                    public async Task<Location?> GetByIdAsync(Guid locationId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Locations
-                            .FirstOrDefaultAsync(l => l.LocationId == locationId, cancellationToken);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetWithinRadiusAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Location")] }] },
+            Params =
+            [
+                new ParamModel { Name = "latitude", Type = new TypeModel("double") },
+                new ParamModel { Name = "longitude", Type = new TypeModel("double") },
+                new ParamModel { Name = "radiusMeters", Type = new TypeModel("double") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"// Approximate conversion: 1 degree latitude = 111,000 meters
+        var latDelta = radiusMeters / 111000.0;
+        var lonDelta = radiusMeters / (111000.0 * Math.Cos(latitude * Math.PI / 180));
 
-                    public async Task<IEnumerable<Location>> GetAllAsync(CancellationToken cancellationToken = default)
-                    {
-                        return await context.Locations
-                            .OrderByDescending(l => l.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        var locations = await context.Locations
+            .Where(l =>
+                l.Latitude >= latitude - latDelta &&
+                l.Latitude <= latitude + latDelta &&
+                l.Longitude >= longitude - lonDelta &&
+                l.Longitude <= longitude + lonDelta)
+            .ToListAsync(cancellationToken);
 
-                    public async Task<IEnumerable<Location>> GetByEntityAsync(string entityId, string entityType, CancellationToken cancellationToken = default)
-                    {
-                        return await context.Locations
-                            .Where(l => l.EntityId == entityId && l.EntityType == entityType)
-                            .OrderByDescending(l => l.Timestamp)
-                            .ToListAsync(cancellationToken);
-                    }
+        // Filter by actual distance using Haversine formula
+        return locations.Where(l =>
+            CalculateHaversineDistance(latitude, longitude, l.Latitude, l.Longitude) <= radiusMeters);")
+        });
 
-                    public async Task<IEnumerable<Location>> GetWithinRadiusAsync(double latitude, double longitude, double radiusMeters, CancellationToken cancellationToken = default)
-                    {
-                        // Approximate conversion: 1 degree latitude = 111,000 meters
-                        var latDelta = radiusMeters / 111000.0;
-                        var lonDelta = radiusMeters / (111000.0 * Math.Cos(latitude * Math.PI / 180));
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Location")] },
+            Params =
+            [
+                new ParamModel { Name = "location", Type = new TypeModel("Location") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"location.LocationId = Guid.NewGuid();
+        location.CreatedAt = DateTime.UtcNow;
+        await context.Locations.AddAsync(location, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+        return location;")
+        });
 
-                        var locations = await context.Locations
-                            .Where(l =>
-                                l.Latitude >= latitude - latDelta &&
-                                l.Latitude <= latitude + latDelta &&
-                                l.Longitude >= longitude - lonDelta &&
-                                l.Longitude <= longitude + lonDelta)
-                            .ToListAsync(cancellationToken);
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "location", Type = new TypeModel("Location") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"location.UpdatedAt = DateTime.UtcNow;
+        context.Locations.Update(location);
+        await context.SaveChangesAsync(cancellationToken);")
+        });
 
-                        // Filter by actual distance using Haversine formula
-                        return locations.Where(l =>
-                            CalculateHaversineDistance(latitude, longitude, l.Latitude, l.Longitude) <= radiusMeters);
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "DeleteAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task"),
+            Params =
+            [
+                new ParamModel { Name = "locationId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var location = await context.Locations.FindAsync(new object[] { locationId }, cancellationToken);
+        if (location != null)
+        {
+            context.Locations.Remove(location);
+            await context.SaveChangesAsync(cancellationToken);
+        }")
+        });
 
-                    public async Task<Location> AddAsync(Location location, CancellationToken cancellationToken = default)
-                    {
-                        location.LocationId = Guid.NewGuid();
-                        location.CreatedAt = DateTime.UtcNow;
-                        await context.Locations.AddAsync(location, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-                        return location;
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "CalculateHaversineDistance",
+            AccessModifier = AccessModifier.Private,
+            Static = true,
+            ReturnType = new TypeModel("double"),
+            Params =
+            [
+                new ParamModel { Name = "lat1", Type = new TypeModel("double") },
+                new ParamModel { Name = "lon1", Type = new TypeModel("double") },
+                new ParamModel { Name = "lat2", Type = new TypeModel("double") },
+                new ParamModel { Name = "lon2", Type = new TypeModel("double") }
+            ],
+            Body = new ExpressionModel(@"const double EarthRadiusMeters = 6371000;
 
-                    public async Task UpdateAsync(Location location, CancellationToken cancellationToken = default)
-                    {
-                        location.UpdatedAt = DateTime.UtcNow;
-                        context.Locations.Update(location);
-                        await context.SaveChangesAsync(cancellationToken);
-                    }
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLon = (lon2 - lon1) * Math.PI / 180;
 
-                    public async Task DeleteAsync(Guid locationId, CancellationToken cancellationToken = default)
-                    {
-                        var location = await context.Locations.FindAsync(new object[] { locationId }, cancellationToken);
-                        if (location != null)
-                        {
-                            context.Locations.Remove(location);
-                            await context.SaveChangesAsync(cancellationToken);
-                        }
-                    }
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
 
-                    private static double CalculateHaversineDistance(double lat1, double lon1, double lat2, double lon2)
-                    {
-                        const double EarthRadiusMeters = 6371000;
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-                        var dLat = (lat2 - lat1) * Math.PI / 180;
-                        var dLon = (lon2 - lon1) * Math.PI / 180;
+        return EarthRadiusMeters * c;")
+        });
 
-                        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                                Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180) *
-                                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
-
-                        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-
-                        return EarthRadiusMeters * c;
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "LocationRepository", directory, CSharp)
+        {
+            Namespace = "Geolocation.Infrastructure.Repositories"
         };
     }
 
-    private static FileModel CreateGeocodingServiceFile(string directory)
+    private static CodeFileModel<ClassModel> CreateGeocodingServiceFile(string directory)
     {
-        return new FileModel("GeocodingService", directory, CSharp)
+        var classModel = new ClassModel("GeocodingService");
+
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Logging"));
+
+        classModel.Implements.Add(new TypeModel("IGeocodingService"));
+
+        classModel.Fields.Add(new FieldModel { Name = "configuration", Type = new TypeModel("IConfiguration"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("GeocodingService")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "httpClient", Type = new TypeModel("HttpClient"), AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "GeocodingService")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("GeocodingService")] } },
+                new ParamModel { Name = "httpClient", Type = new TypeModel("HttpClient") }
+            ],
+            Body = new ExpressionModel(@"this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Geolocation.Core.Entities;
-                using Geolocation.Core.Interfaces;
-                using Microsoft.Extensions.Configuration;
-                using Microsoft.Extensions.Logging;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GeocodeAddressAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Location") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "address", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"logger.LogInformation(""Geocoding address: {Address}"", address);
 
-                namespace Geolocation.Infrastructure.Services;
+        // Placeholder implementation - integrate with actual geocoding provider
+        // (e.g., Google Maps, Azure Maps, OpenStreetMap Nominatim)
+        await Task.CompletedTask;
 
-                /// <summary>
-                /// Geocoding service implementation.
-                /// </summary>
-                public class GeocodingService : IGeocodingService
-                {
-                    private readonly IConfiguration configuration;
-                    private readonly ILogger<GeocodingService> logger;
-                    private readonly HttpClient httpClient;
+        return new Location
+        {
+            Address = address,
+            Latitude = 0,
+            Longitude = 0
+        };")
+        });
 
-                    public GeocodingService(
-                        IConfiguration configuration,
-                        ILogger<GeocodingService> logger,
-                        HttpClient httpClient)
-                    {
-                        this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-                        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-                        this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "ReverseGeocodeAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("string") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "latitude", Type = new TypeModel("double") },
+                new ParamModel { Name = "longitude", Type = new TypeModel("double") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"logger.LogInformation(""Reverse geocoding: {Latitude}, {Longitude}"", latitude, longitude);
 
-                    public async Task<Location?> GeocodeAddressAsync(string address, CancellationToken cancellationToken = default)
-                    {
-                        logger.LogInformation("Geocoding address: {Address}", address);
+        // Placeholder implementation - integrate with actual geocoding provider
+        await Task.CompletedTask;
 
-                        // Placeholder implementation - integrate with actual geocoding provider
-                        // (e.g., Google Maps, Azure Maps, OpenStreetMap Nominatim)
-                        await Task.CompletedTask;
+        return $""{latitude}, {longitude}"";")
+        });
 
-                        return new Location
-                        {
-                            Address = address,
-                            Latitude = 0,
-                            Longitude = 0
-                        };
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "SearchAddressAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("Location")] }] },
+            Params =
+            [
+                new ParamModel { Name = "query", Type = new TypeModel("string") },
+                new ParamModel { Name = "maxResults", Type = new TypeModel("int"), DefaultValue = "10" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"logger.LogInformation(""Searching addresses: {Query}"", query);
 
-                    public async Task<string?> ReverseGeocodeAsync(double latitude, double longitude, CancellationToken cancellationToken = default)
-                    {
-                        logger.LogInformation("Reverse geocoding: {Latitude}, {Longitude}", latitude, longitude);
+        // Placeholder implementation - integrate with actual geocoding provider
+        await Task.CompletedTask;
 
-                        // Placeholder implementation - integrate with actual geocoding provider
-                        await Task.CompletedTask;
+        return Array.Empty<Location>();")
+        });
 
-                        return $"{latitude}, {longitude}";
-                    }
-
-                    public async Task<IEnumerable<Location>> SearchAddressAsync(string query, int maxResults = 10, CancellationToken cancellationToken = default)
-                    {
-                        logger.LogInformation("Searching addresses: {Query}", query);
-
-                        // Placeholder implementation - integrate with actual geocoding provider
-                        await Task.CompletedTask;
-
-                        return Array.Empty<Location>();
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "GeocodingService", directory, CSharp)
+        {
+            Namespace = "Geolocation.Infrastructure.Services"
         };
     }
 
-    private static FileModel CreateRoutingServiceFile(string directory)
+    private static CodeFileModel<ClassModel> CreateRoutingServiceFile(string directory)
     {
-        return new FileModel("RoutingService", directory, CSharp)
+        var classModel = new ClassModel("RoutingService");
+
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Logging"));
+
+        classModel.Implements.Add(new TypeModel("IRoutingService"));
+
+        classModel.Fields.Add(new FieldModel { Name = "configuration", Type = new TypeModel("IConfiguration"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("RoutingService")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "httpClient", Type = new TypeModel("HttpClient"), AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "RoutingService")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("RoutingService")] } },
+                new ParamModel { Name = "httpClient", Type = new TypeModel("HttpClient") }
+            ],
+            Body = new ExpressionModel(@"this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Geolocation.Core.Entities;
-                using Geolocation.Core.Interfaces;
-                using Microsoft.Extensions.Configuration;
-                using Microsoft.Extensions.Logging;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "CalculateRouteAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Route") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "startLat", Type = new TypeModel("double") },
+                new ParamModel { Name = "startLon", Type = new TypeModel("double") },
+                new ParamModel { Name = "endLat", Type = new TypeModel("double") },
+                new ParamModel { Name = "endLon", Type = new TypeModel("double") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"logger.LogInformation(""Calculating route from ({StartLat}, {StartLon}) to ({EndLat}, {EndLon})"",
+            startLat, startLon, endLat, endLon);
 
-                namespace Geolocation.Infrastructure.Services;
+        var distance = await CalculateDistanceAsync(startLat, startLon, endLat, endLon, cancellationToken);
 
-                /// <summary>
-                /// Routing service implementation.
-                /// </summary>
-                public class RoutingService : IRoutingService
-                {
-                    private readonly IConfiguration configuration;
-                    private readonly ILogger<RoutingService> logger;
-                    private readonly HttpClient httpClient;
+        return new Route
+        {
+            Name = ""Calculated Route"",
+            StartLatitude = startLat,
+            StartLongitude = startLon,
+            EndLatitude = endLat,
+            EndLongitude = endLon,
+            DistanceMeters = distance,
+            DurationSeconds = (int)(distance / 13.89) // Approximate driving speed of 50 km/h
+        };")
+        });
 
-                    public RoutingService(
-                        IConfiguration configuration,
-                        ILogger<RoutingService> logger,
-                        HttpClient httpClient)
-                    {
-                        this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-                        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-                        this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-                    }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "CalculateDistanceAsync",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("double")] },
+            Params =
+            [
+                new ParamModel { Name = "lat1", Type = new TypeModel("double") },
+                new ParamModel { Name = "lon1", Type = new TypeModel("double") },
+                new ParamModel { Name = "lat2", Type = new TypeModel("double") },
+                new ParamModel { Name = "lon2", Type = new TypeModel("double") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"// Haversine formula for calculating distance between two points
+        const double EarthRadiusMeters = 6371000;
 
-                    public async Task<Route?> CalculateRouteAsync(double startLat, double startLon, double endLat, double endLon, CancellationToken cancellationToken = default)
-                    {
-                        logger.LogInformation("Calculating route from ({StartLat}, {StartLon}) to ({EndLat}, {EndLon})",
-                            startLat, startLon, endLat, endLon);
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLon = (lon2 - lon1) * Math.PI / 180;
 
-                        var distance = await CalculateDistanceAsync(startLat, startLon, endLat, endLon, cancellationToken);
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
 
-                        return new Route
-                        {
-                            Name = "Calculated Route",
-                            StartLatitude = startLat,
-                            StartLongitude = startLon,
-                            EndLatitude = endLat,
-                            EndLongitude = endLon,
-                            DistanceMeters = distance,
-                            DurationSeconds = (int)(distance / 13.89) // Approximate driving speed of 50 km/h
-                        };
-                    }
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-                    public Task<double> CalculateDistanceAsync(double lat1, double lon1, double lat2, double lon2, CancellationToken cancellationToken = default)
-                    {
-                        // Haversine formula for calculating distance between two points
-                        const double EarthRadiusMeters = 6371000;
+        return Task.FromResult(EarthRadiusMeters * c);")
+        });
 
-                        var dLat = (lat2 - lat1) * Math.PI / 180;
-                        var dLon = (lon2 - lon1) * Math.PI / 180;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "CalculateRouteWithWaypointsAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("Route") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "waypoints", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("(double Latitude, double Longitude)")] } },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var waypointList = waypoints.ToList();
 
-                        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
-                                Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180) *
-                                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+        if (waypointList.Count < 2)
+        {
+            logger.LogWarning(""At least 2 waypoints are required to calculate a route"");
+            return null;
+        }
 
-                        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        var start = waypointList.First();
+        var end = waypointList.Last();
 
-                        return Task.FromResult(EarthRadiusMeters * c);
-                    }
+        double totalDistance = 0;
+        for (int i = 0; i < waypointList.Count - 1; i++)
+        {
+            totalDistance += await CalculateDistanceAsync(
+                waypointList[i].Latitude, waypointList[i].Longitude,
+                waypointList[i + 1].Latitude, waypointList[i + 1].Longitude,
+                cancellationToken);
+        }
 
-                    public async Task<Route?> CalculateRouteWithWaypointsAsync(IEnumerable<(double Latitude, double Longitude)> waypoints, CancellationToken cancellationToken = default)
-                    {
-                        var waypointList = waypoints.ToList();
+        return new Route
+        {
+            Name = ""Multi-waypoint Route"",
+            StartLatitude = start.Latitude,
+            StartLongitude = start.Longitude,
+            EndLatitude = end.Latitude,
+            EndLongitude = end.Longitude,
+            DistanceMeters = totalDistance,
+            DurationSeconds = (int)(totalDistance / 13.89),
+            Waypoints = System.Text.Json.JsonSerializer.Serialize(waypointList)
+        };")
+        });
 
-                        if (waypointList.Count < 2)
-                        {
-                            logger.LogWarning("At least 2 waypoints are required to calculate a route");
-                            return null;
-                        }
-
-                        var start = waypointList.First();
-                        var end = waypointList.Last();
-
-                        double totalDistance = 0;
-                        for (int i = 0; i < waypointList.Count - 1; i++)
-                        {
-                            totalDistance += await CalculateDistanceAsync(
-                                waypointList[i].Latitude, waypointList[i].Longitude,
-                                waypointList[i + 1].Latitude, waypointList[i + 1].Longitude,
-                                cancellationToken);
-                        }
-
-                        return new Route
-                        {
-                            Name = "Multi-waypoint Route",
-                            StartLatitude = start.Latitude,
-                            StartLongitude = start.Longitude,
-                            EndLatitude = end.Latitude,
-                            EndLongitude = end.Longitude,
-                            DistanceMeters = totalDistance,
-                            DurationSeconds = (int)(totalDistance / 13.89),
-                            Waypoints = System.Text.Json.JsonSerializer.Serialize(waypointList)
-                        };
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "RoutingService", directory, CSharp)
+        {
+            Namespace = "Geolocation.Infrastructure.Services"
         };
     }
 
-    private static FileModel CreateInfrastructureConfigureServicesFile(string directory)
+    private static CodeFileModel<ClassModel> CreateInfrastructureConfigureServicesFile(string directory)
     {
-        return new FileModel("ConfigureServices", directory, CSharp)
+        var classModel = new ClassModel("ConfigureServices")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Static = true
+        };
 
-                using Geolocation.Core.Interfaces;
-                using Geolocation.Infrastructure.Data;
-                using Geolocation.Infrastructure.Repositories;
-                using Geolocation.Infrastructure.Services;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Configuration;
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Geolocation.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Geolocation.Infrastructure.Repositories"));
+        classModel.Usings.Add(new UsingModel("Geolocation.Infrastructure.Services"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
 
-                namespace Microsoft.Extensions.DependencyInjection;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddGeolocationInfrastructure",
+            AccessModifier = AccessModifier.Public,
+            Static = true,
+            ReturnType = new TypeModel("IServiceCollection"),
+            Params =
+            [
+                new ParamModel { Name = "services", Type = new TypeModel("IServiceCollection"), ExtensionMethodParam = true },
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") }
+            ],
+            Body = new ExpressionModel(@"services.AddDbContext<GeolocationDbContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString(""GeolocationDb"") ??
+                @""Server=.\SQLEXPRESS;Database=GeolocationDb;Trusted_Connection=True;TrustServerCertificate=True""));
 
-                /// <summary>
-                /// Extension methods for configuring Geolocation infrastructure services.
-                /// </summary>
-                public static class ConfigureServices
-                {
-                    /// <summary>
-                    /// Adds Geolocation infrastructure services to the service collection.
-                    /// </summary>
-                    public static IServiceCollection AddGeolocationInfrastructure(
-                        this IServiceCollection services,
-                        IConfiguration configuration)
-                    {
-                        services.AddDbContext<GeolocationDbContext>(options =>
-                            options.UseSqlServer(
-                                configuration.GetConnectionString("GeolocationDb") ??
-                                @"Server=.\SQLEXPRESS;Database=GeolocationDb;Trusted_Connection=True;TrustServerCertificate=True"));
+        services.AddScoped<ILocationRepository, LocationRepository>();
+        services.AddHttpClient<IGeocodingService, GeocodingService>();
+        services.AddHttpClient<IRoutingService, RoutingService>();
 
-                        services.AddScoped<ILocationRepository, LocationRepository>();
-                        services.AddHttpClient<IGeocodingService, GeocodingService>();
-                        services.AddHttpClient<IRoutingService, RoutingService>();
+        return services;")
+        });
 
-                        return services;
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ConfigureServices", directory, CSharp)
+        {
+            Namespace = "Microsoft.Extensions.DependencyInjection"
         };
     }
 
@@ -1278,242 +1382,276 @@ public class GeolocationArtifactFactory : IGeolocationArtifactFactory
 
     #region API Layer Files
 
-    private static FileModel CreateLocationsControllerFile(string directory)
+    private static CodeFileModel<ClassModel> CreateLocationsControllerFile(string directory)
     {
-        return new FileModel("LocationsController", directory, CSharp)
+        var classModel = new ClassModel("LocationsController");
+
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Geolocation.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Authorization"));
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Mvc"));
+
+        classModel.Implements.Add(new TypeModel("ControllerBase"));
+
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ApiController" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Route", Template = "\"api/[controller]\"" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Authorize" });
+
+        classModel.Fields.Add(new FieldModel { Name = "locationRepository", Type = new TypeModel("ILocationRepository"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "geocodingService", Type = new TypeModel("IGeocodingService"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "routingService", Type = new TypeModel("IRoutingService"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("LocationsController")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "LocationsController")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "locationRepository", Type = new TypeModel("ILocationRepository") },
+                new ParamModel { Name = "geocodingService", Type = new TypeModel("IGeocodingService") },
+                new ParamModel { Name = "routingService", Type = new TypeModel("IRoutingService") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("LocationsController")] } }
+            ],
+            Body = new ExpressionModel(@"this.locationRepository = locationRepository;
+        this.geocodingService = geocodingService;
+        this.routingService = routingService;
+        this.logger = logger;")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using Geolocation.Core.DTOs;
-                using Geolocation.Core.Entities;
-                using Geolocation.Core.Interfaces;
-                using Microsoft.AspNetCore.Authorization;
-                using Microsoft.AspNetCore.Mvc;
+        var createMethod = new MethodModel
+        {
+            Name = "Create",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("LocationDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "request", Type = new TypeModel("LocationDto"), Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var location = new Location
+        {
+            Latitude = request.Latitude,
+            Longitude = request.Longitude,
+            Altitude = request.Altitude,
+            Accuracy = request.Accuracy,
+            Address = request.Address,
+            City = request.City,
+            State = request.State,
+            Country = request.Country,
+            PostalCode = request.PostalCode,
+            EntityId = request.EntityId,
+            EntityType = request.EntityType,
+            Timestamp = request.Timestamp
+        };
 
-                namespace Geolocation.Api.Controllers;
+        var createdLocation = await locationRepository.AddAsync(location, cancellationToken);
 
-                /// <summary>
-                /// Controller for location operations.
-                /// </summary>
-                [ApiController]
-                [Route("api/[controller]")]
-                [Authorize]
-                public class LocationsController : ControllerBase
-                {
-                    private readonly ILocationRepository locationRepository;
-                    private readonly IGeocodingService geocodingService;
-                    private readonly IRoutingService routingService;
-                    private readonly ILogger<LocationsController> logger;
+        logger.LogInformation(""Location {LocationId} created at ({Latitude}, {Longitude})"",
+            createdLocation.LocationId, createdLocation.Latitude, createdLocation.Longitude);
 
-                    public LocationsController(
-                        ILocationRepository locationRepository,
-                        IGeocodingService geocodingService,
-                        IRoutingService routingService,
-                        ILogger<LocationsController> logger)
-                    {
-                        this.locationRepository = locationRepository;
-                        this.geocodingService = geocodingService;
-                        this.routingService = routingService;
-                        this.logger = logger;
-                    }
+        var response = new LocationDto
+        {
+            LocationId = createdLocation.LocationId,
+            Latitude = createdLocation.Latitude,
+            Longitude = createdLocation.Longitude,
+            Altitude = createdLocation.Altitude,
+            Accuracy = createdLocation.Accuracy,
+            Address = createdLocation.Address,
+            City = createdLocation.City,
+            State = createdLocation.State,
+            Country = createdLocation.Country,
+            PostalCode = createdLocation.PostalCode,
+            EntityId = createdLocation.EntityId,
+            EntityType = createdLocation.EntityType,
+            Timestamp = createdLocation.Timestamp
+        };
 
-                    /// <summary>
-                    /// Create a new location.
-                    /// </summary>
-                    [HttpPost]
-                    [ProducesResponseType(typeof(LocationDto), StatusCodes.Status201Created)]
-                    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-                    public async Task<ActionResult<LocationDto>> Create(
-                        [FromBody] LocationDto request,
-                        CancellationToken cancellationToken)
-                    {
-                        var location = new Location
-                        {
-                            Latitude = request.Latitude,
-                            Longitude = request.Longitude,
-                            Altitude = request.Altitude,
-                            Accuracy = request.Accuracy,
-                            Address = request.Address,
-                            City = request.City,
-                            State = request.State,
-                            Country = request.Country,
-                            PostalCode = request.PostalCode,
-                            EntityId = request.EntityId,
-                            EntityType = request.EntityType,
-                            Timestamp = request.Timestamp
-                        };
+        return CreatedAtAction(nameof(GetById), new { id = createdLocation.LocationId }, response);")
+        };
+        createMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost" });
+        createMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(LocationDto), StatusCodes.Status201Created" });
+        createMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status400BadRequest" });
+        classModel.Methods.Add(createMethod);
 
-                        var createdLocation = await locationRepository.AddAsync(location, cancellationToken);
+        var getByIdMethod = new MethodModel
+        {
+            Name = "GetById",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("LocationDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "id", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var location = await locationRepository.GetByIdAsync(id, cancellationToken);
 
-                        logger.LogInformation("Location {LocationId} created at ({Latitude}, {Longitude})",
-                            createdLocation.LocationId, createdLocation.Latitude, createdLocation.Longitude);
+        if (location == null)
+        {
+            return NotFound();
+        }
 
-                        var response = new LocationDto
-                        {
-                            LocationId = createdLocation.LocationId,
-                            Latitude = createdLocation.Latitude,
-                            Longitude = createdLocation.Longitude,
-                            Altitude = createdLocation.Altitude,
-                            Accuracy = createdLocation.Accuracy,
-                            Address = createdLocation.Address,
-                            City = createdLocation.City,
-                            State = createdLocation.State,
-                            Country = createdLocation.Country,
-                            PostalCode = createdLocation.PostalCode,
-                            EntityId = createdLocation.EntityId,
-                            EntityType = createdLocation.EntityType,
-                            Timestamp = createdLocation.Timestamp
-                        };
+        return Ok(new LocationDto
+        {
+            LocationId = location.LocationId,
+            Latitude = location.Latitude,
+            Longitude = location.Longitude,
+            Altitude = location.Altitude,
+            Accuracy = location.Accuracy,
+            Address = location.Address,
+            City = location.City,
+            State = location.State,
+            Country = location.Country,
+            PostalCode = location.PostalCode,
+            EntityId = location.EntityId,
+            EntityType = location.EntityType,
+            Timestamp = location.Timestamp
+        });")
+        };
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"{id:guid}\"" });
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(LocationDto), StatusCodes.Status200OK" });
+        getByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status404NotFound" });
+        classModel.Methods.Add(getByIdMethod);
 
-                        return CreatedAtAction(nameof(GetById), new { id = createdLocation.LocationId }, response);
-                    }
+        var geocodeMethod = new MethodModel
+        {
+            Name = "Geocode",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("GeocodeResponse")] }] },
+            Params =
+            [
+                new ParamModel { Name = "address", Type = new TypeModel("string"), Attribute = "[FromQuery]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"if (string.IsNullOrWhiteSpace(address))
+        {
+            return BadRequest(new { error = ""Address is required"" });
+        }
 
-                    /// <summary>
-                    /// Get a location by ID.
-                    /// </summary>
-                    [HttpGet("{id:guid}")]
-                    [ProducesResponseType(typeof(LocationDto), StatusCodes.Status200OK)]
-                    [ProducesResponseType(StatusCodes.Status404NotFound)]
-                    public async Task<ActionResult<LocationDto>> GetById(Guid id, CancellationToken cancellationToken)
-                    {
-                        var location = await locationRepository.GetByIdAsync(id, cancellationToken);
+        var location = await geocodingService.GeocodeAddressAsync(address, cancellationToken);
 
-                        if (location == null)
-                        {
-                            return NotFound();
-                        }
+        if (location == null)
+        {
+            return NotFound(new { error = ""Address not found"" });
+        }
 
-                        return Ok(new LocationDto
-                        {
-                            LocationId = location.LocationId,
-                            Latitude = location.Latitude,
-                            Longitude = location.Longitude,
-                            Altitude = location.Altitude,
-                            Accuracy = location.Accuracy,
-                            Address = location.Address,
-                            City = location.City,
-                            State = location.State,
-                            Country = location.Country,
-                            PostalCode = location.PostalCode,
-                            EntityId = location.EntityId,
-                            EntityType = location.EntityType,
-                            Timestamp = location.Timestamp
-                        });
-                    }
+        return Ok(new GeocodeResponse
+        {
+            Latitude = location.Latitude,
+            Longitude = location.Longitude,
+            FormattedAddress = location.Address,
+            City = location.City,
+            State = location.State,
+            Country = location.Country,
+            PostalCode = location.PostalCode
+        });")
+        };
+        geocodeMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"geocode\"" });
+        geocodeMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(GeocodeResponse), StatusCodes.Status200OK" });
+        geocodeMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status400BadRequest" });
+        geocodeMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status404NotFound" });
+        classModel.Methods.Add(geocodeMethod);
 
-                    /// <summary>
-                    /// Geocode an address to coordinates.
-                    /// </summary>
-                    [HttpGet("geocode")]
-                    [ProducesResponseType(typeof(GeocodeResponse), StatusCodes.Status200OK)]
-                    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-                    [ProducesResponseType(StatusCodes.Status404NotFound)]
-                    public async Task<ActionResult<GeocodeResponse>> Geocode(
-                        [FromQuery] string address,
-                        CancellationToken cancellationToken)
-                    {
-                        if (string.IsNullOrWhiteSpace(address))
-                        {
-                            return BadRequest(new { error = "Address is required" });
-                        }
+        var getDistanceMethod = new MethodModel
+        {
+            Name = "GetDistance",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("DistanceResponse")] }] },
+            Params =
+            [
+                new ParamModel { Name = "fromLatitude", Type = new TypeModel("double"), Attribute = "[FromQuery]" },
+                new ParamModel { Name = "fromLongitude", Type = new TypeModel("double"), Attribute = "[FromQuery]" },
+                new ParamModel { Name = "toLatitude", Type = new TypeModel("double"), Attribute = "[FromQuery]" },
+                new ParamModel { Name = "toLongitude", Type = new TypeModel("double"), Attribute = "[FromQuery]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var distanceMeters = await routingService.CalculateDistanceAsync(
+            fromLatitude, fromLongitude, toLatitude, toLongitude, cancellationToken);
 
-                        var location = await geocodingService.GeocodeAddressAsync(address, cancellationToken);
+        return Ok(new DistanceResponse
+        {
+            DistanceMeters = distanceMeters,
+            DistanceKilometers = distanceMeters / 1000,
+            DistanceMiles = distanceMeters / 1609.344,
+            EstimatedDurationSeconds = (int)(distanceMeters / 13.89) // ~50 km/h average speed
+        });")
+        };
+        getDistanceMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"distance\"" });
+        getDistanceMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(DistanceResponse), StatusCodes.Status200OK" });
+        getDistanceMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status400BadRequest" });
+        classModel.Methods.Add(getDistanceMethod);
 
-                        if (location == null)
-                        {
-                            return NotFound(new { error = "Address not found" });
-                        }
+        var getAllMethod = new MethodModel
+        {
+            Name = "GetAll",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("LocationDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var locations = await locationRepository.GetAllAsync(cancellationToken);
 
-                        return Ok(new GeocodeResponse
-                        {
-                            Latitude = location.Latitude,
-                            Longitude = location.Longitude,
-                            FormattedAddress = location.Address,
-                            City = location.City,
-                            State = location.State,
-                            Country = location.Country,
-                            PostalCode = location.PostalCode
-                        });
-                    }
+        var locationDtos = locations.Select(l => new LocationDto
+        {
+            LocationId = l.LocationId,
+            Latitude = l.Latitude,
+            Longitude = l.Longitude,
+            Altitude = l.Altitude,
+            Accuracy = l.Accuracy,
+            Address = l.Address,
+            City = l.City,
+            State = l.State,
+            Country = l.Country,
+            PostalCode = l.PostalCode,
+            EntityId = l.EntityId,
+            EntityType = l.EntityType,
+            Timestamp = l.Timestamp
+        });
 
-                    /// <summary>
-                    /// Calculate distance between two points.
-                    /// </summary>
-                    [HttpGet("distance")]
-                    [ProducesResponseType(typeof(DistanceResponse), StatusCodes.Status200OK)]
-                    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-                    public async Task<ActionResult<DistanceResponse>> GetDistance(
-                        [FromQuery] double fromLatitude,
-                        [FromQuery] double fromLongitude,
-                        [FromQuery] double toLatitude,
-                        [FromQuery] double toLongitude,
-                        CancellationToken cancellationToken)
-                    {
-                        var distanceMeters = await routingService.CalculateDistanceAsync(
-                            fromLatitude, fromLongitude, toLatitude, toLongitude, cancellationToken);
+        return Ok(locationDtos);")
+        };
+        getAllMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet" });
+        getAllMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(IEnumerable<LocationDto>), StatusCodes.Status200OK" });
+        classModel.Methods.Add(getAllMethod);
 
-                        return Ok(new DistanceResponse
-                        {
-                            DistanceMeters = distanceMeters,
-                            DistanceKilometers = distanceMeters / 1000,
-                            DistanceMiles = distanceMeters / 1609.344,
-                            EstimatedDurationSeconds = (int)(distanceMeters / 13.89) // ~50 km/h average speed
-                        });
-                    }
+        var deleteMethod = new MethodModel
+        {
+            Name = "Delete",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IActionResult")] },
+            Params =
+            [
+                new ParamModel { Name = "id", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var location = await locationRepository.GetByIdAsync(id, cancellationToken);
 
-                    /// <summary>
-                    /// Get all locations.
-                    /// </summary>
-                    [HttpGet]
-                    [ProducesResponseType(typeof(IEnumerable<LocationDto>), StatusCodes.Status200OK)]
-                    public async Task<ActionResult<IEnumerable<LocationDto>>> GetAll(CancellationToken cancellationToken)
-                    {
-                        var locations = await locationRepository.GetAllAsync(cancellationToken);
+        if (location == null)
+        {
+            return NotFound();
+        }
 
-                        var locationDtos = locations.Select(l => new LocationDto
-                        {
-                            LocationId = l.LocationId,
-                            Latitude = l.Latitude,
-                            Longitude = l.Longitude,
-                            Altitude = l.Altitude,
-                            Accuracy = l.Accuracy,
-                            Address = l.Address,
-                            City = l.City,
-                            State = l.State,
-                            Country = l.Country,
-                            PostalCode = l.PostalCode,
-                            EntityId = l.EntityId,
-                            EntityType = l.EntityType,
-                            Timestamp = l.Timestamp
-                        });
+        await locationRepository.DeleteAsync(id, cancellationToken);
+        logger.LogInformation(""Location {LocationId} deleted"", id);
 
-                        return Ok(locationDtos);
-                    }
+        return NoContent();")
+        };
+        deleteMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpDelete", Template = "\"{id:guid}\"" });
+        deleteMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status204NoContent" });
+        deleteMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status404NotFound" });
+        classModel.Methods.Add(deleteMethod);
 
-                    /// <summary>
-                    /// Delete a location.
-                    /// </summary>
-                    [HttpDelete("{id:guid}")]
-                    [ProducesResponseType(StatusCodes.Status204NoContent)]
-                    [ProducesResponseType(StatusCodes.Status404NotFound)]
-                    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
-                    {
-                        var location = await locationRepository.GetByIdAsync(id, cancellationToken);
-
-                        if (location == null)
-                        {
-                            return NotFound();
-                        }
-
-                        await locationRepository.DeleteAsync(id, cancellationToken);
-                        logger.LogInformation("Location {LocationId} deleted", id);
-
-                        return NoContent();
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "LocationsController", directory, CSharp)
+        {
+            Namespace = "Geolocation.Api.Controllers"
         };
     }
 

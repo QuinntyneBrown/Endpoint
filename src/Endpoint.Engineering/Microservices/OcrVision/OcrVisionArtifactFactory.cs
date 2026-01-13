@@ -2,11 +2,23 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Artifacts;
+using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Artifacts.Projects;
+using Endpoint.DotNet.Syntax;
+using Endpoint.DotNet.Syntax.Classes;
+using Endpoint.DotNet.Syntax.Constructors;
+using Endpoint.DotNet.Syntax.Expressions;
+using Endpoint.DotNet.Syntax.Fields;
+using Endpoint.DotNet.Syntax.Interfaces;
+using Endpoint.DotNet.Syntax.Methods;
+using Endpoint.DotNet.Syntax.Params;
+using Endpoint.DotNet.Syntax.Properties;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants.FileExtensions;
 
 namespace Endpoint.Engineering.Microservices.OcrVision;
+
+using TypeModel = Endpoint.DotNet.Syntax.Types.TypeModel;
 
 /// <summary>
 /// Factory for creating OcrVision microservice artifacts according to ocr-vision-microservice.spec.md.
@@ -94,558 +106,430 @@ public class OcrVisionArtifactFactory : IOcrVisionArtifactFactory
 
     #region Core Layer Files
 
-    private static FileModel CreateIAggregateRootFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIAggregateRootFile(string directory)
     {
-        return new FileModel("IAggregateRoot", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IAggregateRoot");
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IAggregateRoot", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace OcrVision.Core.Entities;
-
-                /// <summary>
-                /// Marker interface for aggregate roots.
-                /// </summary>
-                public interface IAggregateRoot
-                {
-                }
-                """
+            Namespace = "OcrVision.Core.Entities"
         };
     }
 
-    private static FileModel CreateOcrResultEntityFile(string directory)
+    private static CodeFileModel<ClassModel> CreateOcrResultEntityFile(string directory)
     {
-        return new FileModel("OcrResult", directory, CSharp)
+        var classModel = new ClassModel("OcrResult");
+
+        classModel.Implements.Add(new TypeModel("IAggregateRoot"));
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "OcrResultId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "DocumentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "FileName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "ContentType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ExtractedText", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Confidence", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Language", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int"), "PageCount", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("OcrStatus"), "Status", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "OcrStatus.Pending" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "ErrorMessage", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "CompletedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("ICollection") { GenericTypeParameters = [new TypeModel("ExtractedData")] }, "ExtractedDataItems", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "new List<ExtractedData>()" });
+
+        return new CodeFileModel<ClassModel>(classModel, "OcrResult", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace OcrVision.Core.Entities;
-
-                /// <summary>
-                /// OcrResult entity representing the result of OCR processing on a document.
-                /// </summary>
-                public class OcrResult : IAggregateRoot
-                {
-                    public Guid OcrResultId { get; set; }
-
-                    public required string DocumentId { get; set; }
-
-                    public required string FileName { get; set; }
-
-                    public string? ContentType { get; set; }
-
-                    public required string ExtractedText { get; set; }
-
-                    public double Confidence { get; set; }
-
-                    public string? Language { get; set; }
-
-                    public int PageCount { get; set; }
-
-                    public OcrStatus Status { get; set; } = OcrStatus.Pending;
-
-                    public string? ErrorMessage { get; set; }
-
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-                    public DateTime? CompletedAt { get; set; }
-
-                    public ICollection<ExtractedData> ExtractedDataItems { get; set; } = new List<ExtractedData>();
-                }
-
-                /// <summary>
-                /// OCR processing status.
-                /// </summary>
-                public enum OcrStatus
-                {
-                    Pending,
-                    Processing,
-                    Completed,
-                    Failed
-                }
-                """
+            Namespace = "OcrVision.Core.Entities"
         };
     }
 
-    private static FileModel CreateExtractedDataEntityFile(string directory)
+    private static CodeFileModel<ClassModel> CreateExtractedDataEntityFile(string directory)
     {
-        return new FileModel("ExtractedData", directory, CSharp)
+        var classModel = new ClassModel("ExtractedData");
+
+        classModel.Implements.Add(new TypeModel("IAggregateRoot"));
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "ExtractedDataId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "OcrResultId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "FieldName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "FieldValue", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "DataType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Confidence", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int") { Nullable = true }, "PageNumber", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("BoundingBox") { Nullable = true }, "BoundingBox", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("OcrResult") { Nullable = true }, "OcrResult", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "ExtractedData", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace OcrVision.Core.Entities;
-
-                /// <summary>
-                /// ExtractedData entity representing structured data extracted from a document.
-                /// </summary>
-                public class ExtractedData : IAggregateRoot
-                {
-                    public Guid ExtractedDataId { get; set; }
-
-                    public Guid OcrResultId { get; set; }
-
-                    public required string FieldName { get; set; }
-
-                    public required string FieldValue { get; set; }
-
-                    public required string DataType { get; set; }
-
-                    public double Confidence { get; set; }
-
-                    public int? PageNumber { get; set; }
-
-                    public BoundingBox? BoundingBox { get; set; }
-
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-                    public OcrResult? OcrResult { get; set; }
-                }
-
-                /// <summary>
-                /// Represents a bounding box for extracted data location.
-                /// </summary>
-                public class BoundingBox
-                {
-                    public double X { get; set; }
-
-                    public double Y { get; set; }
-
-                    public double Width { get; set; }
-
-                    public double Height { get; set; }
-                }
-                """
+            Namespace = "OcrVision.Core.Entities"
         };
     }
 
-    private static FileModel CreateDocumentAnalysisEntityFile(string directory)
+    private static CodeFileModel<ClassModel> CreateDocumentAnalysisEntityFile(string directory)
     {
-        return new FileModel("DocumentAnalysis", directory, CSharp)
+        var classModel = new ClassModel("DocumentAnalysis");
+
+        classModel.Implements.Add(new TypeModel("IAggregateRoot"));
+
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "DocumentAnalysisId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "DocumentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "FileName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "AnalysisType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "DocumentType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Dictionary") { Nullable = true, GenericTypeParameters = [new TypeModel("string"), new TypeModel("object")] }, "Metadata", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("List") { Nullable = true, GenericTypeParameters = [new TypeModel("DetectedObject")] }, "DetectedObjects", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("List") { Nullable = true, GenericTypeParameters = [new TypeModel("DetectedTable")] }, "DetectedTables", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "OverallConfidence", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("AnalysisStatus"), "Status", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "AnalysisStatus.Pending" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "ErrorMessage", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "CompletedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Set, null)]));
+
+        return new CodeFileModel<ClassModel>(classModel, "DocumentAnalysis", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace OcrVision.Core.Entities;
-
-                /// <summary>
-                /// DocumentAnalysis entity representing visual analysis results of a document.
-                /// </summary>
-                public class DocumentAnalysis : IAggregateRoot
-                {
-                    public Guid DocumentAnalysisId { get; set; }
-
-                    public required string DocumentId { get; set; }
-
-                    public required string FileName { get; set; }
-
-                    public required string AnalysisType { get; set; }
-
-                    public string? DocumentType { get; set; }
-
-                    public Dictionary<string, object>? Metadata { get; set; }
-
-                    public List<DetectedObject>? DetectedObjects { get; set; }
-
-                    public List<DetectedTable>? DetectedTables { get; set; }
-
-                    public double OverallConfidence { get; set; }
-
-                    public AnalysisStatus Status { get; set; } = AnalysisStatus.Pending;
-
-                    public string? ErrorMessage { get; set; }
-
-                    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-                    public DateTime? CompletedAt { get; set; }
-                }
-
-                /// <summary>
-                /// Analysis processing status.
-                /// </summary>
-                public enum AnalysisStatus
-                {
-                    Pending,
-                    Processing,
-                    Completed,
-                    Failed
-                }
-
-                /// <summary>
-                /// Represents a detected object in the document.
-                /// </summary>
-                public class DetectedObject
-                {
-                    public required string ObjectType { get; set; }
-
-                    public double Confidence { get; set; }
-
-                    public BoundingBox? BoundingBox { get; set; }
-
-                    public Dictionary<string, string>? Properties { get; set; }
-                }
-
-                /// <summary>
-                /// Represents a detected table in the document.
-                /// </summary>
-                public class DetectedTable
-                {
-                    public int RowCount { get; set; }
-
-                    public int ColumnCount { get; set; }
-
-                    public List<List<string>>? Cells { get; set; }
-
-                    public BoundingBox? BoundingBox { get; set; }
-
-                    public int? PageNumber { get; set; }
-                }
-                """
+            Namespace = "OcrVision.Core.Entities"
         };
     }
 
-    private static FileModel CreateIDomainEventFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIDomainEventFile(string directory)
     {
-        return new FileModel("IDomainEvent", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IDomainEvent");
+
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("Guid"), "AggregateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("string"), "AggregateType", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+        interfaceModel.Properties.Add(new PropertyModel(interfaceModel, AccessModifier.Public, new TypeModel("string"), "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null)]));
+
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IDomainEvent", directory, CSharp)
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
-
-                namespace OcrVision.Core.Interfaces;
-
-                /// <summary>
-                /// Interface for domain events.
-                /// </summary>
-                public interface IDomainEvent
-                {
-                    Guid AggregateId { get; }
-
-                    string AggregateType { get; }
-
-                    DateTime OccurredAt { get; }
-
-                    string CorrelationId { get; }
-                }
-                """
+            Namespace = "OcrVision.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateIOcrServiceFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIOcrServiceFile(string directory)
     {
-        return new FileModel("IOcrService", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IOcrService");
+
+        interfaceModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "ProcessDocumentAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("OcrResult")] },
+            Params =
+            [
+                new ParamModel { Name = "documentStream", Type = new TypeModel("Stream") },
+                new ParamModel { Name = "fileName", Type = new TypeModel("string") },
+                new ParamModel { Name = "contentType", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                using OcrVision.Core.Entities;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetResultByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("OcrResult") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "ocrResultId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                namespace OcrVision.Core.Interfaces;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetResultsByDocumentIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("OcrResult")] }] },
+            Params =
+            [
+                new ParamModel { Name = "documentId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                /// <summary>
-                /// Service interface for OCR operations.
-                /// </summary>
-                public interface IOcrService
-                {
-                    Task<OcrResult> ProcessDocumentAsync(Stream documentStream, string fileName, string? contentType = null, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "ExtractStructuredDataAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("ExtractedData")] }] },
+            Params =
+            [
+                new ParamModel { Name = "ocrResultId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "fieldNames", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("string")] } },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<OcrResult?> GetResultByIdAsync(Guid ocrResultId, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateStatusAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("OcrResult")] },
+            Params =
+            [
+                new ParamModel { Name = "ocrResultId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "status", Type = new TypeModel("OcrStatus") },
+                new ParamModel { Name = "errorMessage", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<OcrResult>> GetResultsByDocumentIdAsync(string documentId, CancellationToken cancellationToken = default);
-
-                    Task<IEnumerable<ExtractedData>> ExtractStructuredDataAsync(Guid ocrResultId, IEnumerable<string> fieldNames, CancellationToken cancellationToken = default);
-
-                    Task<OcrResult> UpdateStatusAsync(Guid ocrResultId, OcrStatus status, string? errorMessage = null, CancellationToken cancellationToken = default);
-                }
-                """
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IOcrService", directory, CSharp)
+        {
+            Namespace = "OcrVision.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateIVisionServiceFile(string directory)
+    private static CodeFileModel<InterfaceModel> CreateIVisionServiceFile(string directory)
     {
-        return new FileModel("IVisionService", directory, CSharp)
+        var interfaceModel = new InterfaceModel("IVisionService");
+
+        interfaceModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
+
+        interfaceModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "AnalyzeDocumentAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("DocumentAnalysis")] },
+            Params =
+            [
+                new ParamModel { Name = "documentStream", Type = new TypeModel("Stream") },
+                new ParamModel { Name = "fileName", Type = new TypeModel("string") },
+                new ParamModel { Name = "analysisType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                using OcrVision.Core.Entities;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAnalysisByIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("DocumentAnalysis") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "analysisId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                namespace OcrVision.Core.Interfaces;
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAnalysesByDocumentIdAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("DocumentAnalysis")] }] },
+            Params =
+            [
+                new ParamModel { Name = "documentId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                /// <summary>
-                /// Service interface for document vision and analysis operations.
-                /// </summary>
-                public interface IVisionService
-                {
-                    Task<DocumentAnalysis> AnalyzeDocumentAsync(Stream documentStream, string fileName, string analysisType, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "DetectObjectsAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("DetectedObject")] }] },
+            Params =
+            [
+                new ParamModel { Name = "documentStream", Type = new TypeModel("Stream") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<DocumentAnalysis?> GetAnalysisByIdAsync(Guid analysisId, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "DetectTablesAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("DetectedTable")] }] },
+            Params =
+            [
+                new ParamModel { Name = "documentStream", Type = new TypeModel("Stream") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<DocumentAnalysis>> GetAnalysesByDocumentIdAsync(string documentId, CancellationToken cancellationToken = default);
+        interfaceModel.Methods.Add(new MethodModel
+        {
+            Name = "ClassifyDocumentAsync",
+            Interface = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("string")] },
+            Params =
+            [
+                new ParamModel { Name = "documentStream", Type = new TypeModel("Stream") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ]
+        });
 
-                    Task<IEnumerable<DetectedObject>> DetectObjectsAsync(Stream documentStream, CancellationToken cancellationToken = default);
-
-                    Task<IEnumerable<DetectedTable>> DetectTablesAsync(Stream documentStream, CancellationToken cancellationToken = default);
-
-                    Task<string> ClassifyDocumentAsync(Stream documentStream, CancellationToken cancellationToken = default);
-                }
-                """
+        return new CodeFileModel<InterfaceModel>(interfaceModel, "IVisionService", directory, CSharp)
+        {
+            Namespace = "OcrVision.Core.Interfaces"
         };
     }
 
-    private static FileModel CreateDocumentAnalyzedEventFile(string directory)
+    private static CodeFileModel<ClassModel> CreateDocumentAnalyzedEventFile(string directory)
     {
-        return new FileModel("DocumentAnalyzedEvent", directory, CSharp)
+        var classModel = new ClassModel("DocumentAnalyzedEvent")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using OcrVision.Core.Interfaces;
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Interfaces"));
 
-                namespace OcrVision.Core.Events;
+        classModel.Implements.Add(new TypeModel("IDomainEvent"));
 
-                /// <summary>
-                /// Event raised when a document has been analyzed.
-                /// </summary>
-                public sealed class DocumentAnalyzedEvent : IDomainEvent
-                {
-                    public Guid AggregateId { get; init; }
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "AggregateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "AggregateType", [new PropertyAccessorModel(PropertyAccessorType.Get, "\"DocumentAnalysis\"")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "DocumentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "AnalysisType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "DocumentType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "OverallConfidence", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int"), "DetectedObjectCount", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int"), "DetectedTableCount", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                    public string AggregateType => "DocumentAnalysis";
-
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-
-                    public required string CorrelationId { get; init; }
-
-                    public required string DocumentId { get; init; }
-
-                    public required string AnalysisType { get; init; }
-
-                    public string? DocumentType { get; init; }
-
-                    public double OverallConfidence { get; init; }
-
-                    public int DetectedObjectCount { get; init; }
-
-                    public int DetectedTableCount { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "DocumentAnalyzedEvent", directory, CSharp)
+        {
+            Namespace = "OcrVision.Core.Events"
         };
     }
 
-    private static FileModel CreateTextExtractedEventFile(string directory)
+    private static CodeFileModel<ClassModel> CreateTextExtractedEventFile(string directory)
     {
-        return new FileModel("TextExtractedEvent", directory, CSharp)
+        var classModel = new ClassModel("TextExtractedEvent")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using OcrVision.Core.Interfaces;
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Interfaces"));
 
-                namespace OcrVision.Core.Events;
+        classModel.Implements.Add(new TypeModel("IDomainEvent"));
 
-                /// <summary>
-                /// Event raised when text has been extracted from a document.
-                /// </summary>
-                public sealed class TextExtractedEvent : IDomainEvent
-                {
-                    public Guid AggregateId { get; init; }
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "AggregateId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "AggregateType", [new PropertyAccessorModel(PropertyAccessorType.Get, "\"OcrResult\"")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "OccurredAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "DateTime.UtcNow" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "CorrelationId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "DocumentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "FileName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int"), "PageCount", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int"), "ExtractedTextLength", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Confidence", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Language", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                    public string AggregateType => "OcrResult";
-
-                    public DateTime OccurredAt { get; init; } = DateTime.UtcNow;
-
-                    public required string CorrelationId { get; init; }
-
-                    public required string DocumentId { get; init; }
-
-                    public required string FileName { get; init; }
-
-                    public int PageCount { get; init; }
-
-                    public int ExtractedTextLength { get; init; }
-
-                    public double Confidence { get; init; }
-
-                    public string? Language { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "TextExtractedEvent", directory, CSharp)
+        {
+            Namespace = "OcrVision.Core.Events"
         };
     }
 
-    private static FileModel CreateOcrResultDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateOcrResultDtoFile(string directory)
     {
-        return new FileModel("OcrResultDto", directory, CSharp)
+        var classModel = new ClassModel("OcrResultDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using OcrVision.Core.Entities;
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
 
-                namespace OcrVision.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "OcrResultId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "DocumentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "FileName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "ContentType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "ExtractedText", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Confidence", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Language", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int"), "PageCount", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("OcrStatus"), "Status", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "ErrorMessage", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "CompletedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("IEnumerable") { Nullable = true, GenericTypeParameters = [new TypeModel("ExtractedDataDto")] }, "ExtractedDataItems", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                /// <summary>
-                /// Data transfer object for OcrResult.
-                /// </summary>
-                public sealed class OcrResultDto
-                {
-                    public Guid OcrResultId { get; init; }
-
-                    public required string DocumentId { get; init; }
-
-                    public required string FileName { get; init; }
-
-                    public string? ContentType { get; init; }
-
-                    public required string ExtractedText { get; init; }
-
-                    public double Confidence { get; init; }
-
-                    public string? Language { get; init; }
-
-                    public int PageCount { get; init; }
-
-                    public OcrStatus Status { get; init; }
-
-                    public string? ErrorMessage { get; init; }
-
-                    public DateTime CreatedAt { get; init; }
-
-                    public DateTime? CompletedAt { get; init; }
-
-                    public IEnumerable<ExtractedDataDto>? ExtractedDataItems { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "OcrResultDto", directory, CSharp)
+        {
+            Namespace = "OcrVision.Core.DTOs"
         };
     }
 
-    private static FileModel CreateExtractedDataDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateExtractedDataDtoFile(string directory)
     {
-        return new FileModel("ExtractedDataDto", directory, CSharp)
+        var classModel = new ClassModel("ExtractedDataDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using OcrVision.Core.Entities;
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
 
-                namespace OcrVision.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "ExtractedDataId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "OcrResultId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "FieldName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "FieldValue", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "DataType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "Confidence", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("int") { Nullable = true }, "PageNumber", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("BoundingBox") { Nullable = true }, "BoundingBox", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                /// <summary>
-                /// Data transfer object for ExtractedData.
-                /// </summary>
-                public sealed class ExtractedDataDto
-                {
-                    public Guid ExtractedDataId { get; init; }
-
-                    public Guid OcrResultId { get; init; }
-
-                    public required string FieldName { get; init; }
-
-                    public required string FieldValue { get; init; }
-
-                    public required string DataType { get; init; }
-
-                    public double Confidence { get; init; }
-
-                    public int? PageNumber { get; init; }
-
-                    public BoundingBox? BoundingBox { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ExtractedDataDto", directory, CSharp)
+        {
+            Namespace = "OcrVision.Core.DTOs"
         };
     }
 
-    private static FileModel CreateDocumentAnalysisDtoFile(string directory)
+    private static CodeFileModel<ClassModel> CreateDocumentAnalysisDtoFile(string directory)
     {
-        return new FileModel("DocumentAnalysisDto", directory, CSharp)
+        var classModel = new ClassModel("DocumentAnalysisDto")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using OcrVision.Core.Entities;
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
 
-                namespace OcrVision.Core.DTOs;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Guid"), "DocumentAnalysisId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "DocumentId", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "FileName", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "AnalysisType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "DocumentType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("Dictionary") { Nullable = true, GenericTypeParameters = [new TypeModel("string"), new TypeModel("object")] }, "Metadata", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("List") { Nullable = true, GenericTypeParameters = [new TypeModel("DetectedObject")] }, "DetectedObjects", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("List") { Nullable = true, GenericTypeParameters = [new TypeModel("DetectedTable")] }, "DetectedTables", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("double"), "OverallConfidence", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("AnalysisStatus"), "Status", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "ErrorMessage", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime"), "CreatedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DateTime") { Nullable = true }, "CompletedAt", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                /// <summary>
-                /// Data transfer object for DocumentAnalysis.
-                /// </summary>
-                public sealed class DocumentAnalysisDto
-                {
-                    public Guid DocumentAnalysisId { get; init; }
-
-                    public required string DocumentId { get; init; }
-
-                    public required string FileName { get; init; }
-
-                    public required string AnalysisType { get; init; }
-
-                    public string? DocumentType { get; init; }
-
-                    public Dictionary<string, object>? Metadata { get; init; }
-
-                    public List<DetectedObject>? DetectedObjects { get; init; }
-
-                    public List<DetectedTable>? DetectedTables { get; init; }
-
-                    public double OverallConfidence { get; init; }
-
-                    public AnalysisStatus Status { get; init; }
-
-                    public string? ErrorMessage { get; init; }
-
-                    public DateTime CreatedAt { get; init; }
-
-                    public DateTime? CompletedAt { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "DocumentAnalysisDto", directory, CSharp)
+        {
+            Namespace = "OcrVision.Core.DTOs"
         };
     }
 
-    private static FileModel CreateAnalyzeDocumentRequestFile(string directory)
+    private static CodeFileModel<ClassModel> CreateAnalyzeDocumentRequestFile(string directory)
     {
-        return new FileModel("AnalyzeDocumentRequest", directory, CSharp)
+        var classModel = new ClassModel("AnalyzeDocumentRequest")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Sealed = true
+        };
 
-                using System.ComponentModel.DataAnnotations;
+        classModel.Usings.Add(new UsingModel("System.ComponentModel.DataAnnotations"));
 
-                namespace OcrVision.Core.DTOs;
+        var analysisTypeProp = new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string"), "AnalysisType", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)], required: true);
+        analysisTypeProp.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Required" });
+        classModel.Properties.Add(analysisTypeProp);
 
-                /// <summary>
-                /// Request model for analyzing a document.
-                /// </summary>
-                public sealed class AnalyzeDocumentRequest
-                {
-                    [Required]
-                    public required string AnalysisType { get; init; }
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "ExtractText", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "true" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "DetectObjects", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "false" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "DetectTables", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "false" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("bool"), "ClassifyDocument", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]) { DefaultValue = "false" });
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("IEnumerable") { Nullable = true, GenericTypeParameters = [new TypeModel("string")] }, "FieldsToExtract", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("string") { Nullable = true }, "Language", [new PropertyAccessorModel(PropertyAccessorType.Get, null), new PropertyAccessorModel(PropertyAccessorType.Init, null)]));
 
-                    public bool ExtractText { get; init; } = true;
-
-                    public bool DetectObjects { get; init; } = false;
-
-                    public bool DetectTables { get; init; } = false;
-
-                    public bool ClassifyDocument { get; init; } = false;
-
-                    public IEnumerable<string>? FieldsToExtract { get; init; }
-
-                    public string? Language { get; init; }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "AnalyzeDocumentRequest", directory, CSharp)
+        {
+            Namespace = "OcrVision.Core.DTOs"
         };
     }
 
@@ -653,587 +537,681 @@ public class OcrVisionArtifactFactory : IOcrVisionArtifactFactory
 
     #region Infrastructure Layer Files
 
-    private static FileModel CreateOcrVisionDbContextFile(string directory)
+    private static CodeFileModel<ClassModel> CreateOcrVisionDbContextFile(string directory)
     {
-        return new FileModel("OcrVisionDbContext", directory, CSharp)
+        var classModel = new ClassModel("OcrVisionDbContext");
+
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+
+        classModel.Implements.Add(new TypeModel("DbContext"));
+
+        var constructor = new ConstructorModel(classModel, "OcrVisionDbContext")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params = [new ParamModel { Name = "options", Type = new TypeModel("DbContextOptions") { GenericTypeParameters = [new TypeModel("OcrVisionDbContext")] } }],
+            BaseParams = ["options"]
+        };
+        classModel.Constructors.Add(constructor);
 
-                using OcrVision.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("OcrResult")] }, "OcrResults", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<OcrResult>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("ExtractedData")] }, "ExtractedDataItems", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<ExtractedData>()")]));
+        classModel.Properties.Add(new PropertyModel(classModel, AccessModifier.Public, new TypeModel("DbSet") { GenericTypeParameters = [new TypeModel("DocumentAnalysis")] }, "DocumentAnalyses", [new PropertyAccessorModel(PropertyAccessorType.Get, "Set<DocumentAnalysis>()")]));
 
-                namespace OcrVision.Infrastructure.Data;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "OnModelCreating",
+            AccessModifier = AccessModifier.Protected,
+            Override = true,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "modelBuilder", Type = new TypeModel("ModelBuilder") }],
+            Body = new ExpressionModel(@"base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OcrVisionDbContext).Assembly);")
+        });
 
-                /// <summary>
-                /// Entity Framework Core DbContext for OcrVision microservice.
-                /// </summary>
-                public class OcrVisionDbContext : DbContext
-                {
-                    public OcrVisionDbContext(DbContextOptions<OcrVisionDbContext> options)
-                        : base(options)
-                    {
-                    }
-
-                    public DbSet<OcrResult> OcrResults => Set<OcrResult>();
-
-                    public DbSet<ExtractedData> ExtractedDataItems => Set<ExtractedData>();
-
-                    public DbSet<DocumentAnalysis> DocumentAnalyses => Set<DocumentAnalysis>();
-
-                    protected override void OnModelCreating(ModelBuilder modelBuilder)
-                    {
-                        base.OnModelCreating(modelBuilder);
-                        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OcrVisionDbContext).Assembly);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "OcrVisionDbContext", directory, CSharp)
+        {
+            Namespace = "OcrVision.Infrastructure.Data"
         };
     }
 
-    private static FileModel CreateOcrResultConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateOcrResultConfigurationFile(string directory)
     {
-        return new FileModel("OcrResultConfiguration", directory, CSharp)
+        var classModel = new ClassModel("OcrResultConfiguration");
+
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("OcrResult")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("OcrResult")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(o => o.OcrResultId);
 
-                using OcrVision.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(o => o.DocumentId)
+            .IsRequired()
+            .HasMaxLength(200);
 
-                namespace OcrVision.Infrastructure.Data.Configurations;
+        builder.Property(o => o.FileName)
+            .IsRequired()
+            .HasMaxLength(500);
 
-                /// <summary>
-                /// Entity configuration for OcrResult.
-                /// </summary>
-                public class OcrResultConfiguration : IEntityTypeConfiguration<OcrResult>
-                {
-                    public void Configure(EntityTypeBuilder<OcrResult> builder)
-                    {
-                        builder.HasKey(o => o.OcrResultId);
+        builder.Property(o => o.ContentType)
+            .HasMaxLength(100);
 
-                        builder.Property(o => o.DocumentId)
-                            .IsRequired()
-                            .HasMaxLength(200);
+        builder.Property(o => o.ExtractedText)
+            .IsRequired()
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(o => o.FileName)
-                            .IsRequired()
-                            .HasMaxLength(500);
+        builder.Property(o => o.Confidence)
+            .IsRequired();
 
-                        builder.Property(o => o.ContentType)
-                            .HasMaxLength(100);
+        builder.Property(o => o.Language)
+            .HasMaxLength(50);
 
-                        builder.Property(o => o.ExtractedText)
-                            .IsRequired()
-                            .HasColumnType("nvarchar(max)");
+        builder.Property(o => o.Status)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(50);
 
-                        builder.Property(o => o.Confidence)
-                            .IsRequired();
+        builder.Property(o => o.ErrorMessage)
+            .HasMaxLength(2000);
 
-                        builder.Property(o => o.Language)
-                            .HasMaxLength(50);
+        builder.Property(o => o.CreatedAt)
+            .IsRequired();
 
-                        builder.Property(o => o.Status)
-                            .IsRequired()
-                            .HasConversion<string>()
-                            .HasMaxLength(50);
+        builder.HasMany(o => o.ExtractedDataItems)
+            .WithOne(e => e.OcrResult)
+            .HasForeignKey(e => e.OcrResultId)
+            .OnDelete(DeleteBehavior.Cascade);
 
-                        builder.Property(o => o.ErrorMessage)
-                            .HasMaxLength(2000);
+        builder.HasIndex(o => o.DocumentId);
+        builder.HasIndex(o => o.Status);
+        builder.HasIndex(o => o.CreatedAt);")
+        });
 
-                        builder.Property(o => o.CreatedAt)
-                            .IsRequired();
-
-                        builder.HasMany(o => o.ExtractedDataItems)
-                            .WithOne(e => e.OcrResult)
-                            .HasForeignKey(e => e.OcrResultId)
-                            .OnDelete(DeleteBehavior.Cascade);
-
-                        builder.HasIndex(o => o.DocumentId);
-                        builder.HasIndex(o => o.Status);
-                        builder.HasIndex(o => o.CreatedAt);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "OcrResultConfiguration", directory, CSharp)
+        {
+            Namespace = "OcrVision.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateExtractedDataConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateExtractedDataConfigurationFile(string directory)
     {
-        return new FileModel("ExtractedDataConfiguration", directory, CSharp)
+        var classModel = new ClassModel("ExtractedDataConfiguration");
+
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("ExtractedData")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("ExtractedData")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(e => e.ExtractedDataId);
 
-                using OcrVision.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(e => e.FieldName)
+            .IsRequired()
+            .HasMaxLength(200);
 
-                namespace OcrVision.Infrastructure.Data.Configurations;
+        builder.Property(e => e.FieldValue)
+            .IsRequired()
+            .HasMaxLength(4000);
 
-                /// <summary>
-                /// Entity configuration for ExtractedData.
-                /// </summary>
-                public class ExtractedDataConfiguration : IEntityTypeConfiguration<ExtractedData>
-                {
-                    public void Configure(EntityTypeBuilder<ExtractedData> builder)
-                    {
-                        builder.HasKey(e => e.ExtractedDataId);
+        builder.Property(e => e.DataType)
+            .IsRequired()
+            .HasMaxLength(100);
 
-                        builder.Property(e => e.FieldName)
-                            .IsRequired()
-                            .HasMaxLength(200);
+        builder.Property(e => e.Confidence)
+            .IsRequired();
 
-                        builder.Property(e => e.FieldValue)
-                            .IsRequired()
-                            .HasMaxLength(4000);
+        builder.Property(e => e.BoundingBox)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(e => e.DataType)
-                            .IsRequired()
-                            .HasMaxLength(100);
+        builder.Property(e => e.CreatedAt)
+            .IsRequired();
 
-                        builder.Property(e => e.Confidence)
-                            .IsRequired();
+        builder.HasIndex(e => e.OcrResultId);
+        builder.HasIndex(e => e.FieldName);")
+        });
 
-                        builder.Property(e => e.BoundingBox)
-                            .HasColumnType("nvarchar(max)");
-
-                        builder.Property(e => e.CreatedAt)
-                            .IsRequired();
-
-                        builder.HasIndex(e => e.OcrResultId);
-                        builder.HasIndex(e => e.FieldName);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ExtractedDataConfiguration", directory, CSharp)
+        {
+            Namespace = "OcrVision.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateDocumentAnalysisConfigurationFile(string directory)
+    private static CodeFileModel<ClassModel> CreateDocumentAnalysisConfigurationFile(string directory)
     {
-        return new FileModel("DocumentAnalysisConfiguration", directory, CSharp)
+        var classModel = new ClassModel("DocumentAnalysisConfiguration");
+
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore.Metadata.Builders"));
+
+        classModel.Implements.Add(new TypeModel("IEntityTypeConfiguration") { GenericTypeParameters = [new TypeModel("DocumentAnalysis")] });
+
+        classModel.Methods.Add(new MethodModel
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Name = "Configure",
+            AccessModifier = AccessModifier.Public,
+            ReturnType = new TypeModel("void"),
+            Params = [new ParamModel { Name = "builder", Type = new TypeModel("EntityTypeBuilder") { GenericTypeParameters = [new TypeModel("DocumentAnalysis")] } }],
+            Body = new ExpressionModel(@"builder.HasKey(d => d.DocumentAnalysisId);
 
-                using OcrVision.Core.Entities;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.EntityFrameworkCore.Metadata.Builders;
+        builder.Property(d => d.DocumentId)
+            .IsRequired()
+            .HasMaxLength(200);
 
-                namespace OcrVision.Infrastructure.Data.Configurations;
+        builder.Property(d => d.FileName)
+            .IsRequired()
+            .HasMaxLength(500);
 
-                /// <summary>
-                /// Entity configuration for DocumentAnalysis.
-                /// </summary>
-                public class DocumentAnalysisConfiguration : IEntityTypeConfiguration<DocumentAnalysis>
-                {
-                    public void Configure(EntityTypeBuilder<DocumentAnalysis> builder)
-                    {
-                        builder.HasKey(d => d.DocumentAnalysisId);
+        builder.Property(d => d.AnalysisType)
+            .IsRequired()
+            .HasMaxLength(100);
 
-                        builder.Property(d => d.DocumentId)
-                            .IsRequired()
-                            .HasMaxLength(200);
+        builder.Property(d => d.DocumentType)
+            .HasMaxLength(100);
 
-                        builder.Property(d => d.FileName)
-                            .IsRequired()
-                            .HasMaxLength(500);
+        builder.Property(d => d.Metadata)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(d => d.AnalysisType)
-                            .IsRequired()
-                            .HasMaxLength(100);
+        builder.Property(d => d.DetectedObjects)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(d => d.DocumentType)
-                            .HasMaxLength(100);
+        builder.Property(d => d.DetectedTables)
+            .HasColumnType(""nvarchar(max)"");
 
-                        builder.Property(d => d.Metadata)
-                            .HasColumnType("nvarchar(max)");
+        builder.Property(d => d.OverallConfidence)
+            .IsRequired();
 
-                        builder.Property(d => d.DetectedObjects)
-                            .HasColumnType("nvarchar(max)");
+        builder.Property(d => d.Status)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(50);
 
-                        builder.Property(d => d.DetectedTables)
-                            .HasColumnType("nvarchar(max)");
+        builder.Property(d => d.ErrorMessage)
+            .HasMaxLength(2000);
 
-                        builder.Property(d => d.OverallConfidence)
-                            .IsRequired();
+        builder.Property(d => d.CreatedAt)
+            .IsRequired();
 
-                        builder.Property(d => d.Status)
-                            .IsRequired()
-                            .HasConversion<string>()
-                            .HasMaxLength(50);
+        builder.HasIndex(d => d.DocumentId);
+        builder.HasIndex(d => d.AnalysisType);
+        builder.HasIndex(d => d.Status);
+        builder.HasIndex(d => d.CreatedAt);")
+        });
 
-                        builder.Property(d => d.ErrorMessage)
-                            .HasMaxLength(2000);
-
-                        builder.Property(d => d.CreatedAt)
-                            .IsRequired();
-
-                        builder.HasIndex(d => d.DocumentId);
-                        builder.HasIndex(d => d.AnalysisType);
-                        builder.HasIndex(d => d.Status);
-                        builder.HasIndex(d => d.CreatedAt);
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "DocumentAnalysisConfiguration", directory, CSharp)
+        {
+            Namespace = "OcrVision.Infrastructure.Data.Configurations"
         };
     }
 
-    private static FileModel CreateOcrServiceFile(string directory)
+    private static CodeFileModel<ClassModel> CreateOcrServiceFile(string directory)
     {
-        return new FileModel("OcrService", directory, CSharp)
+        var classModel = new ClassModel("OcrService");
+
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("OcrVision.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Logging"));
+
+        classModel.Implements.Add(new TypeModel("IOcrService"));
+
+        classModel.Fields.Add(new FieldModel { Name = "context", Type = new TypeModel("OcrVisionDbContext"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("OcrService")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "OcrService")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "context", Type = new TypeModel("OcrVisionDbContext") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("OcrService")] } }
+            ],
+            Body = new ExpressionModel(@"this.context = context ?? throw new ArgumentNullException(nameof(context));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using OcrVision.Core.Entities;
-                using OcrVision.Core.Interfaces;
-                using OcrVision.Infrastructure.Data;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Logging;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "ProcessDocumentAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("OcrResult")] },
+            Params =
+            [
+                new ParamModel { Name = "documentStream", Type = new TypeModel("Stream") },
+                new ParamModel { Name = "fileName", Type = new TypeModel("string") },
+                new ParamModel { Name = "contentType", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var ocrResult = new OcrResult
+        {
+            OcrResultId = Guid.NewGuid(),
+            DocumentId = Guid.NewGuid().ToString(),
+            FileName = fileName,
+            ContentType = contentType,
+            ExtractedText = string.Empty,
+            Status = OcrStatus.Processing,
+            CreatedAt = DateTime.UtcNow
+        };
 
-                namespace OcrVision.Infrastructure.Services;
+        await context.OcrResults.AddAsync(ocrResult, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-                /// <summary>
-                /// Service implementation for OCR operations.
-                /// </summary>
-                public class OcrService : IOcrService
-                {
-                    private readonly OcrVisionDbContext context;
-                    private readonly ILogger<OcrService> logger;
+        logger.LogInformation(""Started OCR processing for document: {FileName}"", fileName);
 
-                    public OcrService(OcrVisionDbContext context, ILogger<OcrService> logger)
-                    {
-                        this.context = context ?? throw new ArgumentNullException(nameof(context));
-                        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-                    }
+        try
+        {
+            // Simulate OCR processing - in production, integrate with actual OCR service
+            using var memoryStream = new MemoryStream();
+            await documentStream.CopyToAsync(memoryStream, cancellationToken);
 
-                    public async Task<OcrResult> ProcessDocumentAsync(Stream documentStream, string fileName, string? contentType = null, CancellationToken cancellationToken = default)
-                    {
-                        var ocrResult = new OcrResult
-                        {
-                            OcrResultId = Guid.NewGuid(),
-                            DocumentId = Guid.NewGuid().ToString(),
-                            FileName = fileName,
-                            ContentType = contentType,
-                            ExtractedText = string.Empty,
-                            Status = OcrStatus.Processing,
-                            CreatedAt = DateTime.UtcNow
-                        };
+            ocrResult.ExtractedText = ""Extracted text from document..."";
+            ocrResult.Confidence = 0.95;
+            ocrResult.PageCount = 1;
+            ocrResult.Language = ""en"";
+            ocrResult.Status = OcrStatus.Completed;
+            ocrResult.CompletedAt = DateTime.UtcNow;
 
-                        await context.OcrResults.AddAsync(ocrResult, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
+            logger.LogInformation(""OCR processing completed for document: {DocumentId}"", ocrResult.DocumentId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, ""OCR processing failed for document: {FileName}"", fileName);
+            ocrResult.Status = OcrStatus.Failed;
+            ocrResult.ErrorMessage = ex.Message;
+        }
 
-                        logger.LogInformation("Started OCR processing for document: {FileName}", fileName);
+        context.OcrResults.Update(ocrResult);
+        await context.SaveChangesAsync(cancellationToken);
 
-                        try
-                        {
-                            // Simulate OCR processing - in production, integrate with actual OCR service
-                            using var memoryStream = new MemoryStream();
-                            await documentStream.CopyToAsync(memoryStream, cancellationToken);
+        return ocrResult;")
+        });
 
-                            ocrResult.ExtractedText = "Extracted text from document...";
-                            ocrResult.Confidence = 0.95;
-                            ocrResult.PageCount = 1;
-                            ocrResult.Language = "en";
-                            ocrResult.Status = OcrStatus.Completed;
-                            ocrResult.CompletedAt = DateTime.UtcNow;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetResultByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("OcrResult") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "ocrResultId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.OcrResults
+            .Include(o => o.ExtractedDataItems)
+            .FirstOrDefaultAsync(o => o.OcrResultId == ocrResultId, cancellationToken);")
+        });
 
-                            logger.LogInformation("OCR processing completed for document: {DocumentId}", ocrResult.DocumentId);
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.LogError(ex, "OCR processing failed for document: {FileName}", fileName);
-                            ocrResult.Status = OcrStatus.Failed;
-                            ocrResult.ErrorMessage = ex.Message;
-                        }
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetResultsByDocumentIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("OcrResult")] }] },
+            Params =
+            [
+                new ParamModel { Name = "documentId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.OcrResults
+            .Include(o => o.ExtractedDataItems)
+            .Where(o => o.DocumentId == documentId)
+            .OrderByDescending(o => o.CreatedAt)
+            .ToListAsync(cancellationToken);")
+        });
 
-                        context.OcrResults.Update(ocrResult);
-                        await context.SaveChangesAsync(cancellationToken);
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "ExtractStructuredDataAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("ExtractedData")] }] },
+            Params =
+            [
+                new ParamModel { Name = "ocrResultId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "fieldNames", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("string")] } },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var ocrResult = await GetResultByIdAsync(ocrResultId, cancellationToken);
 
-                        return ocrResult;
-                    }
+        if (ocrResult == null)
+        {
+            throw new InvalidOperationException($""OCR result {ocrResultId} not found"");
+        }
 
-                    public async Task<OcrResult?> GetResultByIdAsync(Guid ocrResultId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.OcrResults
-                            .Include(o => o.ExtractedDataItems)
-                            .FirstOrDefaultAsync(o => o.OcrResultId == ocrResultId, cancellationToken);
-                    }
+        var extractedData = new List<ExtractedData>();
 
-                    public async Task<IEnumerable<OcrResult>> GetResultsByDocumentIdAsync(string documentId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.OcrResults
-                            .Include(o => o.ExtractedDataItems)
-                            .Where(o => o.DocumentId == documentId)
-                            .OrderByDescending(o => o.CreatedAt)
-                            .ToListAsync(cancellationToken);
-                    }
+        foreach (var fieldName in fieldNames)
+        {
+            var data = new ExtractedData
+            {
+                ExtractedDataId = Guid.NewGuid(),
+                OcrResultId = ocrResultId,
+                FieldName = fieldName,
+                FieldValue = ""Extracted value"",
+                DataType = ""string"",
+                Confidence = 0.9,
+                CreatedAt = DateTime.UtcNow
+            };
 
-                    public async Task<IEnumerable<ExtractedData>> ExtractStructuredDataAsync(Guid ocrResultId, IEnumerable<string> fieldNames, CancellationToken cancellationToken = default)
-                    {
-                        var ocrResult = await GetResultByIdAsync(ocrResultId, cancellationToken);
+            extractedData.Add(data);
+        }
 
-                        if (ocrResult == null)
-                        {
-                            throw new InvalidOperationException($"OCR result {ocrResultId} not found");
-                        }
+        await context.ExtractedDataItems.AddRangeAsync(extractedData, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-                        var extractedData = new List<ExtractedData>();
+        return extractedData;")
+        });
 
-                        foreach (var fieldName in fieldNames)
-                        {
-                            var data = new ExtractedData
-                            {
-                                ExtractedDataId = Guid.NewGuid(),
-                                OcrResultId = ocrResultId,
-                                FieldName = fieldName,
-                                FieldValue = "Extracted value",
-                                DataType = "string",
-                                Confidence = 0.9,
-                                CreatedAt = DateTime.UtcNow
-                            };
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "UpdateStatusAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("OcrResult")] },
+            Params =
+            [
+                new ParamModel { Name = "ocrResultId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "status", Type = new TypeModel("OcrStatus") },
+                new ParamModel { Name = "errorMessage", Type = new TypeModel("string") { Nullable = true }, DefaultValue = "null" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var ocrResult = await context.OcrResults.FindAsync(new object[] { ocrResultId }, cancellationToken)
+            ?? throw new InvalidOperationException($""OCR result {ocrResultId} not found"");
 
-                            extractedData.Add(data);
-                        }
+        ocrResult.Status = status;
+        ocrResult.ErrorMessage = errorMessage;
 
-                        await context.ExtractedDataItems.AddRangeAsync(extractedData, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
+        if (status == OcrStatus.Completed)
+        {
+            ocrResult.CompletedAt = DateTime.UtcNow;
+        }
 
-                        return extractedData;
-                    }
+        context.OcrResults.Update(ocrResult);
+        await context.SaveChangesAsync(cancellationToken);
 
-                    public async Task<OcrResult> UpdateStatusAsync(Guid ocrResultId, OcrStatus status, string? errorMessage = null, CancellationToken cancellationToken = default)
-                    {
-                        var ocrResult = await context.OcrResults.FindAsync(new object[] { ocrResultId }, cancellationToken)
-                            ?? throw new InvalidOperationException($"OCR result {ocrResultId} not found");
+        return ocrResult;")
+        });
 
-                        ocrResult.Status = status;
-                        ocrResult.ErrorMessage = errorMessage;
-
-                        if (status == OcrStatus.Completed)
-                        {
-                            ocrResult.CompletedAt = DateTime.UtcNow;
-                        }
-
-                        context.OcrResults.Update(ocrResult);
-                        await context.SaveChangesAsync(cancellationToken);
-
-                        return ocrResult;
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "OcrService", directory, CSharp)
+        {
+            Namespace = "OcrVision.Infrastructure.Services"
         };
     }
 
-    private static FileModel CreateVisionServiceFile(string directory)
+    private static CodeFileModel<ClassModel> CreateVisionServiceFile(string directory)
     {
-        return new FileModel("VisionService", directory, CSharp)
+        var classModel = new ClassModel("VisionService");
+
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Entities"));
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("OcrVision.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Logging"));
+
+        classModel.Implements.Add(new TypeModel("IVisionService"));
+
+        classModel.Fields.Add(new FieldModel { Name = "context", Type = new TypeModel("OcrVisionDbContext"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("VisionService")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "VisionService")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "context", Type = new TypeModel("OcrVisionDbContext") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("VisionService")] } }
+            ],
+            Body = new ExpressionModel(@"this.context = context ?? throw new ArgumentNullException(nameof(context));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using OcrVision.Core.Entities;
-                using OcrVision.Core.Interfaces;
-                using OcrVision.Infrastructure.Data;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Logging;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AnalyzeDocumentAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("DocumentAnalysis")] },
+            Params =
+            [
+                new ParamModel { Name = "documentStream", Type = new TypeModel("Stream") },
+                new ParamModel { Name = "fileName", Type = new TypeModel("string") },
+                new ParamModel { Name = "analysisType", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"var analysis = new DocumentAnalysis
+        {
+            DocumentAnalysisId = Guid.NewGuid(),
+            DocumentId = Guid.NewGuid().ToString(),
+            FileName = fileName,
+            AnalysisType = analysisType,
+            Status = AnalysisStatus.Processing,
+            CreatedAt = DateTime.UtcNow
+        };
 
-                namespace OcrVision.Infrastructure.Services;
+        await context.DocumentAnalyses.AddAsync(analysis, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-                /// <summary>
-                /// Service implementation for document vision and analysis operations.
-                /// </summary>
-                public class VisionService : IVisionService
+        logger.LogInformation(""Started document analysis for: {FileName}, Type: {AnalysisType}"", fileName, analysisType);
+
+        try
+        {
+            // Simulate document analysis - in production, integrate with actual vision service
+            using var memoryStream = new MemoryStream();
+            await documentStream.CopyToAsync(memoryStream, cancellationToken);
+
+            analysis.DocumentType = ""invoice"";
+            analysis.OverallConfidence = 0.92;
+            analysis.DetectedObjects = new List<DetectedObject>
+            {
+                new DetectedObject
                 {
-                    private readonly OcrVisionDbContext context;
-                    private readonly ILogger<VisionService> logger;
-
-                    public VisionService(OcrVisionDbContext context, ILogger<VisionService> logger)
-                    {
-                        this.context = context ?? throw new ArgumentNullException(nameof(context));
-                        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-                    }
-
-                    public async Task<DocumentAnalysis> AnalyzeDocumentAsync(Stream documentStream, string fileName, string analysisType, CancellationToken cancellationToken = default)
-                    {
-                        var analysis = new DocumentAnalysis
-                        {
-                            DocumentAnalysisId = Guid.NewGuid(),
-                            DocumentId = Guid.NewGuid().ToString(),
-                            FileName = fileName,
-                            AnalysisType = analysisType,
-                            Status = AnalysisStatus.Processing,
-                            CreatedAt = DateTime.UtcNow
-                        };
-
-                        await context.DocumentAnalyses.AddAsync(analysis, cancellationToken);
-                        await context.SaveChangesAsync(cancellationToken);
-
-                        logger.LogInformation("Started document analysis for: {FileName}, Type: {AnalysisType}", fileName, analysisType);
-
-                        try
-                        {
-                            // Simulate document analysis - in production, integrate with actual vision service
-                            using var memoryStream = new MemoryStream();
-                            await documentStream.CopyToAsync(memoryStream, cancellationToken);
-
-                            analysis.DocumentType = "invoice";
-                            analysis.OverallConfidence = 0.92;
-                            analysis.DetectedObjects = new List<DetectedObject>
-                            {
-                                new DetectedObject
-                                {
-                                    ObjectType = "logo",
-                                    Confidence = 0.95,
-                                    BoundingBox = new BoundingBox { X = 10, Y = 10, Width = 100, Height = 50 }
-                                }
-                            };
-                            analysis.DetectedTables = new List<DetectedTable>
-                            {
-                                new DetectedTable
-                                {
-                                    RowCount = 5,
-                                    ColumnCount = 3,
-                                    PageNumber = 1
-                                }
-                            };
-                            analysis.Status = AnalysisStatus.Completed;
-                            analysis.CompletedAt = DateTime.UtcNow;
-
-                            logger.LogInformation("Document analysis completed for: {DocumentId}", analysis.DocumentId);
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.LogError(ex, "Document analysis failed for: {FileName}", fileName);
-                            analysis.Status = AnalysisStatus.Failed;
-                            analysis.ErrorMessage = ex.Message;
-                        }
-
-                        context.DocumentAnalyses.Update(analysis);
-                        await context.SaveChangesAsync(cancellationToken);
-
-                        return analysis;
-                    }
-
-                    public async Task<DocumentAnalysis?> GetAnalysisByIdAsync(Guid analysisId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.DocumentAnalyses
-                            .FirstOrDefaultAsync(d => d.DocumentAnalysisId == analysisId, cancellationToken);
-                    }
-
-                    public async Task<IEnumerable<DocumentAnalysis>> GetAnalysesByDocumentIdAsync(string documentId, CancellationToken cancellationToken = default)
-                    {
-                        return await context.DocumentAnalyses
-                            .Where(d => d.DocumentId == documentId)
-                            .OrderByDescending(d => d.CreatedAt)
-                            .ToListAsync(cancellationToken);
-                    }
-
-                    public async Task<IEnumerable<DetectedObject>> DetectObjectsAsync(Stream documentStream, CancellationToken cancellationToken = default)
-                    {
-                        logger.LogDebug("Detecting objects in document");
-
-                        // Simulate object detection
-                        await Task.Delay(100, cancellationToken);
-
-                        return new List<DetectedObject>
-                        {
-                            new DetectedObject
-                            {
-                                ObjectType = "signature",
-                                Confidence = 0.88,
-                                BoundingBox = new BoundingBox { X = 400, Y = 600, Width = 150, Height = 50 }
-                            },
-                            new DetectedObject
-                            {
-                                ObjectType = "stamp",
-                                Confidence = 0.92,
-                                BoundingBox = new BoundingBox { X = 500, Y = 500, Width = 80, Height = 80 }
-                            }
-                        };
-                    }
-
-                    public async Task<IEnumerable<DetectedTable>> DetectTablesAsync(Stream documentStream, CancellationToken cancellationToken = default)
-                    {
-                        logger.LogDebug("Detecting tables in document");
-
-                        // Simulate table detection
-                        await Task.Delay(100, cancellationToken);
-
-                        return new List<DetectedTable>
-                        {
-                            new DetectedTable
-                            {
-                                RowCount = 10,
-                                ColumnCount = 4,
-                                PageNumber = 1,
-                                BoundingBox = new BoundingBox { X = 50, Y = 200, Width = 500, Height = 300 }
-                            }
-                        };
-                    }
-
-                    public async Task<string> ClassifyDocumentAsync(Stream documentStream, CancellationToken cancellationToken = default)
-                    {
-                        logger.LogDebug("Classifying document");
-
-                        // Simulate document classification
-                        await Task.Delay(100, cancellationToken);
-
-                        return "invoice";
-                    }
+                    ObjectType = ""logo"",
+                    Confidence = 0.95,
+                    BoundingBox = new BoundingBox { X = 10, Y = 10, Width = 100, Height = 50 }
                 }
-                """
+            };
+            analysis.DetectedTables = new List<DetectedTable>
+            {
+                new DetectedTable
+                {
+                    RowCount = 5,
+                    ColumnCount = 3,
+                    PageNumber = 1
+                }
+            };
+            analysis.Status = AnalysisStatus.Completed;
+            analysis.CompletedAt = DateTime.UtcNow;
+
+            logger.LogInformation(""Document analysis completed for: {DocumentId}"", analysis.DocumentId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, ""Document analysis failed for: {FileName}"", fileName);
+            analysis.Status = AnalysisStatus.Failed;
+            analysis.ErrorMessage = ex.Message;
+        }
+
+        context.DocumentAnalyses.Update(analysis);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return analysis;")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAnalysisByIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("DocumentAnalysis") { Nullable = true }] },
+            Params =
+            [
+                new ParamModel { Name = "analysisId", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.DocumentAnalyses
+            .FirstOrDefaultAsync(d => d.DocumentAnalysisId == analysisId, cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "GetAnalysesByDocumentIdAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("DocumentAnalysis")] }] },
+            Params =
+            [
+                new ParamModel { Name = "documentId", Type = new TypeModel("string") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"return await context.DocumentAnalyses
+            .Where(d => d.DocumentId == documentId)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync(cancellationToken);")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "DetectObjectsAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("DetectedObject")] }] },
+            Params =
+            [
+                new ParamModel { Name = "documentStream", Type = new TypeModel("Stream") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"logger.LogDebug(""Detecting objects in document"");
+
+        // Simulate object detection
+        await Task.Delay(100, cancellationToken);
+
+        return new List<DetectedObject>
+        {
+            new DetectedObject
+            {
+                ObjectType = ""signature"",
+                Confidence = 0.88,
+                BoundingBox = new BoundingBox { X = 400, Y = 600, Width = 150, Height = 50 }
+            },
+            new DetectedObject
+            {
+                ObjectType = ""stamp"",
+                Confidence = 0.92,
+                BoundingBox = new BoundingBox { X = 500, Y = 500, Width = 80, Height = 80 }
+            }
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "DetectTablesAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("DetectedTable")] }] },
+            Params =
+            [
+                new ParamModel { Name = "documentStream", Type = new TypeModel("Stream") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"logger.LogDebug(""Detecting tables in document"");
+
+        // Simulate table detection
+        await Task.Delay(100, cancellationToken);
+
+        return new List<DetectedTable>
+        {
+            new DetectedTable
+            {
+                RowCount = 10,
+                ColumnCount = 4,
+                PageNumber = 1,
+                BoundingBox = new BoundingBox { X = 50, Y = 200, Width = 500, Height = 300 }
+            }
+        };")
+        });
+
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "ClassifyDocumentAsync",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("string")] },
+            Params =
+            [
+                new ParamModel { Name = "documentStream", Type = new TypeModel("Stream") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken"), DefaultValue = "default" }
+            ],
+            Body = new ExpressionModel(@"logger.LogDebug(""Classifying document"");
+
+        // Simulate document classification
+        await Task.Delay(100, cancellationToken);
+
+        return ""invoice"";")
+        });
+
+        return new CodeFileModel<ClassModel>(classModel, "VisionService", directory, CSharp)
+        {
+            Namespace = "OcrVision.Infrastructure.Services"
         };
     }
 
-    private static FileModel CreateInfrastructureConfigureServicesFile(string directory)
+    private static CodeFileModel<ClassModel> CreateInfrastructureConfigureServicesFile(string directory)
     {
-        return new FileModel("ConfigureServices", directory, CSharp)
+        var classModel = new ClassModel("ConfigureServices")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            Static = true
+        };
 
-                using OcrVision.Core.Interfaces;
-                using OcrVision.Infrastructure.Data;
-                using OcrVision.Infrastructure.Services;
-                using Microsoft.EntityFrameworkCore;
-                using Microsoft.Extensions.Configuration;
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("OcrVision.Infrastructure.Data"));
+        classModel.Usings.Add(new UsingModel("OcrVision.Infrastructure.Services"));
+        classModel.Usings.Add(new UsingModel("Microsoft.EntityFrameworkCore"));
+        classModel.Usings.Add(new UsingModel("Microsoft.Extensions.Configuration"));
 
-                namespace Microsoft.Extensions.DependencyInjection;
+        classModel.Methods.Add(new MethodModel
+        {
+            Name = "AddOcrVisionInfrastructure",
+            AccessModifier = AccessModifier.Public,
+            Static = true,
+            ReturnType = new TypeModel("IServiceCollection"),
+            Params =
+            [
+                new ParamModel { Name = "services", Type = new TypeModel("IServiceCollection"), ExtensionMethodParam = true },
+                new ParamModel { Name = "configuration", Type = new TypeModel("IConfiguration") }
+            ],
+            Body = new ExpressionModel(@"services.AddDbContext<OcrVisionDbContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString(""OcrVisionDb"") ??
+                @""Server=.\SQLEXPRESS;Database=OcrVisionDb;Trusted_Connection=True;TrustServerCertificate=True""));
 
-                /// <summary>
-                /// Extension methods for configuring OcrVision infrastructure services.
-                /// </summary>
-                public static class ConfigureServices
-                {
-                    /// <summary>
-                    /// Adds OcrVision infrastructure services to the service collection.
-                    /// </summary>
-                    public static IServiceCollection AddOcrVisionInfrastructure(
-                        this IServiceCollection services,
-                        IConfiguration configuration)
-                    {
-                        services.AddDbContext<OcrVisionDbContext>(options =>
-                            options.UseSqlServer(
-                                configuration.GetConnectionString("OcrVisionDb") ??
-                                @"Server=.\SQLEXPRESS;Database=OcrVisionDb;Trusted_Connection=True;TrustServerCertificate=True"));
+        services.AddScoped<IOcrService, OcrService>();
+        services.AddScoped<IVisionService, VisionService>();
 
-                        services.AddScoped<IOcrService, OcrService>();
-                        services.AddScoped<IVisionService, VisionService>();
+        return services;")
+        });
 
-                        return services;
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "ConfigureServices", directory, CSharp)
+        {
+            Namespace = "Microsoft.Extensions.DependencyInjection"
         };
     }
 
@@ -1241,203 +1219,226 @@ public class OcrVisionArtifactFactory : IOcrVisionArtifactFactory
 
     #region API Layer Files
 
-    private static FileModel CreateOcrControllerFile(string directory)
+    private static CodeFileModel<ClassModel> CreateOcrControllerFile(string directory)
     {
-        return new FileModel("OcrController", directory, CSharp)
+        var classModel = new ClassModel("OcrController");
+
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.DTOs"));
+        classModel.Usings.Add(new UsingModel("OcrVision.Core.Interfaces"));
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Authorization"));
+        classModel.Usings.Add(new UsingModel("Microsoft.AspNetCore.Mvc"));
+
+        classModel.Implements.Add(new TypeModel("ControllerBase"));
+
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ApiController" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Route", Template = "\"api/ocr\"" });
+        classModel.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "Authorize" });
+
+        classModel.Fields.Add(new FieldModel { Name = "ocrService", Type = new TypeModel("IOcrService"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "visionService", Type = new TypeModel("IVisionService"), AccessModifier = AccessModifier.Private, Readonly = true });
+        classModel.Fields.Add(new FieldModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("OcrController")] }, AccessModifier = AccessModifier.Private, Readonly = true });
+
+        var constructor = new ConstructorModel(classModel, "OcrController")
         {
-            Body = """
-                // Copyright (c) Quinntyne Brown. All Rights Reserved.
-                // Licensed under the MIT License. See License.txt in the project root for license information.
+            AccessModifier = AccessModifier.Public,
+            Params =
+            [
+                new ParamModel { Name = "ocrService", Type = new TypeModel("IOcrService") },
+                new ParamModel { Name = "visionService", Type = new TypeModel("IVisionService") },
+                new ParamModel { Name = "logger", Type = new TypeModel("ILogger") { GenericTypeParameters = [new TypeModel("OcrController")] } }
+            ],
+            Body = new ExpressionModel(@"this.ocrService = ocrService;
+        this.visionService = visionService;
+        this.logger = logger;")
+        };
+        classModel.Constructors.Add(constructor);
 
-                using OcrVision.Core.DTOs;
-                using OcrVision.Core.Interfaces;
-                using Microsoft.AspNetCore.Authorization;
-                using Microsoft.AspNetCore.Mvc;
+        var analyzeDocumentMethod = new MethodModel
+        {
+            Name = "AnalyzeDocument",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("OcrResultDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "file", Type = new TypeModel("IFormFile") },
+                new ParamModel { Name = "request", Type = new TypeModel("AnalyzeDocumentRequest"), Attribute = "[FromForm]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"if (file == null || file.Length == 0)
+        {
+            return BadRequest(""No file provided"");
+        }
 
-                namespace OcrVision.Api.Controllers;
+        logger.LogInformation(""Received document for analysis: {FileName}"", file.FileName);
 
-                /// <summary>
-                /// Controller for OCR and document analysis operations.
-                /// </summary>
-                [ApiController]
-                [Route("api/ocr")]
-                [Authorize]
-                public class OcrController : ControllerBase
-                {
-                    private readonly IOcrService ocrService;
-                    private readonly IVisionService visionService;
-                    private readonly ILogger<OcrController> logger;
+        using var stream = file.OpenReadStream();
+        var ocrResult = await ocrService.ProcessDocumentAsync(
+            stream,
+            file.FileName,
+            file.ContentType,
+            cancellationToken);
 
-                    public OcrController(
-                        IOcrService ocrService,
-                        IVisionService visionService,
-                        ILogger<OcrController> logger)
-                    {
-                        this.ocrService = ocrService;
-                        this.visionService = visionService;
-                        this.logger = logger;
-                    }
+        var response = new OcrResultDto
+        {
+            OcrResultId = ocrResult.OcrResultId,
+            DocumentId = ocrResult.DocumentId,
+            FileName = ocrResult.FileName,
+            ContentType = ocrResult.ContentType,
+            ExtractedText = ocrResult.ExtractedText,
+            Confidence = ocrResult.Confidence,
+            Language = ocrResult.Language,
+            PageCount = ocrResult.PageCount,
+            Status = ocrResult.Status,
+            ErrorMessage = ocrResult.ErrorMessage,
+            CreatedAt = ocrResult.CreatedAt,
+            CompletedAt = ocrResult.CompletedAt
+        };
 
-                    /// <summary>
-                    /// Analyze a document with OCR and vision processing.
-                    /// </summary>
-                    [HttpPost("analyze")]
-                    [ProducesResponseType(typeof(OcrResultDto), StatusCodes.Status202Accepted)]
-                    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-                    public async Task<ActionResult<OcrResultDto>> AnalyzeDocument(
-                        IFormFile file,
-                        [FromForm] AnalyzeDocumentRequest request,
-                        CancellationToken cancellationToken)
-                    {
-                        if (file == null || file.Length == 0)
-                        {
-                            return BadRequest("No file provided");
-                        }
+        return AcceptedAtAction(nameof(GetResultById), new { id = ocrResult.OcrResultId }, response);")
+        };
+        analyzeDocumentMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost", Template = "\"analyze\"" });
+        analyzeDocumentMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(OcrResultDto), StatusCodes.Status202Accepted" });
+        analyzeDocumentMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status400BadRequest" });
+        classModel.Methods.Add(analyzeDocumentMethod);
 
-                        logger.LogInformation("Received document for analysis: {FileName}", file.FileName);
+        var getResultByIdMethod = new MethodModel
+        {
+            Name = "GetResultById",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("OcrResultDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "id", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var ocrResult = await ocrService.GetResultByIdAsync(id, cancellationToken);
 
-                        using var stream = file.OpenReadStream();
-                        var ocrResult = await ocrService.ProcessDocumentAsync(
-                            stream,
-                            file.FileName,
-                            file.ContentType,
-                            cancellationToken);
+        if (ocrResult == null)
+        {
+            return NotFound();
+        }
 
-                        var response = new OcrResultDto
-                        {
-                            OcrResultId = ocrResult.OcrResultId,
-                            DocumentId = ocrResult.DocumentId,
-                            FileName = ocrResult.FileName,
-                            ContentType = ocrResult.ContentType,
-                            ExtractedText = ocrResult.ExtractedText,
-                            Confidence = ocrResult.Confidence,
-                            Language = ocrResult.Language,
-                            PageCount = ocrResult.PageCount,
-                            Status = ocrResult.Status,
-                            ErrorMessage = ocrResult.ErrorMessage,
-                            CreatedAt = ocrResult.CreatedAt,
-                            CompletedAt = ocrResult.CompletedAt
-                        };
+        var response = new OcrResultDto
+        {
+            OcrResultId = ocrResult.OcrResultId,
+            DocumentId = ocrResult.DocumentId,
+            FileName = ocrResult.FileName,
+            ContentType = ocrResult.ContentType,
+            ExtractedText = ocrResult.ExtractedText,
+            Confidence = ocrResult.Confidence,
+            Language = ocrResult.Language,
+            PageCount = ocrResult.PageCount,
+            Status = ocrResult.Status,
+            ErrorMessage = ocrResult.ErrorMessage,
+            CreatedAt = ocrResult.CreatedAt,
+            CompletedAt = ocrResult.CompletedAt,
+            ExtractedDataItems = ocrResult.ExtractedDataItems?.Select(e => new ExtractedDataDto
+            {
+                ExtractedDataId = e.ExtractedDataId,
+                OcrResultId = e.OcrResultId,
+                FieldName = e.FieldName,
+                FieldValue = e.FieldValue,
+                DataType = e.DataType,
+                Confidence = e.Confidence,
+                PageNumber = e.PageNumber,
+                BoundingBox = e.BoundingBox
+            })
+        };
 
-                        return AcceptedAtAction(nameof(GetResultById), new { id = ocrResult.OcrResultId }, response);
-                    }
+        return Ok(response);")
+        };
+        getResultByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"results/{id:guid}\"" });
+        getResultByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(OcrResultDto), StatusCodes.Status200OK" });
+        getResultByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status404NotFound" });
+        classModel.Methods.Add(getResultByIdMethod);
 
-                    /// <summary>
-                    /// Get OCR result by ID.
-                    /// </summary>
-                    [HttpGet("results/{id:guid}")]
-                    [ProducesResponseType(typeof(OcrResultDto), StatusCodes.Status200OK)]
-                    [ProducesResponseType(StatusCodes.Status404NotFound)]
-                    public async Task<ActionResult<OcrResultDto>> GetResultById(Guid id, CancellationToken cancellationToken)
-                    {
-                        var ocrResult = await ocrService.GetResultByIdAsync(id, cancellationToken);
+        var getAnalysisByIdMethod = new MethodModel
+        {
+            Name = "GetAnalysisById",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("DocumentAnalysisDto")] }] },
+            Params =
+            [
+                new ParamModel { Name = "id", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"var analysis = await visionService.GetAnalysisByIdAsync(id, cancellationToken);
 
-                        if (ocrResult == null)
-                        {
-                            return NotFound();
-                        }
+        if (analysis == null)
+        {
+            return NotFound();
+        }
 
-                        var response = new OcrResultDto
-                        {
-                            OcrResultId = ocrResult.OcrResultId,
-                            DocumentId = ocrResult.DocumentId,
-                            FileName = ocrResult.FileName,
-                            ContentType = ocrResult.ContentType,
-                            ExtractedText = ocrResult.ExtractedText,
-                            Confidence = ocrResult.Confidence,
-                            Language = ocrResult.Language,
-                            PageCount = ocrResult.PageCount,
-                            Status = ocrResult.Status,
-                            ErrorMessage = ocrResult.ErrorMessage,
-                            CreatedAt = ocrResult.CreatedAt,
-                            CompletedAt = ocrResult.CompletedAt,
-                            ExtractedDataItems = ocrResult.ExtractedDataItems?.Select(e => new ExtractedDataDto
-                            {
-                                ExtractedDataId = e.ExtractedDataId,
-                                OcrResultId = e.OcrResultId,
-                                FieldName = e.FieldName,
-                                FieldValue = e.FieldValue,
-                                DataType = e.DataType,
-                                Confidence = e.Confidence,
-                                PageNumber = e.PageNumber,
-                                BoundingBox = e.BoundingBox
-                            })
-                        };
+        var response = new DocumentAnalysisDto
+        {
+            DocumentAnalysisId = analysis.DocumentAnalysisId,
+            DocumentId = analysis.DocumentId,
+            FileName = analysis.FileName,
+            AnalysisType = analysis.AnalysisType,
+            DocumentType = analysis.DocumentType,
+            Metadata = analysis.Metadata,
+            DetectedObjects = analysis.DetectedObjects,
+            DetectedTables = analysis.DetectedTables,
+            OverallConfidence = analysis.OverallConfidence,
+            Status = analysis.Status,
+            ErrorMessage = analysis.ErrorMessage,
+            CreatedAt = analysis.CreatedAt,
+            CompletedAt = analysis.CompletedAt
+        };
 
-                        return Ok(response);
-                    }
+        return Ok(response);")
+        };
+        getAnalysisByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpGet", Template = "\"analysis/{id:guid}\"" });
+        getAnalysisByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(DocumentAnalysisDto), StatusCodes.Status200OK" });
+        getAnalysisByIdMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status404NotFound" });
+        classModel.Methods.Add(getAnalysisByIdMethod);
 
-                    /// <summary>
-                    /// Get document analysis by ID.
-                    /// </summary>
-                    [HttpGet("analysis/{id:guid}")]
-                    [ProducesResponseType(typeof(DocumentAnalysisDto), StatusCodes.Status200OK)]
-                    [ProducesResponseType(StatusCodes.Status404NotFound)]
-                    public async Task<ActionResult<DocumentAnalysisDto>> GetAnalysisById(Guid id, CancellationToken cancellationToken)
-                    {
-                        var analysis = await visionService.GetAnalysisByIdAsync(id, cancellationToken);
+        var extractDataMethod = new MethodModel
+        {
+            Name = "ExtractData",
+            AccessModifier = AccessModifier.Public,
+            Async = true,
+            ReturnType = new TypeModel("Task") { GenericTypeParameters = [new TypeModel("ActionResult") { GenericTypeParameters = [new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("ExtractedDataDto")] }] }] },
+            Params =
+            [
+                new ParamModel { Name = "id", Type = new TypeModel("Guid") },
+                new ParamModel { Name = "fieldNames", Type = new TypeModel("IEnumerable") { GenericTypeParameters = [new TypeModel("string")] }, Attribute = "[FromBody]" },
+                new ParamModel { Name = "cancellationToken", Type = new TypeModel("CancellationToken") }
+            ],
+            Body = new ExpressionModel(@"try
+        {
+            var extractedData = await ocrService.ExtractStructuredDataAsync(id, fieldNames, cancellationToken);
 
-                        if (analysis == null)
-                        {
-                            return NotFound();
-                        }
+            var response = extractedData.Select(e => new ExtractedDataDto
+            {
+                ExtractedDataId = e.ExtractedDataId,
+                OcrResultId = e.OcrResultId,
+                FieldName = e.FieldName,
+                FieldValue = e.FieldValue,
+                DataType = e.DataType,
+                Confidence = e.Confidence,
+                PageNumber = e.PageNumber,
+                BoundingBox = e.BoundingBox
+            });
 
-                        var response = new DocumentAnalysisDto
-                        {
-                            DocumentAnalysisId = analysis.DocumentAnalysisId,
-                            DocumentId = analysis.DocumentId,
-                            FileName = analysis.FileName,
-                            AnalysisType = analysis.AnalysisType,
-                            DocumentType = analysis.DocumentType,
-                            Metadata = analysis.Metadata,
-                            DetectedObjects = analysis.DetectedObjects,
-                            DetectedTables = analysis.DetectedTables,
-                            OverallConfidence = analysis.OverallConfidence,
-                            Status = analysis.Status,
-                            ErrorMessage = analysis.ErrorMessage,
-                            CreatedAt = analysis.CreatedAt,
-                            CompletedAt = analysis.CompletedAt
-                        };
+            return Ok(response);
+        }
+        catch (InvalidOperationException)
+        {
+            return NotFound();
+        }")
+        };
+        extractDataMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "HttpPost", Template = "\"results/{id:guid}/extract\"" });
+        extractDataMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "typeof(IEnumerable<ExtractedDataDto>), StatusCodes.Status200OK" });
+        extractDataMethod.Attributes.Add(new Endpoint.DotNet.Syntax.Attributes.AttributeModel { Name = "ProducesResponseType", Template = "StatusCodes.Status404NotFound" });
+        classModel.Methods.Add(extractDataMethod);
 
-                        return Ok(response);
-                    }
-
-                    /// <summary>
-                    /// Extract structured data from OCR result.
-                    /// </summary>
-                    [HttpPost("results/{id:guid}/extract")]
-                    [ProducesResponseType(typeof(IEnumerable<ExtractedDataDto>), StatusCodes.Status200OK)]
-                    [ProducesResponseType(StatusCodes.Status404NotFound)]
-                    public async Task<ActionResult<IEnumerable<ExtractedDataDto>>> ExtractData(
-                        Guid id,
-                        [FromBody] IEnumerable<string> fieldNames,
-                        CancellationToken cancellationToken)
-                    {
-                        try
-                        {
-                            var extractedData = await ocrService.ExtractStructuredDataAsync(id, fieldNames, cancellationToken);
-
-                            var response = extractedData.Select(e => new ExtractedDataDto
-                            {
-                                ExtractedDataId = e.ExtractedDataId,
-                                OcrResultId = e.OcrResultId,
-                                FieldName = e.FieldName,
-                                FieldValue = e.FieldValue,
-                                DataType = e.DataType,
-                                Confidence = e.Confidence,
-                                PageNumber = e.PageNumber,
-                                BoundingBox = e.BoundingBox
-                            });
-
-                            return Ok(response);
-                        }
-                        catch (InvalidOperationException)
-                        {
-                            return NotFound();
-                        }
-                    }
-                }
-                """
+        return new CodeFileModel<ClassModel>(classModel, "OcrController", directory, CSharp)
+        {
+            Namespace = "OcrVision.Api.Controllers"
         };
     }
 
