@@ -54,6 +54,21 @@ public class ProjectService : IProjectService
         var solution = fileProvider.Get("*.sln", model.Directory);
         var solutionName = Path.GetFileName(solution);
         var solutionDirectory = fileSystem.Path.GetDirectoryName(solution);
+        
+        // Handle case where GetDirectoryName returns null (e.g., for root paths or invalid paths)
+        if (string.IsNullOrEmpty(solutionDirectory))
+        {
+            // Fall back to manually extracting directory from path
+            var lastSeparatorIndex = Math.Max(solution.LastIndexOf('\\'), solution.LastIndexOf('/'));
+            if (lastSeparatorIndex > 0)
+            {
+                solutionDirectory = solution.Substring(0, lastSeparatorIndex);
+            }
+            else
+            {
+                solutionDirectory = string.Empty;
+            }
+        }
 
         if (model.Extension == ".csproj")
         {
@@ -67,9 +82,11 @@ public class ProjectService : IProjectService
         {
             var lines = new List<string>();
 
+            var relativePath = GetRelativePathForSolution(solutionDirectory, model.Path);
+
             var projectEntry = new string[2]
             {
-                "Project(\"{" + $"{Guid.NewGuid()}".ToUpper() + "}\") = \"" + model.Name + "\", \"" + model.Path.Replace($"{solutionDirectory}{Path.DirectorySeparatorChar}", string.Empty) + "\", \"{" + $"{Guid.NewGuid()}".ToUpper() + "}\"",
+                "Project(\"{" + $"{Guid.NewGuid()}".ToUpper() + "}\") = \"" + model.Name + "\", \"" + relativePath + "\", \"{" + $"{Guid.NewGuid()}".ToUpper() + "}\"",
                 "EndProject",
             };
 
@@ -94,11 +111,12 @@ public class ProjectService : IProjectService
     {
         var lines = fileSystem.File.ReadAllLines(solutionPath).ToList();
         var projectGuid = $"{{{Guid.NewGuid().ToString().ToUpper()}}}";
-        var relativePath = model.Path.Replace($"{solutionDirectory}{Path.DirectorySeparatorChar}", string.Empty);
+        
+        var relativePath = GetRelativePathForSolution(solutionDirectory, model.Path);
 
         // Find the solution folder GUID if project is in a subfolder (e.g., "src")
         string solutionFolderGuid = null;
-        var pathParts = relativePath.Split(Path.DirectorySeparatorChar);
+        var pathParts = relativePath.Split('\\');  // Split on backslash since we normalized to backslashes
         if (pathParts.Length > 2)
         {
             var folderName = pathParts[0];
@@ -269,6 +287,27 @@ public class ProjectService : IProjectService
         }
 
         return -1;
+    }
+
+    private string GetRelativePathForSolution(string solutionDirectory, string projectPath)
+    {
+        // Normalize paths to use consistent separators
+        var normalizedSolutionDir = solutionDirectory.Replace('\\', '/').TrimEnd('/');
+        var normalizedProjectPath = projectPath.Replace('\\', '/');
+        
+        // Get relative path
+        string relativePath;
+        if (normalizedProjectPath.StartsWith(normalizedSolutionDir + "/"))
+        {
+            relativePath = normalizedProjectPath.Substring(normalizedSolutionDir.Length + 1);
+        }
+        else
+        {
+            relativePath = normalizedProjectPath;
+        }
+        
+        // Convert to backslashes for .sln file (Visual Studio always uses backslashes)
+        return relativePath.Replace('/', '\\');
     }
 
     public async Task AddEndpointPostBuildTargetElement(string csprojFilePath)
