@@ -3,6 +3,7 @@
 
 using System.Linq;
 using CommandLine;
+using Endpoint.DotNet.Services;
 
 namespace Endpoint.DotNet.Extensions;
 
@@ -10,11 +11,33 @@ public static class CommandLineArgsExtensions
 {
     public static object ParseArguments(this string[] args)
     {
-        var lastArg = args.First();
+        var lastArg = args.FirstOrDefault() ?? string.Empty;
 
         if (lastArg.EndsWith("dll"))
         {
             args = args.Skip(1).ToArray();
+        }
+
+        // Check for global --help or -h flag (no command specified)
+        if (args.Length == 0 ||
+            (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?" || args[0] == "help")))
+        {
+            HelpService.DisplayHelp();
+            Environment.Exit(0);
+        }
+
+        // Check for help on a specific command: endpoint <command> --help
+        if (args.Length == 2 && (args[1] == "--help" || args[1] == "-h" || args[1] == "-?"))
+        {
+            HelpService.DisplayCommandHelp(args[0]);
+            Environment.Exit(0);
+        }
+
+        // Check for help command with argument: endpoint help <command>
+        if (args.Length == 2 && args[0] == "help")
+        {
+            HelpService.DisplayCommandHelp(args[1]);
+            Environment.Exit(0);
         }
 
         if (args.Length == 0)
@@ -42,8 +65,9 @@ public static class CommandLineArgsExtensions
 
         var parsedResult = parser.ParseArguments(args, verbs);
 
-        if (parsedResult.Errors.SingleOrDefault() is HelpRequestedError || parsedResult.Errors.SingleOrDefault() is HelpRequestedError)
+        if (parsedResult.Errors.SingleOrDefault() is HelpRequestedError || parsedResult.Errors.SingleOrDefault() is HelpVerbRequestedError)
         {
+            HelpService.DisplayHelp();
             Environment.Exit(0);
         }
 
