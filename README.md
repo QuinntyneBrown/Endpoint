@@ -4,16 +4,19 @@ A powerful template-based design-time code generator for .NET applications. Endp
 
 ## Features
 
-- **Multi-Framework Support**: Generate code for .NET 10+ applications
+- **Multi-Framework Support**: Generate code for .NET 9.0+ applications
 - **Domain-Driven Design**: Built-in support for DDD patterns including aggregates, entities, value objects, and bounded contexts
 - **Physical Topologies**: Pre-configured templates for common application patterns
   - Modern Web App Pattern
-  - Microservices Pattern
+  - Event-Driven Microservices Pattern
   - Worker Services
 - **PlantUML Integration**: Generate complete solutions from PlantUML class diagrams and sequence diagrams
-- **Frontend Integration**: Generate Angular projects and components
+- **Frontend Integration**: Generate Angular, React, Lit, and TypeScript projects
+- **Testing Support**: Built-in support for unit tests, SpecFlow, and Playwright E2E tests
+- **Messaging Patterns**: Redis Pub/Sub, Service Bus, UDP messaging support
 - **OpenAPI Support**: Generate OpenAPI specifications from existing .NET solutions
-- **CLI-First Design**: Comprehensive command-line interface for all operations
+- **SignalR Support**: Generate SignalR hubs and clients for real-time applications
+- **CLI-First Design**: Comprehensive command-line interface with 100+ commands
 
 ## Give a Star!
 
@@ -21,9 +24,10 @@ If you like or are using this project to learn or start your solution, please gi
 
 ## Requirements
 
-- .NET 10 SDK or later
-- Visual Studio 2025 (Version 18.0 or later) or VS Code
-- Node.js (for frontend project generation)
+- .NET 9.0 SDK or later
+- Visual Studio 2022+ or VS Code
+- Node.js 18+ (for frontend project generation)
+- Java Runtime (for PlantUML diagram generation)
 
 ## Get Started with Endpoint
 
@@ -74,28 +78,33 @@ The generator supports:
 
 ```
 src/
-├── Endpoint/                       # Core generation engine
-├── Endpoint.Engineering.Cli/       # Main CLI application
-├── Endpoint.DotNet/                # .NET-specific generators
-├── Endpoint.Angular/               # Angular generators
-├── Endpoint.Engineering/           # DDD patterns, templates, and Modern Web App Pattern
-│   ├── DomainDrivenDesign/         # DDD patterns and templates
-│   └── ModernWebAppPattern/        # Modern web app pattern implementation
+├── Endpoint/                         # Core generation engine and abstractions
+├── Endpoint.Engineering.Cli/         # Main CLI application (100+ commands)
+├── Endpoint.DotNet/                  # .NET-specific generators and services
+├── Endpoint.Angular/                 # Angular project and component generators
+├── Endpoint.DomainDrivenDesign/      # Domain-driven design patterns
+├── Endpoint.Engineering/             # Engineering patterns and templates
+├── Endpoint.ModernWebAppPattern/     # Modern web app pattern implementation
+└── Endpoint.Testing/                 # Testing utilities and generators
 
 tests/
 ├── Endpoint.UnitTests/
+├── Endpoint.Cli.UnitTests/
 ├── Endpoint.Engineering.Cli.UnitTests/
 ├── Endpoint.DotNet.UnitTests/
 ├── Endpoint.Angular.UnitTests/
-├── Endpoint.Engineering.UnitTests/ # Tests for Engineering module
-│   ├── DomainDrivenDesign/         # DDD pattern tests
-│   └── ModernWebAppPattern/        # Modern web app pattern tests
+├── Endpoint.DomainDrivenDesign.UnitTests/
+├── Endpoint.Engineering.UnitTests/
+├── Endpoint.ModernWebAppPattern.UnitTests/
+└── Endpoint.Testing.UnitTests/
 
 playground/
-├── DddSolution/                  # DDD example workspace
-├── EventDrivenMicroservices/     # Event-driven microservices example
-├── SolutionCreateFromSequence/   # Sequence diagram-based generation example
-└── SolutionFromPlantuml/         # PlantUML-based generation example
+├── DddSolution/                      # DDD example workspace
+├── EventDrivenMicroservices/         # Event-driven microservices example
+├── SolutionCreateFromSequence/       # Sequence diagram-based generation
+├── SolutionFromPlantuml/             # PlantUML-based generation example
+├── MessagingDemo/                    # Messaging patterns example
+└── FullStackSolution/                # Full-stack application example
 ```
 
 ## CLI Commands
@@ -179,13 +188,113 @@ endpoint record-create -n <RecordName> -p <Properties>
 
 ```bash
 # Create classes from PlantUML
-endpoint class-from-plantuml-create -s <SourcePath>
+endpoint class-from-plant-uml-create -s <SourcePath>
 
 # Validate PlantUML solution
 endpoint solution-plantuml-validate -s <SourcePath>
 
 # Create image from PlantUML
 endpoint puml-image-create -s <SourceFile>
+
+# Create image from Draw.io
+endpoint drawio-image-create -s <SourceFile>
+```
+
+### Frontend Commands
+
+```bash
+# Create React application
+endpoint react-app-create -n <Name>
+
+# Create Lit workspace
+endpoint lit-workspace-create -n <Name>
+
+# Create TypeScript standalone project
+endpoint ts-project-create -n <Name>
+
+# Create TypeScript file
+endpoint ts-file-create -n <FileName>
+
+# Create SignalR hub client
+endpoint signalr-hub-client-create -n <Name>
+
+# Add SignalR support
+endpoint signalr-add
+```
+
+### Messaging Commands
+
+```bash
+# Add messaging infrastructure
+endpoint messaging-add -n <Name>
+
+# Create message
+endpoint message-create -n <MessageName>
+
+# Create MessagePack message
+endpoint message-pack-message-create -n <Name>
+
+# Create message handler
+endpoint message-handler-create -n <Name>
+
+# Create service bus message consumer
+endpoint service-bus-message-consumer-create -n <Name>
+
+# Add message producer project
+endpoint message-producer-project-add -n <Name>
+
+# Add UDP service bus project
+endpoint udp-service-bus-project-add -n <Name>
+
+# Create UDP client factory interface
+endpoint udp-client-factory-interface-create -n <Name>
+```
+
+### Microservices Commands
+
+```bash
+# Create event-driven microservices solution
+endpoint event-driven-microservices-create -n <Name>
+
+# Add microservice
+endpoint microservice-add -n <Name>
+
+# Add predefined microservice
+endpoint predefined-microservice-add -t <Type>
+```
+
+### Testing Commands
+
+```bash
+# Create unit test
+endpoint unit-test-create -n <TestName>
+
+# Create test
+endpoint test-create -n <TestName>
+
+# Create test header
+endpoint test-header-create
+
+# Create benchmark
+endpoint benchmark-create -n <Name>
+
+# Add SpecFlow project
+endpoint spec-flow-project-add -n <Name>
+
+# Create SpecFlow feature
+endpoint spec-flow-feature-create -n <Name>
+
+# Create SpecFlow hook
+endpoint spec-flow-hook-create -n <Name>
+
+# Add Playwright project
+endpoint playwright-project-add -n <Name>
+
+# Create Playwright test
+endpoint playwright-create -n <Name>
+
+# Remove test projects
+endpoint test-projects-remove
 ```
 
 ### OpenAPI Commands
@@ -212,10 +321,113 @@ endpoint gitignore-create
 endpoint copyright-add
 
 # Create an .editorconfig file
-endpoint editorconfig-create
+endpoint editor-config-create
 
 # Create a README file
 endpoint readme-create -n <Name>
+
+# Add package reference
+endpoint package-add -n <PackageName>
+
+# Add project reference
+endpoint reference-add -n <ProjectName>
+
+# Replace text in files
+endpoint replace -o <OldText> -n <NewText>
+
+# Create namespace
+endpoint namespace-create -n <Namespace>
+
+# Reset namespace
+endpoint namespace-reset
+
+# Unnest namespace
+endpoint namespace-unnest
+
+# Create usings file
+endpoint usings-create
+
+# Move file
+endpoint file-move -s <Source> -d <Destination>
+
+# Rename file
+endpoint file-rename -o <OldName> -n <NewName>
+
+# Get full path
+endpoint get-full-path -p <Path>
+```
+
+### Advanced Commands
+
+```bash
+# Create WebSocket application
+endpoint ws-app-create -n <Name>
+
+# Create syntax generation strategy
+endpoint syntax-generation-strategy-create -n <Name>
+
+# Create public API
+endpoint public-api-create
+
+# Create building block
+endpoint building-block-create -n <Name>
+
+# Create user-defined type
+endpoint udt-create -n <Name>
+
+# Create value type
+endpoint value-type-create -n <Name>
+
+# Create query
+endpoint query-create -n <Name>
+
+# Create response
+endpoint response-create -n <Name>
+
+# Create event
+endpoint event-add -n <EventName>
+
+# Create service
+endpoint service-create -n <ServiceName>
+
+# Add migration
+endpoint migration-add -n <MigrationName>
+
+# Add DbContext
+endpoint db-context-add -n <Name>
+
+# Create configure services
+endpoint configure-services-create
+
+# Create specification
+endpoint spec-create -n <Name>
+
+# Unnest class
+endpoint class-unnest -n <ClassName>
+
+# Nest component
+endpoint component-nest -n <ComponentName>
+
+# Embed project
+endpoint project-embed -n <ProjectName>
+
+# Parse code
+endpoint code-parse -s <SourcePath>
+
+# Parse HTML
+endpoint html-parse -s <SourcePath>
+
+# Create HTTP project
+endpoint http-project -n <Name>
+
+# Remove Mediator
+endpoint remove-mediator
+
+# Add generate documentation file
+endpoint generate-documentation-file-add
+
+# Create pull request
+endpoint pr -t <Title> -d <Description>
 ```
 
 ## Contributing
@@ -235,16 +447,16 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## FAQ
 
 ### Q: What versions of .NET does Endpoint support?
-A: Endpoint currently targets .NET 10 and later versions.
+A: Endpoint currently targets .NET 9.0 and later versions.
 
 ### Q: Can I generate solutions from PlantUML diagrams?
-A: Yes! Endpoint supports both PlantUML class diagrams and sequence diagrams for solution generation using the `solution-create-from-plantuml` and `solution-create-from-sequence` commands.
+A: Yes! Endpoint supports both PlantUML class diagrams and sequence diagrams for solution generation using the `solution-create-from-plant-uml` and `solution-create-from-sequence` commands.
 
 ### Q: Does Endpoint modify existing code?
 A: Endpoint can both generate new code and update existing files. Always use version control when working with code generators.
 
 ### Q: What frontend frameworks are supported?
-A: Currently supports Angular project and component generation.
+A: Endpoint supports Angular, React, Lit, and standalone TypeScript projects, including component generation and project scaffolding.
 
 ### Q: Can I use Endpoint in CI/CD pipelines?
 A: Yes, Endpoint is designed to work in automated environments and can be integrated into your CI/CD workflows.
