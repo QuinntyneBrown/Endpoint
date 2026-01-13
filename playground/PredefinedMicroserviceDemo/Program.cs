@@ -63,23 +63,50 @@ try
 
     await mediator.Send(listRequest);
 
-    // Now add an Identity microservice
-    logger.LogInformation("Adding Identity microservice to demo solution...");
-
-    var addIdentityRequest = new PredefinedMicroserviceAddRequest
+    // Test generating ALL 24 microservices
+    var microservicesToTest = new[]
     {
-        Name = "Identity",
-        Directory = demoDirectory
+        "Identity",
+        "Tenant",
+        "Notification",
+        "DocumentStorage",
+        "Search",
+        "Analytics",
+        "Billing",
+        "OcrVision",
+        "Scheduling",
+        "Audit",
+        "Export",
+        "Email",
+        "Integration",
+        "Media",
+        "Geolocation",
+        "Tagging",
+        "Collaboration",
+        "Calculation",
+        "Import",
+        "Cache",
+        "RateLimiting",
+        "Localization",
+        "Workflow",
+        "Backup"
     };
 
-    await mediator.Send(addIdentityRequest);
+    foreach (var microserviceName in microservicesToTest)
+    {
+        logger.LogInformation("Adding {Name} microservice...", microserviceName);
+
+        var addRequest = new PredefinedMicroserviceAddRequest
+        {
+            Name = microserviceName,
+            Directory = demoDirectory
+        };
+
+        await mediator.Send(addRequest);
+    }
 
     logger.LogInformation("=== Demo Complete ===");
-    logger.LogInformation("Identity microservice created successfully at: {Directory}", demoDirectory);
-    logger.LogInformation("The microservice includes:");
-    logger.LogInformation("  - Identity.Core: Domain entities, interfaces, and events");
-    logger.LogInformation("  - Identity.Infrastructure: Data access with EF Core, repositories");
-    logger.LogInformation("  - Identity.Api: REST API endpoints for authentication and user management");
+    logger.LogInformation("Generated {Count} microservices at: {Directory}", microservicesToTest.Length, demoDirectory);
 }
 catch (Exception ex)
 {

@@ -3,7 +3,30 @@
 
 using Endpoint.Engineering.AI.Services;
 using Endpoint.Engineering.Microservices;
+using Endpoint.Engineering.Microservices.Analytics;
+using Endpoint.Engineering.Microservices.Audit;
+using Endpoint.Engineering.Microservices.Backup;
+using Endpoint.Engineering.Microservices.Billing;
+using Endpoint.Engineering.Microservices.Cache;
+using Endpoint.Engineering.Microservices.Calculation;
+using Endpoint.Engineering.Microservices.Collaboration;
+using Endpoint.Engineering.Microservices.DocumentStorage;
+using Endpoint.Engineering.Microservices.Email;
+using Endpoint.Engineering.Microservices.Export;
+using Endpoint.Engineering.Microservices.Geolocation;
 using Endpoint.Engineering.Microservices.Identity;
+using Endpoint.Engineering.Microservices.Import;
+using Endpoint.Engineering.Microservices.Integration;
+using Endpoint.Engineering.Microservices.Localization;
+using Endpoint.Engineering.Microservices.Media;
+using Endpoint.Engineering.Microservices.Notification;
+using Endpoint.Engineering.Microservices.OcrVision;
+using Endpoint.Engineering.Microservices.RateLimiting;
+using Endpoint.Engineering.Microservices.Scheduling;
+using Endpoint.Engineering.Microservices.Search;
+using Endpoint.Engineering.Microservices.Tagging;
+using Endpoint.Engineering.Microservices.Tenant;
+using Endpoint.Engineering.Microservices.Workflow;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -21,8 +44,31 @@ public static class ConfigureServices
 
         services.AddSingleton<IHtmlParserService, HtmlParserService>();
 
-        // Register artifact factories for microservices
+        // Register artifact factories for all microservices
         services.AddSingleton<IIdentityArtifactFactory, IdentityArtifactFactory>();
+        services.AddSingleton<ITenantArtifactFactory, TenantArtifactFactory>();
+        services.AddSingleton<INotificationArtifactFactory, NotificationArtifactFactory>();
+        services.AddSingleton<IDocumentStorageArtifactFactory, DocumentStorageArtifactFactory>();
+        services.AddSingleton<ISearchArtifactFactory, SearchArtifactFactory>();
+        services.AddSingleton<IAnalyticsArtifactFactory, AnalyticsArtifactFactory>();
+        services.AddSingleton<IBillingArtifactFactory, BillingArtifactFactory>();
+        services.AddSingleton<IOcrVisionArtifactFactory, OcrVisionArtifactFactory>();
+        services.AddSingleton<ISchedulingArtifactFactory, SchedulingArtifactFactory>();
+        services.AddSingleton<IAuditArtifactFactory, AuditArtifactFactory>();
+        services.AddSingleton<IExportArtifactFactory, ExportArtifactFactory>();
+        services.AddSingleton<IEmailArtifactFactory, EmailArtifactFactory>();
+        services.AddSingleton<IIntegrationArtifactFactory, IntegrationArtifactFactory>();
+        services.AddSingleton<IMediaArtifactFactory, MediaArtifactFactory>();
+        services.AddSingleton<IGeolocationArtifactFactory, GeolocationArtifactFactory>();
+        services.AddSingleton<ITaggingArtifactFactory, TaggingArtifactFactory>();
+        services.AddSingleton<ICollaborationArtifactFactory, CollaborationArtifactFactory>();
+        services.AddSingleton<ICalculationArtifactFactory, CalculationArtifactFactory>();
+        services.AddSingleton<IImportArtifactFactory, ImportArtifactFactory>();
+        services.AddSingleton<ICacheArtifactFactory, CacheArtifactFactory>();
+        services.AddSingleton<IRateLimitingArtifactFactory, RateLimitingArtifactFactory>();
+        services.AddSingleton<ILocalizationArtifactFactory, LocalizationArtifactFactory>();
+        services.AddSingleton<IWorkflowArtifactFactory, WorkflowArtifactFactory>();
+        services.AddSingleton<IBackupArtifactFactory, BackupArtifactFactory>();
 
         // Register MicroserviceFactory for predefined microservice creation
         services.AddSingleton<IMicroserviceFactory, MicroserviceFactory>();
