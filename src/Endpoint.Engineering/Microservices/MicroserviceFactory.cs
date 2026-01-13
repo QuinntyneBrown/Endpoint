@@ -869,18 +869,18 @@ public class MicroserviceFactory : IMicroserviceFactory
     {
         logger.LogInformation("Creating TelemetryStreaming microservice with full implementation");
 
-        var solutionModel = new SolutionModel("TelemetryStreaming", directory);
+        var solutionModel = new SolutionModel("EventMonitoring.TelemetryStreaming", directory);
 
-        var coreProject = await CreateCoreProjectAsync("TelemetryStreaming", solutionModel.SrcDirectory, new[]
+        var coreProject = await CreateCoreProjectAsync("EventMonitoring.TelemetryStreaming", solutionModel.SrcDirectory, new[]
         {
             new PackageModel("Microsoft.AspNetCore.SignalR", "1.1.0")
         });
-        var infrastructureProject = await CreateInfrastructureProjectAsync("TelemetryStreaming", solutionModel.SrcDirectory);
-        var apiProject = await CreateApiProjectAsync("TelemetryStreaming", solutionModel.SrcDirectory);
+        var infrastructureProject = await CreateInfrastructureProjectAsync("EventMonitoring.TelemetryStreaming", solutionModel.SrcDirectory);
+        var apiProject = await CreateApiProjectAsync("EventMonitoring.TelemetryStreaming", solutionModel.SrcDirectory);
 
         telemetryStreamingArtifactFactory.AddCoreFiles(coreProject);
-        telemetryStreamingArtifactFactory.AddInfrastructureFiles(infrastructureProject, "TelemetryStreaming");
-        telemetryStreamingArtifactFactory.AddApiFiles(apiProject, "TelemetryStreaming");
+        telemetryStreamingArtifactFactory.AddInfrastructureFiles(infrastructureProject, "EventMonitoring.TelemetryStreaming");
+        telemetryStreamingArtifactFactory.AddApiFiles(apiProject, "EventMonitoring.TelemetryStreaming");
 
         solutionModel.Projects.Add(coreProject);
         solutionModel.Projects.Add(infrastructureProject);
@@ -896,18 +896,18 @@ public class MicroserviceFactory : IMicroserviceFactory
     {
         logger.LogInformation("Creating HistoricalTelemetry microservice with full implementation");
 
-        var solutionModel = new SolutionModel("HistoricalTelemetry", directory);
+        var solutionModel = new SolutionModel("EventMonitoring.HistoricalTelemetry", directory);
 
-        var coreProject = await CreateCoreProjectAsync("HistoricalTelemetry", solutionModel.SrcDirectory, new[]
+        var coreProject = await CreateCoreProjectAsync("EventMonitoring.HistoricalTelemetry", solutionModel.SrcDirectory, new[]
         {
             new PackageModel("StackExchange.Redis", "2.7.10")
         });
-        var infrastructureProject = await CreateInfrastructureProjectAsync("HistoricalTelemetry", solutionModel.SrcDirectory);
-        var apiProject = await CreateApiProjectAsync("HistoricalTelemetry", solutionModel.SrcDirectory);
+        var infrastructureProject = await CreateInfrastructureProjectAsync("EventMonitoring.HistoricalTelemetry", solutionModel.SrcDirectory);
+        var apiProject = await CreateApiProjectAsync("EventMonitoring.HistoricalTelemetry", solutionModel.SrcDirectory);
 
         historicalTelemetryArtifactFactory.AddCoreFiles(coreProject);
-        historicalTelemetryArtifactFactory.AddInfrastructureFiles(infrastructureProject, "HistoricalTelemetry");
-        historicalTelemetryArtifactFactory.AddApiFiles(apiProject, "HistoricalTelemetry");
+        historicalTelemetryArtifactFactory.AddInfrastructureFiles(infrastructureProject, "EventMonitoring.HistoricalTelemetry");
+        historicalTelemetryArtifactFactory.AddApiFiles(apiProject, "EventMonitoring.HistoricalTelemetry");
 
         solutionModel.Projects.Add(coreProject);
         solutionModel.Projects.Add(infrastructureProject);
@@ -1031,7 +1031,8 @@ public class MicroserviceFactory : IMicroserviceFactory
         {
             new PackageModel("Microsoft.EntityFrameworkCore.SqlServer", "8.0.0"),
             new PackageModel("Microsoft.EntityFrameworkCore.Design", "8.0.0"),
-            new PackageModel("Microsoft.EntityFrameworkCore.Tools", "8.0.0")
+            new PackageModel("Microsoft.EntityFrameworkCore.Tools", "8.0.0"),
+            new PackageModel("Microsoft.Extensions.Options.ConfigurationExtensions", "8.0.0")
         });
 
         project.References.Add($@"..\{name}.Core\{name}.Core.csproj");
