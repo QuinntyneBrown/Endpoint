@@ -1,0 +1,71 @@
+{
+  "$schema": "https://endpoint.dev/schemas/messaging/v1.0.json",
+  "projectName": "ECommerce",
+  "description": "Additional notification messages for e-commerce",
+  "messages": [
+    {
+      "name": "SendEmailNotification",
+      "kind": "Command",
+      "messageType": "com.ecommerce.notifications.v1.SendEmailNotification",
+      "description": "Command to send an email notification to a customer",
+      "channel": "notifications",
+      "properties": [
+        {
+          "name": "NotificationId",
+          "type": "Guid",
+          "required": true
+        },
+        {
+          "name": "RecipientEmail",
+          "type": "string",
+          "required": true,
+          "description": "The recipient email address"
+        },
+        {
+          "name": "Subject",
+          "type": "string",
+          "required": true,
+          "description": "The email subject"
+        },
+        {
+          "name": "Body",
+          "type": "string",
+          "required": true,
+          "description": "The email body (HTML supported)"
+        },
+        {
+          "name": "TemplateId",
+          "type": "string",
+          "nullable": true,
+          "description": "Optional email template ID"
+        }
+      ]
+    },
+    {
+      "name": "EmailNotificationSent",
+      "kind": "Event",
+      "messageType": "com.ecommerce.notifications.v1.EmailNotificationSent",
+      "description": "Event raised when an email notification is sent",
+      "aggregateType": "Notification",
+      "channel": "notifications",
+      "properties": [
+        {
+          "name": "NotificationId",
+          "type": "Guid",
+          "required": true
+        },
+        {
+          "name": "RecipientEmail",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "DeliveryStatus",
+          "type": "string",
+          "required": true,
+          "description": "The delivery status (Sent, Delivered, Failed)"
+        }
+      ]
+    }
+  ]
+}

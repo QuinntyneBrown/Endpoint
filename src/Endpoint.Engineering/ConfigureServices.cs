@@ -32,6 +32,7 @@ using Endpoint.Engineering.Microservices.TelemetryStreaming;
 using Endpoint.Engineering.Microservices.HistoricalTelemetry;
 using Endpoint.Engineering.Microservices.GitAnalysis;
 using Endpoint.Engineering.Microservices.RealtimeNotification;
+using Endpoint.Engineering.Messaging.Artifacts;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -83,6 +84,9 @@ public static class ConfigureServices
 
         // Register MicroserviceFactory for predefined microservice creation
         services.AddSingleton<IMicroserviceFactory, MicroserviceFactory>();
+
+        // Register Messaging project generator services
+        services.AddMessagingProjectGeneratorServices();
     }
 }
 
