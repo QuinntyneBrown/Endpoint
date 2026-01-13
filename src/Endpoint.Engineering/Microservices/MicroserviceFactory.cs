@@ -31,6 +31,8 @@ using Endpoint.Engineering.Microservices.Workflow;
 using Endpoint.Engineering.Microservices.ConfigurationManagement;
 using Endpoint.Engineering.Microservices.TelemetryStreaming;
 using Endpoint.Engineering.Microservices.HistoricalTelemetry;
+using Endpoint.Engineering.Microservices.GitAnalysis;
+using Endpoint.Engineering.Microservices.RealtimeNotification;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Engineering.Microservices;
@@ -70,6 +72,8 @@ public class MicroserviceFactory : IMicroserviceFactory
     private readonly IConfigurationManagementArtifactFactory configurationManagementArtifactFactory;
     private readonly ITelemetryStreamingArtifactFactory telemetryStreamingArtifactFactory;
     private readonly IHistoricalTelemetryArtifactFactory historicalTelemetryArtifactFactory;
+    private readonly IGitAnalysisArtifactFactory gitAnalysisArtifactFactory;
+    private readonly IRealtimeNotificationArtifactFactory realtimeNotificationArtifactFactory;
 
     private static readonly IReadOnlyList<string> AvailableMicroserviceNames = new[]
     {
@@ -98,7 +102,9 @@ public class MicroserviceFactory : IMicroserviceFactory
         "Workflow",
         "ConfigurationManagement",
         "TelemetryStreaming",
-        "HistoricalTelemetry"
+        "HistoricalTelemetry",
+        "GitAnalysis",
+        "RealtimeNotification"
     };
 
     public MicroserviceFactory(
@@ -129,7 +135,9 @@ public class MicroserviceFactory : IMicroserviceFactory
         IWorkflowArtifactFactory workflowArtifactFactory,
         IConfigurationManagementArtifactFactory configurationManagementArtifactFactory,
         ITelemetryStreamingArtifactFactory telemetryStreamingArtifactFactory,
-        IHistoricalTelemetryArtifactFactory historicalTelemetryArtifactFactory)
+        IHistoricalTelemetryArtifactFactory historicalTelemetryArtifactFactory,
+        IGitAnalysisArtifactFactory gitAnalysisArtifactFactory,
+        IRealtimeNotificationArtifactFactory realtimeNotificationArtifactFactory)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.projectFactory = projectFactory ?? throw new ArgumentNullException(nameof(projectFactory));
@@ -159,6 +167,8 @@ public class MicroserviceFactory : IMicroserviceFactory
         this.configurationManagementArtifactFactory = configurationManagementArtifactFactory ?? throw new ArgumentNullException(nameof(configurationManagementArtifactFactory));
         this.telemetryStreamingArtifactFactory = telemetryStreamingArtifactFactory ?? throw new ArgumentNullException(nameof(telemetryStreamingArtifactFactory));
         this.historicalTelemetryArtifactFactory = historicalTelemetryArtifactFactory ?? throw new ArgumentNullException(nameof(historicalTelemetryArtifactFactory));
+        this.gitAnalysisArtifactFactory = gitAnalysisArtifactFactory ?? throw new ArgumentNullException(nameof(gitAnalysisArtifactFactory));
+        this.realtimeNotificationArtifactFactory = realtimeNotificationArtifactFactory ?? throw new ArgumentNullException(nameof(realtimeNotificationArtifactFactory));
     }
 
     public IReadOnlyList<string> GetAvailableMicroservices() => AvailableMicroserviceNames;
@@ -193,6 +203,8 @@ public class MicroserviceFactory : IMicroserviceFactory
             "configurationmanagement" => await CreateConfigurationManagementMicroserviceAsync(directory, cancellationToken),
             "telemetrystreaming" => await CreateTelemetryStreamingMicroserviceAsync(directory, cancellationToken),
             "historicaltelemetry" => await CreateHistoricalTelemetryMicroserviceAsync(directory, cancellationToken),
+            "gitanalysis" => await CreateGitAnalysisMicroserviceAsync(directory, cancellationToken),
+            "realtimenotification" => await CreateRealtimeNotificationMicroserviceAsync(directory, cancellationToken),
             _ => throw new ArgumentException($"Unknown microservice: {name}. Available microservices: {string.Join(", ", AvailableMicroserviceNames)}", nameof(name))
         };
     }
@@ -908,6 +920,66 @@ public class MicroserviceFactory : IMicroserviceFactory
         historicalTelemetryArtifactFactory.AddCoreFiles(coreProject);
         historicalTelemetryArtifactFactory.AddInfrastructureFiles(infrastructureProject, "EventMonitoring.HistoricalTelemetry");
         historicalTelemetryArtifactFactory.AddApiFiles(apiProject, "EventMonitoring.HistoricalTelemetry");
+
+        solutionModel.Projects.Add(coreProject);
+        solutionModel.Projects.Add(infrastructureProject);
+        solutionModel.Projects.Add(apiProject);
+
+        solutionModel.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+        solutionModel.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
+
+        return solutionModel;
+    }
+
+    public async Task<SolutionModel> CreateGitAnalysisMicroserviceAsync(string directory, CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation("Creating GitAnalysis microservice with full implementation");
+
+        var solutionModel = new SolutionModel("GitAnalysis", directory);
+
+        var coreProject = await CreateCoreProjectAsync("GitAnalysis", solutionModel.SrcDirectory, Array.Empty<PackageModel>());
+        var infrastructureProject = await CreateInfrastructureProjectAsync("GitAnalysis", solutionModel.SrcDirectory);
+        var apiProject = await CreateApiProjectAsync("GitAnalysis", solutionModel.SrcDirectory);
+
+        // Add LibGit2Sharp to infrastructure for Git operations
+        infrastructureProject.Packages.Add(new PackageModel("LibGit2Sharp", "0.27.2"));
+
+        gitAnalysisArtifactFactory.AddCoreFiles(coreProject);
+        gitAnalysisArtifactFactory.AddInfrastructureFiles(infrastructureProject, "GitAnalysis");
+        gitAnalysisArtifactFactory.AddApiFiles(apiProject, "GitAnalysis");
+
+        solutionModel.Projects.Add(coreProject);
+        solutionModel.Projects.Add(infrastructureProject);
+        solutionModel.Projects.Add(apiProject);
+
+        solutionModel.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+        solutionModel.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
+
+        return solutionModel;
+    }
+
+    public async Task<SolutionModel> CreateRealtimeNotificationMicroserviceAsync(string directory, CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation("Creating RealtimeNotification microservice with full implementation");
+
+        var solutionModel = new SolutionModel("RealtimeNotification", directory);
+
+        var coreProject = await CreateCoreProjectAsync("RealtimeNotification", solutionModel.SrcDirectory, Array.Empty<PackageModel>());
+        var infrastructureProject = await CreateInfrastructureProjectAsync("RealtimeNotification", solutionModel.SrcDirectory);
+        var apiProject = await CreateApiProjectAsync("RealtimeNotification", solutionModel.SrcDirectory);
+
+        // Add SignalR and Redis packages
+        coreProject.Packages.Add(new PackageModel("Microsoft.AspNetCore.SignalR.Common", "8.0.0"));
+        infrastructureProject.Packages.Add(new PackageModel("StackExchange.Redis", "2.7.10"));
+        apiProject.Packages.AddRange(new[]
+        {
+            new PackageModel("Microsoft.AspNetCore.SignalR.StackExchangeRedis", "8.0.0"),
+            new PackageModel("Microsoft.AspNetCore.Authentication.JwtBearer", "8.0.0")
+        });
+
+        realtimeNotificationArtifactFactory.AddCoreFiles(coreProject);
+        realtimeNotificationArtifactFactory.AddInfrastructureFiles(infrastructureProject, "RealtimeNotification");
+        realtimeNotificationArtifactFactory.AddApiFiles(apiProject, "RealtimeNotification");
 
         solutionModel.Projects.Add(coreProject);
         solutionModel.Projects.Add(infrastructureProject);

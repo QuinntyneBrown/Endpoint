@@ -29,6 +29,8 @@ using Endpoint.Engineering.Microservices.Workflow;
 using Endpoint.Engineering.Microservices.ConfigurationManagement;
 using Endpoint.Engineering.Microservices.TelemetryStreaming;
 using Endpoint.Engineering.Microservices.HistoricalTelemetry;
+using Endpoint.Engineering.Microservices.GitAnalysis;
+using Endpoint.Engineering.Microservices.RealtimeNotification;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -74,6 +76,8 @@ public static class ConfigureServices
         services.AddSingleton<IConfigurationManagementArtifactFactory, ConfigurationManagementArtifactFactory>();
         services.AddSingleton<ITelemetryStreamingArtifactFactory, TelemetryStreamingArtifactFactory>();
         services.AddSingleton<IHistoricalTelemetryArtifactFactory, HistoricalTelemetryArtifactFactory>();
+        services.AddSingleton<IGitAnalysisArtifactFactory, GitAnalysisArtifactFactory>();
+        services.AddSingleton<IRealtimeNotificationArtifactFactory, RealtimeNotificationArtifactFactory>();
 
         // Register MicroserviceFactory for predefined microservice creation
         services.AddSingleton<IMicroserviceFactory, MicroserviceFactory>();
