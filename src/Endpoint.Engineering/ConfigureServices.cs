@@ -4,6 +4,7 @@
 using Endpoint.Engineering.AI.Services;
 using Endpoint.Engineering.Api;
 using Endpoint.Engineering.Microservices;
+using Endpoint.Engineering.StaticAnalysis.Html;
 using Endpoint.Engineering.Microservices.Analytics;
 using Endpoint.Engineering.Microservices.Audit;
 using Endpoint.Engineering.Microservices.Billing;
@@ -51,6 +52,7 @@ public static class ConfigureServices
         });
 
         services.AddSingleton<IHtmlParserService, HtmlParserService>();
+        services.AddSingleton<IHtmlStaticAnalysisService, HtmlStaticAnalysisService>();
 
         // Register artifact factories for all microservices
         services.AddSingleton<IIdentityArtifactFactory, IdentityArtifactFactory>();
