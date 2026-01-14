@@ -404,7 +404,9 @@ public class CSharpStaticAnalysisService : ICSharpStaticAnalysisService
     private IEnumerable<StaticAnalysisIssue> AnalyzeCodeStyle(string filePath, SyntaxNode root, string code)
     {
         var issues = new List<StaticAnalysisIssue>();
-        var lines = code.Split('\n');
+        // Normalize line endings to avoid false positives from \r
+        var normalizedCode = code.Replace("\r\n", "\n").Replace("\r", "\n");
+        var lines = normalizedCode.Split('\n');
 
         // Check for multiple statements on the same line
         var statements = root.DescendantNodes().OfType<StatementSyntax>().ToList();
@@ -603,38 +605,54 @@ public class CSharpStaticAnalysisService : ICSharpStaticAnalysisService
 
         // Check for using directives that might be unnecessary (basic heuristic)
         var usingDirectives = root.DescendantNodes().OfType<UsingDirectiveSyntax>().ToList();
-        var usedNamespaces = new HashSet<string>();
 
-        // Get all identifiers used in the file
-        foreach (var identifier in root.DescendantNodes().OfType<IdentifierNameSyntax>())
+        // Get all identifiers used in the file (excluding the using directives themselves)
+        var usedIdentifiers = new HashSet<string>();
+        var contentNodes = root.DescendantNodes()
+            .Where(n => !(n.Parent is UsingDirectiveSyntax));
+
+        foreach (var identifier in contentNodes.OfType<IdentifierNameSyntax>())
         {
-            usedNamespaces.Add(identifier.Identifier.Text);
+            usedIdentifiers.Add(identifier.Identifier.Text);
         }
-        foreach (var qualified in root.DescendantNodes().OfType<QualifiedNameSyntax>())
+        foreach (var qualified in contentNodes.OfType<QualifiedNameSyntax>())
         {
-            usedNamespaces.Add(qualified.ToString());
+            usedIdentifiers.Add(qualified.ToString());
+            // Also add individual parts
+            foreach (var part in qualified.ToString().Split('.'))
+            {
+                usedIdentifiers.Add(part);
+            }
         }
 
-        // Look for obviously unused usings
-        var commonlyUsedPrefixes = new HashSet<string>
+        // Common System namespaces that are often used implicitly with implicit usings
+        var implicitlyUsedNamespaces = new HashSet<string>
         {
-            "System", "Microsoft", "Newtonsoft", "Serilog", "MediatR"
+            "System", "System.Collections.Generic", "System.Linq", "System.Threading.Tasks",
+            "System.IO", "System.Text"
         };
 
         foreach (var usingDirective in usingDirectives)
         {
             var namespaceName = usingDirective.Name?.ToString() ?? "";
-            var lastPart = namespaceName.Split('.').Last();
-
-            // Skip common namespaces as they're often used implicitly
-            if (commonlyUsedPrefixes.Any(p => namespaceName.StartsWith(p)))
+            if (string.IsNullOrEmpty(namespaceName))
                 continue;
 
-            // Check if any type from this namespace is used
-            var isUsed = usedNamespaces.Any(u =>
-                namespaceName.EndsWith(u) || lastPart == u);
+            // Skip implicitly used namespaces
+            if (implicitlyUsedNamespaces.Contains(namespaceName))
+                continue;
 
-            if (!isUsed && !string.IsNullOrEmpty(lastPart))
+            var namespaceParts = namespaceName.Split('.');
+            var lastPart = namespaceParts.Last();
+
+            // Check if any type from this namespace might be used
+            // A using is potentially unused if:
+            // 1. No identifier matches the last part of the namespace
+            // 2. No identifier matches any part of the namespace
+            var isUsed = usedIdentifiers.Contains(lastPart) ||
+                        namespaceParts.Any(part => usedIdentifiers.Contains(part));
+
+            if (!isUsed)
             {
                 var lineSpan = usingDirective.GetLocation().GetLineSpan();
                 issues.Add(new StaticAnalysisIssue
@@ -837,41 +855,59 @@ public class CSharpStaticAnalysisService : ICSharpStaticAnalysisService
         var issues = new List<StaticAnalysisIssue>();
         var lines = code.Split('\n');
 
+        // Get all loop statements
+        var loops = root.DescendantNodes()
+            .Where(n => n is ForStatementSyntax || n is ForEachStatementSyntax ||
+                       n is WhileStatementSyntax || n is DoStatementSyntax)
+            .ToList();
+
         // Check for string concatenation in loops
-        foreach (var forStatement in root.DescendantNodes().OfType<ForStatementSyntax>())
+        foreach (var loop in loops)
         {
-            var assignments = forStatement.DescendantNodes().OfType<AssignmentExpressionSyntax>();
+            var assignments = loop.DescendantNodes().OfType<AssignmentExpressionSyntax>();
             foreach (var assignment in assignments)
             {
-                if (assignment.IsKind(SyntaxKind.AddAssignmentExpression) &&
-                    assignment.Left.ToString().ToLower().Contains("string"))
+                // Check for += operator with string operand
+                if (assignment.IsKind(SyntaxKind.AddAssignmentExpression))
                 {
-                    var lineSpan = assignment.GetLocation().GetLineSpan();
-                    issues.Add(new StaticAnalysisIssue
+                    // Check if the right side involves ToString() or is a string literal/interpolation
+                    var rightStr = assignment.Right.ToString();
+                    var leftStr = assignment.Left.ToString();
+
+                    // Simple heuristic: if += involves .ToString() or string operations
+                    if (rightStr.Contains(".ToString()") ||
+                        assignment.Right is InterpolatedStringExpressionSyntax ||
+                        assignment.Right is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.StringLiteralExpression))
                     {
-                        FilePath = filePath,
-                        Line = lineSpan.StartLinePosition.Line + 1,
-                        Column = lineSpan.StartLinePosition.Character + 1,
-                        Severity = IssueSeverity.Warning,
-                        Category = IssueCategory.Performance,
-                        RuleId = "CA1850",
-                        Message = "String concatenation in loop - consider using StringBuilder",
-                        CodeSnippet = GetLineContent(lines, lineSpan.StartLinePosition.Line),
-                        SuggestedFix = "Use StringBuilder for better performance"
-                    });
+                        var lineSpan = assignment.GetLocation().GetLineSpan();
+                        issues.Add(new StaticAnalysisIssue
+                        {
+                            FilePath = filePath,
+                            Line = lineSpan.StartLinePosition.Line + 1,
+                            Column = lineSpan.StartLinePosition.Character + 1,
+                            Severity = IssueSeverity.Warning,
+                            Category = IssueCategory.Performance,
+                            RuleId = "CA1850",
+                            Message = "String concatenation in loop - consider using StringBuilder",
+                            CodeSnippet = GetLineContent(lines, lineSpan.StartLinePosition.Line),
+                            SuggestedFix = "Use StringBuilder for better performance"
+                        });
+                    }
                 }
             }
         }
 
         // Check for LINQ in loops
-        foreach (var forStatement in root.DescendantNodes().OfType<ForStatementSyntax>())
+        foreach (var loop in loops)
         {
-            var invocations = forStatement.DescendantNodes().OfType<InvocationExpressionSyntax>();
+            var invocations = loop.DescendantNodes().OfType<InvocationExpressionSyntax>();
             foreach (var invocation in invocations)
             {
                 var methodName = invocation.Expression.ToString();
                 if (methodName.EndsWith(".Count()") || methodName.EndsWith(".Any()") ||
-                    methodName.EndsWith(".First()") || methodName.EndsWith(".ToList()"))
+                    methodName.EndsWith(".First()") || methodName.EndsWith(".ToList()") ||
+                    methodName.EndsWith(".FirstOrDefault()") || methodName.EndsWith(".Last()") ||
+                    methodName.EndsWith(".ToArray()"))
                 {
                     var lineSpan = invocation.GetLocation().GetLineSpan();
                     issues.Add(new StaticAnalysisIssue
@@ -928,6 +964,39 @@ public class CSharpStaticAnalysisService : ICSharpStaticAnalysisService
             }
         }
 
+        // Track variables that are built with string concatenation
+        var concatenatedVariables = new HashSet<string>();
+        foreach (var localDecl in root.DescendantNodes().OfType<LocalDeclarationStatementSyntax>())
+        {
+            foreach (var variable in localDecl.Declaration.Variables)
+            {
+                if (variable.Initializer != null)
+                {
+                    var initValue = variable.Initializer.Value.ToString();
+                    // Check if initialized with concatenation or interpolation
+                    if (initValue.Contains("+") && initValue.Contains("\"") ||
+                        initValue.StartsWith("$\""))
+                    {
+                        concatenatedVariables.Add(variable.Identifier.Text);
+                    }
+                }
+            }
+        }
+
+        // Also check assignments
+        foreach (var assignment in root.DescendantNodes().OfType<AssignmentExpressionSyntax>())
+        {
+            if (assignment.Left is IdentifierNameSyntax identifier)
+            {
+                var rightValue = assignment.Right.ToString();
+                if (rightValue.Contains("+") && rightValue.Contains("\"") ||
+                    rightValue.StartsWith("$\""))
+                {
+                    concatenatedVariables.Add(identifier.Identifier.Text);
+                }
+            }
+        }
+
         // Check for SQL injection vulnerabilities
         foreach (var invocation in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
         {
@@ -938,7 +1007,20 @@ public class CSharpStaticAnalysisService : ICSharpStaticAnalysisService
                 if (args.Count > 0)
                 {
                     var firstArg = args[0].ToString();
-                    if (firstArg.Contains("+") || firstArg.Contains("$"))
+                    var isSqlInjection = false;
+
+                    // Direct concatenation or interpolation in argument
+                    if (firstArg.Contains("+") || firstArg.StartsWith("$\""))
+                    {
+                        isSqlInjection = true;
+                    }
+                    // Variable that was built with concatenation
+                    else if (concatenatedVariables.Contains(firstArg))
+                    {
+                        isSqlInjection = true;
+                    }
+
+                    if (isSqlInjection)
                     {
                         var lineSpan = invocation.GetLocation().GetLineSpan();
                         issues.Add(new StaticAnalysisIssue

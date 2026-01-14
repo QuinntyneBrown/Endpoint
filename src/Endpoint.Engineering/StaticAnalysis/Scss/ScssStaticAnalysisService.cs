@@ -108,6 +108,9 @@ public partial class ScssStaticAnalysisService : IScssStaticAnalysisService
     {
         ArgumentNullException.ThrowIfNull(content);
 
+        // Normalize line endings for consistent regex matching
+        content = content.Replace("\r\n", "\n").Replace("\r", "\n");
+
         var result = new ScssAnalysisResult
         {
             FilePath = fileName
@@ -204,6 +207,13 @@ public partial class ScssStaticAnalysisService : IScssStaticAnalysisService
         foreach (Match match in selectorMatches)
         {
             var selector = NormalizeSelector(match.Groups[1].Value);
+
+            // Skip empty selectors or selectors that are just whitespace
+            if (string.IsNullOrWhiteSpace(selector))
+            {
+                continue;
+            }
+
             var lineNumber = GetLineNumber(content, match.Index);
 
             if (!selectors.ContainsKey(selector))
@@ -327,6 +337,20 @@ public partial class ScssStaticAnalysisService : IScssStaticAnalysisService
             {
                 // Skip interpolation like #{$var}
                 if (match.Index > 0 && line[match.Index - 1] == '{')
+                {
+                    continue;
+                }
+
+                // Skip if this # appears after a colon (property value context - likely a hex color)
+                var beforeMatch = line.Substring(0, match.Index);
+                if (beforeMatch.Contains(':'))
+                {
+                    continue;
+                }
+
+                // Skip if it looks like a hex color (only hex digits 0-9 and a-f after the #)
+                var value = match.Value.Substring(1); // Remove the #
+                if (value.Length >= 3 && value.Length <= 8 && value.All(c => "0123456789abcdefABCDEF".Contains(c)))
                 {
                     continue;
                 }
@@ -508,7 +532,7 @@ public partial class ScssStaticAnalysisService : IScssStaticAnalysisService
     [GeneratedRegex(@"[^}]*\{\s*\}", RegexOptions.Multiline)]
     private static partial Regex EmptyRuleRegex();
 
-    [GeneratedRegex(@"^([^{@/]+)\{", RegexOptions.Multiline)]
+    [GeneratedRegex(@"^([^{@/\r\n]+)\{", RegexOptions.Multiline)]
     private static partial Regex SelectorRegex();
 
     [GeneratedRegex(@"#[0-9a-fA-F]{3,8}\b")]
@@ -529,7 +553,7 @@ public partial class ScssStaticAnalysisService : IScssStaticAnalysisService
     [GeneratedRegex(@"#[a-zA-Z][\w-]*\b")]
     private static partial Regex IdSelectorRegex();
 
-    [GeneratedRegex(@":\s*0(px|em|rem|%|pt|cm|mm|in|pc|ex|ch|vw|vh|vmin|vmax)\b")]
+    [GeneratedRegex(@":\s*0(px|em|rem|%|pt|cm|mm|in|pc|ex|ch|vw|vh|vmin|vmax)(?![a-zA-Z0-9])")]
     private static partial Regex ZeroWithUnitRegex();
 
     [GeneratedRegex(@"-(webkit|moz|ms|o)-")]
