@@ -4,6 +4,7 @@
 using Endpoint.Engineering.AI.Services;
 using Endpoint.Engineering.Api;
 using Endpoint.Engineering.Microservices;
+using Endpoint.Engineering.StaticAnalysis.Scss;
 using Endpoint.Engineering.StaticAnalysis;
 using Endpoint.Engineering.Microservices.Analytics;
 using Endpoint.Engineering.Microservices.Audit;
@@ -54,6 +55,8 @@ public static class ConfigureServices
 
         services.AddSingleton<IHtmlParserService, HtmlParserService>();
 
+        // Register SCSS static analysis service
+        services.AddSingleton<IScssStaticAnalysisService, ScssStaticAnalysisService>();
         // Register Angular Static Analysis service
         services.AddSingleton<IAngularStaticAnalysisService, AngularStaticAnalysisService>();
         // Register Static Analysis Service
