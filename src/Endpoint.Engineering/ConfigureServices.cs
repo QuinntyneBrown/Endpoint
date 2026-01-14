@@ -4,6 +4,7 @@
 using Endpoint.Engineering.AI.Services;
 using Endpoint.Engineering.Api;
 using Endpoint.Engineering.Microservices;
+using Endpoint.Engineering.StaticAnalysis;
 using Endpoint.Engineering.Microservices.Analytics;
 using Endpoint.Engineering.Microservices.Audit;
 using Endpoint.Engineering.Microservices.Billing;
@@ -55,6 +56,8 @@ public static class ConfigureServices
 
         // Register Angular Static Analysis service
         services.AddSingleton<IAngularStaticAnalysisService, AngularStaticAnalysisService>();
+        // Register Static Analysis Service
+        services.AddSingleton<IStaticAnalysisService, StaticAnalysisService>();
 
         // Register artifact factories for all microservices
         services.AddSingleton<IIdentityArtifactFactory, IdentityArtifactFactory>();
