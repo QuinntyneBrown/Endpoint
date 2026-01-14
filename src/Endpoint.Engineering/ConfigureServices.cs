@@ -34,6 +34,7 @@ using Endpoint.Engineering.Microservices.HistoricalTelemetry;
 using Endpoint.Engineering.Microservices.GitAnalysis;
 using Endpoint.Engineering.Microservices.RealtimeNotification;
 using Endpoint.Engineering.Messaging.Artifacts;
+using Endpoint.Engineering.StaticAnalysis.Angular;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -53,6 +54,8 @@ public static class ConfigureServices
 
         services.AddSingleton<IHtmlParserService, HtmlParserService>();
 
+        // Register Angular Static Analysis service
+        services.AddSingleton<IAngularStaticAnalysisService, AngularStaticAnalysisService>();
         // Register Static Analysis Service
         services.AddSingleton<IStaticAnalysisService, StaticAnalysisService>();
 
