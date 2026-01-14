@@ -1,6 +1,8 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Endpoint.Engineering.StaticAnalysis.Models;
+
 namespace Endpoint.Engineering.StaticAnalysis.Scss;
 
 /// <summary>
@@ -103,27 +105,6 @@ public class ScssIssue
     /// Gets or sets the source code snippet where the issue was found.
     /// </summary>
     public string? SourceSnippet { get; set; }
-}
-
-/// <summary>
-/// Represents the severity of an SCSS issue.
-/// </summary>
-public enum IssueSeverity
-{
-    /// <summary>
-    /// Informational message.
-    /// </summary>
-    Info,
-
-    /// <summary>
-    /// Warning that may indicate a problem.
-    /// </summary>
-    Warning,
-
-    /// <summary>
-    /// Error that should be fixed.
-    /// </summary>
-    Error
 }
 
 /// <summary>

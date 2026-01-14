@@ -3,6 +3,7 @@
 
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Endpoint.Engineering.StaticAnalysis.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Engineering.StaticAnalysis.Angular;
@@ -622,7 +623,7 @@ public partial class AngularStaticAnalysisService : IAngularStaticAnalysisServic
         {
             result.Issues.Add(new AngularIssue
             {
-                Severity = AngularIssueSeverity.Info,
+                Severity = IssueSeverity.Info,
                 Category = "Performance",
                 Message = $"Component '{component.Name}' does not use OnPush change detection",
                 FilePath = component.FilePath,
@@ -635,7 +636,7 @@ public partial class AngularStaticAnalysisService : IAngularStaticAnalysisServic
         {
             result.Issues.Add(new AngularIssue
             {
-                Severity = AngularIssueSeverity.Warning,
+                Severity = IssueSeverity.Warning,
                 Category = "Architecture",
                 Message = $"Service '{service.Name}' does not specify providedIn",
                 FilePath = service.FilePath,
@@ -648,7 +649,7 @@ public partial class AngularStaticAnalysisService : IAngularStaticAnalysisServic
         {
             result.Issues.Add(new AngularIssue
             {
-                Severity = AngularIssueSeverity.Warning,
+                Severity = IssueSeverity.Warning,
                 Category = "Architecture",
                 Message = $"Module '{module.Name}' has {module.Declarations.Count} declarations",
                 FilePath = module.FilePath,
@@ -663,7 +664,7 @@ public partial class AngularStaticAnalysisService : IAngularStaticAnalysisServic
             {
                 result.Issues.Add(new AngularIssue
                 {
-                    Severity = AngularIssueSeverity.Info,
+                    Severity = IssueSeverity.Info,
                     Category = "Migration",
                     Message = $"Component '{component.Name}' is not standalone",
                     FilePath = component.FilePath,
@@ -677,7 +678,7 @@ public partial class AngularStaticAnalysisService : IAngularStaticAnalysisServic
         {
             result.Issues.Add(new AngularIssue
             {
-                Severity = AngularIssueSeverity.Warning,
+                Severity = IssueSeverity.Warning,
                 Category = "Performance",
                 Message = $"Pipe '{pipe.Name}' is impure",
                 FilePath = pipe.FilePath,
@@ -690,7 +691,7 @@ public partial class AngularStaticAnalysisService : IAngularStaticAnalysisServic
         {
             result.Issues.Add(new AngularIssue
             {
-                Severity = AngularIssueSeverity.Warning,
+                Severity = IssueSeverity.Warning,
                 Category = "Design",
                 Message = $"Component '{component.Name}' has {component.Inputs.Count} inputs and {component.Outputs.Count} outputs",
                 FilePath = component.FilePath,
@@ -712,8 +713,8 @@ public partial class AngularStaticAnalysisService : IAngularStaticAnalysisServic
             StandaloneComponents = result.Components.Count(c => c.IsStandalone),
             OnPushComponents = result.Components.Count(c => c.ChangeDetection == ChangeDetectionStrategy.OnPush),
             IssueCount = result.Issues.Count,
-            WarningCount = result.Issues.Count(i => i.Severity == AngularIssueSeverity.Warning),
-            ErrorCount = result.Issues.Count(i => i.Severity == AngularIssueSeverity.Error)
+            WarningCount = result.Issues.Count(i => i.Severity == IssueSeverity.Warning),
+            ErrorCount = result.Issues.Count(i => i.Severity == IssueSeverity.Error)
         };
     }
 

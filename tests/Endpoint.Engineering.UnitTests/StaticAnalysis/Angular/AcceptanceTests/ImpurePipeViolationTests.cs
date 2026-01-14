@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.StaticAnalysis.Models;
 
 namespace Endpoint.Engineering.UnitTests.StaticAnalysis.Angular.AcceptanceTests;
 
@@ -65,7 +66,7 @@ public class ImpurePipeViolationTests
                 i.Message.Contains("DynamicFilterPipe"));
 
             Assert.NotNull(impurePipeIssue);
-            Assert.Equal(AngularIssueSeverity.Warning, impurePipeIssue.Severity);
+            Assert.Equal(IssueSeverity.Warning, impurePipeIssue.Severity);
             Assert.Contains("change detection", impurePipeIssue.Suggestion ?? "", StringComparison.OrdinalIgnoreCase);
         }
         finally

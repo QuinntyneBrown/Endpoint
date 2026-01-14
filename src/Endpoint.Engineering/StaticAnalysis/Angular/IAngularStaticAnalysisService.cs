@@ -1,6 +1,8 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Endpoint.Engineering.StaticAnalysis.Models;
+
 namespace Endpoint.Engineering.StaticAnalysis.Angular;
 
 /// <summary>
@@ -246,22 +248,12 @@ public class AngularRoute
 /// </summary>
 public class AngularIssue
 {
-    public AngularIssueSeverity Severity { get; set; }
+    public IssueSeverity Severity { get; set; }
     public string Category { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
     public string? FilePath { get; set; }
     public int? Line { get; set; }
     public string? Suggestion { get; set; }
-}
-
-/// <summary>
-/// Issue severity levels.
-/// </summary>
-public enum AngularIssueSeverity
-{
-    Info,
-    Warning,
-    Error
 }
 
 /// <summary>

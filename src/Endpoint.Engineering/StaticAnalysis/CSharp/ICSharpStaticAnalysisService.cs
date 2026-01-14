@@ -1,79 +1,9 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using Endpoint.Engineering.StaticAnalysis.Models;
+
 namespace Endpoint.Engineering.StaticAnalysis.CSharp;
-
-/// <summary>
-/// Severity level for static analysis issues.
-/// </summary>
-public enum IssueSeverity
-{
-    /// <summary>
-    /// Informational message, not necessarily a problem.
-    /// </summary>
-    Info = 0,
-
-    /// <summary>
-    /// Minor issue that could be improved.
-    /// </summary>
-    Warning = 1,
-
-    /// <summary>
-    /// Significant issue that should be addressed.
-    /// </summary>
-    Error = 2
-}
-
-/// <summary>
-/// Category of static analysis issue.
-/// </summary>
-public enum IssueCategory
-{
-    /// <summary>
-    /// Naming convention violations.
-    /// </summary>
-    Naming,
-
-    /// <summary>
-    /// Code style and formatting issues.
-    /// </summary>
-    Style,
-
-    /// <summary>
-    /// Potential bugs or code quality issues.
-    /// </summary>
-    CodeQuality,
-
-    /// <summary>
-    /// Unused code or imports.
-    /// </summary>
-    UnusedCode,
-
-    /// <summary>
-    /// Documentation issues.
-    /// </summary>
-    Documentation,
-
-    /// <summary>
-    /// Design and architecture concerns.
-    /// </summary>
-    Design,
-
-    /// <summary>
-    /// Performance-related issues.
-    /// </summary>
-    Performance,
-
-    /// <summary>
-    /// Security-related issues.
-    /// </summary>
-    Security,
-
-    /// <summary>
-    /// Maintainability concerns.
-    /// </summary>
-    Maintainability
-}
 
 /// <summary>
 /// Represents a single static analysis issue found in the code.

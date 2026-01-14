@@ -4,22 +4,74 @@
 namespace Endpoint.Engineering.StaticAnalysis.Models;
 
 /// <summary>
-/// Represents the severity level of a violation.
+/// Represents the severity level of a static analysis issue.
+/// This is the canonical severity enum used across all static analysis services.
 /// </summary>
-public enum ViolationSeverity
+public enum IssueSeverity
 {
     /// <summary>
-    /// Informational message.
+    /// Informational message, not necessarily a problem.
     /// </summary>
-    Info,
+    Info = 0,
 
     /// <summary>
     /// Warning that should be addressed.
     /// </summary>
-    Warning,
+    Warning = 1,
 
     /// <summary>
     /// Error that must be fixed.
     /// </summary>
-    Error
+    Error = 2
+}
+
+/// <summary>
+/// Category of static analysis issue.
+/// </summary>
+public enum IssueCategory
+{
+    /// <summary>
+    /// Naming convention violations.
+    /// </summary>
+    Naming,
+
+    /// <summary>
+    /// Code style and formatting issues.
+    /// </summary>
+    Style,
+
+    /// <summary>
+    /// Potential bugs or code quality issues.
+    /// </summary>
+    CodeQuality,
+
+    /// <summary>
+    /// Unused code or imports.
+    /// </summary>
+    UnusedCode,
+
+    /// <summary>
+    /// Documentation issues.
+    /// </summary>
+    Documentation,
+
+    /// <summary>
+    /// Design and architecture concerns.
+    /// </summary>
+    Design,
+
+    /// <summary>
+    /// Performance-related issues.
+    /// </summary>
+    Performance,
+
+    /// <summary>
+    /// Security-related issues.
+    /// </summary>
+    Security,
+
+    /// <summary>
+    /// Maintainability concerns.
+    /// </summary>
+    Maintainability
 }

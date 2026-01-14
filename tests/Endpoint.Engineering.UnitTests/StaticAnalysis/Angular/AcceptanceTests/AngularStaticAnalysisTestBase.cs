@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions.TestingHelpers;
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.StaticAnalysis.Models;
 using Microsoft.Extensions.Logging;
 using Moq;
 

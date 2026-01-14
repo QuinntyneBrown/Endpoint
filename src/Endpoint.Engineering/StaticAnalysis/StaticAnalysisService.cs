@@ -142,7 +142,7 @@ public class StaticAnalysisService : IStaticAnalysisService
             {
                 RuleId = "AC5.1",
                 SpecSource = "implementation.spec.md",
-                Severity = ViolationSeverity.Error,
+                Severity = IssueSeverity.Error,
                 Message = "Missing or incorrect copyright header.",
                 FilePath = relativePath,
                 LineNumber = 1,
@@ -192,7 +192,7 @@ public class StaticAnalysisService : IStaticAnalysisService
                     {
                         RuleId = "REQ-MSG-002",
                         SpecSource = "message-design.spec.md",
-                        Severity = ViolationSeverity.Error,
+                        Severity = IssueSeverity.Error,
                         Message = $"MessageHeader missing required field: {field}",
                         FilePath = relativePath,
                         SuggestedFix = $"Add the '{field}' property to the MessageHeader class."
@@ -249,7 +249,7 @@ public class StaticAnalysisService : IStaticAnalysisService
                     {
                         RuleId = "AC-MSG-007.2",
                         SpecSource = "message-design.spec.md",
-                        Severity = ViolationSeverity.Error,
+                        Severity = IssueSeverity.Error,
                         Message = $"Domain in MessageChannel must be lowercase: '{domain}'",
                         FilePath = relativePath,
                         SuggestedFix = $"Change domain to '{domain.ToLowerInvariant()}'"
@@ -262,7 +262,7 @@ public class StaticAnalysisService : IStaticAnalysisService
                     {
                         RuleId = "AC-MSG-007.3",
                         SpecSource = "message-design.spec.md",
-                        Severity = ViolationSeverity.Error,
+                        Severity = IssueSeverity.Error,
                         Message = $"Aggregate in MessageChannel must be lowercase: '{aggregate}'",
                         FilePath = relativePath,
                         SuggestedFix = $"Change aggregate to '{aggregate.ToLowerInvariant()}'"
@@ -275,7 +275,7 @@ public class StaticAnalysisService : IStaticAnalysisService
                     {
                         RuleId = "AC-MSG-007.4",
                         SpecSource = "message-design.spec.md",
-                        Severity = ViolationSeverity.Error,
+                        Severity = IssueSeverity.Error,
                         Message = $"Event type in MessageChannel must be lowercase: '{eventType}'",
                         FilePath = relativePath,
                         SuggestedFix = $"Change event type to '{eventType.ToLowerInvariant()}'"
@@ -304,7 +304,7 @@ public class StaticAnalysisService : IStaticAnalysisService
                 {
                     RuleId = "AC-SUB-004.1",
                     SpecSource = "subscription-design.spec.md",
-                    Severity = ViolationSeverity.Error,
+                    Severity = IssueSeverity.Error,
                     Message = "Message handler must implement HandleAsync method.",
                     FilePath = relativePath,
                     SuggestedFix = "Implement HandleAsync(TMessage, MessageContext, CancellationToken) method."
@@ -368,7 +368,7 @@ public class StaticAnalysisService : IStaticAnalysisService
             {
                 RuleId = "AC2.1",
                 SpecSource = "implementation.spec.md",
-                Severity = ViolationSeverity.Error,
+                Severity = IssueSeverity.Error,
                 Message = "Syntax generation strategies must NOT perform file I/O.",
                 FilePath = relativePath,
                 SuggestedFix = "Move file I/O operations to an artifact generation strategy."
@@ -389,7 +389,7 @@ public class StaticAnalysisService : IStaticAnalysisService
                     {
                         RuleId = "AC3.1",
                         SpecSource = "implementation.spec.md",
-                        Severity = ViolationSeverity.Error,
+                        Severity = IssueSeverity.Error,
                         Message = $"Syntax generation strategy class must end with 'SyntaxGenerationStrategy': {className}",
                         FilePath = relativePath,
                         SuggestedFix = $"Rename class to end with 'SyntaxGenerationStrategy'."
@@ -412,7 +412,7 @@ public class StaticAnalysisService : IStaticAnalysisService
                     {
                         RuleId = "AC3.2",
                         SpecSource = "implementation.spec.md",
-                        Severity = ViolationSeverity.Error,
+                        Severity = IssueSeverity.Error,
                         Message = $"Artifact generation strategy class must end with 'ArtifactGenerationStrategy' or 'GenerationStrategy': {className}",
                         FilePath = relativePath,
                         SuggestedFix = $"Rename class to end with 'ArtifactGenerationStrategy' or 'GenerationStrategy'."
@@ -435,7 +435,7 @@ public class StaticAnalysisService : IStaticAnalysisService
                     {
                         RuleId = "AC3.3",
                         SpecSource = "implementation.spec.md",
-                        Severity = ViolationSeverity.Error,
+                        Severity = IssueSeverity.Error,
                         Message = $"Model class must end with 'Model': {className}",
                         FilePath = relativePath,
                         SuggestedFix = $"Rename class to end with 'Model'."
@@ -452,7 +452,7 @@ public class StaticAnalysisService : IStaticAnalysisService
             {
                 RuleId = "AC5.2",
                 SpecSource = "implementation.spec.md",
-                Severity = ViolationSeverity.Error,
+                Severity = IssueSeverity.Error,
                 Message = "Strategies must use dependency injection, not direct instantiation.",
                 FilePath = relativePath,
                 SuggestedFix = "Inject ISyntaxGenerator via constructor instead of using 'new SyntaxGenerator()'."

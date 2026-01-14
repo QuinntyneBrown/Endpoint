@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Engineering.StaticAnalysis.CSharp;
+using Endpoint.Engineering.StaticAnalysis.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

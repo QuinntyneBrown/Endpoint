@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text.RegularExpressions;
+using Endpoint.Engineering.StaticAnalysis.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Engineering.StaticAnalysis.Scss;

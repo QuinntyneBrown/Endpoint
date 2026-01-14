@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.StaticAnalysis.Models;
 
 namespace Endpoint.Engineering.UnitTests.StaticAnalysis.Angular.AcceptanceTests;
 
@@ -71,7 +72,7 @@ public class ServiceProvidedInViolationTests
                 i.Message.Contains("providedIn"));
 
             Assert.NotNull(providedInIssue);
-            Assert.Equal(AngularIssueSeverity.Warning, providedInIssue.Severity);
+            Assert.Equal(IssueSeverity.Warning, providedInIssue.Severity);
             Assert.Contains("DataService", providedInIssue.Message);
             Assert.Contains("tree-shakable", providedInIssue.Suggestion ?? "");
         }

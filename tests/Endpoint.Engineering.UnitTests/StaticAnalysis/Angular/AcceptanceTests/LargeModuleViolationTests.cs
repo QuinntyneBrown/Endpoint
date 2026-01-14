@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.StaticAnalysis.Models;
 
 namespace Endpoint.Engineering.UnitTests.StaticAnalysis.Angular.AcceptanceTests;
 
@@ -66,7 +67,7 @@ public class LargeModuleViolationTests
                 i.Message.Contains("LargeModule"));
 
             Assert.NotNull(largeModuleIssue);
-            Assert.Equal(AngularIssueSeverity.Warning, largeModuleIssue.Severity);
+            Assert.Equal(IssueSeverity.Warning, largeModuleIssue.Severity);
             Assert.Contains("breaking", largeModuleIssue.Suggestion ?? "", StringComparison.OrdinalIgnoreCase);
         }
         finally

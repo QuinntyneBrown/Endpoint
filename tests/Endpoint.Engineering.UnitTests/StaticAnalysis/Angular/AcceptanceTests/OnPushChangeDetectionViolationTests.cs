@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.StaticAnalysis.Models;
 
 namespace Endpoint.Engineering.UnitTests.StaticAnalysis.Angular.AcceptanceTests;
 
@@ -75,7 +76,7 @@ public class OnPushChangeDetectionViolationTests
                 i.Message.Contains("OnPush"));
 
             Assert.NotNull(onPushIssue);
-            Assert.Equal(AngularIssueSeverity.Info, onPushIssue.Severity);
+            Assert.Equal(IssueSeverity.Info, onPushIssue.Severity);
             Assert.Contains("ExampleComponent", onPushIssue.Message);
         }
         finally

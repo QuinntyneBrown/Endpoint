@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.StaticAnalysis.Models;
 
 namespace Endpoint.Engineering.UnitTests.StaticAnalysis.Angular.AcceptanceTests;
 
@@ -76,7 +77,7 @@ public class NonStandaloneComponentViolationTests
                 i.Message.Contains("not standalone"));
 
             Assert.NotNull(migrationIssue);
-            Assert.Equal(AngularIssueSeverity.Info, migrationIssue.Severity);
+            Assert.Equal(IssueSeverity.Info, migrationIssue.Severity);
             Assert.Contains("standalone", migrationIssue.Suggestion ?? "", StringComparison.OrdinalIgnoreCase);
         }
         finally

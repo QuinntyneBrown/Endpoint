@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.StaticAnalysis.Models;
 
 namespace Endpoint.Engineering.UnitTests.StaticAnalysis.Angular.AcceptanceTests;
 
@@ -76,7 +77,7 @@ public class ManyInputsOutputsViolationTests
                 i.Message.Contains("outputs"));
 
             Assert.NotNull(complexityIssue);
-            Assert.Equal(AngularIssueSeverity.Warning, complexityIssue.Severity);
+            Assert.Equal(IssueSeverity.Warning, complexityIssue.Severity);
             Assert.Contains("refactor", complexityIssue.Suggestion ?? "", StringComparison.OrdinalIgnoreCase);
         }
         finally
@@ -283,7 +284,7 @@ public class ManyInputsOutputsViolationTests
                 i.Message.Contains("SignalComplexComponent"));
 
             Assert.NotNull(complexityIssue);
-            Assert.Equal(AngularIssueSeverity.Warning, complexityIssue.Severity);
+            Assert.Equal(IssueSeverity.Warning, complexityIssue.Severity);
         }
         finally
         {

@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Endpoint.Engineering.StaticAnalysis.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

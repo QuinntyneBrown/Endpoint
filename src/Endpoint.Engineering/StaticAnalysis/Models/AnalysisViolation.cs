@@ -21,7 +21,7 @@ public class AnalysisViolation
     /// <summary>
     /// Gets or sets the severity of the violation.
     /// </summary>
-    public ViolationSeverity Severity { get; init; } = ViolationSeverity.Error;
+    public IssueSeverity Severity { get; init; } = IssueSeverity.Error;
 
     /// <summary>
     /// Gets or sets the message describing the violation.

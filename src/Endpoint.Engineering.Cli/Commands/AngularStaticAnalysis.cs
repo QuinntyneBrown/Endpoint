@@ -1,9 +1,16 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.StaticAnalysis.Models;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -293,9 +300,9 @@ public class AngularStaticAnalysisRequestHandler : IRequestHandler<AngularStatic
             sb.AppendLine("--------------------------------------------------------------------------------");
 
             // Group by severity
-            var errors = result.Issues.Where(i => i.Severity == AngularIssueSeverity.Error).ToList();
-            var warnings = result.Issues.Where(i => i.Severity == AngularIssueSeverity.Warning).ToList();
-            var infos = result.Issues.Where(i => i.Severity == AngularIssueSeverity.Info).ToList();
+            var errors = result.Issues.Where(i => i.Severity == IssueSeverity.Error).ToList();
+            var warnings = result.Issues.Where(i => i.Severity == IssueSeverity.Warning).ToList();
+            var infos = result.Issues.Where(i => i.Severity == IssueSeverity.Info).ToList();
 
             if (errors.Count > 0)
             {
@@ -346,8 +353,8 @@ public class AngularStaticAnalysisRequestHandler : IRequestHandler<AngularStatic
     {
         var prefix = issue.Severity switch
         {
-            AngularIssueSeverity.Error => "    [!]",
-            AngularIssueSeverity.Warning => "    [*]",
+            IssueSeverity.Error => "    [!]",
+            IssueSeverity.Warning => "    [*]",
             _ => "    [-]"
         };
 
