@@ -149,8 +149,9 @@ public class CodeReviewService : ICodeReviewService
             var output = await RunGitCommandAsync(repositoryPath, $"rev-parse --verify {branchName}");
             return !string.IsNullOrWhiteSpace(output);
         }
-        catch
+        catch (InvalidOperationException ex)
         {
+            _logger.LogDebug("Branch '{BranchName}' does not exist: {Message}", branchName, ex.Message);
             return false;
         }
     }
@@ -198,9 +199,17 @@ public class CodeReviewService : ICodeReviewService
             var errorMessage = error.ToString().Trim();
             if (!string.IsNullOrWhiteSpace(errorMessage))
             {
-                _logger.LogWarning("Git command failed: git {Arguments}. Error: {Error}", arguments, errorMessage);
+                _logger.LogWarning(
+                    "Git command failed: git {Arguments} in {WorkingDirectory}. Error: {Error}",
+                    arguments,
+                    repositoryPath,
+                    errorMessage);
             }
-            throw new InvalidOperationException($"Git command failed: git {arguments}. Error: {errorMessage}");
+
+            throw new InvalidOperationException(
+                $"Git command failed: git {arguments}. Error: {errorMessage}. " +
+                $"Working directory: {repositoryPath}. " +
+                "Ensure git is installed and the directory is a valid git repository.");
         }
 
         return output.ToString();
