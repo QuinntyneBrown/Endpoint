@@ -4,6 +4,7 @@
 using Endpoint.Engineering.AI.Services;
 using Endpoint.Engineering.Api;
 using Endpoint.Engineering.Microservices;
+using Endpoint.Engineering.StaticAnalysis.CSharp;
 using Endpoint.Engineering.Microservices.Analytics;
 using Endpoint.Engineering.Microservices.Audit;
 using Endpoint.Engineering.Microservices.Billing;
@@ -43,6 +44,7 @@ public static class ConfigureServices
         services.AddApiGatewayServices();
         services.AddRedisPubSubServices();
         services.AddSingleton<ICodeParser, CodeParser>();
+        services.AddSingleton<ICSharpStaticAnalysisService, CSharpStaticAnalysisService>();
 
         // Register HttpClient for HtmlParserService
         services.AddHttpClient("HtmlParser", client =>
