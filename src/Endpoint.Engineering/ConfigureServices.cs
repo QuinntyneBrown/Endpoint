@@ -4,6 +4,7 @@
 using Endpoint.Engineering.AI.Services;
 using Endpoint.Engineering.Api;
 using Endpoint.Engineering.Microservices;
+using Endpoint.Engineering.StaticAnalysis.Scss;
 using Endpoint.Engineering.Microservices.Analytics;
 using Endpoint.Engineering.Microservices.Audit;
 using Endpoint.Engineering.Microservices.Billing;
@@ -51,6 +52,9 @@ public static class ConfigureServices
         });
 
         services.AddSingleton<IHtmlParserService, HtmlParserService>();
+
+        // Register SCSS static analysis service
+        services.AddSingleton<IScssStaticAnalysisService, ScssStaticAnalysisService>();
 
         // Register artifact factories for all microservices
         services.AddSingleton<IIdentityArtifactFactory, IdentityArtifactFactory>();
