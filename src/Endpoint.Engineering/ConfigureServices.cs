@@ -5,6 +5,7 @@ using Endpoint.Engineering.AI.Services;
 using Endpoint.Engineering.Api;
 using Endpoint.Engineering.Microservices;
 using Endpoint.Engineering.StaticAnalysis.Scss;
+using Endpoint.Engineering.StaticAnalysis;
 using Endpoint.Engineering.Microservices.Analytics;
 using Endpoint.Engineering.Microservices.Audit;
 using Endpoint.Engineering.Microservices.Billing;
@@ -34,6 +35,7 @@ using Endpoint.Engineering.Microservices.HistoricalTelemetry;
 using Endpoint.Engineering.Microservices.GitAnalysis;
 using Endpoint.Engineering.Microservices.RealtimeNotification;
 using Endpoint.Engineering.Messaging.Artifacts;
+using Endpoint.Engineering.StaticAnalysis.Angular;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -55,6 +57,10 @@ public static class ConfigureServices
 
         // Register SCSS static analysis service
         services.AddSingleton<IScssStaticAnalysisService, ScssStaticAnalysisService>();
+        // Register Angular Static Analysis service
+        services.AddSingleton<IAngularStaticAnalysisService, AngularStaticAnalysisService>();
+        // Register Static Analysis Service
+        services.AddSingleton<IStaticAnalysisService, StaticAnalysisService>();
 
         // Register artifact factories for all microservices
         services.AddSingleton<IIdentityArtifactFactory, IdentityArtifactFactory>();
