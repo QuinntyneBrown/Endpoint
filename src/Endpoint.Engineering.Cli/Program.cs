@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using CommandLine;
 using Endpoint.Angular;
 using Endpoint.DotNet;
 using Endpoint.DotNet.Services;
@@ -13,27 +12,19 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 
-var parser = new Parser(with =>
+// Parse log level early if provided
+var logLevel = LogEventLevel.Debug;
+for (int i = 0; i < args.Length - 1; i++)
 {
-    with.CaseSensitive = false;
-    with.HelpWriter = Console.Out; // Enable default help/version handling
-    with.IgnoreUnknownArguments = true;
-});
-
-var parseResult = parser.ParseArguments<EndpointOptions>(args);
-
-EndpointOptions? options = null;
-
-parseResult
-    .WithParsed(opts => options = opts)
-    .WithNotParsed(_ => Environment.Exit(0));
-
-if (options == null)
-{
-    return 0;
+    if ((args[i] == "--log-level" || args[i] == "-l") && i + 1 < args.Length)
+    {
+        if (Enum.TryParse<LogEventLevel>(args[i + 1], true, out var parsedLevel))
+        {
+            logLevel = parsedLevel;
+        }
+        break;
+    }
 }
-
-var logLevel = options.LogEventLevel;
 
 // Build configuration
 var configurationBuilder = new ConfigurationBuilder()
@@ -66,6 +57,6 @@ var app = CodeGeneratorApplication.CreateBuilder()
     })
     .Build();
 
-await app.RunAsync();
+var exitCode = await app.RunAsync();
 
-return 0;
+return exitCode;

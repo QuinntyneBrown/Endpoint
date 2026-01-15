@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Threading;
-using CommandLine;
 using Endpoint.Internal;
 using Endpoint.DotNet.Extensions;
 using MediatR;
@@ -14,14 +13,17 @@ public class CodeGeneratorApplication
 {
     private readonly IMediator mediator;
     private readonly ILogger<CodeGeneratorApplication> logger;
+    private readonly IServiceProvider serviceProvider;
 
-    public CodeGeneratorApplication(IMediator mediator, ILogger<CodeGeneratorApplication> logger, Observable<INotification> notificationObservable)
+    public CodeGeneratorApplication(IMediator mediator, ILogger<CodeGeneratorApplication> logger, IServiceProvider serviceProvider, Observable<INotification> notificationObservable)
     {
         ArgumentNullException.ThrowIfNull(mediator);
         ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
 
         this.mediator = mediator;
         this.logger = logger;
+        this.serviceProvider = serviceProvider;
     }
 
     public static CodeGeneratorApplicationBuilder CreateBuilder()
@@ -30,8 +32,8 @@ public class CodeGeneratorApplication
         return builder;
     }
 
-    public async Task RunAsync(CancellationToken token = default)
+    public async Task<int> RunAsync(CancellationToken token = default)
     {
-        await mediator.Send(Environment.GetCommandLineArgs().ParseArguments());
+        return await Environment.GetCommandLineArgs().ParseAndExecuteAsync(serviceProvider);
     }
 }
