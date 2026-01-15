@@ -46,6 +46,8 @@ public abstract class CSharpStaticAnalysisTestBase : IDisposable
     /// </summary>
     protected async Task<CSharpStaticAnalysisResult> AnalyzeAsync(CSharpStaticAnalysisOptions? options = null)
     {
+        options ??= new CSharpStaticAnalysisOptions();
+        options.IncludeTests = true;
         return await _service.AnalyzeAsync(_testDirectory, options);
     }
 
@@ -56,7 +58,8 @@ public abstract class CSharpStaticAnalysisTestBase : IDisposable
     {
         var options = new CSharpStaticAnalysisOptions
         {
-            Categories = new HashSet<IssueCategory> { category }
+            Categories = new HashSet<IssueCategory> { category },
+            IncludeTests = true
         };
         return await _service.AnalyzeAsync(_testDirectory, options);
     }

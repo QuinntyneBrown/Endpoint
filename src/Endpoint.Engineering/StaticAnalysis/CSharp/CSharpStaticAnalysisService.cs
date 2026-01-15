@@ -604,12 +604,30 @@ public class CSharpStaticAnalysisService : ICSharpStaticAnalysisService
         var lines = code.Split('\n');
 
         // Check for using directives that might be unnecessary (basic heuristic)
-        var usingDirectives = root.DescendantNodes().OfType<UsingDirectiveSyntax>().ToList();
+        // Using directives can be in the compilation unit or within namespace declarations
+        var usingDirectives = new List<UsingDirectiveSyntax>();
+        
+        // Check at compilation unit level
+        if (root is CompilationUnitSyntax compilationUnit)
+        {
+            usingDirectives.AddRange(compilationUnit.Usings);
+        }
+        
+        // Check within namespaces
+        foreach (var namespaceDecl in root.DescendantNodes().OfType<BaseNamespaceDeclarationSyntax>())
+        {
+            usingDirectives.AddRange(namespaceDecl.Usings);
+        }
+
+        if (usingDirectives.Count == 0)
+        {
+            return issues;
+        }
 
         // Get all identifiers used in the file (excluding the using directives themselves)
         var usedIdentifiers = new HashSet<string>();
         var contentNodes = root.DescendantNodes()
-            .Where(n => !(n.Parent is UsingDirectiveSyntax));
+            .Where(n => !(n.Parent is UsingDirectiveSyntax) && !(n is UsingDirectiveSyntax));
 
         foreach (var identifier in contentNodes.OfType<IdentifierNameSyntax>())
         {
@@ -903,11 +921,20 @@ public class CSharpStaticAnalysisService : ICSharpStaticAnalysisService
             var invocations = loop.DescendantNodes().OfType<InvocationExpressionSyntax>();
             foreach (var invocation in invocations)
             {
-                var methodName = invocation.Expression.ToString();
-                if (methodName.EndsWith(".Count()") || methodName.EndsWith(".Any()") ||
-                    methodName.EndsWith(".First()") || methodName.EndsWith(".ToList()") ||
-                    methodName.EndsWith(".FirstOrDefault()") || methodName.EndsWith(".Last()") ||
-                    methodName.EndsWith(".ToArray()"))
+                // Get the method being called
+                string methodName = string.Empty;
+                if (invocation.Expression is MemberAccessExpressionSyntax memberAccess)
+                {
+                    methodName = memberAccess.Name.Identifier.Text;
+                }
+                else if (invocation.Expression is IdentifierNameSyntax identifierName)
+                {
+                    methodName = identifierName.Identifier.Text;
+                }
+
+                // Check if it's a common LINQ method
+                var linqMethods = new[] { "Count", "Any", "First", "ToList", "FirstOrDefault", "Last", "ToArray", "Where", "Select", "OrderBy", "OrderByDescending" };
+                if (linqMethods.Contains(methodName))
                 {
                     var lineSpan = invocation.GetLocation().GetLineSpan();
                     issues.Add(new StaticAnalysisIssue
