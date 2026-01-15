@@ -63,8 +63,20 @@ public static class SystemCommandLineExtensions
             typeName = typeName.Substring(0, typeName.Length - "Request".Length);
         }
 
+        // Skip if name is empty after removing "Request"
+        if (string.IsNullOrWhiteSpace(typeName))
+        {
+            return null;
+        }
+
         // Convert PascalCase to kebab-case
         var commandName = ConvertToKebabCase(typeName);
+
+        // Skip if command name is invalid
+        if (string.IsNullOrWhiteSpace(commandName))
+        {
+            return null;
+        }
 
         var command = new Command(commandName, GetCommandDescription(requestType));
 
