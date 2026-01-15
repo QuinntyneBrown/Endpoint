@@ -25,7 +25,13 @@ public static class SystemCommandLineExtensions
         rootCommand.AddGlobalOption(logLevelOption);
 
         // Discover all command request types (those implementing IRequest)
+        // Only scan assemblies that are part of the Endpoint project to improve performance
         var commandTypes = AppDomain.CurrentDomain.GetAssemblies()
+            .Where(assembly => 
+            {
+                var name = assembly.GetName().Name;
+                return name != null && (name.StartsWith("Endpoint") || name.StartsWith("Quinntyne"));
+            })
             .SelectMany(assembly => 
             {
                 try
@@ -101,8 +107,8 @@ public static class SystemCommandLineExtensions
         command.SetHandler(async (InvocationContext context) =>
         {
             var mediator = serviceProvider.GetRequiredService<IMediator>();
+            
             var request = Activator.CreateInstance(requestType);
-
             if (request == null)
             {
                 throw new InvalidOperationException($"Failed to create instance of {requestType.Name}");
@@ -247,8 +253,14 @@ public static class SystemCommandLineExtensions
                 var instance = Activator.CreateInstance(declaringType);
                 return property.GetValue(instance);
             }
-            catch
+            catch (MissingMethodException)
             {
+                // Type doesn't have a parameterless constructor
+                return null;
+            }
+            catch (TargetInvocationException)
+            {
+                // Constructor threw an exception
                 return null;
             }
         }
