@@ -63,6 +63,8 @@ public static class ConfigureServices
         services.AddSingleton<IAngularStaticAnalysisService, AngularStaticAnalysisService>();
         // Register Static Analysis Service
         services.AddSingleton<IStaticAnalysisService, StaticAnalysisService>();
+        // Register Code Review Service
+        services.AddSingleton<ICodeReviewService, CodeReviewService>();
 
         // Register artifact factories for all microservices
         services.AddSingleton<IIdentityArtifactFactory, IdentityArtifactFactory>();
