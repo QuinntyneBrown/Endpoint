@@ -2,44 +2,47 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
+using System.Reflection;
 using CommandLine;
 using Endpoint.Angular;
 using Endpoint.DotNet;
 using Endpoint.DotNet.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 
-// Handle help flags early before other initialization
-if (args.Length == 0 ||
-    (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?" || args[0] == "help")))
-{
-    HelpService.DisplayHelp();
-    return;
-}
-
-if (args.Length == 2 && (args[1] == "--help" || args[1] == "-h" || args[1] == "-?"))
-{
-    HelpService.DisplayCommandHelp(args[0]);
-    return;
-}
-
-if (args.Length == 2 && args[0] == "help")
-{
-    HelpService.DisplayCommandHelp(args[1]);
-    return;
-}
-
 var parser = new Parser(with =>
 {
     with.CaseSensitive = false;
-    with.HelpWriter = null; // Disable default help writer since we have custom help
+    with.HelpWriter = Console.Out; // Enable default help/version handling
     with.IgnoreUnknownArguments = true;
 });
 
-var options = parser.ParseArguments<EndpointOptions>(args);
+var parseResult = parser.ParseArguments<EndpointOptions>(args);
 
-var logLevel = options.Value?.LogEventLevel ?? LogEventLevel.Debug;
+EndpointOptions? options = null;
+
+parseResult
+    .WithParsed(opts => options = opts)
+    .WithNotParsed(_ => Environment.Exit(0));
+
+if (options == null)
+{
+    return 0;
+}
+
+var logLevel = options.LogEventLevel;
+
+// Build configuration
+var configurationBuilder = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .AddUserSecrets<Program>(optional: true);
+
+var config = configurationBuilder.Build();
 
 var configuration = new LoggerConfiguration()
         .MinimumLevel.Override("Microsoft", logLevel)
@@ -53,6 +56,7 @@ Log.Information("Starting Endpoint");
 var app = CodeGeneratorApplication.CreateBuilder()
     .ConfigureServices(services =>
     {
+        services.AddSingleton<IConfiguration>(config);
         services.AddLogging(x => x.AddSerilog(Log.Logger));
         services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
         services.AddModernWebAppPatternCoreServices();
@@ -63,3 +67,5 @@ var app = CodeGeneratorApplication.CreateBuilder()
     .Build();
 
 await app.RunAsync();
+
+return 0;

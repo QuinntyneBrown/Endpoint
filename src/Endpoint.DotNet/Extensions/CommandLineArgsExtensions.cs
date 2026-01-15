@@ -1,7 +1,9 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
+using System.Reflection;
 using CommandLine;
 using Endpoint.DotNet.Services;
 
@@ -23,6 +25,20 @@ public static class CommandLineArgsExtensions
             (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?" || args[0] == "help")))
         {
             HelpService.DisplayHelp();
+            Environment.Exit(0);
+        }
+
+        // Check for version flags
+        if (args.Length == 1 && (args[0] == "--version" || args[0] == "-v"))
+        {
+            var assembly = typeof(CommandLineArgsExtensions).Assembly;
+            var version = assembly.GetName().Version;
+            var informationalVersion = assembly
+                .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()?
+                .InformationalVersion ?? version?.ToString() ?? "Unknown";
+            
+            Console.WriteLine($"Endpoint.Engineering.Cli {informationalVersion}");
+            Console.WriteLine("Copyright (C) 2026 Quinntyne Brown");
             Environment.Exit(0);
         }
 

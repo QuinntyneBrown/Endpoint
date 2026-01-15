@@ -44,9 +44,12 @@ public class StaticAnalysisService : IStaticAnalysisService
         // Only analyze C# files for .NET projects
         if (projectType == ProjectType.GitRepository || projectType == ProjectType.DotNetSolution)
         {
+            var gitignorePatterns = LoadGitignorePatterns(rootDirectory);
+            
             var csFiles = Directory.GetFiles(rootDirectory, "*.cs", SearchOption.AllDirectories)
                 .Where(f => !f.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar) &&
-                           !f.Contains(Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar))
+                           !f.Contains(Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar) &&
+                           !ShouldIgnoreFile(f, rootDirectory, gitignorePatterns))
                 .ToList();
 
             result.TotalFilesAnalyzed = csFiles.Count;
@@ -486,5 +489,84 @@ public class StaticAnalysisService : IStaticAnalysisService
                 });
             }
         }
+    }
+
+    private List<string> LoadGitignorePatterns(string rootDirectory)
+    {
+        var patterns = new List<string>();
+        var gitignorePath = Path.Combine(rootDirectory, ".gitignore");
+
+        if (File.Exists(gitignorePath))
+        {
+            var lines = File.ReadAllLines(gitignorePath);
+            foreach (var line in lines)
+            {
+                var trimmed = line.Trim();
+                // Skip empty lines and comments
+                if (string.IsNullOrWhiteSpace(trimmed) || trimmed.StartsWith("#"))
+                {
+                    continue;
+                }
+                patterns.Add(trimmed);
+            }
+        }
+
+        return patterns;
+    }
+
+    private bool ShouldIgnoreFile(string filePath, string rootDirectory, List<string> gitignorePatterns)
+    {
+        var relativePath = Path.GetRelativePath(rootDirectory, filePath)
+            .Replace(Path.DirectorySeparatorChar, '/');
+
+        foreach (var pattern in gitignorePatterns)
+        {
+            if (MatchesGitignorePattern(relativePath, pattern))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool MatchesGitignorePattern(string path, string pattern)
+    {
+        // Remove leading slash
+        if (pattern.StartsWith("/"))
+        {
+            pattern = pattern.Substring(1);
+        }
+
+        // Handle directory patterns (ending with /)
+        if (pattern.EndsWith("/"))
+        {
+            var dirPattern = pattern.TrimEnd('/');
+            
+            // Check if the pattern appears anywhere in the path as a directory
+            // e.g., "node_modules/" should match "src/app/node_modules/file.js"
+            return path.Contains("/" + dirPattern + "/", StringComparison.OrdinalIgnoreCase) ||
+                   path.StartsWith(dirPattern + "/", StringComparison.OrdinalIgnoreCase) ||
+                   path.Equals(dirPattern, StringComparison.OrdinalIgnoreCase);
+        }
+
+        // Handle wildcard patterns
+        if (pattern.Contains("*"))
+        {
+            // Convert gitignore pattern to regex
+            var regexPattern = "^" + Regex.Escape(pattern)
+                .Replace("\\*\\*/", "(.*/)?")  // **/ matches zero or more directories
+                .Replace("\\*\\*", ".*")        // ** matches anything
+                .Replace("\\*", "[^/]*")        // * matches anything except /
+                .Replace("\\?", ".")            // ? matches single character
+                + "$";
+
+            return Regex.IsMatch(path, regexPattern, RegexOptions.IgnoreCase);
+        }
+
+        // Exact match or directory prefix match
+        return path.Equals(pattern, StringComparison.OrdinalIgnoreCase) ||
+               path.StartsWith(pattern + "/", StringComparison.OrdinalIgnoreCase) ||
+               path.Contains("/" + pattern + "/", StringComparison.OrdinalIgnoreCase);
     }
 }

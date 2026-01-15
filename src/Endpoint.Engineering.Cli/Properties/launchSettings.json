@@ -2,7 +2,7 @@
   "profiles": {
     "Endpoint.Cli": {
       "commandName": "Project",
-      "commandLineArgs": ". -d C:\\projects\\MitchellBrown\\src\\MitchellBrown.WebApp\\src\\app\\pages\\home\\"
+      "commandLineArgs": "--help"
     }
   }
 }
