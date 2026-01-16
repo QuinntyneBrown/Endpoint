@@ -13,7 +13,8 @@ using Microsoft.Extensions.Logging;
 namespace Endpoint.Engineering.Cli.Commands;
 
 /// <summary>
-/// Command to take a folder from a git/gitlab repository and copy it to a target directory.
+/// Command to take a folder from a Git repository and copy it to a target directory.
+/// Supports GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, and private/self-hosted git hosts.
 /// If the folder contains a .csproj, it will create/update a solution.
 /// If the folder is an Angular workspace project, it will create/update the workspace.
 /// </summary>
@@ -21,10 +22,11 @@ namespace Endpoint.Engineering.Cli.Commands;
 public class TakeRequest : IRequest
 {
     /// <summary>
-    /// The full GitHub or GitLab URL to a folder (e.g., https://github.com/owner/repo/tree/branch/path/to/folder).
+    /// The full Git URL to a folder.
+    /// Supports GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, and private/self-hosted git hosts.
     /// This URL will be parsed to extract the repository URL, branch, and folder path.
     /// </summary>
-    [Option('u', "url", Required = true, HelpText = "Full GitHub or GitLab URL to the folder (e.g., https://github.com/owner/repo/tree/branch/path/to/folder).")]
+    [Option('u', "url", Required = true, HelpText = "Full Git URL to the folder (supports GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, and private git hosts).")]
     public string Url { get; set; } = string.Empty;
 
     /// <summary>
@@ -64,7 +66,7 @@ public class TakeRequestHandler : IRequestHandler<TakeRequest>
         // Validate URL is provided
         if (string.IsNullOrEmpty(request.Url))
         {
-            _logger.LogError("URL is required. Please provide a full GitHub or GitLab URL to a folder.");
+            _logger.LogError("URL is required. Please provide a full Git URL to a folder.");
             _logger.LogInformation("Example: https://github.com/owner/repo/tree/branch/path/to/folder");
             return;
         }
@@ -73,9 +75,13 @@ public class TakeRequestHandler : IRequestHandler<TakeRequest>
         var parsedUrl = GitUrlParser.Parse(request.Url);
         if (parsedUrl == null)
         {
-            _logger.LogError("Invalid URL format. The URL must be a GitHub or GitLab URL to a folder.");
-            _logger.LogInformation("GitHub example: https://github.com/owner/repo/tree/branch/path/to/folder");
-            _logger.LogInformation("GitLab example: https://gitlab.com/owner/repo/-/tree/branch/path/to/folder");
+            _logger.LogError("Invalid URL format. The URL must be a valid Git URL to a folder.");
+            _logger.LogInformation("GitHub/GitHub Enterprise: https://github.com/owner/repo/tree/branch/path");
+            _logger.LogInformation("GitLab/Self-hosted GitLab: https://gitlab.com/owner/repo/-/tree/branch/path");
+            _logger.LogInformation("Bitbucket Cloud: https://bitbucket.org/owner/repo/src/branch/path");
+            _logger.LogInformation("Bitbucket Server: https://bitbucket.company.com/projects/PROJ/repos/repo/browse/path?at=branch");
+            _logger.LogInformation("Azure DevOps: https://dev.azure.com/org/project/_git/repo?path=/path&version=GBbranch");
+            _logger.LogInformation("Gitea/Gogs: https://gitea.company.com/owner/repo/src/branch/branch-name/path");
             return;
         }
 

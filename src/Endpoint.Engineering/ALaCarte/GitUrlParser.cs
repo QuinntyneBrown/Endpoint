@@ -2,21 +2,29 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Text.RegularExpressions;
+using System.Web;
 
 namespace Endpoint.Engineering.ALaCarte;
 
 /// <summary>
-/// Utility class for parsing GitHub and GitLab URLs to extract repository information.
+/// Utility class for parsing Git repository URLs to extract repository information.
+/// Supports GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, and private/self-hosted git hosts.
 /// </summary>
 public static class GitUrlParser
 {
     /// <summary>
-    /// Parses a GitHub or GitLab URL to extract the repository URL, branch, and folder path.
+    /// Parses a Git repository URL to extract the repository URL, branch, and folder path.
     /// Supports formats:
     /// - GitHub: https://github.com/owner/repo/tree/branch/path/to/folder
+    /// - GitHub Enterprise: https://github.company.com/owner/repo/tree/branch/path/to/folder
     /// - GitLab: https://gitlab.com/owner/repo/-/tree/branch/path/to/folder
+    /// - Self-hosted GitLab: https://git.company.com/owner/repo/-/tree/branch/path/to/folder
+    /// - Bitbucket: https://bitbucket.org/owner/repo/src/branch/path/to/folder
+    /// - Self-hosted Bitbucket: https://bitbucket.company.com/projects/PROJECT/repos/repo/browse/path?at=refs/heads/branch
+    /// - Azure DevOps: https://dev.azure.com/org/project/_git/repo?path=/path&amp;version=GBbranch
+    /// - Gitea/Gogs: https://gitea.company.com/owner/repo/src/branch/branch-name/path/to/folder
     /// </summary>
-    /// <param name="url">The full GitHub or GitLab URL to a folder.</param>
+    /// <param name="url">The full Git URL to a folder.</param>
     /// <returns>A tuple containing (repositoryUrl, branch, folderPath), or null if parsing fails.</returns>
     /// <remarks>
     /// Note: Branch names with slashes (e.g., feature/branch-name) are supported using a heuristic approach.
@@ -34,40 +42,236 @@ public static class GitUrlParser
         // Normalize URL
         url = url.Trim();
 
-        // GitHub pattern: https://github.com/owner/repo/tree/branch/path/to/folder
-        var githubMatch = Regex.Match(url, @"^(https?://github\.com/[^/]+/[^/]+)/tree/(.+)$", RegexOptions.IgnoreCase);
-        if (githubMatch.Success)
+        // Try each parser in order of specificity
+        return ParseGitHub(url)
+            ?? ParseGitLab(url)
+            ?? ParseBitbucketCloud(url)
+            ?? ParseBitbucketServer(url)
+            ?? ParseAzureDevOps(url)
+            ?? ParseGiteaGogs(url)
+            ?? ParseSelfHostedGitLab(url)
+            ?? ParseSelfHostedGitHub(url);
+    }
+
+    /// <summary>
+    /// Parses GitHub.com URLs.
+    /// Pattern: https://github.com/owner/repo/tree/branch/path/to/folder
+    /// </summary>
+    private static (string RepositoryUrl, string Branch, string FolderPath)? ParseGitHub(string url)
+    {
+        var match = Regex.Match(url, @"^(https?://github\.com/[^/]+/[^/]+)/tree/(.+)$", RegexOptions.IgnoreCase);
+        if (match.Success)
         {
-            var repoUrl = githubMatch.Groups[1].Value;
-            var afterTree = githubMatch.Groups[2].Value;
+            var repoUrl = match.Groups[1].Value;
+            var afterTree = match.Groups[2].Value;
             return ParseBranchAndPath(repoUrl, afterTree);
         }
 
-        // GitLab pattern: https://gitlab.com/owner/repo/-/tree/branch/path/to/folder
-        var gitlabMatch = Regex.Match(url, @"^(https?://gitlab\.com/[^/]+/[^/]+)/-/tree/(.+)$", RegexOptions.IgnoreCase);
-        if (gitlabMatch.Success)
+        return null;
+    }
+
+    /// <summary>
+    /// Parses GitLab.com URLs.
+    /// Pattern: https://gitlab.com/owner/repo/-/tree/branch/path/to/folder
+    /// </summary>
+    private static (string RepositoryUrl, string Branch, string FolderPath)? ParseGitLab(string url)
+    {
+        var match = Regex.Match(url, @"^(https?://gitlab\.com/[^/]+/[^/]+)/-/tree/(.+)$", RegexOptions.IgnoreCase);
+        if (match.Success)
         {
-            var repoUrl = gitlabMatch.Groups[1].Value;
-            var afterTree = gitlabMatch.Groups[2].Value;
+            var repoUrl = match.Groups[1].Value;
+            var afterTree = match.Groups[2].Value;
             return ParseBranchAndPath(repoUrl, afterTree);
         }
 
-        // Support for self-hosted GitLab instances: https://gitlab.example.com/owner/repo/-/tree/branch/path
-        var selfHostedGitlabMatch = Regex.Match(url, @"^(https?://[^/]+/[^/]+/[^/]+)/-/tree/(.+)$", RegexOptions.IgnoreCase);
-        if (selfHostedGitlabMatch.Success)
+        return null;
+    }
+
+    /// <summary>
+    /// Parses Bitbucket Cloud URLs.
+    /// Pattern: https://bitbucket.org/owner/repo/src/branch/path/to/folder
+    /// </summary>
+    private static (string RepositoryUrl, string Branch, string FolderPath)? ParseBitbucketCloud(string url)
+    {
+        var match = Regex.Match(url, @"^(https?://bitbucket\.org/[^/]+/[^/]+)/src/(.+)$", RegexOptions.IgnoreCase);
+        if (match.Success)
         {
-            var urlPart = selfHostedGitlabMatch.Groups[1].Value;
-            // Only accept if it looks like a GitLab URL (has gitlab in the domain or uses /-/tree/ pattern)
-            if (urlPart.Contains("gitlab", StringComparison.OrdinalIgnoreCase))
+            var repoUrl = match.Groups[1].Value;
+            var afterSrc = match.Groups[2].Value;
+            return ParseBranchAndPath(repoUrl, afterSrc);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Parses Bitbucket Server (self-hosted) URLs.
+    /// Pattern: https://bitbucket.company.com/projects/PROJECT/repos/repo/browse/path?at=refs/heads/branch
+    /// Alternative: https://bitbucket.company.com/scm/PROJECT/repo.git (clone URL)
+    /// </summary>
+    private static (string RepositoryUrl, string Branch, string FolderPath)? ParseBitbucketServer(string url)
+    {
+        // Pattern for browse URLs with query string
+        var match = Regex.Match(url, @"^(https?://[^/]+/projects/[^/]+/repos/[^/]+)/browse(?:/(.*))?(?:\?|$)", RegexOptions.IgnoreCase);
+        if (match.Success)
+        {
+            var repoUrl = match.Groups[1].Value;
+            var folderPath = match.Groups[2].Success ? match.Groups[2].Value : string.Empty;
+
+            // Extract branch from query string if present
+            var branch = "main";
+            if (url.Contains('?'))
             {
-                var repoUrl = urlPart;
-                var afterTree = selfHostedGitlabMatch.Groups[2].Value;
-                return ParseBranchAndPath(repoUrl, afterTree);
+                var queryString = url.Substring(url.IndexOf('?') + 1);
+                var queryParams = HttpUtility.ParseQueryString(queryString);
+                var atParam = queryParams["at"];
+                if (!string.IsNullOrEmpty(atParam))
+                {
+                    // at=refs/heads/branch-name or at=branch-name
+                    branch = atParam.Replace("refs/heads/", string.Empty);
+                }
+            }
+
+            return (repoUrl, branch, folderPath);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Parses Azure DevOps URLs.
+    /// Pattern: https://dev.azure.com/org/project/_git/repo?path=/path&amp;version=GBbranch
+    /// Also supports: https://org.visualstudio.com/project/_git/repo?path=/path&amp;version=GBbranch
+    /// </summary>
+    private static (string RepositoryUrl, string Branch, string FolderPath)? ParseAzureDevOps(string url)
+    {
+        // Azure DevOps pattern: https://dev.azure.com/org/project/_git/repo
+        var devAzureMatch = Regex.Match(url, @"^(https?://dev\.azure\.com/[^/]+/[^/]+/_git/[^/?]+)", RegexOptions.IgnoreCase);
+
+        // Legacy VSTS pattern: https://org.visualstudio.com/project/_git/repo
+        var vstsMatch = Regex.Match(url, @"^(https?://[^/]+\.visualstudio\.com/[^/]+/_git/[^/?]+)", RegexOptions.IgnoreCase);
+
+        var match = devAzureMatch.Success ? devAzureMatch : (vstsMatch.Success ? vstsMatch : null);
+        if (match == null)
+        {
+            return null;
+        }
+
+        var repoUrl = match.Groups[1].Value;
+        var branch = "main";
+        var folderPath = string.Empty;
+
+        // Extract path and version from query string
+        if (url.Contains('?'))
+        {
+            var queryString = url.Substring(url.IndexOf('?') + 1);
+            var queryParams = HttpUtility.ParseQueryString(queryString);
+
+            var pathParam = queryParams["path"];
+            if (!string.IsNullOrEmpty(pathParam))
+            {
+                folderPath = pathParam.TrimStart('/');
+            }
+
+            var versionParam = queryParams["version"];
+            if (!string.IsNullOrEmpty(versionParam))
+            {
+                // version=GBbranch-name (GB prefix for branch)
+                if (versionParam.StartsWith("GB", StringComparison.OrdinalIgnoreCase))
+                {
+                    branch = versionParam.Substring(2);
+                }
+                else
+                {
+                    branch = versionParam;
+                }
             }
         }
 
-        // If no pattern matches, return null
+        return (repoUrl, branch, folderPath);
+    }
+
+    /// <summary>
+    /// Parses Gitea and Gogs URLs.
+    /// Pattern: https://gitea.company.com/owner/repo/src/branch/branch-name/path/to/folder
+    /// </summary>
+    private static (string RepositoryUrl, string Branch, string FolderPath)? ParseGiteaGogs(string url)
+    {
+        // Gitea/Gogs pattern: /src/branch/branch-name/path
+        var match = Regex.Match(url, @"^(https?://[^/]+/[^/]+/[^/]+)/src/branch/(.+)$", RegexOptions.IgnoreCase);
+        if (match.Success)
+        {
+            var repoUrl = match.Groups[1].Value;
+            var afterBranch = match.Groups[2].Value;
+
+            // Don't match if it looks like GitHub, GitLab, or Bitbucket
+            if (IsKnownGitHost(repoUrl))
+            {
+                return null;
+            }
+
+            return ParseBranchAndPath(repoUrl, afterBranch);
+        }
+
         return null;
+    }
+
+    /// <summary>
+    /// Parses self-hosted GitLab instances.
+    /// Pattern: https://git.company.com/owner/repo/-/tree/branch/path
+    /// The /-/tree/ pattern is unique to GitLab.
+    /// </summary>
+    private static (string RepositoryUrl, string Branch, string FolderPath)? ParseSelfHostedGitLab(string url)
+    {
+        var match = Regex.Match(url, @"^(https?://[^/]+/[^/]+/[^/]+)/-/tree/(.+)$", RegexOptions.IgnoreCase);
+        if (match.Success)
+        {
+            var repoUrl = match.Groups[1].Value;
+            var afterTree = match.Groups[2].Value;
+
+            // Don't match if it looks like public GitLab (already handled)
+            if (repoUrl.Contains("gitlab.com", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return ParseBranchAndPath(repoUrl, afterTree);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Parses self-hosted GitHub Enterprise and generic git hosts using /tree/ pattern.
+    /// Pattern: https://github.company.com/owner/repo/tree/branch/path
+    /// </summary>
+    private static (string RepositoryUrl, string Branch, string FolderPath)? ParseSelfHostedGitHub(string url)
+    {
+        var match = Regex.Match(url, @"^(https?://[^/]+/[^/]+/[^/]+)/tree/(.+)$", RegexOptions.IgnoreCase);
+        if (match.Success)
+        {
+            var repoUrl = match.Groups[1].Value;
+            var afterTree = match.Groups[2].Value;
+
+            // Don't match if it's public GitHub (already handled) or other known hosts
+            if (IsKnownGitHost(repoUrl))
+            {
+                return null;
+            }
+
+            return ParseBranchAndPath(repoUrl, afterTree);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Checks if the URL is a known public git hosting service.
+    /// </summary>
+    private static bool IsKnownGitHost(string repoUrl)
+    {
+        var knownHosts = new[] { "github.com", "gitlab.com", "bitbucket.org", "dev.azure.com" };
+        return knownHosts.Any(host => repoUrl.Contains(host, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -103,7 +307,8 @@ public static class GitUrlParser
     }
 
     /// <summary>
-    /// Checks if a URL is a valid GitHub or GitLab folder URL.
+    /// Checks if a URL is a valid Git folder URL.
+    /// Supports GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, and private/self-hosted git hosts.
     /// </summary>
     /// <param name="url">The URL to check.</param>
     /// <returns>True if the URL can be parsed, false otherwise.</returns>
