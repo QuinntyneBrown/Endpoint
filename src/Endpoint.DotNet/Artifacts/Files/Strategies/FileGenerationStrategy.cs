@@ -42,7 +42,7 @@ public class FileGenerationStrategy : IArtifactGenerationStrategy<FileModel>
         parts = parts.Where(p => !string.IsNullOrEmpty(p)).ToArray();
 
         // Reconstruct paths with proper prefix for absolute paths
-        var isAbsolutePath = dirName.StartsWith(fileSystem.Path.DirectorySeparatorChar.ToString());
+        var isAbsolutePath = dirName.Length > 0 && dirName[0] == fileSystem.Path.DirectorySeparatorChar;
         var prefix = isAbsolutePath ? fileSystem.Path.DirectorySeparatorChar.ToString() : string.Empty;
 
         for (var i = 1; i <= parts.Length; i++)
