@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 // Parse command line arguments
 var directoriesArg = (string?)null;
-var efficiencyArg = "medium";
+var efficiencyArg = "50";
 var ignoreTests = false;
 var testsOnly = false;
 var outputFile = (string?)null;
@@ -68,9 +68,10 @@ var codeParser = serviceProvider.GetRequiredService<ICodeParser>();
 try
 {
     // Build options
+    var efficiency = ParseEfficiency(efficiencyArg);
     var options = new CodeParseOptions
     {
-        Efficiency = ParseEfficiency(efficiencyArg),
+        Efficiency = efficiency,
         IgnoreTests = ignoreTests && !testsOnly,
         TestsOnly = testsOnly
     };
@@ -78,7 +79,7 @@ try
     var filterMode = testsOnly ? " (tests only)" :
                      ignoreTests ? " (ignoring tests)" : " (all files)";
 
-    Console.WriteLine($"Mode: {options.Efficiency} efficiency{filterMode}");
+    Console.WriteLine($"Mode: efficiency={options.Efficiency}{filterMode}");
     Console.WriteLine(new string('=', 60));
 
     // If no specific mode requested and single directory, show comparison
@@ -98,41 +99,45 @@ catch (Exception ex)
 
 async Task ShowComparison(string directory)
 {
-    Console.WriteLine("\nComparing parsing modes:\n");
+    Console.WriteLine("\nComparing efficiency levels:\n");
 
-    // Parse all files
-    var allOptions = new CodeParseOptions { Efficiency = CodeParseEfficiency.Medium };
-    var allSummary = await codeParser.ParseDirectoryAsync(directory, allOptions);
-    var allOutput = allSummary.ToLlmString();
+    // Parse at different efficiency levels
+    var efficiencies = new[] { 0, 25, 50, 75, 100 };
+    var results = new List<(int Efficiency, int Files, int Chars)>();
 
-    // Parse ignoring tests
-    var noTestsOptions = new CodeParseOptions { Efficiency = CodeParseEfficiency.Medium, IgnoreTests = true };
-    var noTestsSummary = await codeParser.ParseDirectoryAsync(directory, noTestsOptions);
-    var noTestsOutput = noTestsSummary.ToLlmString();
+    foreach (var eff in efficiencies)
+    {
+        var options = new CodeParseOptions { Efficiency = eff };
+        var summary = await codeParser.ParseDirectoryAsync(directory, options);
+        var output = summary.ToLlmString();
+        results.Add((eff, summary.Files.Count, output.Length));
+    }
 
-    // Parse tests only
-    var testsOnlyOptions = new CodeParseOptions { Efficiency = CodeParseEfficiency.Medium, TestsOnly = true };
-    var testsOnlySummary = await codeParser.ParseDirectoryAsync(directory, testsOnlyOptions);
-    var testsOnlyOutput = testsOnlySummary.ToLlmString();
-
-    Console.WriteLine("COMPARISON SUMMARY");
+    Console.WriteLine("EFFICIENCY COMPARISON");
     Console.WriteLine(new string('-', 60));
-    Console.WriteLine($"{"Mode",-20} {"Files",-10} {"Chars",-10} {"Est. Tokens",-12}");
-    Console.WriteLine(new string('-', 60));
-    Console.WriteLine($"{"All files",-20} {allSummary.Files.Count,-10} {allOutput.Length,-10} ~{allOutput.Length / 4,-12}");
-    Console.WriteLine($"{"Ignoring tests",-20} {noTestsSummary.Files.Count,-10} {noTestsOutput.Length,-10} ~{noTestsOutput.Length / 4,-12}");
-    Console.WriteLine($"{"Tests only",-20} {testsOnlySummary.Files.Count,-10} {testsOnlyOutput.Length,-10} ~{testsOnlyOutput.Length / 4,-12}");
+    Console.WriteLine($"{"Efficiency",-15} {"Files",-10} {"Chars",-10} {"Est. Tokens",-12}");
     Console.WriteLine(new string('-', 60));
 
-    var testFileCount = allSummary.Files.Count - noTestsSummary.Files.Count;
-    var productionFileCount = allSummary.Files.Count - testsOnlySummary.Files.Count;
-    Console.WriteLine($"\nDetected {testFileCount} test files and {productionFileCount} production files.");
+    foreach (var (eff, files, chars) in results)
+    {
+        var label = eff switch
+        {
+            0 => "0 (verbatim)",
+            25 => "25 (full)",
+            50 => "50 (balanced)",
+            75 => "75 (compact)",
+            100 => "100 (minimal)",
+            _ => eff.ToString()
+        };
+        Console.WriteLine($"{label,-15} {files,-10} {chars,-10} ~{chars / 4,-12}");
+    }
+    Console.WriteLine(new string('-', 60));
 
     // Show token savings
-    if (noTestsOutput.Length < allOutput.Length)
+    if (results.Count >= 2 && results[^1].Chars < results[0].Chars)
     {
-        var savings = (1 - (double)noTestsOutput.Length / allOutput.Length) * 100;
-        Console.WriteLine($"Token savings by ignoring tests: {savings:F1}%");
+        var savings = (1 - (double)results[^1].Chars / results[0].Chars) * 100;
+        Console.WriteLine($"Token savings from efficiency 0 to 100: {savings:F1}%");
     }
 }
 
@@ -202,15 +207,24 @@ static List<string> ParseDirectories(string? directoriesArg)
     return directories.Count > 0 ? directories : [Directory.GetCurrentDirectory()];
 }
 
-static CodeParseEfficiency ParseEfficiency(string value)
+static int ParseEfficiency(string value)
 {
+    // Try to parse as integer first
+    if (int.TryParse(value, out var intValue))
+    {
+        return Math.Clamp(intValue, 0, 100);
+    }
+
+    // Support legacy string values
     return value.ToLowerInvariant() switch
     {
-        "low" or "l" or "1" => CodeParseEfficiency.Low,
-        "medium" or "med" or "m" or "2" => CodeParseEfficiency.Medium,
-        "high" or "h" or "3" => CodeParseEfficiency.High,
-        "max" or "maximum" or "x" or "4" => CodeParseEfficiency.Max,
-        _ => CodeParseEfficiency.Medium
+        "verbatim" or "v" => 0,
+        "low" or "l" => 15,
+        "medium" or "med" or "m" => 40,
+        "high" or "h" => 65,
+        "max" or "maximum" or "x" => 90,
+        "minimal" => 100,
+        _ => 50
     };
 }
 
@@ -223,17 +237,21 @@ Usage: CodeParseDemo [options] [directory]
 Options:
   -d, --directory <paths>   Comma-separated list of directories to parse
                             (default: current directory)
-  -e, --efficiency <level>  Token efficiency: low, medium, high, max
+  -e, --efficiency <level>  Token efficiency: 0-100 (or: verbatim, low, medium, high, max)
+                            0 = verbatim (full code content)
+                            100 = minimal (most compact summary)
   --ignore-tests            Ignore test files and test projects
   --tests-only              Only parse test files and test projects
   -o, --output <file>       Write output to file
   -h, --help                Show this help
 
 Examples:
-  CodeParseDemo                                    # Compare all modes
+  CodeParseDemo                                    # Compare efficiency levels
   CodeParseDemo /path/to/code                      # Parse single directory
   CodeParseDemo -d ""/src,/lib,/api""                # Parse multiple directories
-  CodeParseDemo -e high --ignore-tests             # High efficiency, skip tests
+  CodeParseDemo -e 0                               # Verbatim (full code)
+  CodeParseDemo -e 50                              # Balanced output
+  CodeParseDemo -e 100 --ignore-tests              # Minimal, skip tests
   CodeParseDemo --tests-only                       # Parse only test files
 
 Test Detection:
