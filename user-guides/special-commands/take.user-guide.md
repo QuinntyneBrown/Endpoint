@@ -13,7 +13,7 @@ endpoint take [options]
 The `take` command clones a git repository and extracts a specific folder from it to a target directory. It's designed for quickly grabbing a single project, library, or component from a repository without cloning the entire repo. 
 
 The command automatically detects project types:
-- **\.NET Projects**: If the folder contains `.csproj` files, it will create or update a `.sln` solution file
+- **.NET Projects**: If the folder contains `.csproj` files, it will create or update a `.sln` solution file
 - **Angular Projects**: If the folder contains `angular.json` or `ng-package.json`, it will create or update an Angular workspace
 
 This is a simplified version of the `a-la-carte` command, focused on taking a single folder from one repository.
