@@ -73,10 +73,12 @@ public static class GitUrlParser
     /// <summary>
     /// Parses GitLab.com URLs.
     /// Pattern: https://gitlab.com/owner/repo/-/tree/branch/path/to/folder
+    /// Also supports: https://gitlab.com/owner/subowner/repo/-/tree/branch/path/to/folder
     /// </summary>
     private static (string RepositoryUrl, string Branch, string FolderPath)? ParseGitLab(string url)
     {
-        var match = Regex.Match(url, @"^(https?://gitlab\.com/[^/]+/[^/]+)/-/tree/(.+)$", RegexOptions.IgnoreCase);
+        // Match two or more path segments before /-/tree/
+        var match = Regex.Match(url, @"^(https?://gitlab\.com/[^/]+/[^/]+(?:/[^/]+)*)/-/tree/(.+)$", RegexOptions.IgnoreCase);
         if (match.Success)
         {
             var repoUrl = match.Groups[1].Value;
@@ -219,11 +221,13 @@ public static class GitUrlParser
     /// <summary>
     /// Parses self-hosted GitLab instances.
     /// Pattern: https://git.company.com/owner/repo/-/tree/branch/path
+    /// Also supports: https://git.company.com/owner/subowner/repo/-/tree/branch/path
     /// The /-/tree/ pattern is unique to GitLab.
     /// </summary>
     private static (string RepositoryUrl, string Branch, string FolderPath)? ParseSelfHostedGitLab(string url)
     {
-        var match = Regex.Match(url, @"^(https?://[^/]+/[^/]+/[^/]+)/-/tree/(.+)$", RegexOptions.IgnoreCase);
+        // Match two or more path segments before /-/tree/
+        var match = Regex.Match(url, @"^(https?://[^/]+/[^/]+/[^/]+(?:/[^/]+)*)/-/tree/(.+)$", RegexOptions.IgnoreCase);
         if (match.Success)
         {
             var repoUrl = match.Groups[1].Value;
