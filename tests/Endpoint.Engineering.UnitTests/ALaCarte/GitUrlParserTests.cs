@@ -64,6 +64,11 @@ public class GitUrlParserTests
         "https://gitlab.com/owner/repo",
         "main",
         "")]
+    [InlineData(
+        "https://gitlab.com/owner/subowner/repo/-/tree/main/src/folder",
+        "https://gitlab.com/owner/subowner/repo",
+        "main",
+        "src/folder")]
     public void Parse_GitLabUrl_ReturnsCorrectComponents(
         string url,
         string expectedRepoUrl,
@@ -101,6 +106,16 @@ public class GitUrlParserTests
         "https://gitscm.nike.ca/ahtletes/michael-jordan",
         "main",
         "infra/data")]
+    [InlineData(
+        "https://gitscm.nike.ca/owner/repo/-/tree/main/path?ref_type=heads",
+        "https://gitscm.nike.ca/owner/repo",
+        "main",
+        "path")]
+    [InlineData(
+        "https://gitscm.nike.ca/owner/subowner/repo/-/tree/main/path?ref_type=heads",
+        "https://gitscm.nike.ca/owner/subowner/repo",
+        "main",
+        "path")]
     public void Parse_SelfHostedGitLabUrl_ReturnsCorrectComponents(
         string url,
         string expectedRepoUrl,
