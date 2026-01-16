@@ -7,15 +7,15 @@ namespace Endpoint.Angular.UnitTests;
 
 public class FileFactoryTests
 {
-    private readonly Mock<ILogger<Artifacts.FileFactory>> _mockLogger;
+    private readonly Mock<ILogger<Endpoint.Angular.Artifacts.FileFactory>> _mockLogger;
     private readonly MockFileSystem _mockFileSystem;
-    private readonly Artifacts.FileFactory _sut;
+    private readonly Endpoint.Angular.Artifacts.FileFactory _sut;
 
     public FileFactoryTests()
     {
-        _mockLogger = new Mock<ILogger<Artifacts.FileFactory>>();
+        _mockLogger = new Mock<ILogger<Endpoint.Angular.Artifacts.FileFactory>>();
         _mockFileSystem = new MockFileSystem();
-        _sut = new Artifacts.FileFactory(_mockLogger.Object, _mockFileSystem);
+        _sut = new Endpoint.Angular.Artifacts.FileFactory(_mockLogger.Object, _mockFileSystem);
     }
 
     #region Constructor Tests
@@ -24,21 +24,21 @@ public class FileFactoryTests
     public void Constructor_WithNullLogger_ShouldThrowArgumentNullException()
     {
         // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new Artifacts.FileFactory(null!, _mockFileSystem));
+        Assert.Throws<ArgumentNullException>(() => new Endpoint.Angular.Artifacts.FileFactory(null!, _mockFileSystem));
     }
 
     [Fact]
     public void Constructor_WithNullFileSystem_ShouldThrowArgumentNullException()
     {
         // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new Artifacts.FileFactory(_mockLogger.Object, null!));
+        Assert.Throws<ArgumentNullException>(() => new Endpoint.Angular.Artifacts.FileFactory(_mockLogger.Object, null!));
     }
 
     [Fact]
     public void Constructor_WithValidParameters_ShouldNotThrow()
     {
         // Arrange & Act
-        var exception = Record.Exception(() => new Artifacts.FileFactory(_mockLogger.Object, _mockFileSystem));
+        var exception = Record.Exception(() => new Endpoint.Angular.Artifacts.FileFactory(_mockLogger.Object, _mockFileSystem));
 
         // Assert
         Assert.Null(exception);
