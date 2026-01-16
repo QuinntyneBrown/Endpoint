@@ -34,11 +34,20 @@ public class FileGenerationStrategy : IArtifactGenerationStrategy<FileModel>
 
         var copyright = templateLocator.GetCopyright();
 
-        var parts = fileSystem.Path.GetDirectoryName(model.Path).Split(fileSystem.Path.DirectorySeparatorChar);
+        var dirName = fileSystem.Path.GetDirectoryName(model.Path);
+
+        var parts = dirName.Split(fileSystem.Path.DirectorySeparatorChar);
+
+        // Skip empty parts (e.g., from leading '/' in absolute paths)
+        parts = parts.Where(p => !string.IsNullOrEmpty(p)).ToArray();
+
+        // Reconstruct paths with proper prefix for absolute paths
+        var isAbsolutePath = dirName.StartsWith(fileSystem.Path.DirectorySeparatorChar.ToString());
+        var prefix = isAbsolutePath ? fileSystem.Path.DirectorySeparatorChar.ToString() : string.Empty;
 
         for (var i = 1; i <= parts.Length; i++)
         {
-            var dir = string.Join(fileSystem.Path.DirectorySeparatorChar, parts.Take(i));
+            var dir = prefix + string.Join(fileSystem.Path.DirectorySeparatorChar, parts.Take(i));
 
             if (!fileSystem.Directory.Exists(dir))
             {
