@@ -40,18 +40,19 @@ public class YoloRequestHandler : IRequestHandler<YoloRequest>
         
         if (!string.IsNullOrWhiteSpace(request.Prompt))
         {
-            // Escape characters that could cause issues in shell commands
-            // This handles both bash and cmd.exe contexts
+            // Validate prompt for potentially dangerous characters
+            // to prevent command injection attacks
+            var dangerousChars = new[] { ';', '&', '|', '\n', '\r', '`', '$' };
+            if (request.Prompt.IndexOfAny(dangerousChars) >= 0)
+            {
+                _logger.LogError("Prompt contains potentially dangerous characters. Please use a simpler prompt.");
+                throw new ArgumentException("Prompt contains potentially dangerous characters that could lead to command injection.", nameof(request.Prompt));
+            }
+            
+            // Escape quotes and backslashes for safe shell execution
             var escapedPrompt = request.Prompt
-                .Replace("\\", "\\\\") // Escape backslashes first
-                .Replace("\"", "\\\"") // Escape double quotes
-                .Replace("$", "\\$") // Escape dollar signs (bash variable expansion)
-                .Replace("`", "\\`") // Escape backticks (command substitution)
-                .Replace("\n", " ") // Replace newlines with spaces
-                .Replace("\r", string.Empty) // Remove carriage returns
-                .Replace(";", "\\;") // Escape semicolons (command separator)
-                .Replace("&", "\\&") // Escape ampersands (command separator)
-                .Replace("|", "\\|"); // Escape pipes (command piping)
+                .Replace("\\", "\\\\")
+                .Replace("\"", "\\\"");
             
             commandBuilder.Append($" \"{escapedPrompt}\"");
         }
