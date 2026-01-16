@@ -75,7 +75,17 @@ public static class CommandLineArgsExtensions
         }
 
         var verbs = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(s => s.GetTypes())
+            .SelectMany(s =>
+            {
+                try
+                {
+                    return s.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    return ex.Types.Where(t => t != null).Cast<Type>();
+                }
+            })
             .Where(type => type.GetCustomAttributes(typeof(VerbAttribute), true).Length > 0)
             .ToArray();
 

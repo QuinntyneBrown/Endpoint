@@ -9,6 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Exclude generated-output folder from compilation (demo output files) -->
+    <Compile Remove="generated-output\**" />
+    <Content Remove="generated-output\**" />
+    <EmbeddedResource Remove="generated-output\**" />
+    <None Remove="generated-output\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Core Endpoint references -->
     <ProjectReference Include="..\..\..\src\Endpoint\Endpoint.csproj" />
     <ProjectReference Include="..\..\..\src\Endpoint.DotNet\Endpoint.DotNet.csproj" />
