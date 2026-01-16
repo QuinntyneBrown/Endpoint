@@ -90,6 +90,7 @@ Advanced commands for AI-assisted development and repository operations.
 |---------|-------------|
 | [yolo](./special-commands/yolo.user-guide.md) | Execute Claude AI code generation |
 | [a-la-carte](./special-commands/a-la-carte.user-guide.md) | Clone and extract from repositories |
+| [take](./special-commands/take.user-guide.md) | Take a folder from a repository |
 
 ## Global Options
 
