@@ -1,0 +1,31 @@
+{
+  "outputType": "MixDotNetSolutionWithOtherFolders",
+  "solutionName": "ALaCarteWorkspace.sln",
+  "directory": "generated-output",
+  "repositories": [
+    {
+      "url": "https://github.com/QuinntyneBrown/Commitments",
+      "branch": "master",
+      "folders": [
+        {
+          "from": "src/Commitments.App/projects/commitments-app",
+          "to": "src/ALaCarteWorkspace/projects"
+        },
+        {
+          "from": "src/Commitments.Core",
+          "to": "src/Commitments.Core"
+        }
+      ]
+    },
+    {
+      "url": "https://github.com/QuinntyneBrown/AWSSDK.Extensions",
+      "branch": "main",
+      "folders": [
+        {
+          "from": "src/AWSSDK.Extensions",
+          "to": "src/AWSSDK.Extensions"
+        }
+      ]
+    }
+  ]
+}
