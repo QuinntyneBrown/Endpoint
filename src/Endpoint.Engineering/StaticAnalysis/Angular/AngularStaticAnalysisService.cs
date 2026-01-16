@@ -761,7 +761,7 @@ public partial class AngularStaticAnalysisService : IAngularStaticAnalysisServic
     [GeneratedRegex(@"@Component\s*\(\s*\{([^}]+(?:\{[^}]*\}[^}]*)*)\}\s*\)", RegexOptions.Singleline)]
     private static partial Regex ComponentDecoratorRegex();
 
-    [GeneratedRegex(@"@Injectable\s*\(\s*\{([^}]*)\}\s*\)", RegexOptions.Singleline)]
+    [GeneratedRegex(@"@Injectable\s*\(\s*(?:\{([^}]*)\})?\s*\)", RegexOptions.Singleline)]
     private static partial Regex InjectableDecoratorRegex();
 
     [GeneratedRegex(@"@NgModule\s*\(\s*\{([^}]+(?:\{[^}]*\}[^}]*)*)\}\s*\)", RegexOptions.Singleline)]

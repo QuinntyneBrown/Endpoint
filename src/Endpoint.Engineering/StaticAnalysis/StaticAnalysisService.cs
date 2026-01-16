@@ -137,9 +137,11 @@ public class StaticAnalysisService : IStaticAnalysisService
         var expectedLine1 = "// Copyright (c) Quinntyne Brown. All Rights Reserved.";
         var expectedLine2 = "// Licensed under the MIT License. See License.txt in the project root for license information.";
 
+        // First line must start exactly with the copyright comment (no leading whitespace)
+        // Second line can have trailing whitespace trimmed but not leading
         if (lines.Length < 2 ||
-            !lines[0].Trim().Equals(expectedLine1, StringComparison.Ordinal) ||
-            !lines[1].Trim().Equals(expectedLine2, StringComparison.Ordinal))
+            !lines[0].TrimEnd().Equals(expectedLine1, StringComparison.Ordinal) ||
+            !lines[1].TrimEnd().Equals(expectedLine2, StringComparison.Ordinal))
         {
             result.Violations.Add(new AnalysisViolation
             {
@@ -171,7 +173,10 @@ public class StaticAnalysisService : IStaticAnalysisService
 
         // REQ-MSG-001: Check for MessageEnvelope pattern
         if (content.Contains("class") && content.Contains("[MessagePackObject]") &&
-            !content.Contains("MessageEnvelope") && !content.Contains("IMessage"))
+            !content.Contains("MessageEnvelope") &&
+            !content.Contains("IMessage") &&
+            !content.Contains("IDomainEvent") &&
+            !content.Contains("ICommand"))
         {
             result.Warnings.Add(new AnalysisWarning
             {
@@ -208,18 +213,40 @@ public class StaticAnalysisService : IStaticAnalysisService
         if (content.Contains("[MessagePackObject]"))
         {
             // Check that properties have [Key] attributes
+            // Find properties and check if they have [Key(n)] or [IgnoreMember] directly before them
             var propertyPattern = new Regex(@"public\s+(?:required\s+)?[\w<>\[\],\s]+\s+(\w+)\s*{\s*get;", RegexOptions.Compiled);
-            var keyPattern = new Regex(@"\[Key\(\d+\)\]", RegexOptions.Compiled);
-            var ignoreMemberPattern = new Regex(@"\[IgnoreMember\]", RegexOptions.Compiled);
 
             var matches = propertyPattern.Matches(content);
             foreach (Match match in matches)
             {
                 var propertyIndex = match.Index;
-                var contextStart = Math.Max(0, propertyIndex - 100);
-                var context = content.Substring(contextStart, Math.Min(200, content.Length - contextStart));
 
-                if (!keyPattern.IsMatch(context) && !ignoreMemberPattern.IsMatch(context))
+                // Look backwards from the property to find attributes
+                // Find the text between the previous member (or start) and this property
+                var searchStart = Math.Max(0, propertyIndex - 200);
+                var precedingText = content.Substring(searchStart, propertyIndex - searchStart);
+
+                // Find the last occurrence of a property/field end or class start to bound our search
+                var lastMemberEnd = Math.Max(
+                    precedingText.LastIndexOf("{ get;"),
+                    Math.Max(
+                        precedingText.LastIndexOf("{ set;"),
+                        Math.Max(
+                            precedingText.LastIndexOf(";"),
+                            precedingText.LastIndexOf("{")
+                        )
+                    )
+                );
+
+                // Get only the text between the last member and this property (contains attributes for this property)
+                var attributeContext = lastMemberEnd >= 0
+                    ? precedingText.Substring(lastMemberEnd + 1)
+                    : precedingText;
+
+                var hasKeyAttribute = Regex.IsMatch(attributeContext, @"\[Key\(\d+\)\]");
+                var hasIgnoreMember = attributeContext.Contains("[IgnoreMember]");
+
+                if (!hasKeyAttribute && !hasIgnoreMember)
                 {
                     var lineNumber = content.Take(propertyIndex).Count(c => c == '\n') + 1;
                     result.Warnings.Add(new AnalysisWarning
@@ -314,17 +341,25 @@ public class StaticAnalysisService : IStaticAnalysisService
                 });
             }
 
-            // Check for CancellationToken parameter
-            if (content.Contains("HandleAsync") && !content.Contains("CancellationToken"))
+            // Check for CancellationToken parameter in HandleAsync signature
+            // Use regex to find HandleAsync method signature and check for CancellationToken parameter
+            var handleAsyncPattern = new Regex(@"HandleAsync\s*\([^)]*\)", RegexOptions.Compiled);
+            var handleAsyncMatch = handleAsyncPattern.Match(content);
+            if (handleAsyncMatch.Success)
             {
-                result.Warnings.Add(new AnalysisWarning
+                var methodSignature = handleAsyncMatch.Value;
+                // Check if CancellationToken is in the actual method signature (not just anywhere in file)
+                if (!methodSignature.Contains("CancellationToken"))
                 {
-                    RuleId = "AC5.4",
-                    SpecSource = "implementation.spec.md",
-                    Message = "HandleAsync should accept CancellationToken parameter.",
-                    FilePath = relativePath,
-                    Recommendation = "Add CancellationToken parameter to HandleAsync method."
-                });
+                    result.Warnings.Add(new AnalysisWarning
+                    {
+                        RuleId = "AC5.4",
+                        SpecSource = "implementation.spec.md",
+                        Message = "HandleAsync should accept CancellationToken parameter.",
+                        FilePath = relativePath,
+                        Recommendation = "Add CancellationToken parameter to HandleAsync method."
+                    });
+                }
             }
         }
 

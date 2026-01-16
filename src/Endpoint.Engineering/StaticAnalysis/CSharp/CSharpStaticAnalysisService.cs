@@ -606,13 +606,13 @@ public class CSharpStaticAnalysisService : ICSharpStaticAnalysisService
         // Check for using directives that might be unnecessary (basic heuristic)
         // Using directives can be in the compilation unit or within namespace declarations
         var usingDirectives = new List<UsingDirectiveSyntax>();
-        
+
         // Check at compilation unit level
         if (root is CompilationUnitSyntax compilationUnit)
         {
             usingDirectives.AddRange(compilationUnit.Usings);
         }
-        
+
         // Check within namespaces
         foreach (var namespaceDecl in root.DescendantNodes().OfType<BaseNamespaceDeclarationSyntax>())
         {
@@ -624,10 +624,23 @@ public class CSharpStaticAnalysisService : ICSharpStaticAnalysisService
             return issues;
         }
 
-        // Get all identifiers used in the file (excluding the using directives themselves)
+        // Helper function to check if a node is inside a using directive
+        static bool IsInsideUsingDirective(SyntaxNode node)
+        {
+            var current = node;
+            while (current != null)
+            {
+                if (current is UsingDirectiveSyntax)
+                    return true;
+                current = current.Parent;
+            }
+            return false;
+        }
+
+        // Get all identifiers used in the file (excluding the using directives themselves and their descendants)
         var usedIdentifiers = new HashSet<string>();
         var contentNodes = root.DescendantNodes()
-            .Where(n => !(n.Parent is UsingDirectiveSyntax) && !(n is UsingDirectiveSyntax));
+            .Where(n => !IsInsideUsingDirective(n));
 
         foreach (var identifier in contentNodes.OfType<IdentifierNameSyntax>())
         {
