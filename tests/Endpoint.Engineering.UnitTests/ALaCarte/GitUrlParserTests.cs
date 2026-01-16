@@ -96,6 +96,11 @@ public class GitUrlParserTests
         "https://code.internal.net/team/project",
         "feature/my-feature",
         "src")]
+    [InlineData(
+        "https://gitscm.nike.ca/ahtletes/michael-jordan/-/tree/main/infra/data?ref_type=heads",
+        "https://gitscm.nike.ca/ahtletes/michael-jordan",
+        "main",
+        "infra/data")]
     public void Parse_SelfHostedGitLabUrl_ReturnsCorrectComponents(
         string url,
         string expectedRepoUrl,
