@@ -25,6 +25,7 @@ public class YoloRequestHandler : IRequestHandler<YoloRequest>
 {
     private readonly ILogger<YoloRequestHandler> _logger;
     private readonly ICommandService _commandService;
+    private static readonly char[] DangerousChars = { ';', '&', '|', '\n', '\r', '`', '$', '<', '>', '(', ')', '{', '}', '*', '?', '[', ']', '~', '\'' };
 
     public YoloRequestHandler(
         ILogger<YoloRequestHandler> logger,
@@ -42,8 +43,7 @@ public class YoloRequestHandler : IRequestHandler<YoloRequest>
         {
             // Validate prompt for potentially dangerous characters
             // to prevent command injection attacks
-            var dangerousChars = new[] { ';', '&', '|', '\n', '\r', '`', '$', '<', '>', '(', ')', '{', '}', '*', '?', '[', ']', '~', '\'' };
-            if (request.Prompt.IndexOfAny(dangerousChars) >= 0)
+            if (request.Prompt.IndexOfAny(DangerousChars) >= 0)
             {
                 _logger.LogError("Prompt contains potentially dangerous characters. Please use a simpler prompt.");
                 throw new ArgumentException("Prompt contains potentially dangerous characters that could lead to command injection.", nameof(request.Prompt));
