@@ -93,7 +93,7 @@ try
             logger.LogInformation("Generated file content:");
             logger.LogInformation("--------------------");
             var content = await File.ReadAllTextAsync(file);
-            Console.WriteLine(content);
+            logger.LogInformation("{Content}", content);
             logger.LogInformation("--------------------");
         }
     }
