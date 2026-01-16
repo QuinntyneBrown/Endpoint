@@ -42,7 +42,7 @@ public class YoloRequestHandler : IRequestHandler<YoloRequest>
         {
             // Validate prompt for potentially dangerous characters
             // to prevent command injection attacks
-            var dangerousChars = new[] { ';', '&', '|', '\n', '\r', '`', '$' };
+            var dangerousChars = new[] { ';', '&', '|', '\n', '\r', '`', '$', '<', '>', '(', ')', '{', '}', '*', '?', '[', ']', '~', '\'' };
             if (request.Prompt.IndexOfAny(dangerousChars) >= 0)
             {
                 _logger.LogError("Prompt contains potentially dangerous characters. Please use a simpler prompt.");
