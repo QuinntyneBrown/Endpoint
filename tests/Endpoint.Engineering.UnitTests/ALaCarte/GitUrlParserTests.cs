@@ -104,7 +104,6 @@ public class GitUrlParserTests
 
     [Theory]
     [InlineData("")]
-    [InlineData(null)]
     [InlineData("https://github.com/owner/repo")]
     [InlineData("https://github.com/owner/repo/blob/main/file.cs")]
     [InlineData("https://example.com/some/path")]
@@ -112,7 +111,17 @@ public class GitUrlParserTests
     public void Parse_InvalidUrl_ReturnsNull(string? url)
     {
         // Act
-        var result = GitUrlParser.Parse(url!);
+        var result = GitUrlParser.Parse(url ?? string.Empty);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void Parse_NullUrl_ReturnsNull()
+    {
+        // Act
+        var result = GitUrlParser.Parse(null!);
 
         // Assert
         Assert.Null(result);
@@ -123,14 +132,23 @@ public class GitUrlParserTests
     [InlineData("https://gitlab.com/owner/repo/-/tree/main/src/folder", true)]
     [InlineData("https://github.com/owner/repo", false)]
     [InlineData("", false)]
-    [InlineData(null, false)]
     public void IsValidGitUrl_ReturnsExpectedResult(string? url, bool expected)
     {
         // Act
-        var result = GitUrlParser.IsValidGitUrl(url!);
+        var result = GitUrlParser.IsValidGitUrl(url ?? string.Empty);
 
         // Assert
         Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void IsValidGitUrl_WithNullUrl_ReturnsFalse()
+    {
+        // Act
+        var result = GitUrlParser.IsValidGitUrl(null!);
+
+        // Assert
+        Assert.False(result);
     }
 
     [Fact]

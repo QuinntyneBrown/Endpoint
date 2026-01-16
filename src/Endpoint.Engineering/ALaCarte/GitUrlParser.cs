@@ -18,6 +18,12 @@ public static class GitUrlParser
     /// </summary>
     /// <param name="url">The full GitHub or GitLab URL to a folder.</param>
     /// <returns>A tuple containing (repositoryUrl, branch, folderPath), or null if parsing fails.</returns>
+    /// <remarks>
+    /// Note: Branch names with slashes (e.g., feature/branch-name) are supported using a heuristic approach.
+    /// The parser recognizes common branch prefixes (feature, bugfix, hotfix, release) followed by a slash.
+    /// For other branch naming patterns, the first path segment after /tree/ is assumed to be the branch name,
+    /// and subsequent segments are treated as the folder path.
+    /// </remarks>
     public static (string RepositoryUrl, string Branch, string FolderPath)? Parse(string url)
     {
         if (string.IsNullOrWhiteSpace(url))
@@ -29,45 +35,12 @@ public static class GitUrlParser
         url = url.Trim();
 
         // GitHub pattern: https://github.com/owner/repo/tree/branch/path/to/folder
-        // The branch can contain slashes, so we need to be more careful with parsing
         var githubMatch = Regex.Match(url, @"^(https?://github\.com/[^/]+/[^/]+)/tree/(.+)$", RegexOptions.IgnoreCase);
         if (githubMatch.Success)
         {
             var repoUrl = githubMatch.Groups[1].Value;
             var afterTree = githubMatch.Groups[2].Value;
-            
-            // Split the afterTree part - the first segment is the branch, rest is folder path
-            // However, we need to handle cases where branch contains slashes
-            // We'll try to parse conservatively: if there's a slash after the branch name, the rest is folder
-            // Since we can't definitively know where branch ends and path begins without querying the repo,
-            // we'll use a heuristic: look for common branch patterns
-            
-            // For simplicity, we'll assume the branch name continues until we find a path segment
-            // that looks like a folder (common patterns: src, lib, packages, etc.)
-            // Or if there's only one segment, it's the branch
-            
-            var segments = afterTree.Split('/');
-            if (segments.Length == 1)
-            {
-                // Only branch, no folder path
-                return (repoUrl, segments[0], string.Empty);
-            }
-            
-            // Try to determine where branch ends and path begins
-            // Common branch prefixes: feature/, bugfix/, hotfix/, release/
-            // For now, we'll use a simple heuristic: if first segment is a branch prefix, take first 2 segments as branch
-            var branchPrefixes = new[] { "feature", "bugfix", "hotfix", "release" };
-            if (branchPrefixes.Contains(segments[0], StringComparer.OrdinalIgnoreCase) && segments.Length >= 2)
-            {
-                var branch = $"{segments[0]}/{segments[1]}";
-                var folderPath = string.Join("/", segments.Skip(2));
-                return (repoUrl, branch, folderPath);
-            }
-            
-            // Otherwise, assume first segment is branch, rest is path
-            var defaultBranch = segments[0];
-            var defaultPath = string.Join("/", segments.Skip(1));
-            return (repoUrl, defaultBranch, defaultPath);
+            return ParseBranchAndPath(repoUrl, afterTree);
         }
 
         // GitLab pattern: https://gitlab.com/owner/repo/-/tree/branch/path/to/folder
@@ -76,25 +49,7 @@ public static class GitUrlParser
         {
             var repoUrl = gitlabMatch.Groups[1].Value;
             var afterTree = gitlabMatch.Groups[2].Value;
-            
-            var segments = afterTree.Split('/');
-            if (segments.Length == 1)
-            {
-                return (repoUrl, segments[0], string.Empty);
-            }
-            
-            // Apply same heuristic as GitHub
-            var branchPrefixes = new[] { "feature", "bugfix", "hotfix", "release" };
-            if (branchPrefixes.Contains(segments[0], StringComparer.OrdinalIgnoreCase) && segments.Length >= 2)
-            {
-                var branch = $"{segments[0]}/{segments[1]}";
-                var folderPath = string.Join("/", segments.Skip(2));
-                return (repoUrl, branch, folderPath);
-            }
-            
-            var defaultBranch = segments[0];
-            var defaultPath = string.Join("/", segments.Skip(1));
-            return (repoUrl, defaultBranch, defaultPath);
+            return ParseBranchAndPath(repoUrl, afterTree);
         }
 
         // Support for self-hosted GitLab instances: https://gitlab.example.com/owner/repo/-/tree/branch/path
@@ -107,30 +62,44 @@ public static class GitUrlParser
             {
                 var repoUrl = urlPart;
                 var afterTree = selfHostedGitlabMatch.Groups[2].Value;
-                
-                var segments = afterTree.Split('/');
-                if (segments.Length == 1)
-                {
-                    return (repoUrl, segments[0], string.Empty);
-                }
-                
-                // Apply same heuristic
-                var branchPrefixes = new[] { "feature", "bugfix", "hotfix", "release" };
-                if (branchPrefixes.Contains(segments[0], StringComparer.OrdinalIgnoreCase) && segments.Length >= 2)
-                {
-                    var branch = $"{segments[0]}/{segments[1]}";
-                    var folderPath = string.Join("/", segments.Skip(2));
-                    return (repoUrl, branch, folderPath);
-                }
-                
-                var defaultBranch = segments[0];
-                var defaultPath = string.Join("/", segments.Skip(1));
-                return (repoUrl, defaultBranch, defaultPath);
+                return ParseBranchAndPath(repoUrl, afterTree);
             }
         }
 
         // If no pattern matches, return null
         return null;
+    }
+
+    /// <summary>
+    /// Parses the branch name and folder path from the URL segment after /tree/ or /-/tree/.
+    /// </summary>
+    /// <param name="repoUrl">The repository URL.</param>
+    /// <param name="afterTree">The URL segment after /tree/ or /-/tree/.</param>
+    /// <returns>A tuple containing (repositoryUrl, branch, folderPath).</returns>
+    private static (string RepositoryUrl, string Branch, string FolderPath) ParseBranchAndPath(string repoUrl, string afterTree)
+    {
+        var segments = afterTree.Split('/');
+        
+        if (segments.Length == 1)
+        {
+            // Only branch, no folder path
+            return (repoUrl, segments[0], string.Empty);
+        }
+        
+        // Try to determine where branch ends and path begins
+        // Common branch prefixes: feature/, bugfix/, hotfix/, release/
+        var branchPrefixes = new[] { "feature", "bugfix", "hotfix", "release" };
+        if (branchPrefixes.Contains(segments[0], StringComparer.OrdinalIgnoreCase) && segments.Length >= 2)
+        {
+            var branch = $"{segments[0]}/{segments[1]}";
+            var folderPath = string.Join("/", segments.Skip(2));
+            return (repoUrl, branch, folderPath);
+        }
+        
+        // Otherwise, assume first segment is branch, rest is path
+        var defaultBranch = segments[0];
+        var defaultPath = string.Join("/", segments.Skip(1));
+        return (repoUrl, defaultBranch, defaultPath);
     }
 
     /// <summary>
