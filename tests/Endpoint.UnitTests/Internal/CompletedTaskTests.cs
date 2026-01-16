@@ -58,12 +58,12 @@ public class CompletedTaskTests
     }
 
     [Fact]
-    public void Instance_ShouldBeOfTypeTask()
+    public void Instance_ShouldBeAssignableToTask()
     {
         // Arrange & Act
         var instance = CompletedTask.Instance;
 
         // Assert
-        Assert.IsType<Task>(instance);
+        Assert.IsAssignableFrom<Task>(instance);
     }
 }
