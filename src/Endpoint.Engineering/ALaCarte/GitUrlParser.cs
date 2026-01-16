@@ -282,6 +282,13 @@ public static class GitUrlParser
     /// <returns>A tuple containing (repositoryUrl, branch, folderPath).</returns>
     private static (string RepositoryUrl, string Branch, string FolderPath) ParseBranchAndPath(string repoUrl, string afterTree)
     {
+        // Strip query string if present (e.g., ?ref_type=heads from GitLab URLs)
+        var queryIndex = afterTree.IndexOf('?');
+        if (queryIndex >= 0)
+        {
+            afterTree = afterTree.Substring(0, queryIndex);
+        }
+
         var segments = afterTree.Split('/');
         
         if (segments.Length == 1)
