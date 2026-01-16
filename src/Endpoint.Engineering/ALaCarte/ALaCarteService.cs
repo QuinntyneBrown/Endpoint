@@ -148,7 +148,7 @@ public class ALaCarteService : IALaCarteService
             result.CopiedFolderPath = destPath;
 
             // Detect project type and handle accordingly
-            DetectAndHandleProjectType(request.Directory, destPath, request.SolutionName, result, cancellationToken).Wait();
+            DetectAndHandleProjectType(request.Directory, destPath, request.SolutionName, request.Root, result, cancellationToken).Wait();
 
             // Sanitize .csproj files if any were found
             if (result.CsprojFiles.Count > 0)
@@ -226,6 +226,7 @@ public class ALaCarteService : IALaCarteService
         string outputDir,
         string copiedFolderPath,
         string? solutionName,
+        string? angularRoot,
         ALaCarteTakeResult result,
         CancellationToken cancellationToken)
     {
@@ -260,7 +261,7 @@ public class ALaCarteService : IALaCarteService
             _logger.LogInformation("Detected Angular project");
 
             // Handle Angular workspace
-            await HandleAngularProjectForTake(outputDir, copiedFolderPath, result);
+            await HandleAngularProjectForTake(outputDir, copiedFolderPath, result, angularRoot);
         }
     }
 
@@ -341,7 +342,7 @@ public class ALaCarteService : IALaCarteService
         }
     }
 
-    private Task HandleAngularProjectForTake(string outputDir, string copiedFolderPath, ALaCarteTakeResult result)
+    private Task HandleAngularProjectForTake(string outputDir, string copiedFolderPath, ALaCarteTakeResult result, string? angularRoot)
     {
         var helper = new AngularWorkspaceHelper(_logger);
 
@@ -359,7 +360,7 @@ public class ALaCarteService : IALaCarteService
 
         foreach (var orphanProject in orphanProjects)
         {
-            var workspacePath = helper.CreateWorkspaceForOrphanProject(orphanProject);
+            var workspacePath = helper.CreateWorkspaceForOrphanProject(orphanProject, angularRoot);
             if (workspacePath != null)
             {
                 result.AngularWorkspacePath = workspacePath;
@@ -377,7 +378,7 @@ public class ALaCarteService : IALaCarteService
                 var projectDir = Path.GetDirectoryName(firstNgPackage);
                 if (projectDir != null)
                 {
-                    var workspacePath = helper.CreateWorkspaceForOrphanProject(projectDir);
+                    var workspacePath = helper.CreateWorkspaceForOrphanProject(projectDir, angularRoot);
                     if (workspacePath != null)
                     {
                         result.AngularWorkspacePath = workspacePath;
@@ -478,6 +479,13 @@ public class ALaCarteService : IALaCarteService
         try
         {
             CopyDirectory(sourcePath, destPath, result);
+
+            // Track custom Angular root mappings if specified
+            if (!string.IsNullOrEmpty(folderConfig.Root))
+            {
+                result.AngularRootMappings[Path.GetFullPath(destPath)] = folderConfig.Root;
+                _logger.LogInformation("Registered Angular root mapping: {Path} -> {Root}", destPath, folderConfig.Root);
+            }
         }
         catch (Exception ex)
         {
@@ -611,7 +619,23 @@ public class ALaCarteService : IALaCarteService
 
         foreach (var orphanProject in orphanProjects)
         {
-            var workspacePath = helper.CreateWorkspaceForOrphanProject(orphanProject);
+            // Look up custom root mapping for this project or any of its parent directories
+            string? customRoot = null;
+            var projectFullPath = Path.GetFullPath(orphanProject);
+
+            foreach (var mapping in result.AngularRootMappings)
+            {
+                // Check if orphan project is within a mapped directory
+                if (projectFullPath.StartsWith(mapping.Key, StringComparison.OrdinalIgnoreCase) ||
+                    mapping.Key.StartsWith(projectFullPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    customRoot = mapping.Value;
+                    _logger.LogInformation("Using custom Angular root '{Root}' for project: {Path}", customRoot, orphanProject);
+                    break;
+                }
+            }
+
+            var workspacePath = helper.CreateWorkspaceForOrphanProject(orphanProject, customRoot);
             if (workspacePath != null && !result.AngularWorkspacesCreated.Contains(workspacePath))
             {
                 result.AngularWorkspacesCreated.Add(workspacePath);
