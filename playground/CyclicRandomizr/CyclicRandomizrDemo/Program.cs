@@ -41,8 +41,17 @@ try
     logger.LogInformation("This demo shows how to generate a cyclic randomizer class for a .NET type.");
     logger.LogInformation("");
 
-    // Get the output directory
-    var outputDirectory = Path.Combine(Directory.GetCurrentDirectory(), "generated-output");
+    // Get the output directory  
+    var baseDirectory = Directory.GetCurrentDirectory();
+    var outputDirectory = Path.Combine(baseDirectory, "generated-output");
+
+    // Validate the output directory is within the expected bounds
+    var fullOutputPath = Path.GetFullPath(outputDirectory);
+    var fullBasePath = Path.GetFullPath(baseDirectory);
+    if (!fullOutputPath.StartsWith(fullBasePath, StringComparison.OrdinalIgnoreCase))
+    {
+        throw new InvalidOperationException("Output directory must be within the current directory.");
+    }
 
     // Clean up any existing output directory
     if (Directory.Exists(outputDirectory))
@@ -92,8 +101,16 @@ try
             logger.LogInformation("");
             logger.LogInformation("Generated file content:");
             logger.LogInformation("--------------------");
-            var content = await File.ReadAllTextAsync(file);
-            logger.LogInformation("{Content}", content);
+            var lines = await File.ReadAllLinesAsync(file);
+            var maxLines = Math.Min(lines.Length, 200);  // Limit to first 200 lines
+            for (int i = 0; i < maxLines; i++)
+            {
+                logger.LogInformation("{Line}", lines[i]);
+            }
+            if (lines.Length > maxLines)
+            {
+                logger.LogInformation("... ({RemainingLines} more lines omitted)", lines.Length - maxLines);
+            }
             logger.LogInformation("--------------------");
         }
     }

@@ -37,30 +37,14 @@ public class FileGenerationStrategy : IArtifactGenerationStrategy<FileModel>
         var dirName = fileSystem.Path.GetDirectoryName(model.Path);
 
         if (string.IsNullOrEmpty(dirName))
+        if (string.IsNullOrEmpty(dirName))
         {
             dirName = fileSystem.Path.GetDirectoryName(fileSystem.Path.GetFullPath(model.Path)) ?? string.Empty;
         }
 
-        if (!string.IsNullOrEmpty(dirName))
+        if (!string.IsNullOrEmpty(dirName) && !fileSystem.Directory.Exists(dirName))
         {
-            var parts = dirName.Split(fileSystem.Path.DirectorySeparatorChar);
-
-            // Skip empty parts (e.g., from leading '/' in absolute paths)
-            parts = parts.Where(p => !string.IsNullOrEmpty(p)).ToArray();
-
-            // Reconstruct paths with proper prefix for absolute paths
-            var isAbsolutePath = fileSystem.Path.IsPathRooted(dirName);
-            var prefix = isAbsolutePath ? fileSystem.Path.DirectorySeparatorChar.ToString() : string.Empty;
-
-            for (var i = 1; i <= parts.Length; i++)
-            {
-                var dir = prefix + string.Join(fileSystem.Path.DirectorySeparatorChar, parts.Take(i));
-
-                if (!fileSystem.Directory.Exists(dir))
-                {
-                    fileSystem.Directory.CreateDirectory(dir);
-                }
-            }
+            fileSystem.Directory.CreateDirectory(dirName);
         }
 
         var extension = fileSystem.Path.GetExtension(model.Path);
