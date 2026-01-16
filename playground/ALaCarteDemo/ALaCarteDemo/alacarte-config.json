@@ -22,8 +22,8 @@
       "branch": "main",
       "folders": [
         {
-          "from": "AWSSDK.Extensions",
-          "to": "AWSSDK.Extensions"
+          "from": "src/AWSSDK.Extensions",
+          "to": "src/AWSSDK.Extensions"
         }
       ]
     }

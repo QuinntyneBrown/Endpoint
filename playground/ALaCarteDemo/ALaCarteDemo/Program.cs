@@ -94,8 +94,8 @@ try
                 {
                     new FolderConfiguration
                     {
-                        From = "AWSSDK.Extensions",
-                        To = "AWSSDK.Extensions"
+                        From = "src/AWSSDK.Extensions",
+                        To = "src/AWSSDK.Extensions"
                     }
                 }
             }
@@ -107,7 +107,7 @@ try
     logger.LogInformation("  - Folder: src/Commitments.Core -> src/Commitments.Core");
     logger.LogInformation("");
     logger.LogInformation("Repository 2: https://github.com/QuinntyneBrown/AWSSDK.Extensions (branch: main)");
-    logger.LogInformation("  - Folder: AWSSDK.Extensions -> AWSSDK.Extensions");
+    logger.LogInformation("  - Folder: src/AWSSDK.Extensions -> src/AWSSDK.Extensions");
     logger.LogInformation("");
     logger.LogInformation("Output Type: MixDotNetSolutionWithOtherFolders");
     logger.LogInformation("Solution Name: ALaCarteWorkspace.sln");

@@ -11,7 +11,7 @@ The demo demonstrates creating a custom workspace by combining code from multipl
    - Extracts `src/Commitments.Core` to `src/Commitments.Core`
 
 2. **AWSSDK.Extensions Repository** (https://github.com/QuinntyneBrown/AWSSDK.Extensions, branch: main)
-   - Extracts `AWSSDK.Extensions` folder to `AWSSDK.Extensions`
+   - Extracts `src/AWSSDK.Extensions` folder to `src/AWSSDK.Extensions`
 
 The output is a mixed .NET solution with Angular workspaces and other folders combined into a single workspace.
 

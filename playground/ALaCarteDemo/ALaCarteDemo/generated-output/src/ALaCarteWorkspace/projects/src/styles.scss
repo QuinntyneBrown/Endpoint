@@ -1,0 +1,22 @@
+// Import Material theme
+@import './styles/theme.scss';
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  height: 100%;
+  width: 100%;
+}
+
+:root {
+  --primary-color: #3f51b5;
+  --secondary-color: #3f51b5;
+  --default-color: rgb(245, 245, 245);
+}
+
+// AG Grid styles - updated for AG Grid 32
+@import 'ag-grid-community/styles/ag-grid.css';
+@import 'ag-grid-community/styles/ag-theme-material.css';
+
