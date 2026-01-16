@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Engineering.ALaCarte;
 using Endpoint.Engineering.ALaCarte.Models;
+using Endpoint.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -59,13 +60,16 @@ public class ALaCarteCommandRequestHandler : IRequestHandler<ALaCarteCommandRequ
 {
     private readonly ILogger<ALaCarteCommandRequestHandler> _logger;
     private readonly IALaCarteService _alaCarteService;
+    private readonly IUserInputService _userInputService;
 
     public ALaCarteCommandRequestHandler(
         ILogger<ALaCarteCommandRequestHandler> logger,
-        IALaCarteService alaCarteService)
+        IALaCarteService alaCarteService,
+        IUserInputService userInputService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _alaCarteService = alaCarteService ?? throw new ArgumentNullException(nameof(alaCarteService));
+        _userInputService = userInputService ?? throw new ArgumentNullException(nameof(userInputService));
     }
 
     public async Task Handle(ALaCarteCommandRequest request, CancellationToken cancellationToken)
@@ -104,9 +108,28 @@ public class ALaCarteCommandRequestHandler : IRequestHandler<ALaCarteCommandRequ
             }
             else
             {
-                WriteError("Either --config or --url must be specified.", request.NoColor);
-                Environment.ExitCode = 1;
-                return;
+                // Use UserInputService to get JSON configuration from user
+                var sampleConfig = CreateSampleConfiguration();
+                var options = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+                var defaultTemplate = JsonSerializer.Serialize(sampleConfig, options);
+
+                Console.WriteLine("Opening editor for ALaCarte configuration...");
+                Console.WriteLine("Edit the JSON configuration and save the file to continue.");
+                Console.WriteLine();
+
+                var jsonElement = await _userInputService.ReadJsonAsync(defaultTemplate);
+
+                var deserializeOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                alaCarteRequest = JsonSerializer.Deserialize<ALaCarteRequest>(jsonElement, deserializeOptions)
+                    ?? throw new JsonException("Failed to deserialize configuration from user input.");
             }
 
             // Ensure directory is set
@@ -223,6 +246,32 @@ public class ALaCarteCommandRequestHandler : IRequestHandler<ALaCarteCommandRequ
             "dotnetsolution" => OutputType.DotNetSolution,
             "mixdotnetsolutionwithotherfolders" => OutputType.MixDotNetSolutionWithOtherFolders,
             _ => OutputType.NotSpecified
+        };
+    }
+
+    private static ALaCarteRequest CreateSampleConfiguration()
+    {
+        return new ALaCarteRequest
+        {
+            OutputType = OutputType.NotSpecified,
+            SolutionName = "ALaCarte.sln",
+            Directory = Environment.CurrentDirectory,
+            Repositories = new List<RepositoryConfiguration>
+            {
+                new RepositoryConfiguration
+                {
+                    Url = "https://github.com/owner/repository",
+                    Branch = "main",
+                    Folders = new List<FolderConfiguration>
+                    {
+                        new FolderConfiguration
+                        {
+                            From = "src/folder",
+                            To = "destination/folder"
+                        }
+                    }
+                }
+            }
         };
     }
 
