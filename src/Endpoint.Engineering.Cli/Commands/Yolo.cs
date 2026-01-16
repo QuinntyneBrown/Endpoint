@@ -40,7 +40,15 @@ public class YoloRequestHandler : IRequestHandler<YoloRequest>
         
         if (!string.IsNullOrWhiteSpace(request.Prompt))
         {
-            commandBuilder.Append($" \"{request.Prompt}\"");
+            // Escape characters that could cause issues in shell commands
+            // This handles both bash and cmd.exe contexts
+            var escapedPrompt = request.Prompt
+                .Replace("\\", "\\\\") // Escape backslashes first
+                .Replace("\"", "\\\"") // Escape double quotes
+                .Replace("$", "\\$") // Escape dollar signs (bash variable expansion)
+                .Replace("`", "\\`"); // Escape backticks (command substitution)
+            
+            commandBuilder.Append($" \"{escapedPrompt}\"");
         }
         
         commandBuilder.Append(" --dangerously-skip-permissions --verbose --output-format");
