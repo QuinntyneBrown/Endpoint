@@ -35,4 +35,12 @@ public class ALaCarteTakeRequest
     /// If not specified and a .csproj is found, defaults to the folder name.
     /// </summary>
     public string? SolutionName { get; set; }
+
+    /// <summary>
+    /// The root path for Angular projects within the angular.json workspace configuration.
+    /// When specified, this value is used as the "root" property in angular.json instead of
+    /// deriving it from the destination path. This is useful when the Angular library root
+    /// has multiple segments (e.g., "nike/utils" instead of just "utils").
+    /// </summary>
+    public string? Root { get; set; }
 }

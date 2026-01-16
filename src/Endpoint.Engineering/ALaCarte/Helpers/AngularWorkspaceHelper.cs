@@ -67,18 +67,52 @@ public class AngularWorkspaceHelper
     /// Creates an Angular workspace for orphan projects.
     /// </summary>
     /// <param name="orphanProjectPath">Path to the orphan Angular library project.</param>
+    /// <param name="customRoot">Optional custom root path for the angular.json configuration.
+    /// When specified, this value is used as the "root" property and the angular.json is placed
+    /// at the appropriate parent directory level to make this path valid.</param>
     /// <returns>Path to the created angular.json file, or null if creation failed.</returns>
-    public string? CreateWorkspaceForOrphanProject(string orphanProjectPath)
+    public string? CreateWorkspaceForOrphanProject(string orphanProjectPath, string? customRoot = null)
     {
         try
         {
-            // Determine the best location for the workspace
-            // Create it in the parent directory of the orphan project
-            var parentDir = Path.GetDirectoryName(orphanProjectPath);
-            if (parentDir == null)
+            string parentDir;
+            string relativePath;
+
+            if (!string.IsNullOrEmpty(customRoot))
             {
-                _logger.LogError("Cannot determine parent directory for: {Path}", orphanProjectPath);
-                return null;
+                // When custom root is provided, calculate the workspace directory
+                // by going up the path by the number of segments in customRoot
+                var rootSegments = customRoot.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+                parentDir = orphanProjectPath;
+
+                // Go up the directory tree by the number of segments in customRoot
+                for (int i = 0; i < rootSegments.Length; i++)
+                {
+                    var parent = Path.GetDirectoryName(parentDir);
+                    if (parent == null)
+                    {
+                        _logger.LogError("Cannot determine workspace directory for custom root '{Root}' from: {Path}", customRoot, orphanProjectPath);
+                        return null;
+                    }
+                    parentDir = parent;
+                }
+
+                // Use the custom root as the relative path
+                relativePath = customRoot.Replace("\\", "/");
+            }
+            else
+            {
+                // Determine the best location for the workspace
+                // Create it in the parent directory of the orphan project
+                parentDir = Path.GetDirectoryName(orphanProjectPath)!;
+                if (parentDir == null)
+                {
+                    _logger.LogError("Cannot determine parent directory for: {Path}", orphanProjectPath);
+                    return null;
+                }
+
+                // Calculate relative path from workspace to project
+                relativePath = Path.GetRelativePath(parentDir, orphanProjectPath).Replace("\\", "/");
             }
 
             var angularJsonPath = Path.Combine(parentDir, "angular.json");
@@ -86,16 +120,13 @@ public class AngularWorkspaceHelper
             // If angular.json already exists in parent, add the project to it
             if (File.Exists(angularJsonPath))
             {
-                AddProjectToExistingWorkspace(angularJsonPath, orphanProjectPath);
+                AddProjectToExistingWorkspace(angularJsonPath, orphanProjectPath, customRoot);
                 return angularJsonPath;
             }
 
             // Read ng-package.json to get library name
             var ngPackagePath = Path.Combine(orphanProjectPath, "ng-package.json");
             var libraryName = GetLibraryName(ngPackagePath, orphanProjectPath);
-
-            // Calculate relative path from workspace to project
-            var relativePath = Path.GetRelativePath(parentDir, orphanProjectPath).Replace("\\", "/");
 
             // Create angular.json
             var angularJson = CreateAngularJson(libraryName, relativePath);
@@ -184,7 +215,7 @@ public class AngularWorkspaceHelper
         return projectPaths;
     }
 
-    private void AddProjectToExistingWorkspace(string angularJsonPath, string projectPath)
+    private void AddProjectToExistingWorkspace(string angularJsonPath, string projectPath, string? customRoot = null)
     {
         try
         {
@@ -201,7 +232,9 @@ public class AngularWorkspaceHelper
             }
 
             var workspaceDir = Path.GetDirectoryName(angularJsonPath) ?? "";
-            var relativePath = Path.GetRelativePath(workspaceDir, projectPath).Replace("\\", "/");
+            var relativePath = !string.IsNullOrEmpty(customRoot)
+                ? customRoot.Replace("\\", "/")
+                : Path.GetRelativePath(workspaceDir, projectPath).Replace("\\", "/");
 
             var ngPackagePath = Path.Combine(projectPath, "ng-package.json");
             var libraryName = GetLibraryName(ngPackagePath, projectPath);

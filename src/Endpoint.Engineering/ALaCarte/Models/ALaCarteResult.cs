@@ -34,6 +34,12 @@ public class ALaCarteResult
     public List<string> AngularWorkspacesCreated { get; set; } = new();
 
     /// <summary>
+    /// Mapping of destination folder paths to their custom Angular root values.
+    /// Used when creating angular.json workspaces for folders with custom root specifications.
+    /// </summary>
+    public Dictionary<string, string> AngularRootMappings { get; set; } = new();
+
+    /// <summary>
     /// List of error messages if any operations failed.
     /// </summary>
     public List<string> Errors { get; set; } = new();

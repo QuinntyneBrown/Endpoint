@@ -40,6 +40,15 @@ public class TakeRequest : IRequest
     /// </summary>
     [Option('s', "solution", Required = false, HelpText = "The name of the solution to create/update.")]
     public string? SolutionName { get; set; }
+
+    /// <summary>
+    /// The root path for Angular projects within the angular.json workspace configuration.
+    /// When specified, this value is used as the "root" property in angular.json instead of
+    /// deriving it from the destination path. This is useful when the Angular library root
+    /// has multiple segments (e.g., "nike/utils" instead of just "utils").
+    /// </summary>
+    [Option('r', "root", Required = false, HelpText = "The Angular library root path for angular.json (e.g., \"nike/utils\").")]
+    public string? Root { get; set; }
 }
 
 /// <summary>
@@ -99,7 +108,8 @@ public class TakeRequestHandler : IRequestHandler<TakeRequest>
             Branch = branch,
             FromPath = folderPath,
             Directory = request.Directory,
-            SolutionName = request.SolutionName
+            SolutionName = request.SolutionName,
+            Root = request.Root
         };
 
         _logger.LogInformation(
