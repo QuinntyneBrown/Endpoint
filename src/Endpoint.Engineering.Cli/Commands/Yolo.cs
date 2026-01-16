@@ -16,6 +16,9 @@ public class YoloRequest : IRequest
 {
     [Option('d', Required = false)]
     public string Directory { get; set; } = System.Environment.CurrentDirectory;
+
+    [Option('p', "prompt", Required = false)]
+    public string Prompt { get; set; }
 }
 
 public class YoloRequestHandler : IRequestHandler<YoloRequest>
@@ -33,10 +36,21 @@ public class YoloRequestHandler : IRequestHandler<YoloRequest>
 
     public async Task Handle(YoloRequest request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Executing claude --dangerously-skip-permissions in {Directory}", request.Directory);
+        var commandBuilder = new System.Text.StringBuilder("claude --continue --print");
+        
+        if (!string.IsNullOrWhiteSpace(request.Prompt))
+        {
+            commandBuilder.Append($" \"{request.Prompt}\"");
+        }
+        
+        commandBuilder.Append(" --dangerously-skip-permissions --verbose --output-format");
+        
+        var command = commandBuilder.ToString();
+        
+        _logger.LogInformation("Executing {Command} in {Directory}", command, request.Directory);
 
         var exitCode = _commandService.Start(
-            "claude --dangerously-skip-permissions",
+            command,
             request.Directory,
             waitForExit: true);
 
