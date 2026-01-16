@@ -19,4 +19,14 @@ public interface IALaCarteService
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The result of the ALaCarte operation.</returns>
     Task<ALaCarteResult> ProcessAsync(ALaCarteRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Takes a folder from a git/gitlab repository and copies it to a target directory.
+    /// If the folder contains a .csproj, creates/updates a solution.
+    /// If the folder is an Angular workspace project, creates/updates the workspace.
+    /// </summary>
+    /// <param name="request">The Take request containing repository URL, branch, and folder path.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The result of the Take operation.</returns>
+    Task<ALaCarteTakeResult> TakeAsync(ALaCarteTakeRequest request, CancellationToken cancellationToken = default);
 }
