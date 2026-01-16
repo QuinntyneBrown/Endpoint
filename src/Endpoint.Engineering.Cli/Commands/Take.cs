@@ -2,14 +2,11 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Engineering.ALaCarte;
 using Endpoint.Engineering.ALaCarte.Models;
-using Endpoint.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -24,27 +21,16 @@ namespace Endpoint.Engineering.Cli.Commands;
 public class TakeRequest : IRequest
 {
     /// <summary>
-    /// The URL of the git/gitlab repository.
+    /// The full GitHub or GitLab URL to a folder (e.g., https://github.com/owner/repo/tree/branch/path/to/folder).
+    /// This URL will be parsed to extract the repository URL, branch, and folder path.
     /// </summary>
-    [Option('u', "url", Required = false, HelpText = "The git/gitlab repository URL.")]
+    [Option('u', "url", Required = true, HelpText = "Full GitHub or GitLab URL to the folder (e.g., https://github.com/owner/repo/tree/branch/path/to/folder).")]
     public string Url { get; set; } = string.Empty;
-
-    /// <summary>
-    /// The branch to clone from.
-    /// </summary>
-    [Option('b', "branch", Required = false, HelpText = "The branch to clone from (default: main).")]
-    public string Branch { get; set; } = "main";
-
-    /// <summary>
-    /// The path within the repository to the folder to copy.
-    /// </summary>
-    [Option('f', "from", Required = false, HelpText = "The path to the folder in the repository to copy.")]
-    public string FromPath { get; set; } = string.Empty;
 
     /// <summary>
     /// The target directory where the folder will be copied to.
     /// </summary>
-    [Option('d', Required = false, HelpText = "The target directory (default: current directory).")]
+    [Option('d', "directory", Required = false, HelpText = "The target directory (default: current directory).")]
     public string Directory { get; set; } = Environment.CurrentDirectory;
 
     /// <summary>
@@ -61,64 +47,58 @@ public class TakeRequestHandler : IRequestHandler<TakeRequest>
 {
     private readonly ILogger<TakeRequestHandler> _logger;
     private readonly IALaCarteService _alaCarteService;
-    private readonly IUserInputService _userInputService;
 
     public TakeRequestHandler(
         ILogger<TakeRequestHandler> logger,
-        IALaCarteService alaCarteService,
-        IUserInputService userInputService)
+        IALaCarteService alaCarteService)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(alaCarteService);
-        ArgumentNullException.ThrowIfNull(userInputService);
 
         _logger = logger;
         _alaCarteService = alaCarteService;
-        _userInputService = userInputService;
     }
 
     public async Task Handle(TakeRequest request, CancellationToken cancellationToken)
     {
-        ALaCarteTakeRequest takeRequest;
-
-        // If URL is not provided, use interactive JSON input
+        // Validate URL is provided
         if (string.IsNullOrEmpty(request.Url))
         {
-            _logger.LogInformation("No parameters provided. Starting interactive mode...");
-
-            var sampleConfig = CreateSampleConfig();
-            var jsonElement = await _userInputService.ReadJsonAsync(sampleConfig);
-
-            takeRequest = ParseJsonConfig(jsonElement, request.Directory);
-        }
-        else
-        {
-            takeRequest = new ALaCarteTakeRequest
-            {
-                Url = request.Url,
-                Branch = request.Branch,
-                FromPath = request.FromPath,
-                Directory = request.Directory,
-                SolutionName = request.SolutionName
-            };
-        }
-
-        // Validate required fields
-        if (string.IsNullOrEmpty(takeRequest.Url))
-        {
-            _logger.LogError("Repository URL is required.");
+            _logger.LogError("URL is required. Please provide a full GitHub or GitLab URL to a folder.");
+            _logger.LogInformation("Example: https://github.com/owner/repo/tree/branch/path/to/folder");
             return;
         }
 
-        if (string.IsNullOrEmpty(takeRequest.FromPath))
+        // Parse the URL to extract repository URL, branch, and folder path
+        var parsedUrl = GitUrlParser.Parse(request.Url);
+        if (parsedUrl == null)
         {
-            _logger.LogError("From path is required.");
+            _logger.LogError("Invalid URL format. The URL must be a GitHub or GitLab URL to a folder.");
+            _logger.LogInformation("GitHub example: https://github.com/owner/repo/tree/branch/path/to/folder");
+            _logger.LogInformation("GitLab example: https://gitlab.com/owner/repo/-/tree/branch/path/to/folder");
             return;
         }
+
+        var (repositoryUrl, branch, folderPath) = parsedUrl.Value;
+
+        _logger.LogInformation(
+            "Parsed URL - Repository: {Url}, Branch: {Branch}, Folder: {Path}",
+            repositoryUrl,
+            branch,
+            string.IsNullOrEmpty(folderPath) ? "(root)" : folderPath);
+
+        var takeRequest = new ALaCarteTakeRequest
+        {
+            Url = repositoryUrl,
+            Branch = branch,
+            FromPath = folderPath,
+            Directory = request.Directory,
+            SolutionName = request.SolutionName
+        };
 
         _logger.LogInformation(
             "Taking folder '{FromPath}' from repository '{Url}' (branch: {Branch})",
-            takeRequest.FromPath,
+            string.IsNullOrEmpty(takeRequest.FromPath) ? "(root)" : takeRequest.FromPath,
             takeRequest.Url,
             takeRequest.Branch);
 
@@ -157,76 +137,4 @@ public class TakeRequestHandler : IRequestHandler<TakeRequest>
             _logger.LogWarning("Warning: {Warning}", warning);
         }
     }
-
-    private static string CreateSampleConfig()
-    {
-        var sampleConfig = new TakeConfigModel
-        {
-            Url = "https://github.com/username/repository",
-            Branch = "main",
-            FromPath = "src/ProjectFolder",
-            SolutionName = "MySolution"
-        };
-
-        var options = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-        };
-
-        return JsonSerializer.Serialize(sampleConfig, options);
-    }
-
-    private static ALaCarteTakeRequest ParseJsonConfig(JsonElement jsonElement, string defaultDirectory)
-    {
-        var options = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            PropertyNameCaseInsensitive = true
-        };
-
-        var config = JsonSerializer.Deserialize<TakeConfigModel>(jsonElement.GetRawText(), options)
-            ?? new TakeConfigModel();
-
-        return new ALaCarteTakeRequest
-        {
-            Url = config.Url ?? string.Empty,
-            Branch = config.Branch ?? "main",
-            FromPath = config.FromPath ?? string.Empty,
-            Directory = config.Directory ?? defaultDirectory,
-            SolutionName = config.SolutionName
-        };
-    }
-}
-
-/// <summary>
-/// Model for JSON configuration input.
-/// </summary>
-internal class TakeConfigModel
-{
-    /// <summary>
-    /// The URL of the git/gitlab repository.
-    /// </summary>
-    public string? Url { get; set; }
-
-    /// <summary>
-    /// The branch to clone from.
-    /// </summary>
-    public string? Branch { get; set; }
-
-    /// <summary>
-    /// The path within the repository to the folder to copy.
-    /// </summary>
-    public string? FromPath { get; set; }
-
-    /// <summary>
-    /// The target directory where the folder will be copied to.
-    /// </summary>
-    public string? Directory { get; set; }
-
-    /// <summary>
-    /// The name of the solution to create/update (if applicable).
-    /// </summary>
-    public string? SolutionName { get; set; }
 }
