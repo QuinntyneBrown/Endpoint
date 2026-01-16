@@ -37,6 +37,7 @@ using Endpoint.Engineering.Microservices.GitAnalysis;
 using Endpoint.Engineering.Microservices.RealtimeNotification;
 using Endpoint.Engineering.Messaging.Artifacts;
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.ALaCarte;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -65,6 +66,9 @@ public static class ConfigureServices
         services.AddSingleton<IStaticAnalysisService, StaticAnalysisService>();
         // Register Code Review Service
         services.AddSingleton<ICodeReviewService, CodeReviewService>();
+
+        // Register ALaCarte Service
+        services.AddSingleton<IALaCarteService, ALaCarteService>();
 
         // Register artifact factories for all microservices
         services.AddSingleton<IIdentityArtifactFactory, IdentityArtifactFactory>();
