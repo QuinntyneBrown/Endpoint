@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Engineering.AI.Services;
+using Endpoint.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -27,9 +28,9 @@ public class CodeParseRequest : IRequest
     [Option('o', "output", Required = false, HelpText = "Output file path (optional, prints to console if not specified)")]
     public string? Output { get; set; }
 
-    [Option('e', "efficiency", Required = false, Default = "medium",
-        HelpText = "Token efficiency level: low (full detail), medium (balanced), high (compact), max (minimal)")]
-    public string Efficiency { get; set; } = "medium";
+    [Option('e', "efficiency", Required = false, Default = 50,
+        HelpText = "Token efficiency level: 0 (verbatim/full code) to 100 (minimal). Values in between produce progressively smaller output.")]
+    public int Efficiency { get; set; } = 50;
 
     [Option("ignore-tests", Required = false, Default = false,
         HelpText = "Ignore test files and test projects (xUnit, NUnit, Jest, pytest, etc.)")]
@@ -44,13 +45,16 @@ public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
 {
     private readonly ILogger<CodeParseRequestHandler> _logger;
     private readonly ICodeParser _codeParser;
+    private readonly IClipboardService _clipboardService;
 
     public CodeParseRequestHandler(
         ILogger<CodeParseRequestHandler> logger,
-        ICodeParser codeParser)
+        ICodeParser codeParser,
+        IClipboardService clipboardService)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _codeParser = codeParser ?? throw new ArgumentNullException(nameof(codeParser));
+        _clipboardService = clipboardService ?? throw new ArgumentNullException(nameof(clipboardService));
     }
 
     public async Task Handle(CodeParseRequest request, CancellationToken cancellationToken)
@@ -61,9 +65,16 @@ public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
             _logger.LogWarning("Both --ignore-tests and --tests-only specified. Using --tests-only.");
         }
 
+        // Validate and clamp efficiency to 0-100 range
+        var efficiency = Math.Clamp(request.Efficiency, 0, 100);
+        if (efficiency != request.Efficiency)
+        {
+            _logger.LogWarning("Efficiency value {Value} clamped to {ClampedValue} (valid range: 0-100)", request.Efficiency, efficiency);
+        }
+
         var options = new CodeParseOptions
         {
-            Efficiency = ParseEfficiency(request.Efficiency),
+            Efficiency = efficiency,
             IgnoreTests = request.IgnoreTests && !request.TestsOnly,
             TestsOnly = request.TestsOnly
         };
@@ -120,8 +131,12 @@ public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
             Console.WriteLine(output);
         }
 
-        _logger.LogInformation("Parsed {FileCount} files from {DirectoryCount} directory(s) with {Efficiency} efficiency ({OutputLength} chars)",
+        _logger.LogInformation("Parsed {FileCount} files from {DirectoryCount} directory(s) with efficiency {Efficiency} ({OutputLength} chars)",
             mergedSummary.Files.Count, directories.Count, options.Efficiency, output.Length);
+
+        // Copy result to clipboard
+        _clipboardService.SetText(output);
+        _logger.LogInformation("Result copied to clipboard");
     }
 
     private static List<string> ParseDirectories(string? directoriesArg)
@@ -138,17 +153,5 @@ public class CodeParseRequestHandler : IRequestHandler<CodeParseRequest>
             .ToList();
 
         return directories.Count > 0 ? directories : [Environment.CurrentDirectory];
-    }
-
-    private static CodeParseEfficiency ParseEfficiency(string value)
-    {
-        return value.ToLowerInvariant() switch
-        {
-            "low" or "l" or "1" => CodeParseEfficiency.Low,
-            "medium" or "med" or "m" or "2" => CodeParseEfficiency.Medium,
-            "high" or "h" or "3" => CodeParseEfficiency.High,
-            "max" or "maximum" or "x" or "4" => CodeParseEfficiency.Max,
-            _ => CodeParseEfficiency.Medium
-        };
     }
 }

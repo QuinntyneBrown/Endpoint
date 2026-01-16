@@ -209,7 +209,7 @@ public partial class CodeParser : ICodeParser
             try
             {
                 var content = await File.ReadAllTextAsync(file, cancellationToken);
-                var relativePath = Path.GetRelativePath(directory, file);
+                var relativePath = Path.GetRelativePath(directory, file).Replace('\\', '/');
                 var extension = Path.GetExtension(file).ToLowerInvariant();
 
                 var isTestFile = IsTestFileByContent(content);
@@ -231,6 +231,12 @@ public partial class CodeParser : ICodeParser
                 includedFiles++;
                 var fileSummary = ParseFile(content, relativePath, extension);
                 summary.Files.Add(fileSummary);
+
+                // Store raw content when efficiency is 0 (verbatim mode)
+                if (options.Efficiency == 0)
+                {
+                    summary.RawContents[relativePath] = content;
+                }
             }
             catch (Exception ex)
             {
