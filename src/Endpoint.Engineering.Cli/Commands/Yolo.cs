@@ -46,7 +46,12 @@ public class YoloRequestHandler : IRequestHandler<YoloRequest>
                 .Replace("\\", "\\\\") // Escape backslashes first
                 .Replace("\"", "\\\"") // Escape double quotes
                 .Replace("$", "\\$") // Escape dollar signs (bash variable expansion)
-                .Replace("`", "\\`"); // Escape backticks (command substitution)
+                .Replace("`", "\\`") // Escape backticks (command substitution)
+                .Replace("\n", " ") // Replace newlines with spaces
+                .Replace("\r", string.Empty) // Remove carriage returns
+                .Replace(";", "\\;") // Escape semicolons (command separator)
+                .Replace("&", "\\&") // Escape ampersands (command separator)
+                .Replace("|", "\\|"); // Escape pipes (command piping)
             
             commandBuilder.Append($" \"{escapedPrompt}\"");
         }
