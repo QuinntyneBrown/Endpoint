@@ -37,6 +37,7 @@ using Endpoint.Engineering.Microservices.GitAnalysis;
 using Endpoint.Engineering.Microservices.RealtimeNotification;
 using Endpoint.Engineering.Messaging.Artifacts;
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.ALaCarte;
 using Endpoint.Engineering.CyclicRandomizr;
 using Endpoint.Engineering.SolutionPruning;
 
@@ -72,6 +73,9 @@ public static class ConfigureServices
 
         // Register Solution Prune Service
         services.AddSingleton<ISolutionPruneService, SolutionPruneService>();
+
+        // Register ALaCarte Service
+        services.AddSingleton<IALaCarteService, ALaCarteService>();
 
         // Register artifact factories for all microservices
         services.AddSingleton<IIdentityArtifactFactory, IdentityArtifactFactory>();
