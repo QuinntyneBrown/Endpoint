@@ -34,16 +34,11 @@ public class FileGenerationStrategy : IArtifactGenerationStrategy<FileModel>
 
         var copyright = templateLocator.GetCopyright();
 
-        var parts = fileSystem.Path.GetDirectoryName(model.Path).Split(fileSystem.Path.DirectorySeparatorChar);
+        var dirName = fileSystem.Path.GetDirectoryName(model.Path);
 
-        for (var i = 1; i <= parts.Length; i++)
+        if (!string.IsNullOrEmpty(dirName) && !fileSystem.Directory.Exists(dirName))
         {
-            var dir = string.Join(fileSystem.Path.DirectorySeparatorChar, parts.Take(i));
-
-            if (!fileSystem.Directory.Exists(dir))
-            {
-                fileSystem.Directory.CreateDirectory(dir);
-            }
+            fileSystem.Directory.CreateDirectory(dirName);
         }
 
         var extension = fileSystem.Path.GetExtension(model.Path);

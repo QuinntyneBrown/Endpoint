@@ -1,0 +1,6 @@
+## Ignore generated output
+**/generated-output/
+
+## Ignore bin and obj folders
+bin/
+obj/

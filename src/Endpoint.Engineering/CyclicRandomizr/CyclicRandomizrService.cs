@@ -340,7 +340,10 @@ return null;
             classModel.Usings,
             randomizerClassName,
             directory,
-            CSharp);
+            CSharp)
+        {
+            Namespace = typeNamespace
+        };
 
         await _artifactGenerator.GenerateAsync(codeFile);
 
