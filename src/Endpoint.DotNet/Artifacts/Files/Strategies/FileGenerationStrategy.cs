@@ -37,7 +37,6 @@ public class FileGenerationStrategy : IArtifactGenerationStrategy<FileModel>
         var dirName = fileSystem.Path.GetDirectoryName(model.Path);
 
         if (string.IsNullOrEmpty(dirName))
-        if (string.IsNullOrEmpty(dirName))
         {
             dirName = fileSystem.Path.GetDirectoryName(fileSystem.Path.GetFullPath(model.Path)) ?? string.Empty;
         }
