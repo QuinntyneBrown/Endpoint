@@ -37,6 +37,7 @@ using Endpoint.Engineering.Microservices.GitAnalysis;
 using Endpoint.Engineering.Microservices.RealtimeNotification;
 using Endpoint.Engineering.Messaging.Artifacts;
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.CyclicRandomizr;
 using Endpoint.Engineering.SolutionPruning;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -66,6 +67,8 @@ public static class ConfigureServices
         services.AddSingleton<IStaticAnalysisService, StaticAnalysisService>();
         // Register Code Review Service
         services.AddSingleton<ICodeReviewService, CodeReviewService>();
+        // Register Cyclic Randomizr Service
+        services.AddSingleton<ICyclicRandomizrService, CyclicRandomizrService>();
 
         // Register Solution Prune Service
         services.AddSingleton<ISolutionPruneService, SolutionPruneService>();
