@@ -86,8 +86,7 @@ try
     {
         foreach (var file in Directory.GetFiles(outputDirectory, "*.*", SearchOption.AllDirectories))
         {
-            var relativePath = Path.GetRelativePath(outputDirectory, file);
-            logger.LogInformation("  - {FilePath}", relativePath);
+            logger.LogInformation("  - {FilePath}", Path.GetRelativePath(outputDirectory, file));
             
             // Show a snippet of the generated file
             logger.LogInformation("");
