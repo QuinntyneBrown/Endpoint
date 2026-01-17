@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git Repository Folder Navigator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Angular Material Dark Theme Colors - Indigo/Pink */
+        :root {
+            --mat-primary: #9fa8da;
+            --mat-primary-lighter: #c5cae9;
+            --mat-primary-darker: #7986cb;
+            --mat-accent: #f48fb1;
+            --mat-accent-lighter: #f8bbd0;
+            --mat-accent-darker: #f06292;
+            --mat-warn: #ef5350;
+            --mat-success: #81c784;
+            --mat-background: #0d1117;
+            --mat-surface: #161b22;
+            --mat-surface-elevated: #21262d;
+            --mat-surface-high: #30363d;
+            --mat-on-surface: #e6edf3;
+            --mat-on-surface-medium: rgba(230,237,243,0.7);
+            --mat-on-surface-disabled: rgba(230,237,243,0.38);
+            --mat-divider: rgba(230,237,243,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--mat-background);
+            color: var(--mat-on-surface);
+            min-height: 100vh;
+        }
+
+        /* App Header */
+        .app-header {
+            background: var(--mat-surface);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--mat-on-surface);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+        }
+
+        .page-title-header {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 72px 16px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Page Title */
+        .page-title {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .page-description {
+            font-size: 14px;
+            color: var(--mat-on-surface-medium);
+            margin-bottom: 24px;
+        }
+
+        /* Repository Input */
+        .repo-input-section {
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-divider);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--mat-on-surface-medium);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-with-icon {
+            display: flex;
+            gap: 8px;
+        }
+
+        .form-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-divider);
+            border-radius: 8px;
+            color: var(--mat-on-surface);
+            font-size: 14px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+        }
+
+        .form-select {
+            padding: 12px 16px;
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-divider);
+            border-radius: 8px;
+            color: var(--mat-on-surface);
+            font-size: 14px;
+            font-family: 'Roboto', sans-serif;
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--mat-primary);
+            color: #121212;
+        }
+
+        .btn-primary:hover {
+            background: var(--mat-primary-lighter);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--mat-divider);
+            color: var(--mat-on-surface);
+        }
+
+        .btn-secondary:hover {
+            background: var(--mat-surface-high);
+        }
+
+        /* Repository Info Card */
+        .repo-info-card {
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-divider);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .repo-info-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .repo-avatar {
+            width: 56px;
+            height: 56px;
+            background: var(--mat-surface-high);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .repo-avatar .material-icons {
+            font-size: 32px;
+            color: var(--mat-primary);
+        }
+
+        .repo-details h3 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .repo-url {
+            font-size: 12px;
+            color: var(--mat-on-surface-medium);
+            font-family: 'Courier New', monospace;
+        }
+
+        .repo-stats {
+            display: flex;
+            gap: 24px;
+            padding: 16px 0;
+            border-top: 1px solid var(--mat-divider);
+        }
+
+        .repo-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .repo-stat .material-icons {
+            font-size: 18px;
+            color: var(--mat-on-surface-medium);
+        }
+
+        .repo-stat-value {
+            font-weight: 500;
+            color: var(--mat-primary);
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--mat-surface);
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-indicator.success {
+            background: rgba(129,199,132,0.15);
+            color: var(--mat-success);
+        }
+
+        .status-indicator.loading {
+            background: rgba(159,168,218,0.15);
+            color: var(--mat-primary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Folder Browser */
+        .folder-browser {
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-divider);
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .browser-toolbar {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--mat-divider);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--mat-surface);
+        }
+
+        .browser-toolbar-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--mat-on-surface-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .browser-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Tree View */
+        .tree-view {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .tree-item:hover {
+            background: var(--mat-surface-high);
+        }
+
+        .tree-item.selected {
+            background: rgba(159,168,218,0.15);
+        }
+
+        .tree-item-indent {
+            width: 24px;
+        }
+
+        .tree-item-expand {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .tree-item-expand:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .tree-item-expand .material-icons {
+            font-size: 18px;
+            color: var(--mat-on-surface-medium);
+            transition: transform 0.2s;
+        }
+
+        .tree-item.expanded .tree-item-expand .material-icons {
+            transform: rotate(90deg);
+        }
+
+        .tree-item-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--mat-primary);
+        }
+
+        .tree-item-icon {
+            color: var(--mat-accent);
+        }
+
+        .tree-item-icon.file {
+            color: var(--mat-on-surface-medium);
+        }
+
+        .tree-item-label {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .tree-item-badge {
+            font-size: 11px;
+            color: var(--mat-on-surface-medium);
+            padding: 2px 8px;
+            background: var(--mat-surface);
+            border-radius: 4px;
+        }
+
+        .tree-children {
+            margin-left: 24px;
+        }
+
+        /* Selection Bar */
+        .selection-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--mat-surface-elevated);
+            border-top: 1px solid var(--mat-divider);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.3);
+        }
+
+        .selection-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .selection-count {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .selection-count .material-icons {
+            color: var(--mat-primary);
+        }
+
+        .selection-details {
+            font-size: 12px;
+            color: var(--mat-on-surface-medium);
+        }
+
+        .selection-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Quick Links */
+        .quick-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-divider);
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-link:hover {
+            border-color: var(--mat-primary);
+            background: var(--mat-surface-high);
+        }
+
+        .quick-link .material-icons {
+            font-size: 16px;
+            color: var(--mat-primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <button class="back-btn">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <span class="page-title-header">Browse Git Repository</span>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn">
+                <span class="material-icons">help_outline</span>
+            </button>
+            <button class="icon-btn">
+                <span class="material-icons">more_vert</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Page Title -->
+        <h1 class="page-title">Browse Git Repository</h1>
+        <p class="page-description">Connect to a Git repository and select folders to include in your solution</p>
+
+        <!-- Repository Input -->
+        <div class="repo-input-section">
+            <div class="input-group">
+                <label class="input-label">Repository URL</label>
+                <div class="input-with-icon">
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        placeholder="https://github.com/username/repository.git"
+                        value="https://github.com/dotnet/aspnetcore.git">
+                    <button class="btn btn-primary">
+                        <span class="material-icons">cloud_download</span>
+                        Fetch
+                    </button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Branch / Tag / Commit</label>
+                <div class="input-with-icon">
+                    <select class="form-select">
+                        <option value="main">main</option>
+                        <option value="develop">develop</option>
+                        <option value="release/v7.0">release/v7.0</option>
+                        <option value="v7.0.0">v7.0.0 (tag)</option>
+                    </select>
+                    <div class="status-indicator success">
+                        <span class="status-dot"></span>
+                        Cloned
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">Quick Start</label>
+                <div class="quick-links">
+                    <div class="quick-link">
+                        <span class="material-icons">cloud</span>
+                        GitHub
+                    </div>
+                    <div class="quick-link">
+                        <span class="material-icons">cloud</span>
+                        GitLab
+                    </div>
+                    <div class="quick-link">
+                        <span class="material-icons">cloud</span>
+                        Bitbucket
+                    </div>
+                    <div class="quick-link">
+                        <span class="material-icons">history</span>
+                        Recent Repositories
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Repository Info Card -->
+        <div class="repo-info-card">
+            <div class="repo-info-header">
+                <div class="repo-avatar">
+                    <span class="material-icons">folder_copy</span>
+                </div>
+                <div class="repo-details">
+                    <h3>dotnet/aspnetcore</h3>
+                    <div class="repo-url">https://github.com/dotnet/aspnetcore.git</div>
+                </div>
+            </div>
+
+            <div class="repo-stats">
+                <div class="repo-stat">
+                    <span class="material-icons">star</span>
+                    <span><span class="repo-stat-value">34.2k</span> stars</span>
+                </div>
+                <div class="repo-stat">
+                    <span class="material-icons">call_split</span>
+                    <span><span class="repo-stat-value">9.8k</span> forks</span>
+                </div>
+                <div class="repo-stat">
+                    <span class="material-icons">commit</span>
+                    <span>Last commit <span class="repo-stat-value">2 days ago</span></span>
+                </div>
+                <div class="repo-stat">
+                    <span class="material-icons">code</span>
+                    <span>Language: <span class="repo-stat-value">C#</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Folder Browser -->
+        <div class="folder-browser">
+            <div class="browser-toolbar">
+                <div class="browser-toolbar-title">
+                    Repository Structure
+                </div>
+                <div class="browser-actions">
+                    <button class="icon-btn">
+                        <span class="material-icons">refresh</span>
+                    </button>
+                    <button class="icon-btn">
+                        <span class="material-icons">expand_more</span>
+                    </button>
+                    <button class="icon-btn">
+                        <span class="material-icons">expand_less</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="tree-view">
+                <!-- Root -->
+                <div class="tree-item expanded">
+                    <div class="tree-item-expand">
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                    <input type="checkbox" class="tree-item-checkbox">
+                    <span class="tree-item-icon material-icons">folder</span>
+                    <span class="tree-item-label">src</span>
+                    <span class="tree-item-badge">52 folders</span>
+                </div>
+                <div class="tree-children">
+                    <!-- Authentication -->
+                    <div class="tree-item selected">
+                        <div class="tree-item-indent"></div>
+                        <div class="tree-item-expand">
+                            <span class="material-icons">chevron_right</span>
+                        </div>
+                        <input type="checkbox" class="tree-item-checkbox" checked>
+                        <span class="tree-item-icon material-icons">folder</span>
+                        <span class="tree-item-label">Authentication</span>
+                        <span class="tree-item-badge">8 folders</span>
+                    </div>
+
+                    <!-- Components -->
+                    <div class="tree-item">
+                        <div class="tree-item-indent"></div>
+                        <div class="tree-item-expand">
+                            <span class="material-icons">chevron_right</span>
+                        </div>
+                        <input type="checkbox" class="tree-item-checkbox" checked>
+                        <span class="tree-item-icon material-icons">folder</span>
+                        <span class="tree-item-label">Components</span>
+                        <span class="tree-item-badge">12 folders</span>
+                    </div>
+
+                    <!-- DataProtection -->
+                    <div class="tree-item">
+                        <div class="tree-item-indent"></div>
+                        <div class="tree-item-expand">
+                            <span class="material-icons">chevron_right</span>
+                        </div>
+                        <input type="checkbox" class="tree-item-checkbox">
+                        <span class="tree-item-icon material-icons">folder</span>
+                        <span class="tree-item-label">DataProtection</span>
+                        <span class="tree-item-badge">4 folders</span>
+                    </div>
+
+                    <!-- Http -->
+                    <div class="tree-item expanded">
+                        <div class="tree-item-indent"></div>
+                        <div class="tree-item-expand">
+                            <span class="material-icons">chevron_right</span>
+                        </div>
+                        <input type="checkbox" class="tree-item-checkbox" checked>
+                        <span class="tree-item-icon material-icons">folder</span>
+                        <span class="tree-item-label">Http</span>
+                        <span class="tree-item-badge">6 folders</span>
+                    </div>
+                    <div class="tree-children">
+                        <div class="tree-item">
+                            <div class="tree-item-indent"></div>
+                            <div class="tree-item-indent"></div>
+                            <div class="tree-item-expand"></div>
+                            <input type="checkbox" class="tree-item-checkbox" checked>
+                            <span class="tree-item-icon material-icons">folder</span>
+                            <span class="tree-item-label">Http.Abstractions</span>
+                            <span class="tree-item-badge">24 files</span>
+                        </div>
+                        <div class="tree-item">
+                            <div class="tree-item-indent"></div>
+                            <div class="tree-item-indent"></div>
+                            <div class="tree-item-expand"></div>
+                            <input type="checkbox" class="tree-item-checkbox" checked>
+                            <span class="tree-item-icon material-icons">folder</span>
+                            <span class="tree-item-label">Http.Extensions</span>
+                            <span class="tree-item-badge">18 files</span>
+                        </div>
+                    </div>
+
+                    <!-- Middleware -->
+                    <div class="tree-item">
+                        <div class="tree-item-indent"></div>
+                        <div class="tree-item-expand">
+                            <span class="material-icons">chevron_right</span>
+                        </div>
+                        <input type="checkbox" class="tree-item-checkbox">
+                        <span class="tree-item-icon material-icons">folder</span>
+                        <span class="tree-item-label">Middleware</span>
+                        <span class="tree-item-badge">9 folders</span>
+                    </div>
+
+                    <!-- Mvc -->
+                    <div class="tree-item">
+                        <div class="tree-item-indent"></div>
+                        <div class="tree-item-expand">
+                            <span class="material-icons">chevron_right</span>
+                        </div>
+                        <input type="checkbox" class="tree-item-checkbox">
+                        <span class="tree-item-icon material-icons">folder</span>
+                        <span class="tree-item-label">Mvc</span>
+                        <span class="tree-item-badge">15 folders</span>
+                    </div>
+
+                    <!-- Razor -->
+                    <div class="tree-item">
+                        <div class="tree-item-indent"></div>
+                        <div class="tree-item-expand">
+                            <span class="material-icons">chevron_right</span>
+                        </div>
+                        <input type="checkbox" class="tree-item-checkbox">
+                        <span class="tree-item-icon material-icons">folder</span>
+                        <span class="tree-item-label">Razor</span>
+                        <span class="tree-item-badge">7 folders</span>
+                    </div>
+                </div>
+
+                <!-- Tests folder -->
+                <div class="tree-item">
+                    <div class="tree-item-expand">
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                    <input type="checkbox" class="tree-item-checkbox">
+                    <span class="tree-item-icon material-icons">folder</span>
+                    <span class="tree-item-label">tests</span>
+                    <span class="tree-item-badge">28 folders</span>
+                </div>
+
+                <!-- Docs folder -->
+                <div class="tree-item">
+                    <div class="tree-item-expand">
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                    <input type="checkbox" class="tree-item-checkbox">
+                    <span class="tree-item-icon material-icons">folder</span>
+                    <span class="tree-item-label">docs</span>
+                    <span class="tree-item-badge">12 folders</span>
+                </div>
+
+                <!-- Eng folder -->
+                <div class="tree-item">
+                    <div class="tree-item-expand">
+                        <span class="material-icons">chevron_right</span>
+                    </div>
+                    <input type="checkbox" class="tree-item-checkbox">
+                    <span class="tree-item-icon material-icons">folder</span>
+                    <span class="tree-item-label">eng</span>
+                    <span class="tree-item-badge">5 folders</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Selection Bar -->
+    <div class="selection-bar">
+        <div class="selection-info">
+            <div class="selection-count">
+                <span class="material-icons">check_circle</span>
+                <span>4 folders selected</span>
+            </div>
+            <div class="selection-details">
+                src/Authentication, src/Components, src/Http/Http.Abstractions, src/Http/Http.Extensions
+            </div>
+        </div>
+        <div class="selection-actions">
+            <button class="btn btn-secondary">
+                Clear Selection
+            </button>
+            <button class="btn btn-primary">
+                <span class="material-icons">add</span>
+                Add Selected Folders
+            </button>
+        </div>
+    </div>
+</body>
+</html>
