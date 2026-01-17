@@ -18,6 +18,21 @@ public partial class HtmlParserService : IHtmlParserService
     private readonly ILogger<HtmlParserService> _logger;
     private readonly IHttpClientFactory _httpClientFactory;
 
+    // Static regex cache for attribute matching
+    private static readonly Dictionary<string, Regex> AttributeRegexCache = new();
+    private static readonly object RegexCacheLock = new();
+
+    // Static set of allowed basic HTML tags for level 10 stripping
+    private static readonly HashSet<string> BasicAllowedTags = new()
+    {
+        "p", "div", "span", "br", "hr",
+        "h1", "h2", "h3", "h4", "h5", "h6",
+        "ul", "ol", "li",
+        "table", "tr", "td", "th", "thead", "tbody",
+        "a", "strong", "em", "b", "i", "u",
+        "blockquote", "pre", "code"
+    };
+
     public HtmlParserService(ILogger<HtmlParserService> logger, IHttpClientFactory httpClientFactory)
     {
         ArgumentNullException.ThrowIfNull(logger);
@@ -393,6 +408,14 @@ public partial class HtmlParserService : IHtmlParserService
         return string.Join("\n", lines).Trim();
     }
 
+    /// <summary>
+    /// Strips HTML attributes based on the specified stripping level.
+    /// </summary>
+    /// <param name="html">The HTML content to process.</param>
+    /// <param name="stripLevel">The stripping level (1-6).
+    /// Levels 1-3: Remove inline styles and event handlers.
+    /// Levels 4-6: Keep only semantic attributes (href, src, alt, title).</param>
+    /// <returns>The HTML with attributes stripped according to the level.</returns>
     private static string StripAttributes(string html, int stripLevel)
     {
         // Strip level 1-3: Remove inline styles and event handlers
@@ -413,10 +436,10 @@ public partial class HtmlParserService : IHtmlParserService
                 var tag = match.Value;
                 
                 // Extract and preserve semantic attributes
-                var href = AttributeRegex("href").Match(tag);
-                var src = AttributeRegex("src").Match(tag);
-                var alt = AttributeRegex("alt").Match(tag);
-                var title = AttributeRegex("title").Match(tag);
+                var href = GetCachedAttributeRegex("href").Match(tag);
+                var src = GetCachedAttributeRegex("src").Match(tag);
+                var alt = GetCachedAttributeRegex("alt").Match(tag);
+                var title = GetCachedAttributeRegex("title").Match(tag);
                 
                 // Get tag name
                 var tagName = TagNameRegex().Match(tag).Groups[1].Value;
@@ -434,6 +457,14 @@ public partial class HtmlParserService : IHtmlParserService
         return html;
     }
 
+    /// <summary>
+    /// Strips HTML to basic tags only based on the specified stripping level.
+    /// </summary>
+    /// <param name="html">The HTML content to process.</param>
+    /// <param name="stripLevel">The stripping level (7-10).
+    /// Levels 7-9: Remove all attributes but keep all tags.
+    /// Level 10: Only basic HTML tags (no attributes).</param>
+    /// <returns>The HTML stripped to basic tags according to the level.</returns>
     private static string StripToBasicHtml(string html, int stripLevel)
     {
         // Extract body content
@@ -454,17 +485,6 @@ public partial class HtmlParserService : IHtmlParserService
         // Strip level 10: Only basic HTML tags
         else
         {
-            // Define basic allowed tags
-            var allowedTags = new HashSet<string>
-            {
-                "p", "div", "span", "br", "hr",
-                "h1", "h2", "h3", "h4", "h5", "h6",
-                "ul", "ol", "li",
-                "table", "tr", "td", "th", "thead", "tbody",
-                "a", "strong", "em", "b", "i", "u",
-                "blockquote", "pre", "code"
-            };
-            
             // First, remove all attributes
             html = OpeningTagWithAttributesRegex().Replace(html, match =>
             {
@@ -480,20 +500,36 @@ public partial class HtmlParserService : IHtmlParserService
                 // If it's a closing tag
                 if (match.Value.StartsWith("</"))
                 {
-                    return allowedTags.Contains(tagName) ? match.Value : string.Empty;
+                    return BasicAllowedTags.Contains(tagName) ? match.Value : string.Empty;
                 }
                 
                 // If it's a self-closing or opening tag
-                return allowedTags.Contains(tagName) ? match.Value : string.Empty;
+                return BasicAllowedTags.Contains(tagName) ? match.Value : string.Empty;
             });
         }
         
         return CleanupWhitespace(html);
     }
 
-    private static Regex AttributeRegex(string attrName)
+    /// <summary>
+    /// Gets a cached regex for matching a specific HTML attribute.
+    /// </summary>
+    /// <param name="attrName">The attribute name to match.</param>
+    /// <returns>A cached Regex instance for the attribute.</returns>
+    private static Regex GetCachedAttributeRegex(string attrName)
     {
-        return new Regex($@"{attrName}=[""'][^""']*[""']", RegexOptions.IgnoreCase);
+        if (!AttributeRegexCache.TryGetValue(attrName, out var regex))
+        {
+            lock (RegexCacheLock)
+            {
+                if (!AttributeRegexCache.TryGetValue(attrName, out regex))
+                {
+                    regex = new Regex($@"{attrName}=[""'][^""']*[""']", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+                    AttributeRegexCache[attrName] = regex;
+                }
+            }
+        }
+        return regex;
     }
 
     // Generated regex patterns for performance
