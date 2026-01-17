@@ -1,28 +1,28 @@
-.main-content {
+.request-create {
   padding: 24px;
   max-width: 900px;
   margin: 0 auto;
 }
 
-.page-title {
+.request-create__title {
   font-size: 28px;
   font-weight: 400;
   margin-bottom: 8px;
   color: var(--mat-on-surface);
 }
 
-.page-subtitle {
+.request-create__subtitle {
   font-size: 14px;
   color: var(--mat-on-surface-medium);
   margin-bottom: 32px;
 }
 
-.form-section {
+.request-create__section {
   margin-bottom: 24px;
   padding: 24px;
 }
 
-.section-header {
+.request-create__section-header {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -33,14 +33,14 @@
   }
 }
 
-.section-title {
+.request-create__section-title {
   font-size: 18px;
   font-weight: 500;
   color: var(--mat-on-surface);
   margin: 0;
 }
 
-.form-field {
+.request-create__field {
   margin-bottom: 24px;
 
   &:last-child {
@@ -48,19 +48,20 @@
   }
 }
 
-.form-label {
+.request-create__label {
   display: block;
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 8px;
   color: var(--mat-on-surface);
-
-  .required {
-    color: var(--mat-warn);
-  }
 }
 
-.form-control {
+.request-create__required {
+  color: var(--mat-warn);
+}
+
+.request-create__input,
+.request-create__select {
   width: 100%;
   padding: 12px 16px;
   background: var(--mat-surface-elevated);
@@ -76,71 +77,29 @@
   }
 }
 
-.help-text {
+.request-create__help-text {
   font-size: 12px;
   color: var(--mat-on-surface-medium);
   margin-top: 6px;
 }
 
-.input-with-button {
+.request-create__input-group {
   display: flex;
   gap: 8px;
 
-  .form-control {
+  .request-create__input {
     flex: 1;
   }
 }
 
-.btn-icon {
-  padding: 12px;
-  background: var(--mat-surface-elevated);
-  border: 1px solid var(--mat-divider);
-  border-radius: 4px;
-  color: var(--mat-on-surface);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-
-  .material-icons {
-    font-size: 20px;
-  }
-
-  &:hover {
-    background: var(--mat-surface-high);
-  }
-}
-
-.icon-btn {
-  background: none;
-  border: none;
-  color: var(--mat-on-surface-medium);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-
-  .material-icons {
-    font-size: 20px;
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-  }
-}
-
-.repository-list {
+.request-create__repo-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-bottom: 16px;
 }
 
-.repository-item {
+.request-create__repo-item {
   background: var(--mat-surface-elevated);
   border: 1px solid var(--mat-divider);
   border-radius: 8px;
@@ -150,7 +109,7 @@
   gap: 12px;
 }
 
-.repo-icon {
+.request-create__repo-icon {
   color: var(--mat-primary);
   padding: 8px;
   background: rgba(159, 168, 218, 0.1);
@@ -158,19 +117,19 @@
   font-size: 24px;
 }
 
-.repo-details {
+.request-create__repo-details {
   flex: 1;
   min-width: 0;
 }
 
-.repo-url {
+.request-create__repo-url {
   font-weight: 500;
   margin-bottom: 8px;
   word-break: break-all;
   color: var(--mat-on-surface);
 }
 
-.repo-meta {
+.request-create__repo-meta {
   display: flex;
   gap: 16px;
   font-size: 13px;
@@ -178,7 +137,7 @@
   flex-wrap: wrap;
 }
 
-.repo-meta-item {
+.request-create__repo-meta-item {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -188,12 +147,12 @@
   }
 }
 
-.repo-actions {
+.request-create__repo-actions {
   display: flex;
   gap: 4px;
 }
 
-.add-repo-btn {
+.request-create__add-repo-btn {
   width: 100%;
   padding: 12px;
   background: none;
@@ -219,7 +178,7 @@
   }
 }
 
-.form-actions {
+.request-create__actions {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
@@ -227,23 +186,23 @@
 }
 
 @media (max-width: 768px) {
-  .main-content {
+  .request-create {
     padding: 16px;
   }
 
-  .form-section {
+  .request-create__section {
     padding: 16px;
   }
 
-  .form-actions {
+  .request-create__actions {
     flex-direction: column-reverse;
 
-    lib-button {
+    ep-button {
       width: 100%;
     }
   }
 
-  .repo-meta {
+  .request-create__repo-meta {
     flex-direction: column;
     gap: 4px;
   }
