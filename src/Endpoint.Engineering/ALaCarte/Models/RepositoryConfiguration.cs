@@ -24,7 +24,7 @@ public class RepositoryConfiguration
     /// <summary>
     /// The local directory path to copy from instead of cloning from a Git repository.
     /// When specified, folders will be copied from this local directory instead of cloning from Git.
-    /// Either Url or LocalDirectory must be specified, but not both.
+    /// If both Url and LocalDirectory are specified, LocalDirectory takes precedence.
     /// </summary>
     public string? LocalDirectory { get; set; }
 

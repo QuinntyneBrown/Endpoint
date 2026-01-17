@@ -26,7 +26,7 @@ public class ALaCarteServiceTests : IDisposable
         _service = new ALaCarteService(_loggerMock.Object);
 
         // Create temporary directories for testing
-        _tempDirectory = Path.Combine(Path.GetTempPath(), $"alacarte_test_{Guid.NewGuid():N}");
+        _tempDirectory = Path.Combine(Path.GetTempPath(), $"ALaCarteServiceTests_{Guid.NewGuid():N}");
         _sourceDirectory = Path.Combine(_tempDirectory, "source");
         _outputDirectory = Path.Combine(_tempDirectory, "output");
 
@@ -43,9 +43,13 @@ public class ALaCarteServiceTests : IDisposable
             {
                 Directory.Delete(_tempDirectory, recursive: true);
             }
-            catch
+            catch (IOException)
             {
-                // Ignore cleanup errors
+                // Ignore IO exceptions during cleanup (e.g., file in use)
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Ignore access exceptions during cleanup
             }
         }
     }
