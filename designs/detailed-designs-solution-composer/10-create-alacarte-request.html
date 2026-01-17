@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solution Composer - Create A La Carte Request</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --mat-primary: #9fa8da;
+            --mat-primary-lighter: #c5cae9;
+            --mat-accent: #f48fb1;
+            --mat-warn: #ef5350;
+            --mat-success: #81c784;
+            --mat-background: #0d1117;
+            --mat-surface: #161b22;
+            --mat-surface-elevated: #21262d;
+            --mat-surface-high: #30363d;
+            --mat-on-surface: #e6edf3;
+            --mat-on-surface-medium: rgba(230,237,243,0.7);
+            --mat-on-surface-disabled: rgba(230,237,243,0.38);
+            --mat-divider: rgba(230,237,243,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--mat-background);
+            color: var(--mat-on-surface);
+            min-height: 100vh;
+        }
+
+        .app-header {
+            background: var(--mat-surface);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn, .icon-btn {
+            background: none;
+            border: none;
+            color: var(--mat-on-surface);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+        }
+
+        .icon-btn:hover, .back-btn:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .page-title-header {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            padding: 72px 16px 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--mat-on-surface-medium);
+            margin-bottom: 32px;
+        }
+
+        .form-section {
+            background: var(--mat-surface-elevated);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-field {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--mat-on-surface);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--mat-surface-high);
+            border: 1px solid var(--mat-divider);
+            border-radius: 4px;
+            color: var(--mat-on-surface);
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: var(--mat-on-surface-medium);
+            margin-top: 4px;
+        }
+
+        .input-with-btn {
+            display: flex;
+            gap: 8px;
+        }
+
+        .input-with-btn .form-input {
+            flex: 1;
+        }
+
+        .btn-icon-only {
+            padding: 12px;
+            background: var(--mat-surface-high);
+            border: 1px solid var(--mat-divider);
+            border-radius: 4px;
+            color: var(--mat-on-surface);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-icon-only:hover {
+            background: var(--mat-surface);
+        }
+
+        .repository-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .repository-item {
+            background: var(--mat-surface-high);
+            border: 1px solid var(--mat-divider);
+            border-radius: 4px;
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .repo-icon {
+            color: var(--mat-primary);
+            padding: 8px;
+            background: rgba(159, 168, 218, 0.1);
+            border-radius: 4px;
+        }
+
+        .repo-details {
+            flex: 1;
+        }
+
+        .repo-url {
+            font-weight: 500;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+
+        .repo-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--mat-on-surface-medium);
+            flex-wrap: wrap;
+        }
+
+        .repo-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .repo-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .add-repo-btn {
+            width: 100%;
+            padding: 12px;
+            background: none;
+            border: 2px dashed var(--mat-divider);
+            border-radius: 4px;
+            color: var(--mat-primary);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .add-repo-btn:hover {
+            border-color: var(--mat-primary);
+            background: rgba(159, 168, 218, 0.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--mat-on-surface-medium);
+        }
+
+        .empty-state .material-icons {
+            font-size: 48px;
+            opacity: 0.5;
+            margin-bottom: 16px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding-top: 24px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--mat-primary);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: var(--mat-primary-lighter);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--mat-on-surface);
+            border: 1px solid var(--mat-divider);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            background: rgba(129, 199, 132, 0.15);
+            color: var(--mat-success);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 64px 12px 16px;
+            }
+
+            .form-section {
+                padding: 16px;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .repo-meta {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-left">
+            <button class="back-btn">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <div class="page-title-header">Create A La Carte Request</div>
+        </div>
+        <div class="header-right">
+            <button class="icon-btn">
+                <span class="material-icons">help_outline</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">Create New Request</h1>
+        <p class="page-subtitle">Define a new A La Carte request to compose a custom solution from multiple repositories</p>
+
+        <div class="form-section">
+            <div class="section-title">
+                <span class="material-icons">info</span>
+                Request Information
+            </div>
+
+            <div class="form-field">
+                <label class="form-label">Request Name *</label>
+                <input type="text" class="form-input" placeholder="e.g., My Custom API Solution" value="">
+                <div class="form-help">A descriptive name for this request</div>
+            </div>
+
+            <div class="form-field">
+                <label class="form-label">Solution Name *</label>
+                <input type="text" class="form-input" placeholder="e.g., MyApiSolution" value="">
+                <div class="form-help">Name for the generated solution file</div>
+            </div>
+
+            <div class="form-field">
+                <label class="form-label">Output Directory *</label>
+                <div class="input-with-btn">
+                    <input type="text" class="form-input" placeholder="/output/path" value="">
+                    <button class="btn-icon-only">
+                        <span class="material-icons">folder_open</span>
+                    </button>
+                </div>
+                <div class="form-help">Directory where the solution will be generated</div>
+            </div>
+
+            <div class="form-field">
+                <label class="form-label">Output Type *</label>
+                <select class="form-select">
+                    <option value="">Select output type...</option>
+                    <option value="dotnet" selected>DotNet Solution (.sln)</option>
+                    <option value="angular">Angular Workspace</option>
+                    <option value="node">Node.js Package</option>
+                    <option value="python">Python Project</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <div class="form-help">Type of solution to generate</div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="section-title">
+                <span class="material-icons">source</span>
+                Repositories
+                <span class="badge">3 Added</span>
+            </div>
+
+            <div class="repository-list">
+                <div class="repository-item">
+                    <span class="material-icons repo-icon">folder_special</span>
+                    <div class="repo-details">
+                        <div class="repo-url">https://github.com/dotnet/aspnetcore</div>
+                        <div class="repo-meta">
+                            <div class="repo-meta-item">
+                                <span class="material-icons" style="font-size: 16px;">call_split</span>
+                                <span>main</span>
+                            </div>
+                            <div class="repo-meta-item">
+                                <span class="material-icons" style="font-size: 16px;">folder</span>
+                                <span>5 folders</span>
+                            </div>
+                            <div class="repo-meta-item">
+                                <span class="material-icons" style="font-size: 16px;">storage</span>
+                                <span>Git Repository</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="repo-actions">
+                        <button class="icon-btn">
+                            <span class="material-icons">edit</span>
+                        </button>
+                        <button class="icon-btn">
+                            <span class="material-icons">delete</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="repository-item">
+                    <span class="material-icons repo-icon">folder_special</span>
+                    <div class="repo-details">
+                        <div class="repo-url">https://github.com/dotnet/runtime</div>
+                        <div class="repo-meta">
+                            <div class="repo-meta-item">
+                                <span class="material-icons" style="font-size: 16px;">call_split</span>
+                                <span>release/8.0</span>
+                            </div>
+                            <div class="repo-meta-item">
+                                <span class="material-icons" style="font-size: 16px;">folder</span>
+                                <span>3 folders</span>
+                            </div>
+                            <div class="repo-meta-item">
+                                <span class="material-icons" style="font-size: 16px;">storage</span>
+                                <span>Git Repository</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="repo-actions">
+                        <button class="icon-btn">
+                            <span class="material-icons">edit</span>
+                        </button>
+                        <button class="icon-btn">
+                            <span class="material-icons">delete</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="repository-item">
+                    <span class="material-icons repo-icon">folder_special</span>
+                    <div class="repo-details">
+                        <div class="repo-url">/home/user/projects/my-custom-lib</div>
+                        <div class="repo-meta">
+                            <div class="repo-meta-item">
+                                <span class="material-icons" style="font-size: 16px;">computer</span>
+                                <span>Local directory</span>
+                            </div>
+                            <div class="repo-meta-item">
+                                <span class="material-icons" style="font-size: 16px;">folder</span>
+                                <span>2 folders</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="repo-actions">
+                        <button class="icon-btn">
+                            <span class="material-icons">edit</span>
+                        </button>
+                        <button class="icon-btn">
+                            <span class="material-icons">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="add-repo-btn">
+                <span class="material-icons">add</span>
+                Add Repository
+            </button>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-secondary">Cancel</button>
+            <button class="btn btn-primary">
+                <span class="material-icons">save</span>
+                Save Request
+            </button>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solution Composer - View Request</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --mat-primary: #9fa8da;
+            --mat-primary-lighter: #c5cae9;
+            --mat-accent: #f48fb1;
+            --mat-warn: #ef5350;
+            --mat-success: #81c784;
+            --mat-background: #0d1117;
+            --mat-surface: #161b22;
+            --mat-surface-elevated: #21262d;
+            --mat-surface-high: #30363d;
+            --mat-on-surface: #e6edf3;
+            --mat-on-surface-medium: rgba(230,237,243,0.7);
+            --mat-on-surface-disabled: rgba(230,237,243,0.38);
+            --mat-divider: rgba(230,237,243,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--mat-background);
+            color: var(--mat-on-surface);
+            min-height: 100vh;
+        }
+
+        .app-header {
+            background: var(--mat-surface);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn, .icon-btn {
+            background: none;
+            border: none;
+            color: var(--mat-on-surface);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+        }
+
+        .icon-btn:hover, .back-btn:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .page-title-header {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            padding: 72px 16px 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 8px;
+        }
+
+        .metadata-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            color: var(--mat-on-surface-medium);
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        .metadata-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 4px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--mat-primary);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: var(--mat-primary-lighter);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--mat-on-surface);
+            border: 1px solid var(--mat-divider);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .btn-danger {
+            background: transparent;
+            color: var(--mat-warn);
+            border: 1px solid var(--mat-warn);
+        }
+
+        .btn-danger:hover {
+            background: var(--mat-warn);
+            color: #fff;
+        }
+
+        .info-section {
+            background: var(--mat-surface-elevated);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: var(--mat-on-surface-medium);
+            margin-bottom: 6px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background: rgba(159, 168, 218, 0.15);
+            color: var(--mat-primary);
+        }
+
+        .badge-success {
+            background: rgba(129, 199, 132, 0.15);
+            color: var(--mat-success);
+        }
+
+        .repository-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .repository-card {
+            background: var(--mat-surface-high);
+            border: 1px solid var(--mat-divider);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .repo-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .repo-icon {
+            color: var(--mat-primary);
+            padding: 10px;
+            background: rgba(159, 168, 218, 0.1);
+            border-radius: 6px;
+        }
+
+        .repo-info {
+            flex: 1;
+        }
+
+        .repo-url {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+
+        .repo-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: var(--mat-on-surface-medium);
+            flex-wrap: wrap;
+        }
+
+        .repo-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .folder-list {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--mat-divider);
+        }
+
+        .folder-header {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--mat-on-surface-medium);
+            margin-bottom: 8px;
+        }
+
+        .folder-item {
+            padding: 8px 12px;
+            background: var(--mat-surface);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .folder-item .material-icons {
+            font-size: 18px;
+            color: var(--mat-accent);
+        }
+
+        .folder-path {
+            font-family: 'Courier New', monospace;
+            color: var(--mat-on-surface-medium);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 64px 12px 16px;
+            }
+
+            .info-section {
+                padding: 16px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .repository-card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-left">
+            <button class="back-btn">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <div class="page-title-header">View Request</div>
+        </div>
+        <div class="header-right">
+            <button class="icon-btn">
+                <span class="material-icons">more_vert</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Enterprise API Platform</h1>
+            <div class="metadata-row">
+                <div class="metadata-item">
+                    <span class="material-icons" style="font-size: 18px;">event</span>
+                    <span>Created Jan 15, 2025</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="material-icons" style="font-size: 18px;">schedule</span>
+                    <span>Last used 2 hours ago</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="material-icons" style="font-size: 18px;">repeat</span>
+                    <span>Executed 12 times</span>
+                </div>
+            </div>
+            <div class="action-bar">
+                <button class="btn btn-primary">
+                    <span class="material-icons">play_arrow</span>
+                    Execute
+                </button>
+                <button class="btn btn-secondary">
+                    <span class="material-icons">edit</span>
+                    Edit
+                </button>
+                <button class="btn btn-secondary">
+                    <span class="material-icons">content_copy</span>
+                    Clone Request
+                </button>
+                <button class="btn btn-danger">
+                    <span class="material-icons">delete</span>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="section-title">
+                <span class="material-icons">settings</span>
+                Configuration
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Solution Name</div>
+                    <div class="info-value">EnterprisePlatform.sln</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Output Directory</div>
+                    <div class="info-value">/home/user/output/enterprise</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Output Type</div>
+                    <div class="info-value">
+                        <span class="badge badge-success">DotNet Solution</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Total Repositories</div>
+                    <div class="info-value">5 repositories</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="section-title">
+                <span class="material-icons">source</span>
+                Repositories
+                <span class="badge">5 total</span>
+            </div>
+
+            <div class="repository-list">
+                <div class="repository-card">
+                    <div class="repo-header">
+                        <span class="material-icons repo-icon">folder_special</span>
+                        <div class="repo-info">
+                            <div class="repo-url">https://github.com/dotnet/aspnetcore</div>
+                            <div class="repo-meta">
+                                <div class="repo-meta-item">
+                                    <span class="material-icons" style="font-size: 16px;">call_split</span>
+                                    <span>Branch: main</span>
+                                </div>
+                                <div class="repo-meta-item">
+                                    <span class="material-icons" style="font-size: 16px;">storage</span>
+                                    <span>Git Repository</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="folder-list">
+                        <div class="folder-header">Configured Folders (3)</div>
+                        <div class="folder-item">
+                            <span class="material-icons">folder</span>
+                            <span class="folder-path">src/Mvc/Mvc.Core</span>
+                        </div>
+                        <div class="folder-item">
+                            <span class="material-icons">folder</span>
+                            <span class="folder-path">src/Http/Http.Abstractions</span>
+                        </div>
+                        <div class="folder-item">
+                            <span class="material-icons">folder</span>
+                            <span class="folder-path">src/Security/Authentication</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="repository-card">
+                    <div class="repo-header">
+                        <span class="material-icons repo-icon">folder_special</span>
+                        <div class="repo-info">
+                            <div class="repo-url">https://github.com/dotnet/runtime</div>
+                            <div class="repo-meta">
+                                <div class="repo-meta-item">
+                                    <span class="material-icons" style="font-size: 16px;">call_split</span>
+                                    <span>Branch: release/8.0</span>
+                                </div>
+                                <div class="repo-meta-item">
+                                    <span class="material-icons" style="font-size: 16px;">storage</span>
+                                    <span>Git Repository</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="folder-list">
+                        <div class="folder-header">Configured Folders (2)</div>
+                        <div class="folder-item">
+                            <span class="material-icons">folder</span>
+                            <span class="folder-path">src/libraries/System.Text.Json</span>
+                        </div>
+                        <div class="folder-item">
+                            <span class="material-icons">folder</span>
+                            <span class="folder-path">src/libraries/System.Net.Http</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="repository-card">
+                    <div class="repo-header">
+                        <span class="material-icons repo-icon">folder_special</span>
+                        <div class="repo-info">
+                            <div class="repo-url">https://github.com/EntityFramework/EntityFramework</div>
+                            <div class="repo-meta">
+                                <div class="repo-meta-item">
+                                    <span class="material-icons" style="font-size: 16px;">call_split</span>
+                                    <span>Branch: main</span>
+                                </div>
+                                <div class="repo-meta-item">
+                                    <span class="material-icons" style="font-size: 16px;">storage</span>
+                                    <span>Git Repository</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="folder-list">
+                        <div class="folder-header">Configured Folders (1)</div>
+                        <div class="folder-item">
+                            <span class="material-icons">folder</span>
+                            <span class="folder-path">src/EFCore</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="repository-card">
+                    <div class="repo-header">
+                        <span class="material-icons repo-icon">folder_special</span>
+                        <div class="repo-info">
+                            <div class="repo-url">/home/user/projects/custom-middleware</div>
+                            <div class="repo-meta">
+                                <div class="repo-meta-item">
+                                    <span class="material-icons" style="font-size: 16px;">computer</span>
+                                    <span>Local Directory</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="folder-list">
+                        <div class="folder-header">Configured Folders (2)</div>
+                        <div class="folder-item">
+                            <span class="material-icons">folder</span>
+                            <span class="folder-path">src/Middleware</span>
+                        </div>
+                        <div class="folder-item">
+                            <span class="material-icons">folder</span>
+                            <span class="folder-path">src/Extensions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="repository-card">
+                    <div class="repo-header">
+                        <span class="material-icons repo-icon">folder_special</span>
+                        <div class="repo-info">
+                            <div class="repo-url">https://github.com/AutoMapper/AutoMapper</div>
+                            <div class="repo-meta">
+                                <div class="repo-meta-item">
+                                    <span class="material-icons" style="font-size: 16px;">call_split</span>
+                                    <span>Branch: master</span>
+                                </div>
+                                <div class="repo-meta-item">
+                                    <span class="material-icons" style="font-size: 16px;">storage</span>
+                                    <span>Git Repository</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="folder-list">
+                        <div class="folder-header">Configured Folders (1)</div>
+                        <div class="folder-item">
+                            <span class="material-icons">folder</span>
+                            <span class="folder-path">src/AutoMapper</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
