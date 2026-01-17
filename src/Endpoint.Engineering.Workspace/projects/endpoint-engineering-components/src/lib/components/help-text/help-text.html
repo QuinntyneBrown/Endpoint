@@ -1,0 +1,9 @@
+<div [class]="helpTextClasses">
+  <span class="ep-help-text__icon material-icons">{{ defaultIcon }}</span>
+  <div class="ep-help-text__content">
+    <h4 *ngIf="title" class="ep-help-text__title">{{ title }}</h4>
+    <div class="ep-help-text__body">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

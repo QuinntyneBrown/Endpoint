@@ -1,0 +1,78 @@
+@import '../../tokens/design-tokens.scss';
+
+.ep-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+
+  &--success {
+    background: rgba(129, 199, 132, 0.15);
+    color: var(--mat-success);
+
+    .ep-status-indicator__icon {
+      color: var(--mat-success);
+    }
+  }
+
+  &--error {
+    background: rgba(239, 83, 80, 0.15);
+    color: var(--mat-warn);
+
+    .ep-status-indicator__icon {
+      color: var(--mat-warn);
+    }
+  }
+
+  &--warning {
+    background: rgba(255, 183, 77, 0.15);
+    color: #ffb74d;
+
+    .ep-status-indicator__icon {
+      color: #ffb74d;
+    }
+  }
+
+  &--info {
+    background: rgba(159, 168, 218, 0.15);
+    color: var(--mat-primary-lighter);
+
+    .ep-status-indicator__icon {
+      color: var(--mat-primary-lighter);
+    }
+  }
+
+  &--loading {
+    background: rgba(159, 168, 218, 0.15);
+    color: var(--mat-primary-lighter);
+
+    .ep-status-indicator__icon {
+      color: var(--mat-primary-lighter);
+    }
+  }
+
+  &__icon {
+    font-size: 18px;
+
+    &--spin {
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  &__text {
+    white-space: nowrap;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -8,3 +8,6 @@ export * from './search-box';
 export * from './dialog';
 export * from './form-input';
 export * from './tree-view';
+export * from './wizard-steps';
+export * from './status-indicator';
+export * from './help-text';
