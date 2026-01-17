@@ -1,27 +1,27 @@
 <ep-app-header [title]="request?.name || 'Edit Request'">
   <div header-actions>
-    <button class="icon-btn" title="Help">
+    <ep-button variant="ghost" title="Help">
       <span class="material-icons">help_outline</span>
-    </button>
+    </ep-button>
   </div>
 </ep-app-header>
 
-<main class="main-content">
+<main class="request-edit">
   @if (loading) {
-    <div class="loading">Loading...</div>
+    <div class="request-edit__loading">Loading...</div>
   } @else if (!request) {
-    <div class="error">Request not found</div>
+    <div class="request-edit__error">Request not found</div>
   } @else {
-    <h1 class="page-title">Edit Request</h1>
-    <p class="page-subtitle">Update your A La Carte request configuration</p>
+    <h1 class="request-edit__title">Edit Request</h1>
+    <p class="request-edit__subtitle">Update your A La Carte request configuration</p>
 
-  <ep-card class="form-section">
-    <div class="section-header">
+  <ep-card class="request-edit__section">
+    <div class="request-edit__section-header">
       <span class="material-icons">info</span>
-      <h2 class="section-title">Request Information</h2>
+      <h2 class="request-edit__section-title">Request Information</h2>
     </div>
 
-    <div class="form-field">
+    <div class="request-edit__field">
       <ep-form-input
         label="Request Name"
         placeholder="e.g., My Custom API Solution"
@@ -31,7 +31,7 @@
       />
     </div>
 
-    <div class="form-field">
+    <div class="request-edit__field">
       <ep-form-input
         label="Solution Name"
         placeholder="e.g., MyApiSolution"
@@ -41,84 +41,84 @@
       />
     </div>
 
-    <div class="form-field">
-      <label class="form-label">Output Directory <span class="required">*</span></label>
-      <div class="input-with-button">
+    <div class="request-edit__field">
+      <label class="request-edit__label">Output Directory <span class="request-edit__required">*</span></label>
+      <div class="request-edit__input-group">
         <input
           type="text"
-          class="form-control"
+          class="request-edit__input"
           placeholder="/output/path"
           [(ngModel)]="outputDirectory"
         />
-        <button class="btn-icon" (click)="onBrowseDirectory()">
+        <ep-button variant="secondary" (click)="onBrowseDirectory()">
           <span class="material-icons">folder_open</span>
-        </button>
+        </ep-button>
       </div>
-      <p class="help-text">Directory where the solution will be generated</p>
+      <p class="request-edit__help-text">Directory where the solution will be generated</p>
     </div>
 
-    <div class="form-field">
-      <label class="form-label">Output Type <span class="required">*</span></label>
-      <select class="form-control" [(ngModel)]="outputType">
+    <div class="request-edit__field">
+      <label class="request-edit__label">Output Type <span class="request-edit__required">*</span></label>
+      <select class="request-edit__select" [(ngModel)]="outputType">
         @for (type of outputTypes; track type.value) {
           <option [value]="type.value">{{ type.label }}</option>
         }
       </select>
-      <p class="help-text">Type of solution to generate</p>
+      <p class="request-edit__help-text">Type of solution to generate</p>
     </div>
   </ep-card>
 
-  <ep-card class="form-section">
-    <div class="section-header">
+  <ep-card class="request-edit__section">
+    <div class="request-edit__section-header">
       <span class="material-icons">source</span>
-      <h2 class="section-title">Repositories</h2>
+      <h2 class="request-edit__section-title">Repositories</h2>
       <ep-badge variant="success">{{ repositories.length }} Added</ep-badge>
     </div>
 
     @if (repositories.length > 0) {
-      <div class="repository-list">
+      <div class="request-edit__repo-list">
         @for (repo of repositories; track repo.id) {
-          <div class="repository-item">
-            <span class="material-icons repo-icon">folder_special</span>
-            <div class="repo-details">
-              <div class="repo-url">{{ repo.url }}</div>
-              <div class="repo-meta">
+          <div class="request-edit__repo-item">
+            <span class="material-icons request-edit__repo-icon">folder_special</span>
+            <div class="request-edit__repo-details">
+              <div class="request-edit__repo-url">{{ repo.url }}</div>
+              <div class="request-edit__repo-meta">
                 @if (repo.branch) {
-                  <div class="repo-meta-item">
+                  <div class="request-edit__repo-meta-item">
                     <span class="material-icons">call_split</span>
                     <span>{{ repo.branch }}</span>
                   </div>
                 }
-                <div class="repo-meta-item">
+                <div class="request-edit__repo-meta-item">
                   <span class="material-icons">folder</span>
                   <span>{{ repo.folders.length }} folders</span>
                 </div>
-                <div class="repo-meta-item">
+                <div class="request-edit__repo-meta-item">
                   <span class="material-icons">{{ repo.type === 'github' ? 'storage' : 'computer' }}</span>
                   <span>{{ getRepositoryTypeLabel(repo.type) }}</span>
                 </div>
               </div>
             </div>
-            <div class="repo-actions">
-              <button class="icon-btn" (click)="onEditRepository(repo)" title="Edit">
+            <div class="request-edit__repo-actions">
+              <ep-button variant="ghost" (click)="onEditRepository(repo)" title="Edit">
                 <span class="material-icons">edit</span>
-              </button>
-              <button class="icon-btn" (click)="onDeleteRepository(repo)" title="Delete">
+              </ep-button>
+              <ep-button variant="ghost" (click)="onDeleteRepository(repo)" title="Delete">
                 <span class="material-icons">delete</span>
-              </button>
+              </ep-button>
             </div>
           </div>
         }
       </div>
     }
 
-    <button class="add-repo-btn" (click)="onAddRepository()">
+    <button class="request-edit__add-repo-btn" (click)="onAddRepository()">
       <span class="material-icons">add</span>
       Add Repository
     </button>
   </ep-card>
 
-    <div class="form-actions">
+    <div class="request-edit__actions">
       <ep-button variant="secondary" (click)="onCancel()">Cancel</ep-button>
       <ep-button variant="primary" (click)="onSave()">
         <span class="material-icons">save</span>

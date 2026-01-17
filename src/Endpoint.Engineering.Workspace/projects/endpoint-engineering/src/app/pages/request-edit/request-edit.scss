@@ -1,28 +1,40 @@
-.main-content {
+.request-edit {
   padding: 24px;
   max-width: 900px;
   margin: 0 auto;
 }
 
-.page-title {
+.request-edit__title {
   font-size: 28px;
   font-weight: 400;
   margin-bottom: 8px;
   color: var(--mat-on-surface);
 }
 
-.page-subtitle {
+.request-edit__subtitle {
   font-size: 14px;
   color: var(--mat-on-surface-medium);
   margin-bottom: 32px;
 }
 
-.form-section {
+.request-edit__loading,
+.request-edit__error {
+  padding: 24px;
+  text-align: center;
+  font-size: 16px;
+  color: var(--mat-on-surface-medium);
+}
+
+.request-edit__error {
+  color: var(--mat-error);
+}
+
+.request-edit__section {
   margin-bottom: 24px;
   padding: 24px;
 }
 
-.section-header {
+.request-edit__section-header {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -33,14 +45,14 @@
   }
 }
 
-.section-title {
+.request-edit__section-title {
   font-size: 18px;
   font-weight: 500;
   color: var(--mat-on-surface);
   margin: 0;
 }
 
-.form-field {
+.request-edit__field {
   margin-bottom: 24px;
 
   &:last-child {
@@ -48,19 +60,20 @@
   }
 }
 
-.form-label {
+.request-edit__label {
   display: block;
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 8px;
   color: var(--mat-on-surface);
-
-  .required {
-    color: var(--mat-warn);
-  }
 }
 
-.form-control {
+.request-edit__required {
+  color: var(--mat-warn);
+}
+
+.request-edit__input,
+.request-edit__select {
   width: 100%;
   padding: 12px 16px;
   background: var(--mat-surface-elevated);
@@ -76,71 +89,29 @@
   }
 }
 
-.help-text {
+.request-edit__help-text {
   font-size: 12px;
   color: var(--mat-on-surface-medium);
   margin-top: 6px;
 }
 
-.input-with-button {
+.request-edit__input-group {
   display: flex;
   gap: 8px;
 
-  .form-control {
+  .request-edit__input {
     flex: 1;
   }
 }
 
-.btn-icon {
-  padding: 12px;
-  background: var(--mat-surface-elevated);
-  border: 1px solid var(--mat-divider);
-  border-radius: 4px;
-  color: var(--mat-on-surface);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-
-  .material-icons {
-    font-size: 20px;
-  }
-
-  &:hover {
-    background: var(--mat-surface-high);
-  }
-}
-
-.icon-btn {
-  background: none;
-  border: none;
-  color: var(--mat-on-surface-medium);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-
-  .material-icons {
-    font-size: 20px;
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-  }
-}
-
-.repository-list {
+.request-edit__repo-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-bottom: 16px;
 }
 
-.repository-item {
+.request-edit__repo-item {
   background: var(--mat-surface-elevated);
   border: 1px solid var(--mat-divider);
   border-radius: 8px;
@@ -150,7 +121,7 @@
   gap: 12px;
 }
 
-.repo-icon {
+.request-edit__repo-icon {
   color: var(--mat-primary);
   padding: 8px;
   background: rgba(159, 168, 218, 0.1);
@@ -158,19 +129,19 @@
   font-size: 24px;
 }
 
-.repo-details {
+.request-edit__repo-details {
   flex: 1;
   min-width: 0;
 }
 
-.repo-url {
+.request-edit__repo-url {
   font-weight: 500;
   margin-bottom: 8px;
   word-break: break-all;
   color: var(--mat-on-surface);
 }
 
-.repo-meta {
+.request-edit__repo-meta {
   display: flex;
   gap: 16px;
   font-size: 13px;
@@ -178,7 +149,7 @@
   flex-wrap: wrap;
 }
 
-.repo-meta-item {
+.request-edit__repo-meta-item {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -188,12 +159,12 @@
   }
 }
 
-.repo-actions {
+.request-edit__repo-actions {
   display: flex;
   gap: 4px;
 }
 
-.add-repo-btn {
+.request-edit__add-repo-btn {
   width: 100%;
   padding: 12px;
   background: none;
@@ -219,7 +190,7 @@
   }
 }
 
-.form-actions {
+.request-edit__actions {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
@@ -227,23 +198,23 @@
 }
 
 @media (max-width: 768px) {
-  .main-content {
+  .request-edit {
     padding: 16px;
   }
 
-  .form-section {
+  .request-edit__section {
     padding: 16px;
   }
 
-  .form-actions {
+  .request-edit__actions {
     flex-direction: column-reverse;
 
-    lib-button {
+    ep-button {
       width: 100%;
     }
   }
 
-  .repo-meta {
+  .request-edit__repo-meta {
     flex-direction: column;
     gap: 4px;
   }
