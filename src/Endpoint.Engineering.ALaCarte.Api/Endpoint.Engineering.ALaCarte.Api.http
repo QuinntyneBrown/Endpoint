@@ -1,0 +1,6 @@
+@Endpoint.Engineering.ALaCarte.Api_HostAddress = http://localhost:5076
+
+GET {{Endpoint.Engineering.ALaCarte.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
