@@ -1,38 +1,16 @@
-.main-content {
+.request-view {
   padding: 24px;
   max-width: 1000px;
   margin: 0 auto;
 }
 
-.loading {
+.request-view__loading {
   text-align: center;
   padding: 48px;
   color: var(--mat-on-surface-medium);
 }
 
-.icon-btn {
-  background: none;
-  border: none;
-  color: var(--mat-on-surface-medium);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-
-  .material-icons {
-    font-size: 20px;
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--mat-warn);
-  }
-}
-
-.request-header {
+.request-view__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -40,59 +18,57 @@
   margin: 24px 0;
 }
 
-.request-title {
+.request-view__title {
   font-size: 32px;
   font-weight: 400;
   margin-bottom: 8px;
   color: var(--mat-on-surface);
 }
 
-.request-solution {
+.request-view__solution {
   font-size: 16px;
   color: var(--mat-on-surface-medium);
   font-family: 'Courier New', monospace;
 }
 
-.description-card,
-.info-card,
-.repos-card {
+.request-view__card {
   margin-bottom: 24px;
   padding: 24px;
 }
 
-.card-title {
+.request-view__card-title {
   font-size: 18px;
   font-weight: 500;
   margin-bottom: 16px;
   color: var(--mat-on-surface);
 }
 
-.card-header {
+.request-view__card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
 }
 
-.description-text {
+.request-view__description {
   font-size: 14px;
   line-height: 1.6;
   color: var(--mat-on-surface-medium);
 }
 
-.info-grid {
+.request-view__info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
 }
 
-.info-item {
+.request-view__info-item {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.info-label {
+.request-view__info-label {
   font-size: 12px;
   font-weight: 500;
   text-transform: uppercase;
@@ -100,33 +76,33 @@
   color: var(--mat-on-surface-disabled);
 }
 
-.info-value {
+.request-view__info-value {
   font-size: 14px;
   color: var(--mat-on-surface);
   word-break: break-word;
 }
 
-.repos-list {
+.request-view__repo-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.repo-item {
+.request-view__repo-item {
   background: var(--mat-surface-elevated);
   border: 1px solid var(--mat-divider);
   border-radius: 8px;
   padding: 16px;
 }
 
-.repo-header {
+.request-view__repo-header {
   display: flex;
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 16px;
 }
 
-.repo-number {
+.request-view__repo-number {
   width: 32px;
   height: 32px;
   display: flex;
@@ -140,12 +116,12 @@
   flex-shrink: 0;
 }
 
-.repo-info {
+.request-view__repo-info {
   flex: 1;
   min-width: 0;
 }
 
-.repo-url {
+.request-view__repo-url {
   font-size: 15px;
   font-weight: 500;
   margin-bottom: 8px;
@@ -153,13 +129,13 @@
   color: var(--mat-on-surface);
 }
 
-.repo-meta {
+.request-view__repo-meta {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
 }
 
-.meta-tag {
+.request-view__meta-tag {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -174,25 +150,25 @@
   }
 }
 
-.folders-section {
+.request-view__folders {
   padding-top: 16px;
   border-top: 1px solid var(--mat-divider);
 }
 
-.folders-header {
+.request-view__folders-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
 }
 
-.folders-label {
+.request-view__folders-label {
   font-size: 13px;
   font-weight: 500;
   color: var(--mat-on-surface-medium);
 }
 
-.folders-count {
+.request-view__folders-count {
   font-size: 12px;
   padding: 3px 8px;
   background: var(--mat-surface-high);
@@ -200,13 +176,13 @@
   color: var(--mat-on-surface-disabled);
 }
 
-.folders-list {
+.request-view__folders-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.folder-chip {
+.request-view__folder-chip {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -223,7 +199,7 @@
   }
 }
 
-.empty-repos {
+.request-view__empty {
   text-align: center;
   padding: 48px 24px;
   color: var(--mat-on-surface-disabled);
@@ -240,20 +216,20 @@
 }
 
 @media (max-width: 768px) {
-  .main-content {
+  .request-view {
     padding: 16px;
   }
 
-  .request-header {
+  .request-view__header {
     flex-direction: column;
     gap: 16px;
   }
 
-  .request-title {
+  .request-view__title {
     font-size: 24px;
   }
 
-  .info-grid {
+  .request-view__info-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }

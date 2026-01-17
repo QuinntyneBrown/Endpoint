@@ -11,16 +11,16 @@
           Execute
         </ep-button>
       }
-      <button class="icon-btn" (click)="onDelete()" title="Delete">
+      <ep-button variant="ghost" (click)="onDelete()" title="Delete">
         <span class="material-icons">delete</span>
-      </button>
+      </ep-button>
     }
   </div>
 </ep-app-header>
 
-<main class="main-content">
+<main class="request-view">
   @if (loading) {
-    <div class="loading">Loading...</div>
+    <div class="request-view__loading">Loading...</div>
   } @else if (!request) {
     <ep-card>
       <p>Request not found</p>
@@ -31,10 +31,10 @@
       { label: request.name }
     ]" />
 
-    <div class="request-header">
+    <div class="request-view__header">
       <div>
-        <h1 class="request-title">{{ request.name }}</h1>
-        <p class="request-solution">{{ request.solutionName }}</p>
+        <h1 class="request-view__title">{{ request.name }}</h1>
+        <p class="request-view__solution">{{ request.solutionName }}</p>
       </div>
       <ep-status-indicator
         [status]="getStatusType(request.status)"
@@ -43,75 +43,75 @@
     </div>
 
     @if (request.description) {
-      <ep-card class="description-card">
-        <h3 class="card-title">Description</h3>
-        <p class="description-text">{{ request.description }}</p>
+      <ep-card class="request-view__card">
+        <h3 class="request-view__card-title">Description</h3>
+        <p class="request-view__description">{{ request.description }}</p>
       </ep-card>
     }
 
-    <ep-card class="info-card">
-      <h3 class="card-title">Request Information</h3>
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">Solution Name</span>
-          <span class="info-value">{{ request.solutionName }}</span>
+    <ep-card class="request-view__card">
+      <h3 class="request-view__card-title">Request Information</h3>
+      <div class="request-view__info-grid">
+        <div class="request-view__info-item">
+          <span class="request-view__info-label">Solution Name</span>
+          <span class="request-view__info-value">{{ request.solutionName }}</span>
         </div>
-        <div class="info-item">
-          <span class="info-label">Output Directory</span>
-          <span class="info-value">{{ request.outputDirectory }}</span>
+        <div class="request-view__info-item">
+          <span class="request-view__info-label">Output Directory</span>
+          <span class="request-view__info-value">{{ request.outputDirectory }}</span>
         </div>
-        <div class="info-item">
-          <span class="info-label">Output Type</span>
-          <span class="info-value">{{ request.outputType }}</span>
+        <div class="request-view__info-item">
+          <span class="request-view__info-label">Output Type</span>
+          <span class="request-view__info-value">{{ request.outputType }}</span>
         </div>
-        <div class="info-item">
-          <span class="info-label">Status</span>
-          <span class="info-value">{{ getStatusLabel(request.status) }}</span>
+        <div class="request-view__info-item">
+          <span class="request-view__info-label">Status</span>
+          <span class="request-view__info-value">{{ getStatusLabel(request.status) }}</span>
         </div>
-        <div class="info-item">
-          <span class="info-label">Created</span>
-          <span class="info-value">{{ formatDate(request.createdAt) }}</span>
+        <div class="request-view__info-item">
+          <span class="request-view__info-label">Created</span>
+          <span class="request-view__info-value">{{ formatDate(request.createdAt) }}</span>
         </div>
-        <div class="info-item">
-          <span class="info-label">Last Updated</span>
-          <span class="info-value">{{ formatDate(request.updatedAt) }}</span>
+        <div class="request-view__info-item">
+          <span class="request-view__info-label">Last Updated</span>
+          <span class="request-view__info-value">{{ formatDate(request.updatedAt) }}</span>
         </div>
         @if (request.lastExecutedAt) {
-          <div class="info-item">
-            <span class="info-label">Last Executed</span>
-            <span class="info-value">{{ formatDate(request.lastExecutedAt) }}</span>
+          <div class="request-view__info-item">
+            <span class="request-view__info-label">Last Executed</span>
+            <span class="request-view__info-value">{{ formatDate(request.lastExecutedAt) }}</span>
           </div>
         }
       </div>
     </ep-card>
 
-    <ep-card class="repos-card">
-      <div class="card-header">
-        <h3 class="card-title">Repositories</h3>
+    <ep-card class="request-view__card">
+      <div class="request-view__card-header">
+        <h3 class="request-view__card-title">Repositories</h3>
         <ep-badge variant="neutral">{{ request.repositories.length }}</ep-badge>
       </div>
 
       @if (request.repositories.length === 0) {
-        <div class="empty-repos">
+        <div class="request-view__empty">
           <span class="material-icons">source</span>
           <p>No repositories configured</p>
         </div>
       } @else {
-        <div class="repos-list">
+        <div class="request-view__repo-list">
           @for (repo of request.repositories; track repo.id) {
-            <div class="repo-item">
-              <div class="repo-header">
-                <span class="repo-number">{{ repo.order + 1 }}</span>
-                <div class="repo-info">
-                  <div class="repo-url">{{ repo.url }}</div>
-                  <div class="repo-meta">
+            <div class="request-view__repo-item">
+              <div class="request-view__repo-header">
+                <span class="request-view__repo-number">{{ repo.order + 1 }}</span>
+                <div class="request-view__repo-info">
+                  <div class="request-view__repo-url">{{ repo.url }}</div>
+                  <div class="request-view__repo-meta">
                     @if (repo.branch) {
-                      <div class="meta-tag">
+                      <div class="request-view__meta-tag">
                         <span class="material-icons">call_split</span>
                         <span>{{ repo.branch }}</span>
                       </div>
                     }
-                    <div class="meta-tag">
+                    <div class="request-view__meta-tag">
                       <span class="material-icons">{{ repo.type === 'github' ? 'cloud' : 'folder' }}</span>
                       <span>{{ repo.type }}</span>
                     </div>
@@ -120,14 +120,14 @@
               </div>
 
               @if (repo.folders.length > 0) {
-                <div class="folders-section">
-                  <div class="folders-header">
-                    <span class="folders-label">Selected Folders</span>
-                    <span class="folders-count">{{ repo.folders.length }}</span>
+                <div class="request-view__folders">
+                  <div class="request-view__folders-header">
+                    <span class="request-view__folders-label">Selected Folders</span>
+                    <span class="request-view__folders-count">{{ repo.folders.length }}</span>
                   </div>
-                  <div class="folders-list">
+                  <div class="request-view__folders-list">
                     @for (folder of repo.folders; track folder.id) {
-                      <div class="folder-chip">
+                      <div class="request-view__folder-chip">
                         <span class="material-icons">folder</span>
                         <span>{{ folder.path }}</span>
                       </div>
