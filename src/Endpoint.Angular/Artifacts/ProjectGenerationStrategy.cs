@@ -20,7 +20,7 @@ public class ProjectGenerationStrategy : IArtifactGenerationStrategy<ProjectMode
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public int Priority => throw new NotImplementedException();
+    public int Priority => 1;
 
     public bool CanHandle(ProjectModel model) => model is ProjectModel;
 

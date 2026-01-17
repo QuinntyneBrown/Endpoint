@@ -36,27 +36,44 @@ public class FileFactoryTests
     }
 
     [Fact]
-    public void CreateTemplate_ShouldThrowNotImplementedException()
+    public void CreateTemplate_ShouldReturnTemplatedFileModel()
     {
         // Arrange
         var mockLogger = new Mock<ILogger<FileFactory>>();
         var fileFactory = new FileFactory(mockLogger.Object);
 
-        // Act & Assert
-        Assert.Throws<NotImplementedException>(() =>
-            fileFactory.CreateTemplate("template", "name", "/dir", ".cs"));
+        // Act
+        var result = fileFactory.CreateTemplate("template", "name", "/dir", ".cs");
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.IsType<TemplatedFileModel>(result);
+        Assert.Equal("template", result.Template);
+        Assert.Equal("name", result.Name);
+        Assert.Equal("/dir", result.Directory);
+        Assert.Equal(".cs", result.Extension);
     }
 
     [Fact]
-    public void CreateTemplate_WithAllParameters_ShouldThrowNotImplementedException()
+    public void CreateTemplate_WithAllParameters_ShouldReturnTemplatedFileModel()
     {
         // Arrange
         var mockLogger = new Mock<ILogger<FileFactory>>();
         var fileFactory = new FileFactory(mockLogger.Object);
         var tokens = new Dictionary<string, object> { { "key", "value" } };
 
-        // Act & Assert
-        Assert.Throws<NotImplementedException>(() =>
-            fileFactory.CreateTemplate("template", "name", "/dir", ".cs", "filename", tokens));
+        // Act
+        var result = fileFactory.CreateTemplate("template", "name", "/dir", ".cs", "filename", tokens);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.IsType<TemplatedFileModel>(result);
+        Assert.Equal("template", result.Template);
+        Assert.Equal("name", result.Name);
+        Assert.Equal("/dir", result.Directory);
+        Assert.Equal(".cs", result.Extension);
+        Assert.NotNull(result.Tokens);
+        Assert.Contains("key", result.Tokens.Keys);
+        Assert.Equal("value", result.Tokens["key"]);
     }
 }
