@@ -1,0 +1,23 @@
+{
+  "name": "endpoint",
+  "version": "1.0.0",
+  "description": "A powerful template-based design-time code generator for .NET applications. Endpoint generates C# code, complete solutions, and frontend projects using a sophisticated template system that supports complex logic and transformations.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://local_proxy@127.0.0.1:16578/git/QuinntyneBrown/Endpoint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "playwright": "^1.57.0"
+  }
+}
