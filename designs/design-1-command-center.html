@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endpoint Dashboard - Design 1: Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Angular Material Dark Theme Colors */
+        :root {
+            --primary: #7c4dff;
+            --primary-light: #b47cff;
+            --primary-dark: #3f1dcb;
+            --accent: #69f0ae;
+            --accent-light: #9fffe0;
+            --accent-dark: #2bbd7e;
+            --warn: #ff5252;
+            --background: #121212;
+            --surface: #1e1e1e;
+            --surface-light: #2d2d2d;
+            --surface-elevated: #383838;
+            --text-primary: rgba(255, 255, 255, 0.87);
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-disabled: rgba(255, 255, 255, 0.38);
+            --divider: rgba(255, 255, 255, 0.12);
+            --ripple: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Mobile-First Navigation */
+        .mobile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--divider);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-weight: 500;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .menu-btn:hover {
+            background: var(--ripple);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: -280px;
+            top: 56px;
+            bottom: 0;
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--divider);
+            overflow-y: auto;
+            transition: left 0.3s ease;
+            z-index: 999;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-section {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .sidebar-title {
+            padding: 0 16px 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: var(--ripple);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(124, 77, 255, 0.12);
+            color: var(--primary-light);
+            border-left: 3px solid var(--primary);
+        }
+
+        .nav-item .material-icons {
+            font-size: 20px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--primary);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 56px;
+            padding: 16px;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* Quick Actions Grid */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--divider);
+        }
+
+        .action-card:hover {
+            background: var(--surface-light);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .action-icon.purple { background: rgba(124, 77, 255, 0.2); color: var(--primary-light); }
+        .action-icon.green { background: rgba(105, 240, 174, 0.2); color: var(--accent); }
+        .action-icon.orange { background: rgba(255, 171, 64, 0.2); color: #ffab40; }
+        .action-icon.blue { background: rgba(64, 196, 255, 0.2); color: #40c4ff; }
+
+        .action-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .action-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Command Terminal */
+        .terminal-section {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--divider);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: var(--surface-light);
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .terminal-title {
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+
+        .terminal-body {
+            padding: 16px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .terminal-line {
+            margin-bottom: 8px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .prompt {
+            color: var(--accent);
+            margin-right: 8px;
+        }
+
+        .command {
+            color: var(--primary-light);
+        }
+
+        .output {
+            color: var(--text-secondary);
+            padding-left: 20px;
+            width: 100%;
+        }
+
+        .terminal-input {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--surface-light);
+            border-top: 1px solid var(--divider);
+        }
+
+        .terminal-input input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-family: 'Roboto Mono', monospace;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .terminal-input input::placeholder {
+            color: var(--text-disabled);
+        }
+
+        /* Command Categories */
+        .categories-section {
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .see-all {
+            color: var(--primary-light);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .category-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: var(--surface);
+            border: 1px solid var(--divider);
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip:hover {
+            border-color: var(--primary);
+            background: rgba(124, 77, 255, 0.1);
+        }
+
+        .chip.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .chip-count {
+            background: var(--surface-light);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .chip.active .chip-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Recent Commands */
+        .recent-commands {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--divider);
+            overflow: hidden;
+        }
+
+        .command-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--divider);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .command-item:last-child {
+            border-bottom: none;
+        }
+
+        .command-item:hover {
+            background: var(--surface-light);
+        }
+
+        .command-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: rgba(124, 77, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-light);
+        }
+
+        .command-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .command-name {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .command-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .command-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .command-status.success {
+            background: rgba(105, 240, 174, 0.15);
+            color: var(--accent);
+        }
+
+        .command-status.pending {
+            background: rgba(255, 171, 64, 0.15);
+            color: #ffab40;
+        }
+
+        /* Bottom Navigation (Mobile) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--divider);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 4px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .bottom-nav-item.active {
+            color: var(--primary-light);
+        }
+
+        .bottom-nav-item span {
+            font-size: 11px;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(124, 77, 255, 0.4);
+            transition: all 0.2s;
+        }
+
+        .fab:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(124, 77, 255, 0.5);
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 998;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Padding for bottom nav */
+        .main-content {
+            padding-bottom: 80px;
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 768px) {
+            .mobile-header {
+                display: none;
+            }
+
+            .sidebar {
+                left: 0;
+                top: 0;
+                width: 260px;
+            }
+
+            .sidebar-logo {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 20px 16px;
+                border-bottom: 1px solid var(--divider);
+            }
+
+            .main-content {
+                margin-left: 260px;
+                margin-top: 0;
+                padding: 24px;
+                padding-bottom: 24px;
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 16px;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .fab {
+                bottom: 24px;
+                right: 24px;
+            }
+
+            .overlay {
+                display: none;
+            }
+
+            .terminal-body {
+                max-height: 300px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .main-content {
+                max-width: 1200px;
+            }
+
+            .terminal-section {
+                max-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="logo">
+            <div class="logo-icon">
+                <span class="material-icons" style="font-size: 18px; color: white;">terminal</span>
+            </div>
+            <span class="logo-text">Endpoint</span>
+        </div>
+        <button class="menu-btn" onclick="toggleSidebar()">
+            <span class="material-icons">menu</span>
+        </button>
+    </header>
+
+    <!-- Overlay -->
+    <div class="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-logo" style="display: none;">
+            <div class="logo-icon">
+                <span class="material-icons" style="font-size: 18px; color: white;">terminal</span>
+            </div>
+            <span class="logo-text">Endpoint</span>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">Main</div>
+            <a class="nav-item active">
+                <span class="material-icons">dashboard</span>
+                Dashboard
+            </a>
+            <a class="nav-item">
+                <span class="material-icons">folder_open</span>
+                Projects
+                <span class="nav-badge">3</span>
+            </a>
+            <a class="nav-item">
+                <span class="material-icons">history</span>
+                History
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">Code Generation</div>
+            <a class="nav-item">
+                <span class="material-icons">add_box</span>
+                Solutions
+            </a>
+            <a class="nav-item">
+                <span class="material-icons">code</span>
+                Classes & Types
+            </a>
+            <a class="nav-item">
+                <span class="material-icons">account_tree</span>
+                DDD Patterns
+            </a>
+            <a class="nav-item">
+                <span class="material-icons">hub</span>
+                Microservices
+                <span class="nav-badge">30+</span>
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">Tools</div>
+            <a class="nav-item">
+                <span class="material-icons">science</span>
+                Testing
+            </a>
+            <a class="nav-item">
+                <span class="material-icons">sync_alt</span>
+                Messaging
+            </a>
+            <a class="nav-item">
+                <span class="material-icons">analytics</span>
+                Analysis
+            </a>
+            <a class="nav-item">
+                <span class="material-icons">schema</span>
+                PlantUML
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <div class="sidebar-title">Settings</div>
+            <a class="nav-item">
+                <span class="material-icons">settings</span>
+                Preferences
+            </a>
+            <a class="nav-item">
+                <span class="material-icons">help_outline</span>
+                Help
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="action-card">
+                <div class="action-icon purple">
+                    <span class="material-icons">rocket_launch</span>
+                </div>
+                <div class="action-title">New Solution</div>
+                <div class="action-desc">Create .NET solution</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon green">
+                    <span class="material-icons">domain</span>
+                </div>
+                <div class="action-title">DDD App</div>
+                <div class="action-desc">Domain-driven design</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon orange">
+                    <span class="material-icons">cloud</span>
+                </div>
+                <div class="action-title">Microservice</div>
+                <div class="action-desc">Add new service</div>
+            </div>
+            <div class="action-card">
+                <div class="action-icon blue">
+                    <span class="material-icons">web</span>
+                </div>
+                <div class="action-title">Frontend</div>
+                <div class="action-desc">React/Angular app</div>
+            </div>
+        </div>
+
+        <!-- Terminal Section -->
+        <div class="terminal-section">
+            <div class="terminal-header">
+                <div class="terminal-title">
+                    <span class="material-icons" style="font-size: 16px;">terminal</span>
+                    Command Terminal
+                </div>
+                <div class="terminal-dots">
+                    <div class="dot red"></div>
+                    <div class="dot yellow"></div>
+                    <div class="dot green"></div>
+                </div>
+            </div>
+            <div class="terminal-body">
+                <div class="terminal-line">
+                    <span class="prompt">$</span>
+                    <span class="command">endpoint solution-create --name "MyApp"</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="output">Creating solution MyApp...</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="output" style="color: var(--accent);">Solution created successfully</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="prompt">$</span>
+                    <span class="command">endpoint entity-create --name "Customer"</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="output">Generating Customer entity with properties...</span>
+                </div>
+                <div class="terminal-line">
+                    <span class="output" style="color: var(--accent);">Entity created: Customer.cs</span>
+                </div>
+            </div>
+            <div class="terminal-input">
+                <span class="prompt" style="color: var(--accent);">$</span>
+                <input type="text" placeholder="Type a command or search..." />
+                <span class="material-icons" style="color: var(--text-secondary);">send</span>
+            </div>
+        </div>
+
+        <!-- Command Categories -->
+        <div class="categories-section">
+            <div class="section-header">
+                <span class="section-title">Command Categories</span>
+                <span class="see-all">See all 115+</span>
+            </div>
+            <div class="category-chips">
+                <div class="chip active">
+                    <span class="material-icons" style="font-size: 16px;">code</span>
+                    Code Gen
+                    <span class="chip-count">25</span>
+                </div>
+                <div class="chip">
+                    <span class="material-icons" style="font-size: 16px;">account_tree</span>
+                    DDD
+                    <span class="chip-count">6</span>
+                </div>
+                <div class="chip">
+                    <span class="material-icons" style="font-size: 16px;">hub</span>
+                    Services
+                    <span class="chip-count">30</span>
+                </div>
+                <div class="chip">
+                    <span class="material-icons" style="font-size: 16px;">science</span>
+                    Testing
+                    <span class="chip-count">8</span>
+                </div>
+                <div class="chip">
+                    <span class="material-icons" style="font-size: 16px;">sync_alt</span>
+                    Messaging
+                    <span class="chip-count">8</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Commands -->
+        <div class="section-header">
+            <span class="section-title">Recent Commands</span>
+            <span class="see-all">View all</span>
+        </div>
+        <div class="recent-commands">
+            <div class="command-item">
+                <div class="command-icon">
+                    <span class="material-icons" style="font-size: 18px;">add_box</span>
+                </div>
+                <div class="command-info">
+                    <div class="command-name">solution-create --name "ECommerce"</div>
+                    <div class="command-time">2 minutes ago</div>
+                </div>
+                <span class="command-status success">Success</span>
+            </div>
+            <div class="command-item">
+                <div class="command-icon">
+                    <span class="material-icons" style="font-size: 18px;">data_object</span>
+                </div>
+                <div class="command-info">
+                    <div class="command-name">entity-create --name "Product"</div>
+                    <div class="command-time">5 minutes ago</div>
+                </div>
+                <span class="command-status success">Success</span>
+            </div>
+            <div class="command-item">
+                <div class="command-icon">
+                    <span class="material-icons" style="font-size: 18px;">hub</span>
+                </div>
+                <div class="command-info">
+                    <div class="command-name">microservice-add --template "Identity"</div>
+                    <div class="command-time">12 minutes ago</div>
+                </div>
+                <span class="command-status pending">Running</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- FAB -->
+    <button class="fab">
+        <span class="material-icons">add</span>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a class="bottom-nav-item active">
+            <span class="material-icons">dashboard</span>
+            <span>Dashboard</span>
+        </a>
+        <a class="bottom-nav-item">
+            <span class="material-icons">folder</span>
+            <span>Projects</span>
+        </a>
+        <a class="bottom-nav-item">
+            <span class="material-icons">terminal</span>
+            <span>Commands</span>
+        </a>
+        <a class="bottom-nav-item">
+            <span class="material-icons">settings</span>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('open');
+            document.querySelector('.overlay').classList.toggle('visible');
+        }
+
+        // Show sidebar logo on desktop
+        if (window.innerWidth >= 768) {
+            document.querySelector('.sidebar-logo').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

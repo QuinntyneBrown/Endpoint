@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endpoint Dashboard - Design 4: Workflow Pipeline</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Angular Material Dark Theme - Cyan/Orange */
+        :root {
+            --primary: #00bcd4;
+            --primary-light: #62efff;
+            --primary-dark: #008ba3;
+            --accent: #ff9800;
+            --accent-light: #ffc947;
+            --accent-dark: #c66900;
+            --background: #0a0e14;
+            --surface: #131922;
+            --surface-light: #1c242f;
+            --surface-elevated: #252f3d;
+            --border: #2a3544;
+            --text-primary: #e6edf3;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: linear-gradient(90deg, var(--surface), var(--surface-light));
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-logo .material-icons {
+            font-size: 20px;
+            color: white;
+        }
+
+        .brand-name {
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .header-spacer {
+            flex: 1;
+        }
+
+        .header-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .header-btn:hover {
+            background: var(--surface-elevated);
+            color: var(--text-primary);
+        }
+
+        /* Main Content */
+        .main {
+            margin-top: 56px;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        /* Workflow Header */
+        .workflow-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .workflow-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .workflow-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .workflow-icon .material-icons {
+            font-size: 24px;
+            color: white;
+        }
+
+        .workflow-info h1 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .workflow-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .new-workflow-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .new-workflow-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .new-workflow-btn .material-icons {
+            font-size: 18px;
+        }
+
+        /* Pipeline Stages */
+        .pipeline-container {
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .pipeline-title {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .pipeline {
+            display: flex;
+            gap: 8px;
+            min-width: max-content;
+        }
+
+        .pipeline-stage {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 100px;
+        }
+
+        .stage-node {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .stage-node.completed {
+            background: linear-gradient(135deg, var(--success), #059669);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .stage-node.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            box-shadow: 0 0 20px rgba(0, 188, 212, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .stage-node.pending {
+            background: var(--surface-light);
+            border: 2px dashed var(--border);
+        }
+
+        .stage-node.error {
+            background: linear-gradient(135deg, var(--error), #dc2626);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stage-node .material-icons {
+            font-size: 24px;
+            color: white;
+        }
+
+        .stage-node.pending .material-icons {
+            color: var(--text-muted);
+        }
+
+        .stage-label {
+            margin-top: 10px;
+            font-size: 11px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .stage-connector {
+            position: absolute;
+            top: 28px;
+            left: 56px;
+            width: calc(100% - 48px);
+            height: 3px;
+            background: var(--border);
+        }
+
+        .stage-connector.completed {
+            background: linear-gradient(90deg, var(--success), var(--success));
+        }
+
+        .stage-connector.active {
+            background: linear-gradient(90deg, var(--success), var(--primary));
+        }
+
+        .pipeline-stage:last-child .stage-connector {
+            display: none;
+        }
+
+        /* Active Workflow Card */
+        .active-workflow {
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .workflow-card-header {
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.1), rgba(255, 152, 0, 0.05));
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .workflow-card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .workflow-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 16px;
+            background: rgba(0, 188, 212, 0.15);
+            color: var(--primary-light);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .workflow-card-body {
+            padding: 16px;
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            background: var(--surface-light);
+            border-radius: 10px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .step-item.completed {
+            border-left-color: var(--success);
+        }
+
+        .step-item.active {
+            border-left-color: var(--primary);
+            background: rgba(0, 188, 212, 0.08);
+        }
+
+        .step-item.pending {
+            opacity: 0.6;
+        }
+
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .step-icon.completed {
+            background: var(--success);
+        }
+
+        .step-icon.active {
+            background: var(--primary);
+        }
+
+        .step-icon.pending {
+            background: var(--surface-elevated);
+        }
+
+        .step-icon .material-icons {
+            font-size: 16px;
+            color: white;
+        }
+
+        .step-icon.pending .material-icons {
+            color: var(--text-muted);
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .step-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .step-time {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Templates Section */
+        .templates-section {
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .see-all-link {
+            font-size: 12px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .template-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .template-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .template-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .template-icon.cyan { background: rgba(0, 188, 212, 0.2); color: var(--primary-light); }
+        .template-icon.orange { background: rgba(255, 152, 0, 0.2); color: var(--accent-light); }
+        .template-icon.green { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .template-icon.blue { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+
+        .template-icon .material-icons {
+            font-size: 20px;
+        }
+
+        .template-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .template-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .template-stats {
+            display: flex;
+            gap: 12px;
+        }
+
+        .template-stat {
+            font-size: 10px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .template-stat .material-icons {
+            font-size: 14px;
+        }
+
+        /* Recent Workflows */
+        .recent-workflows {
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .recent-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .recent-title {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .filter-chips {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-chip {
+            padding: 4px 12px;
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-chip.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .workflow-list {
+            padding: 8px;
+        }
+
+        .workflow-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .workflow-item:hover {
+            background: var(--surface-light);
+        }
+
+        .workflow-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface-light);
+        }
+
+        .workflow-item-icon .material-icons {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .workflow-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .workflow-item-name {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .workflow-item-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .workflow-item-status {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .workflow-item-status.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .workflow-item-status.running {
+            background: rgba(0, 188, 212, 0.15);
+            color: var(--primary-light);
+        }
+
+        .workflow-item-status.failed {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--primary-light);
+            background: rgba(0, 188, 212, 0.1);
+        }
+
+        .nav-item .material-icons {
+            font-size: 22px;
+        }
+
+        .nav-item span:last-child {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        /* Desktop */
+        @media (min-width: 768px) {
+            .main {
+                max-width: 1200px;
+                margin: 56px auto 0;
+                padding: 32px;
+                padding-bottom: 32px;
+            }
+
+            .template-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .new-workflow-btn span:last-child {
+                display: inline;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .new-workflow-btn span:last-child {
+                display: none;
+            }
+
+            .filter-chips {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="brand">
+            <div class="brand-logo">
+                <span class="material-icons">account_tree</span>
+            </div>
+            <span class="brand-name">Endpoint</span>
+        </div>
+        <div class="header-spacer"></div>
+        <button class="header-btn">
+            <span class="material-icons">search</span>
+        </button>
+        <button class="header-btn">
+            <span class="material-icons">notifications_none</span>
+        </button>
+        <button class="header-btn">
+            <span class="material-icons">more_vert</span>
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Workflow Header -->
+        <div class="workflow-header">
+            <div class="workflow-title-group">
+                <div class="workflow-icon">
+                    <span class="material-icons">account_tree</span>
+                </div>
+                <div class="workflow-info">
+                    <h1>Workflows</h1>
+                    <p>Automate your code generation</p>
+                </div>
+            </div>
+            <button class="new-workflow-btn">
+                <span class="material-icons">add</span>
+                <span>New Workflow</span>
+            </button>
+        </div>
+
+        <!-- Pipeline Visualization -->
+        <div class="pipeline-container">
+            <div class="pipeline-title">Active Pipeline: ECommerce DDD Solution</div>
+            <div class="pipeline">
+                <div class="pipeline-stage">
+                    <div class="stage-node completed">
+                        <span class="material-icons">check</span>
+                    </div>
+                    <span class="stage-label">Solution</span>
+                    <div class="stage-connector completed"></div>
+                </div>
+                <div class="pipeline-stage">
+                    <div class="stage-node completed">
+                        <span class="material-icons">check</span>
+                    </div>
+                    <span class="stage-label">Domain</span>
+                    <div class="stage-connector completed"></div>
+                </div>
+                <div class="pipeline-stage">
+                    <div class="stage-node completed">
+                        <span class="material-icons">check</span>
+                    </div>
+                    <span class="stage-label">Entities</span>
+                    <div class="stage-connector active"></div>
+                </div>
+                <div class="pipeline-stage">
+                    <div class="stage-node active">
+                        <span class="material-icons">code</span>
+                    </div>
+                    <span class="stage-label">Services</span>
+                    <div class="stage-connector"></div>
+                </div>
+                <div class="pipeline-stage">
+                    <div class="stage-node pending">
+                        <span class="material-icons">api</span>
+                    </div>
+                    <span class="stage-label">API</span>
+                    <div class="stage-connector"></div>
+                </div>
+                <div class="pipeline-stage">
+                    <div class="stage-node pending">
+                        <span class="material-icons">science</span>
+                    </div>
+                    <span class="stage-label">Tests</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Workflow Details -->
+        <div class="active-workflow">
+            <div class="workflow-card-header">
+                <div class="workflow-card-title">
+                    <span class="material-icons" style="color: var(--primary);">play_circle</span>
+                    <span style="font-weight: 500;">Generating Services</span>
+                </div>
+                <div class="workflow-status">
+                    <div class="status-indicator"></div>
+                    In Progress
+                </div>
+            </div>
+            <div class="workflow-card-body">
+                <div class="workflow-steps">
+                    <div class="step-item completed">
+                        <div class="step-icon completed">
+                            <span class="material-icons">check</span>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-title">Create CustomerService</div>
+                            <div class="step-desc">Generated CRUD operations for Customer</div>
+                        </div>
+                        <span class="step-time">2s</span>
+                    </div>
+                    <div class="step-item completed">
+                        <div class="step-icon completed">
+                            <span class="material-icons">check</span>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-title">Create ProductService</div>
+                            <div class="step-desc">Generated CRUD operations for Product</div>
+                        </div>
+                        <span class="step-time">1.8s</span>
+                    </div>
+                    <div class="step-item active">
+                        <div class="step-icon active">
+                            <span class="material-icons">sync</span>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-title">Create OrderService</div>
+                            <div class="step-desc">Generating order processing logic...</div>
+                        </div>
+                        <span class="step-time">...</span>
+                    </div>
+                    <div class="step-item pending">
+                        <div class="step-icon pending">
+                            <span class="material-icons">schedule</span>
+                        </div>
+                        <div class="step-content">
+                            <div class="step-title">Create Request Handlers</div>
+                            <div class="step-desc">Waiting...</div>
+                        </div>
+                        <span class="step-time">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Templates -->
+        <div class="templates-section">
+            <div class="section-header">
+                <span class="section-title">Workflow Templates</span>
+                <span class="see-all-link">See all 15+</span>
+            </div>
+            <div class="template-grid">
+                <div class="template-card">
+                    <div class="template-header">
+                        <div class="template-icon cyan">
+                            <span class="material-icons">rocket_launch</span>
+                        </div>
+                        <span class="template-name">Full DDD Solution</span>
+                    </div>
+                    <div class="template-desc">Complete domain-driven design solution with all layers</div>
+                    <div class="template-stats">
+                        <span class="template-stat">
+                            <span class="material-icons">layers</span>
+                            6 stages
+                        </span>
+                        <span class="template-stat">
+                            <span class="material-icons">schedule</span>
+                            ~30s
+                        </span>
+                    </div>
+                </div>
+                <div class="template-card">
+                    <div class="template-header">
+                        <div class="template-icon orange">
+                            <span class="material-icons">hub</span>
+                        </div>
+                        <span class="template-name">Microservices</span>
+                    </div>
+                    <div class="template-desc">Event-driven microservices architecture</div>
+                    <div class="template-stats">
+                        <span class="template-stat">
+                            <span class="material-icons">layers</span>
+                            8 stages
+                        </span>
+                        <span class="template-stat">
+                            <span class="material-icons">schedule</span>
+                            ~45s
+                        </span>
+                    </div>
+                </div>
+                <div class="template-card">
+                    <div class="template-header">
+                        <div class="template-icon green">
+                            <span class="material-icons">api</span>
+                        </div>
+                        <span class="template-name">REST API</span>
+                    </div>
+                    <div class="template-desc">Quick API with controllers and services</div>
+                    <div class="template-stats">
+                        <span class="template-stat">
+                            <span class="material-icons">layers</span>
+                            4 stages
+                        </span>
+                        <span class="template-stat">
+                            <span class="material-icons">schedule</span>
+                            ~15s
+                        </span>
+                    </div>
+                </div>
+                <div class="template-card">
+                    <div class="template-header">
+                        <div class="template-icon blue">
+                            <span class="material-icons">science</span>
+                        </div>
+                        <span class="template-name">Testing Suite</span>
+                    </div>
+                    <div class="template-desc">Unit, E2E, and benchmark tests</div>
+                    <div class="template-stats">
+                        <span class="template-stat">
+                            <span class="material-icons">layers</span>
+                            3 stages
+                        </span>
+                        <span class="template-stat">
+                            <span class="material-icons">schedule</span>
+                            ~10s
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Workflows -->
+        <div class="recent-workflows">
+            <div class="recent-header">
+                <span class="recent-title">Recent Workflows</span>
+                <div class="filter-chips">
+                    <span class="filter-chip active">All</span>
+                    <span class="filter-chip">Running</span>
+                    <span class="filter-chip">Completed</span>
+                    <span class="filter-chip">Failed</span>
+                </div>
+            </div>
+            <div class="workflow-list">
+                <div class="workflow-item">
+                    <div class="workflow-item-icon">
+                        <span class="material-icons">rocket_launch</span>
+                    </div>
+                    <div class="workflow-item-info">
+                        <div class="workflow-item-name">ECommerce DDD Solution</div>
+                        <div class="workflow-item-meta">
+                            <span>6 stages</span>
+                            <span>Started 2m ago</span>
+                        </div>
+                    </div>
+                    <span class="workflow-item-status running">Running</span>
+                </div>
+                <div class="workflow-item">
+                    <div class="workflow-item-icon">
+                        <span class="material-icons">hub</span>
+                    </div>
+                    <div class="workflow-item-info">
+                        <div class="workflow-item-name">Identity Microservice</div>
+                        <div class="workflow-item-meta">
+                            <span>5 stages</span>
+                            <span>15m ago</span>
+                        </div>
+                    </div>
+                    <span class="workflow-item-status success">Completed</span>
+                </div>
+                <div class="workflow-item">
+                    <div class="workflow-item-icon">
+                        <span class="material-icons">api</span>
+                    </div>
+                    <div class="workflow-item-info">
+                        <div class="workflow-item-name">Payment API Controllers</div>
+                        <div class="workflow-item-meta">
+                            <span>3 stages</span>
+                            <span>1h ago</span>
+                        </div>
+                    </div>
+                    <span class="workflow-item-status success">Completed</span>
+                </div>
+                <div class="workflow-item">
+                    <div class="workflow-item-icon">
+                        <span class="material-icons">science</span>
+                    </div>
+                    <div class="workflow-item-info">
+                        <div class="workflow-item-name">Integration Tests - Orders</div>
+                        <div class="workflow-item-meta">
+                            <span>2 stages</span>
+                            <span>2h ago</span>
+                        </div>
+                    </div>
+                    <span class="workflow-item-status failed">Failed</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a class="nav-item" href="#">
+            <span class="material-icons">dashboard</span>
+            <span>Home</span>
+        </a>
+        <a class="nav-item active" href="#">
+            <span class="material-icons">account_tree</span>
+            <span>Workflows</span>
+        </a>
+        <a class="nav-item" href="#">
+            <span class="material-icons">folder</span>
+            <span>Projects</span>
+        </a>
+        <a class="nav-item" href="#">
+            <span class="material-icons">settings</span>
+            <span>Settings</span>
+        </a>
+    </nav>
+</body>
+</html>
