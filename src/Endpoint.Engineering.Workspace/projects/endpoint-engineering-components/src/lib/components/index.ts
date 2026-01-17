@@ -6,3 +6,5 @@ export * from './breadcrumb';
 export * from './empty-state';
 export * from './search-box';
 export * from './dialog';
+export * from './form-input';
+export * from './tree-view';
