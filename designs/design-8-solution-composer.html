@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endpoint Dashboard - Solution Composer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Angular Material Dark Theme Colors - Indigo/Pink */
+        :root {
+            --mat-primary: #9fa8da;
+            --mat-primary-lighter: #c5cae9;
+            --mat-primary-darker: #7986cb;
+            --mat-accent: #f48fb1;
+            --mat-accent-lighter: #f8bbd0;
+            --mat-accent-darker: #f06292;
+            --mat-warn: #ef5350;
+            --mat-success: #81c784;
+            --mat-background: #0d1117;
+            --mat-surface: #161b22;
+            --mat-surface-elevated: #21262d;
+            --mat-surface-high: #30363d;
+            --mat-on-surface: #e6edf3;
+            --mat-on-surface-medium: rgba(230,237,243,0.7);
+            --mat-on-surface-disabled: rgba(230,237,243,0.38);
+            --mat-divider: rgba(230,237,243,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--mat-background);
+            color: var(--mat-on-surface);
+            min-height: 100vh;
+        }
+
+        /* App Header */
+        .app-header {
+            background: var(--mat-surface);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--mat-on-surface);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+        }
+
+        .page-title-header {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 72px 0 140px;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr 360px;
+                padding: 72px 0 0;
+                min-height: 100vh;
+            }
+        }
+
+        /* Source Panel */
+        .source-panel {
+            padding: 16px;
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        @media (min-width: 768px) {
+            .source-panel {
+                border-bottom: none;
+                border-right: 1px solid var(--mat-divider);
+                overflow-y: auto;
+                max-height: calc(100vh - 72px);
+            }
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--mat-on-surface-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .panel-action {
+            font-size: 12px;
+            color: var(--mat-primary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Search Box */
+        .search-box {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-box .material-icons {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--mat-on-surface-disabled);
+            font-size: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-divider);
+            border-radius: 8px;
+            padding: 10px 12px 10px 40px;
+            color: var(--mat-on-surface);
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+        }
+
+        /* Source Tabs */
+        .source-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+        }
+
+        .source-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-divider);
+            color: var(--mat-on-surface-medium);
+            transition: all 0.2s;
+        }
+
+        .source-tab:hover {
+            border-color: var(--mat-primary);
+        }
+
+        .source-tab.active {
+            background: var(--mat-primary);
+            border-color: var(--mat-primary);
+            color: #121212;
+        }
+
+        .source-tab .material-icons {
+            font-size: 18px;
+        }
+
+        /* Folder Tree */
+        .folder-tree {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tree-item:hover {
+            background: var(--mat-surface-elevated);
+        }
+
+        .tree-item.selected {
+            background: rgba(159, 168, 218, 0.12);
+        }
+
+        .tree-expand {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--mat-on-surface-medium);
+        }
+
+        .tree-expand .material-icons {
+            font-size: 18px;
+            transition: transform 0.2s;
+        }
+
+        .tree-item.expanded .tree-expand .material-icons {
+            transform: rotate(90deg);
+        }
+
+        .tree-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+        }
+
+        .tree-icon .material-icons {
+            font-size: 20px;
+        }
+
+        .tree-icon.folder .material-icons {
+            color: #f9a825;
+        }
+
+        .tree-icon.file .material-icons {
+            color: var(--mat-primary);
+        }
+
+        .tree-name {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .tree-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .tree-item:hover .tree-actions {
+            opacity: 1;
+        }
+
+        .tree-action-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            border-radius: 4px;
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+        }
+
+        .tree-action-btn:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--mat-accent);
+        }
+
+        .tree-action-btn .material-icons {
+            font-size: 18px;
+        }
+
+        .tree-children {
+            padding-left: 24px;
+        }
+
+        .tree-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: var(--mat-surface-high);
+            color: var(--mat-on-surface-medium);
+            margin-left: 8px;
+        }
+
+        /* Composition Panel */
+        .composition-panel {
+            background: var(--mat-surface);
+            padding: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .composition-panel {
+                position: fixed;
+                top: 56px;
+                right: 0;
+                bottom: 0;
+                width: 360px;
+                overflow-y: auto;
+            }
+        }
+
+        .composition-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .composition-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .composition-count {
+            font-size: 12px;
+            color: var(--mat-on-surface-medium);
+            background: var(--mat-surface-elevated);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        /* Selected Items */
+        .selected-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .selected-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--mat-surface-elevated);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--mat-divider);
+        }
+
+        .selected-item-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--mat-surface-high);
+            border-radius: 8px;
+        }
+
+        .selected-item-icon .material-icons {
+            color: #f9a825;
+        }
+
+        .selected-item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .selected-item-name {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .selected-item-source {
+            font-size: 11px;
+            color: var(--mat-on-surface-medium);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .source-icon {
+            width: 14px;
+            height: 14px;
+        }
+
+        .selected-item-remove {
+            background: none;
+            border: none;
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .selected-item-remove:hover {
+            background: rgba(255,255,255,0.08);
+            color: var(--mat-warn);
+        }
+
+        /* Drag Handle */
+        .drag-handle {
+            color: var(--mat-on-surface-disabled);
+            cursor: grab;
+        }
+
+        /* Config Section */
+        .config-section {
+            margin-bottom: 24px;
+        }
+
+        .config-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--mat-on-surface-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .config-field {
+            margin-bottom: 12px;
+        }
+
+        .config-label {
+            font-size: 12px;
+            color: var(--mat-on-surface-medium);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .config-input {
+            width: 100%;
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-divider);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: var(--mat-on-surface);
+            font-size: 13px;
+        }
+
+        .config-input:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+        }
+
+        .config-select {
+            width: 100%;
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-divider);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: var(--mat-on-surface);
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--mat-primary);
+            color: #121212;
+        }
+
+        .btn-primary:hover {
+            background: var(--mat-primary-lighter);
+        }
+
+        .btn-secondary {
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-divider);
+            color: var(--mat-on-surface);
+        }
+
+        .btn-secondary:hover {
+            background: var(--mat-surface-high);
+        }
+
+        .btn-accent {
+            background: var(--mat-accent);
+            color: #121212;
+        }
+
+        .btn-accent:hover {
+            background: var(--mat-accent-lighter);
+        }
+
+        /* Empty State */
+        .empty-composition {
+            text-align: center;
+            padding: 32px 16px;
+            background: var(--mat-surface-elevated);
+            border: 2px dashed var(--mat-divider);
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .empty-composition .material-icons {
+            font-size: 48px;
+            color: var(--mat-on-surface-disabled);
+            margin-bottom: 12px;
+        }
+
+        .empty-composition p {
+            font-size: 13px;
+            color: var(--mat-on-surface-medium);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--mat-surface);
+            border-top: 1px solid var(--mat-divider);
+            padding: 12px 16px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        @media (min-width: 768px) {
+            .bottom-nav {
+                display: none;
+            }
+        }
+
+        .bottom-nav .btn {
+            flex: 1;
+        }
+
+        /* Preview Badge */
+        .preview-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .preview-badge.github {
+            background: rgba(35, 134, 54, 0.2);
+            color: #3fb950;
+        }
+
+        .preview-badge.local {
+            background: rgba(244, 143, 177, 0.2);
+            color: var(--mat-accent);
+        }
+
+        /* Progress indicator */
+        .progress-section {
+            margin-bottom: 16px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: var(--mat-on-surface-medium);
+        }
+
+        .progress-value {
+            font-size: 12px;
+            color: var(--mat-success);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--mat-surface-high);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--mat-primary), var(--mat-accent));
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <button class="back-btn">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <span class="page-title-header">A La Carte Composer</span>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn">
+                <span class="material-icons">help_outline</span>
+            </button>
+            <button class="icon-btn">
+                <span class="material-icons">more_vert</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Source Panel -->
+        <div class="source-panel">
+            <div class="panel-header">
+                <span class="panel-title">Select Components</span>
+                <button class="panel-action">
+                    <span class="material-icons" style="font-size: 16px;">refresh</span>
+                    Refresh
+                </button>
+            </div>
+
+            <div class="search-box">
+                <span class="material-icons">search</span>
+                <input type="text" class="search-input" placeholder="Search folders and files...">
+            </div>
+
+            <div class="source-tabs">
+                <div class="source-tab active">
+                    <span class="material-icons">cloud</span>
+                    GitHub
+                </div>
+                <div class="source-tab">
+                    <span class="material-icons">folder</span>
+                    Local
+                </div>
+                <div class="source-tab">
+                    <span class="material-icons">history</span>
+                    Recent
+                </div>
+            </div>
+
+            <div class="folder-tree">
+                <div class="tree-item expanded">
+                    <span class="tree-expand">
+                        <span class="material-icons">chevron_right</span>
+                    </span>
+                    <span class="tree-icon folder">
+                        <span class="material-icons">folder</span>
+                    </span>
+                    <span class="tree-name">QuinntyneBrown/Endpoint</span>
+                    <span class="tree-badge">147</span>
+                    <div class="tree-actions">
+                        <button class="tree-action-btn">
+                            <span class="material-icons">add_circle_outline</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tree-children">
+                    <div class="tree-item expanded">
+                        <span class="tree-expand">
+                            <span class="material-icons">chevron_right</span>
+                        </span>
+                        <span class="tree-icon folder">
+                            <span class="material-icons">folder</span>
+                        </span>
+                        <span class="tree-name">src</span>
+                        <div class="tree-actions">
+                            <button class="tree-action-btn">
+                                <span class="material-icons">add_circle_outline</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tree-children">
+                        <div class="tree-item selected">
+                            <span class="tree-expand"></span>
+                            <span class="tree-icon folder">
+                                <span class="material-icons">folder</span>
+                            </span>
+                            <span class="tree-name">Controllers</span>
+                            <span class="preview-badge github">Added</span>
+                            <div class="tree-actions">
+                                <button class="tree-action-btn">
+                                    <span class="material-icons">remove_circle_outline</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="tree-item selected">
+                            <span class="tree-expand"></span>
+                            <span class="tree-icon folder">
+                                <span class="material-icons">folder</span>
+                            </span>
+                            <span class="tree-name">Services</span>
+                            <span class="preview-badge github">Added</span>
+                            <div class="tree-actions">
+                                <button class="tree-action-btn">
+                                    <span class="material-icons">remove_circle_outline</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="tree-item">
+                            <span class="tree-expand"></span>
+                            <span class="tree-icon folder">
+                                <span class="material-icons">folder</span>
+                            </span>
+                            <span class="tree-name">Models</span>
+                            <div class="tree-actions">
+                                <button class="tree-action-btn">
+                                    <span class="material-icons">add_circle_outline</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="tree-item">
+                            <span class="tree-expand"></span>
+                            <span class="tree-icon folder">
+                                <span class="material-icons">folder</span>
+                            </span>
+                            <span class="tree-name">Data</span>
+                            <div class="tree-actions">
+                                <button class="tree-action-btn">
+                                    <span class="material-icons">add_circle_outline</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tree-item">
+                        <span class="tree-expand">
+                            <span class="material-icons">chevron_right</span>
+                        </span>
+                        <span class="tree-icon folder">
+                            <span class="material-icons">folder</span>
+                        </span>
+                        <span class="tree-name">templates</span>
+                        <span class="tree-badge">24</span>
+                        <div class="tree-actions">
+                            <button class="tree-action-btn">
+                                <span class="material-icons">add_circle_outline</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tree-item">
+                    <span class="tree-expand">
+                        <span class="material-icons">chevron_right</span>
+                    </span>
+                    <span class="tree-icon folder">
+                        <span class="material-icons">folder</span>
+                    </span>
+                    <span class="tree-name">~/projects/my-templates</span>
+                    <span class="preview-badge local">Local</span>
+                    <span class="tree-badge">32</span>
+                    <div class="tree-actions">
+                        <button class="tree-action-btn">
+                            <span class="material-icons">add_circle_outline</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tree-children">
+                    <div class="tree-item selected">
+                        <span class="tree-expand"></span>
+                        <span class="tree-icon folder">
+                            <span class="material-icons">folder</span>
+                        </span>
+                        <span class="tree-name">AuthModule</span>
+                        <span class="preview-badge local">Added</span>
+                        <div class="tree-actions">
+                            <button class="tree-action-btn">
+                                <span class="material-icons">remove_circle_outline</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tree-item">
+                        <span class="tree-expand"></span>
+                        <span class="tree-icon folder">
+                            <span class="material-icons">folder</span>
+                        </span>
+                        <span class="tree-name">LoggingModule</span>
+                        <div class="tree-actions">
+                            <button class="tree-action-btn">
+                                <span class="material-icons">add_circle_outline</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Composition Panel -->
+        <div class="composition-panel">
+            <div class="composition-header">
+                <span class="composition-title">Your Solution</span>
+                <span class="composition-count">3 components</span>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-label">Composition Progress</span>
+                    <span class="progress-value">3 of 5 recommended</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 60%;"></div>
+                </div>
+            </div>
+
+            <div class="selected-items">
+                <div class="selected-item">
+                    <span class="drag-handle material-icons">drag_indicator</span>
+                    <div class="selected-item-icon">
+                        <span class="material-icons">folder</span>
+                    </div>
+                    <div class="selected-item-info">
+                        <div class="selected-item-name">Controllers</div>
+                        <div class="selected-item-source">
+                            <span class="preview-badge github" style="padding: 2px 6px;">GitHub</span>
+                            QuinntyneBrown/Endpoint
+                        </div>
+                    </div>
+                    <button class="selected-item-remove">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+
+                <div class="selected-item">
+                    <span class="drag-handle material-icons">drag_indicator</span>
+                    <div class="selected-item-icon">
+                        <span class="material-icons">folder</span>
+                    </div>
+                    <div class="selected-item-info">
+                        <div class="selected-item-name">Services</div>
+                        <div class="selected-item-source">
+                            <span class="preview-badge github" style="padding: 2px 6px;">GitHub</span>
+                            QuinntyneBrown/Endpoint
+                        </div>
+                    </div>
+                    <button class="selected-item-remove">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+
+                <div class="selected-item">
+                    <span class="drag-handle material-icons">drag_indicator</span>
+                    <div class="selected-item-icon">
+                        <span class="material-icons">folder</span>
+                    </div>
+                    <div class="selected-item-info">
+                        <div class="selected-item-name">AuthModule</div>
+                        <div class="selected-item-source">
+                            <span class="preview-badge local" style="padding: 2px 6px;">Local</span>
+                            ~/projects/my-templates
+                        </div>
+                    </div>
+                    <button class="selected-item-remove">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="config-section">
+                <div class="config-title">Output Configuration</div>
+                <div class="config-field">
+                    <label class="config-label">Solution Name</label>
+                    <input type="text" class="config-input" value="MyEcommerceApi">
+                </div>
+                <div class="config-field">
+                    <label class="config-label">Output Directory</label>
+                    <input type="text" class="config-input" value="~/projects/output">
+                </div>
+                <div class="config-field">
+                    <label class="config-label">Target Framework</label>
+                    <select class="config-select">
+                        <option>.NET 8</option>
+                        <option>.NET 7</option>
+                        <option>.NET 6</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary">
+                    <span class="material-icons">play_arrow</span>
+                    Generate Solution
+                </button>
+                <button class="btn btn-secondary">
+                    <span class="material-icons">save</span>
+                    Save as Template
+                </button>
+                <button class="btn btn-secondary">
+                    <span class="material-icons">visibility</span>
+                    Preview Output
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav">
+        <button class="btn btn-secondary">
+            <span class="material-icons">visibility</span>
+            Preview
+        </button>
+        <button class="btn btn-accent">
+            <span class="material-icons">play_arrow</span>
+            Generate
+        </button>
+    </nav>
+</body>
+</html>
