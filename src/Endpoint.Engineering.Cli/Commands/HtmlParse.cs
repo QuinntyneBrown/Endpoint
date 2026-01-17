@@ -62,6 +62,14 @@ public class HtmlParseRequest : IRequest
     /// </summary>
     [Option('o', "output", Required = false, HelpText = "Optional output file path to write the parsed content.")]
     public string? OutputPath { get; set; }
+
+    /// <summary>
+    /// Gets or sets the stripping level (0-10) for HTML parsing.
+    /// 0 = No stripping (semantic extraction only)
+    /// 10 = Maximum stripping (only basic HTML tags, no attributes)
+    /// </summary>
+    [Option('s', "strip-level", Required = false, Default = 0, HelpText = "Stripping level (0-10). 0 = semantic extraction, 10 = only basic HTML tags with no attributes.")]
+    public int StripLevel { get; set; }
 }
 
 /// <summary>
@@ -93,6 +101,14 @@ public class HtmlParseRequestHandler : IRequestHandler<HtmlParseRequest>
     {
         _logger.LogInformation("Starting HTML parse command...");
 
+        // Validate strip level
+        if (request.StripLevel < 0 || request.StripLevel > 10)
+        {
+            _logger.LogError("Invalid strip level: {StripLevel}. Must be between 0 and 10.", request.StripLevel);
+            Console.WriteLine("Error: Strip level must be between 0 and 10.");
+            return;
+        }
+
         var results = new StringBuilder();
         var hasContent = false;
 
@@ -104,7 +120,7 @@ public class HtmlParseRequestHandler : IRequestHandler<HtmlParseRequest>
                 try
                 {
                     _logger.LogInformation("Fetching and parsing HTML from URL: {Url}", url);
-                    var content = await _htmlParserService.ParseHtmlFromUrlAsync(url, cancellationToken);
+                    var content = await _htmlParserService.ParseHtmlFromUrlAsync(url, request.StripLevel, cancellationToken);
                     AppendResult(results, $"URL: {url}", content);
                     hasContent = true;
                 }
@@ -122,7 +138,7 @@ public class HtmlParseRequestHandler : IRequestHandler<HtmlParseRequest>
             try
             {
                 _logger.LogInformation("Fetching and parsing HTML from URL: {Url}", request.Url);
-                var content = await _htmlParserService.ParseHtmlFromUrlAsync(request.Url, cancellationToken);
+                var content = await _htmlParserService.ParseHtmlFromUrlAsync(request.Url, request.StripLevel, cancellationToken);
                 AppendResult(results, $"URL: {request.Url}", content);
                 hasContent = true;
             }
@@ -158,7 +174,7 @@ public class HtmlParseRequestHandler : IRequestHandler<HtmlParseRequest>
                     try
                     {
                         _logger.LogInformation("Parsing HTML from file: {Path}", filePath);
-                        var content = await _htmlParserService.ParseHtmlFromFileAsync(filePath, cancellationToken);
+                        var content = await _htmlParserService.ParseHtmlFromFileAsync(filePath, request.StripLevel, cancellationToken);
                         AppendResult(results, $"File: {filePath}", content);
                         hasContent = true;
                     }
@@ -177,7 +193,7 @@ public class HtmlParseRequestHandler : IRequestHandler<HtmlParseRequest>
             try
             {
                 _logger.LogInformation("Parsing HTML from file: {Path}", request.Path);
-                var content = await _htmlParserService.ParseHtmlFromFileAsync(request.Path, cancellationToken);
+                var content = await _htmlParserService.ParseHtmlFromFileAsync(request.Path, request.StripLevel, cancellationToken);
                 AppendResult(results, $"File: {request.Path}", content);
                 hasContent = true;
             }
@@ -201,7 +217,7 @@ public class HtmlParseRequestHandler : IRequestHandler<HtmlParseRequest>
                 return;
             }
 
-            var content = _htmlParserService.ParseHtml(htmlContent);
+            var content = _htmlParserService.ParseHtml(htmlContent, request.StripLevel);
             AppendResult(results, "stdin", content);
         }
 

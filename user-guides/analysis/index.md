@@ -12,6 +12,7 @@ Commands for code review, static analysis, and code parsing for AI/LLM consumpti
 | [angular-static-analysis](./angular-static-analysis.user-guide.md) | Angular workspace analysis |
 | [scss-static-analysis](./scss-static-analysis.user-guide.md) | SCSS static analysis |
 | [code-parse](./code-parse.user-guide.md) | Parse code for LLM consumption |
+| [html-parse](./html-parse.user-guide.md) | Parse HTML for LLM consumption |
 
 ## Quick Examples
 
@@ -24,6 +25,9 @@ endpoint csharp-static-analysis -p ./src
 
 # Parse code for LLM with high efficiency
 endpoint code-parse -e 80 --ignore-tests
+
+# Parse HTML with medium stripping
+endpoint html-parse -u https://example.com -s 5
 ```
 
 [Back to Index](../index.md)
