@@ -6,6 +6,26 @@
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+// Design tokens - Material Dark Theme Colors (Indigo/Pink)
+:root {
+  --mat-primary: #9fa8da;
+  --mat-primary-lighter: #c5cae9;
+  --mat-primary-darker: #7986cb;
+  --mat-accent: #f48fb1;
+  --mat-accent-lighter: #f8bbd0;
+  --mat-accent-darker: #f06292;
+  --mat-warn: #ef5350;
+  --mat-success: #81c784;
+  --mat-background: #0d1117;
+  --mat-surface: #161b22;
+  --mat-surface-elevated: #21262d;
+  --mat-surface-high: #30363d;
+  --mat-on-surface: #e6edf3;
+  --mat-on-surface-medium: rgba(230,237,243,0.7);
+  --mat-on-surface-disabled: rgba(230,237,243,0.38);
+  --mat-divider: rgba(230,237,243,0.12);
+}
+
 html {
   height: 100%;
   @include mat.theme((
@@ -25,12 +45,18 @@ body {
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these
   // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
+  background-color: var(--mat-background);
+  color: var(--mat-on-surface);
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
 
   // Reset the user agent margin.
   margin: 0;
   height: 100%;
 }
+
+* {
+  box-sizing: border-box;
+}
+
 /* You can add global styles to this file, and also import other style files */

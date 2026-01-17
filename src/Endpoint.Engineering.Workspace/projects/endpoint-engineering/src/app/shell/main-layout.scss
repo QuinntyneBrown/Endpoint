@@ -1,0 +1,33 @@
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--mat-background, #0d1117);
+}
+
+.main-layout__content {
+  flex: 1;
+  padding-top: 64px;
+  overflow: auto;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: rgba(230, 237, 243, 0.7);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .material-icons {
+    font-size: 20px;
+  }
+}
