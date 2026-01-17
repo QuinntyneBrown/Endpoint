@@ -117,13 +117,6 @@ public class TakeRequestHandler : IRequestHandler<TakeRequest>
         }
 
         // Otherwise, parse the URL to extract repository URL, branch, and folder path
-        if (string.IsNullOrEmpty(request.Url))
-        {
-            _logger.LogError("URL is required when FromDirectory is not provided.");
-            return;
-        }
-
-        // Parse the URL to extract repository URL, branch, and folder path
         var parsedUrl = GitUrlParser.Parse(request.Url);
         if (parsedUrl == null)
         {
