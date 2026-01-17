@@ -1,0 +1,59 @@
+@import '../../tokens/design-tokens.scss';
+
+.ep-breadcrumb {
+  &__list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+  }
+
+  &__link {
+    background: none;
+    border: none;
+    color: var(--mat-on-surface-medium);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--mat-on-surface);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &:active {
+      background: rgba(255, 255, 255, 0.12);
+    }
+  }
+
+  &__current {
+    color: var(--mat-on-surface);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  &__separator {
+    display: flex;
+    align-items: center;
+    color: var(--mat-on-surface-disabled);
+
+    .material-icons {
+      font-size: 16px;
+    }
+  }
+}

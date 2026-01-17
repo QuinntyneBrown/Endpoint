@@ -1,0 +1,23 @@
+<div class="ep-form-input">
+  <label *ngIf="label" class="ep-form-input__label">
+    {{ label }}
+    <span *ngIf="required" class="ep-form-input__required">*</span>
+  </label>
+  <input
+    [type]="type"
+    class="ep-form-input__field"
+    [class.ep-form-input__field--error]="errorText"
+    [placeholder]="placeholder"
+    [value]="value"
+    [disabled]="disabled"
+    [required]="required"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+  />
+  <span *ngIf="helperText && !errorText" class="ep-form-input__helper">
+    {{ helperText }}
+  </span>
+  <span *ngIf="errorText" class="ep-form-input__error">
+    {{ errorText }}
+  </span>
+</div>

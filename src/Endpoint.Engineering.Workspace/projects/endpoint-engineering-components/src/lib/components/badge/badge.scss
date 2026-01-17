@@ -1,0 +1,59 @@
+@import '../../tokens/design-tokens.scss';
+
+.ep-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+
+  /* Variants */
+  &--primary {
+    background: rgba(159, 168, 218, 0.2);
+    color: var(--mat-primary-lighter);
+  }
+
+  &--success {
+    background: rgba(129, 199, 132, 0.2);
+    color: var(--mat-success);
+  }
+
+  &--warning {
+    background: rgba(255, 183, 77, 0.2);
+    color: #ffb74d;
+  }
+
+  &--danger {
+    background: rgba(239, 83, 80, 0.2);
+    color: var(--mat-warn);
+  }
+
+  &--neutral {
+    background: rgba(230, 237, 243, 0.12);
+    color: var(--mat-on-surface-medium);
+  }
+
+  /* Sizes */
+  &--small {
+    padding: 2px var(--spacing-sm);
+    font-size: 11px;
+  }
+
+  &--medium {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  /* Dot variant */
+  &--dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border-radius: var(--radius-full);
+    min-width: 8px;
+  }
+}
