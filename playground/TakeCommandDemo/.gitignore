@@ -1,0 +1,9 @@
+# Demo output directories
+generated-output/
+generated-output-angular/
+generated-output-from-local/
+test-source/
+
+# Build artifacts
+bin/
+obj/

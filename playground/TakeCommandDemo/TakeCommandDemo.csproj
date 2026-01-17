@@ -14,6 +14,21 @@
     <Content Remove="generated-output\**" />
     <EmbeddedResource Remove="generated-output\**" />
     <None Remove="generated-output\**" />
+    <!-- Exclude test-source folder from compilation (demo test files) -->
+    <Compile Remove="test-source\**" />
+    <Content Remove="test-source\**" />
+    <EmbeddedResource Remove="test-source\**" />
+    <None Remove="test-source\**" />
+    <!-- Exclude generated-output-angular folder from compilation (demo output files) -->
+    <Compile Remove="generated-output-angular\**" />
+    <Content Remove="generated-output-angular\**" />
+    <EmbeddedResource Remove="generated-output-angular\**" />
+    <None Remove="generated-output-angular\**" />
+    <!-- Exclude generated-output-from-local folder from compilation (demo output files) -->
+    <Compile Remove="generated-output-from-local\**" />
+    <Content Remove="generated-output-from-local\**" />
+    <EmbeddedResource Remove="generated-output-from-local\**" />
+    <None Remove="generated-output-from-local\**" />
   </ItemGroup>
 
   <ItemGroup>
