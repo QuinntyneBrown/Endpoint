@@ -6,8 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ALaCarteContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? 
-        "Server=(localdb)\\mssqllocaldb;Database=ALaCarteDb;Trusted_Connection=True;MultipleActiveResultSets=true"));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ??
+        "Data Source=ALaCarte.db"));
 
 builder.Services.AddScoped<IALaCarteContext>(provider => provider.GetRequiredService<ALaCarteContext>());
 
