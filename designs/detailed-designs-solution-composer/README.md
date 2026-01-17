@@ -208,3 +208,150 @@ node render-detailed-designs.js
 ```
 
 This will use Playwright to render all designs at mobile (375x812) and desktop (1440x900) viewports.
+
+---
+
+## ALaCarteRequest CRUD Operations
+
+The following designs cover the complete lifecycle of managing ALaCarteRequest objects - the core data model that stores repository configurations for reuse.
+
+### 10: Create ALaCarteRequest
+**Purpose:** Form to create and save a new ALaCarteRequest for later use.
+
+**Features:**
+- Request name/title input for identification
+- Solution name configuration
+- Output directory picker with browse button
+- OutputType dropdown (DotNetSolution, AngularWorkspace, etc.)
+- Repository management section
+- Add/edit/delete repositories with URL, branch, folder configurations
+- Repository preview cards showing folder count
+- Save and Cancel actions
+
+**Screenshots:**
+- Mobile: `10-create-alacarte-request-mobile.png`
+- Desktop: `10-create-alacarte-request-desktop.png`
+
+---
+
+### 11: List ALaCarteRequests
+**Purpose:** Browse and manage all saved ALaCarteRequest configurations.
+
+**Features:**
+- Statistics bar showing total requests, executions, weekly usage
+- Search box with real-time filtering
+- Filter chips (All, Recent, Favorites)
+- Sortable table with columns: Name, Solution Name, Repositories, Created, Last Used
+- Action buttons per row: View, Edit, Execute, Delete
+- Pagination controls
+- "New Request" button in header
+- Empty state when no requests exist
+
+**Screenshots:**
+- Mobile: `11-list-alacarte-requests-mobile.png`
+- Desktop: `11-list-alacarte-requests-desktop.png`
+
+---
+
+### 12: View ALaCarteRequest
+**Purpose:** Read-only detail view of a saved ALaCarteRequest.
+
+**Features:**
+- Request metadata (name, created date, last used, execution count)
+- Configuration summary (solution name, output directory, output type badge)
+- Complete list of all configured repositories
+- Each repository shows: URL/local path, branch, configured folders
+- Folder details with source and destination paths
+- Action buttons: Execute, Edit, Clone Request, Delete
+- Breadcrumb navigation back to list
+
+**Screenshots:**
+- Mobile: `12-view-alacarte-request-mobile.png`
+- Desktop: `12-view-alacarte-request-desktop.png`
+
+---
+
+### 13: Edit ALaCarteRequest
+**Purpose:** Modify an existing ALaCarteRequest configuration.
+
+**Features:**
+- Pre-filled form with existing values
+- "Unsaved changes" indicator in header
+- Modified fields highlighted with accent color
+- All editable fields: name, solution name, output directory, output type
+- Add/remove/reorder repositories with drag handles
+- Modify repository configurations (URL, branch, folders)
+- Discard Changes confirmation if data modified
+- Save Changes and Cancel buttons
+
+**Screenshots:**
+- Mobile: `13-edit-alacarte-request-mobile.png`
+- Desktop: `13-edit-alacarte-request-desktop.png`
+
+---
+
+### 14: Delete ALaCarteRequest
+**Purpose:** Confirmation dialog for deleting an ALaCarteRequest.
+
+**Features:**
+- Modal overlay with warning design
+- Request name and key information displayed
+- Impact summary showing what will be deleted:
+  - Number of repositories
+  - Number of folder configurations
+  - Associated metadata and logs
+- Confirmation checkbox required to enable delete
+- Warning about permanent deletion
+- Cancel and Delete (danger) buttons
+
+**Screenshots:**
+- Mobile: `14-delete-alacarte-request-mobile.png`
+- Desktop: `14-delete-alacarte-request-desktop.png`
+
+---
+
+### 15: Execute ALaCarteRequest
+**Purpose:** Execute a saved ALaCarteRequest and monitor progress in real-time.
+
+**Features:**
+- Configuration summary at top (request name, output directory)
+- Overall progress bar with percentage
+- Stage-by-stage progress indicators:
+  - Initialize (Completed)
+  - Clone Repositories (Completed)
+  - Copy Folders (Processing)
+  - Create Solution (Pending)
+  - Finalize (Pending)
+- Repository status cards showing individual processing
+- Real-time log output section with color-coded messages (info, success, warning, error)
+- Auto-scroll to latest log entries
+- Cancel Execution button
+- Success state showing completion time and actions
+
+**Screenshots:**
+- Mobile: `15-execute-alacarte-request-mobile.png`
+- Desktop: `15-execute-alacarte-request-desktop.png`
+
+---
+
+### 16: Inspect Solution Output
+**Purpose:** Browse and preview the generated solution files in the UI.
+
+**Features:**
+- Breadcrumb navigation showing current path in solution
+- Statistics bar: Total Files, Total Size, Projects, Generation Time
+- Split-pane layout (resizable):
+  - Left: File/folder tree view with expand/collapse
+  - Right: File preview pane
+- Tree view with appropriate icons (folder, C#, JSON, config files)
+- Code preview with syntax highlighting
+- File metadata display (size, type, last modified)
+- Action buttons: Open in Editor, Copy Path, Open Folder, Refresh
+- Search within file tree
+- Expandable/collapsible sections
+
+**Screenshots:**
+- Mobile: `16-inspect-solution-output-mobile.png`
+- Desktop: `16-inspect-solution-output-desktop.png`
+
+---

@@ -15,6 +15,13 @@ const designs = [
   { name: '07-select-folder-filesystem', html: '07-select-folder-filesystem.html' },
   { name: '08-git-repo-folder-navigator', html: '08-git-repo-folder-navigator.html' },
   { name: '09-alacarte-output-preview', html: '09-alacarte-output-preview.html' },
+  { name: '10-create-alacarte-request', html: '10-create-alacarte-request.html' },
+  { name: '11-list-alacarte-requests', html: '11-list-alacarte-requests.html' },
+  { name: '12-view-alacarte-request', html: '12-view-alacarte-request.html' },
+  { name: '13-edit-alacarte-request', html: '13-edit-alacarte-request.html' },
+  { name: '14-delete-alacarte-request', html: '14-delete-alacarte-request.html' },
+  { name: '15-execute-alacarte-request', html: '15-execute-alacarte-request.html' },
+  { name: '16-inspect-solution-output', html: '16-inspect-solution-output.html' },
 ];
 
 // Viewport configurations
