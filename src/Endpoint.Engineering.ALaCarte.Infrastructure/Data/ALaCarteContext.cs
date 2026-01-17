@@ -25,6 +25,9 @@ public class ALaCarteContext : DbContext, IALaCarteContext
     public DbSet<RepositoryConfiguration> RepositoryConfigurations { get; set; } = null!;
 
     /// <inheritdoc/>
+    public DbSet<ALaCarteRequest> ALaCarteRequests { get; set; } = null!;
+
+    /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

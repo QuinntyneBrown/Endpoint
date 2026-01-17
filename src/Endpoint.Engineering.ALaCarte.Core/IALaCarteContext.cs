@@ -17,6 +17,11 @@ public interface IALaCarteContext
     DbSet<RepositoryConfiguration> RepositoryConfigurations { get; set; }
 
     /// <summary>
+    /// Gets or sets the ALaCarte requests.
+    /// </summary>
+    DbSet<ALaCarteRequest> ALaCarteRequests { get; set; }
+
+    /// <summary>
     /// Saves all changes made in this context to the database.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token to observe while waiting for the task to complete.</param>

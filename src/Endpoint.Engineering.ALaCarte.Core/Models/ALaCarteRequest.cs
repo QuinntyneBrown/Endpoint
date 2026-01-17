@@ -9,6 +9,11 @@ namespace Endpoint.Engineering.ALaCarte.Core.Models;
 public class ALaCarteRequest
 {
     /// <summary>
+    /// The unique identifier for the ALaCarte request.
+    /// </summary>
+    public Guid ALaCarteRequestId { get; set; }
+
+    /// <summary>
     /// The list of repository configurations to process.
     /// </summary>
     public List<RepositoryConfiguration> Repositories { get; set; } = new();
