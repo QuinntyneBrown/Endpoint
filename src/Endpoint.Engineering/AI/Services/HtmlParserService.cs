@@ -408,7 +408,7 @@ public partial class HtmlParserService : IHtmlParserService
         else if (stripLevel <= 6)
         {
             // Keep only href, src, alt, title attributes
-            html = RemoveNonSemanticAttributesRegex().Replace(html, match =>
+            html = OpeningTagWithAttributesRegex().Replace(html, match =>
             {
                 var tag = match.Value;
                 
@@ -445,7 +445,7 @@ public partial class HtmlParserService : IHtmlParserService
         // Strip level 7-9: Remove all attributes but keep all tags
         if (stripLevel <= 9)
         {
-            html = AllAttributesRegex().Replace(html, match =>
+            html = OpeningTagWithAttributesRegex().Replace(html, match =>
             {
                 var tagName = TagNameRegex().Match(match.Value).Groups[1].Value;
                 return $"<{tagName}>";
@@ -466,7 +466,7 @@ public partial class HtmlParserService : IHtmlParserService
             };
             
             // First, remove all attributes
-            html = AllAttributesRegex().Replace(html, match =>
+            html = OpeningTagWithAttributesRegex().Replace(html, match =>
             {
                 var tagName = TagNameRegex().Match(match.Value).Groups[1].Value;
                 return $"<{tagName}>";
@@ -576,10 +576,7 @@ public partial class HtmlParserService : IHtmlParserService
     private static partial Regex EventHandlerRegex();
 
     [GeneratedRegex(@"<(\w+)[^>]*>", RegexOptions.IgnoreCase)]
-    private static partial Regex RemoveNonSemanticAttributesRegex();
-
-    [GeneratedRegex(@"<(\w+)[^>]*>", RegexOptions.IgnoreCase)]
-    private static partial Regex AllAttributesRegex();
+    private static partial Regex OpeningTagWithAttributesRegex();
 
     [GeneratedRegex(@"</?(\w+)[^>]*>", RegexOptions.IgnoreCase)]
     private static partial Regex AllTagsRegex();
