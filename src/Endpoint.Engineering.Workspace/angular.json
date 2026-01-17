@@ -127,6 +127,22 @@
           "options": {
             "tsConfig": "projects/endpoint-engineering-components/tsconfig.spec.json"
           }
+        },
+        "storybook": {
+          "builder": "@storybook/angular:start-storybook",
+          "options": {
+            "configDir": "projects/endpoint-engineering-components/.storybook",
+            "browserTarget": "endpoint-engineering:build",
+            "port": 6006
+          }
+        },
+        "build-storybook": {
+          "builder": "@storybook/angular:build-storybook",
+          "options": {
+            "configDir": "projects/endpoint-engineering-components/.storybook",
+            "browserTarget": "endpoint-engineering:build",
+            "outputDir": "dist/storybook/endpoint-engineering-components"
+          }
         }
       }
     }
