@@ -1,0 +1,114 @@
+<ep-app-header title="A La Carte Requests">
+  <div header-actions>
+    <ep-button variant="primary" (click)="onCreateNew()">
+      <span class="material-icons">add</span>
+      New Request
+    </ep-button>
+  </div>
+</ep-app-header>
+
+<main class="main-content">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">A La Carte Requests</h1>
+      <p class="page-subtitle">Manage and execute your custom solution composition requests</p>
+    </div>
+  </div>
+
+  <div class="search-section">
+    <ep-search-box
+      placeholder="Search requests by name, solution, or description..."
+      (search)="onSearch($event)"
+    />
+  </div>
+
+  @if (filteredRequests.length === 0 && searchQuery) {
+    <ep-empty-state
+      icon="search_off"
+      title="No requests found"
+      [description]="'No requests match your search: ' + searchQuery"
+    />
+  } @else if (filteredRequests.length === 0) {
+    <ep-empty-state
+      icon="description"
+      title="No requests yet"
+      description="Create your first A La Carte request to start composing custom solutions"
+    >
+      <ep-button variant="primary" (click)="onCreateNew()">
+        <span class="material-icons">add</span>
+        Create First Request
+      </ep-button>
+    </ep-empty-state>
+  } @else {
+    <div class="requests-grid">
+      @for (request of filteredRequests; track request.id) {
+        <ep-card class="request-card" (click)="onViewRequest(request)">
+          <div class="request-header">
+            <div class="request-title-row">
+              <h3 class="request-name">{{ request.name }}</h3>
+              <ep-status-indicator
+                [status]="getStatusType(request.status)"
+                [text]="getStatusLabel(request.status)"
+              />
+            </div>
+            <p class="request-solution">{{ request.solutionName }}</p>
+          </div>
+
+          @if (request.description) {
+            <p class="request-description">{{ request.description }}</p>
+          }
+
+          <div class="request-meta">
+            <div class="meta-item">
+              <span class="material-icons">folder_open</span>
+              <span>{{ request.outputDirectory }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="material-icons">code</span>
+              <span>{{ request.outputType }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="material-icons">source</span>
+              <span>{{ request.repositories.length }} repositories</span>
+            </div>
+          </div>
+
+          <div class="request-footer">
+            <div class="request-dates">
+              <span class="date-label">Updated:</span>
+              <span class="date-value">{{ formatDate(request.updatedAt) }}</span>
+            </div>
+
+            <div class="request-actions" (click)="$event.stopPropagation()">
+              @if (request.status === 'ready' || request.status === 'completed' || request.status === 'failed') {
+                <ep-button
+                  variant="secondary"
+                  size="small"
+                  (click)="onExecuteRequest(request, $event)"
+                >
+                  <span class="material-icons">play_arrow</span>
+                  Execute
+                </ep-button>
+              }
+              <ep-button
+                variant="secondary"
+                size="small"
+                (click)="onEditRequest(request, $event)"
+              >
+                <span class="material-icons">edit</span>
+                Edit
+              </ep-button>
+              <button
+                class="icon-btn"
+                (click)="onDeleteRequest(request, $event)"
+                title="Delete request"
+              >
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </div>
+        </ep-card>
+      }
+    </div>
+  }
+</main>

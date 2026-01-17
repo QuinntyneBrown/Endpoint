@@ -1,0 +1,260 @@
+.main-content {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--mat-on-surface-medium);
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--mat-on-surface-medium);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+
+  .material-icons {
+    font-size: 20px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--mat-warn);
+  }
+}
+
+.request-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 24px 0;
+}
+
+.request-title {
+  font-size: 32px;
+  font-weight: 400;
+  margin-bottom: 8px;
+  color: var(--mat-on-surface);
+}
+
+.request-solution {
+  font-size: 16px;
+  color: var(--mat-on-surface-medium);
+  font-family: 'Courier New', monospace;
+}
+
+.description-card,
+.info-card,
+.repos-card {
+  margin-bottom: 24px;
+  padding: 24px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: var(--mat-on-surface);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.description-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--mat-on-surface-medium);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mat-on-surface-disabled);
+}
+
+.info-value {
+  font-size: 14px;
+  color: var(--mat-on-surface);
+  word-break: break-word;
+}
+
+.repos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.repo-item {
+  background: var(--mat-surface-elevated);
+  border: 1px solid var(--mat-divider);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.repo-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.repo-number {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mat-primary);
+  color: #121212;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.repo-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.repo-url {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  word-break: break-all;
+  color: var(--mat-on-surface);
+}
+
+.repo-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.meta-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: var(--mat-surface-high);
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--mat-on-surface-medium);
+
+  .material-icons {
+    font-size: 16px;
+  }
+}
+
+.folders-section {
+  padding-top: 16px;
+  border-top: 1px solid var(--mat-divider);
+}
+
+.folders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.folders-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mat-on-surface-medium);
+}
+
+.folders-count {
+  font-size: 12px;
+  padding: 3px 8px;
+  background: var(--mat-surface-high);
+  border-radius: 10px;
+  color: var(--mat-on-surface-disabled);
+}
+
+.folders-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.folder-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--mat-surface-high);
+  border: 1px solid var(--mat-divider);
+  border-radius: 16px;
+  font-size: 13px;
+  color: var(--mat-on-surface);
+
+  .material-icons {
+    font-size: 16px;
+    color: #f9a825;
+  }
+}
+
+.empty-repos {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--mat-on-surface-disabled);
+
+  .material-icons {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px;
+  }
+
+  .request-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .request-title {
+    font-size: 24px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
