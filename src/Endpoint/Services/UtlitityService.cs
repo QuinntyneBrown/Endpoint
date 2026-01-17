@@ -42,7 +42,17 @@ public class UtlitityService : IUtilityService
             {
                 logger.LogInformation("Broadcasting FileCreated Notification for {path}", path);
 
-                // TODO: write the copyright
+                var content = _fileSystem.File.ReadAllText(path);
+                
+                // Check if file already has copyright notice
+                if (!content.StartsWith("// Copyright (c)"))
+                {
+                    var copyrightHeader = "// Copyright (c) Quinntyne Brown. All Rights Reserved." + Environment.NewLine +
+                                        "// Licensed under the MIT License. See License.txt in the project root for license information." + Environment.NewLine +
+                                        Environment.NewLine;
+                    
+                    _fileSystem.File.WriteAllText(path, copyrightHeader + content);
+                }
             }
         }
     }
