@@ -491,23 +491,51 @@ public class ALaCarteService : IALaCarteService
         ALaCarteResult result,
         CancellationToken cancellationToken)
     {
-        var repoName = GetRepositoryName(repo.Url);
-        var cloneDir = Path.Combine(tempDir, repoName);
+        string sourceDir;
 
-        _logger.LogInformation("Cloning repository: {Url} (branch: {Branch})", repo.Url, repo.Branch);
-
-        // Clone the repository
-        var cloneSuccess = await CloneRepositoryAsync(repo.Url, repo.Branch, cloneDir, cancellationToken);
-        if (!cloneSuccess)
+        // Check if LocalDirectory is specified (local directory copy mode)
+        if (!string.IsNullOrEmpty(repo.LocalDirectory))
         {
-            result.Errors.Add($"Failed to clone repository: {repo.Url}");
+            // Use local directory as source
+            if (!Directory.Exists(repo.LocalDirectory))
+            {
+                result.Errors.Add($"LocalDirectory does not exist: {repo.LocalDirectory}");
+                _logger.LogError("LocalDirectory does not exist: {LocalDirectory}", repo.LocalDirectory);
+                return;
+            }
+
+            _logger.LogInformation("Copying from local directory: {LocalDirectory}", repo.LocalDirectory);
+            sourceDir = repo.LocalDirectory;
+        }
+        else if (!string.IsNullOrEmpty(repo.Url))
+        {
+            // Clone from Git repository
+            var repoName = GetRepositoryName(repo.Url);
+            var cloneDir = Path.Combine(tempDir, repoName);
+
+            _logger.LogInformation("Cloning repository: {Url} (branch: {Branch})", repo.Url, repo.Branch);
+
+            // Clone the repository
+            var cloneSuccess = await CloneRepositoryAsync(repo.Url, repo.Branch, cloneDir, cancellationToken);
+            if (!cloneSuccess)
+            {
+                result.Errors.Add($"Failed to clone repository: {repo.Url}");
+                return;
+            }
+
+            sourceDir = cloneDir;
+        }
+        else
+        {
+            result.Errors.Add("Either Url or LocalDirectory must be specified in repository configuration");
+            _logger.LogError("Neither Url nor LocalDirectory specified in repository configuration");
             return;
         }
 
         // Process each folder configuration
         foreach (var folderConfig in repo.Folders)
         {
-            ProcessFolderConfiguration(cloneDir, outputDir, folderConfig, result);
+            ProcessFolderConfiguration(sourceDir, outputDir, folderConfig, result);
         }
     }
 

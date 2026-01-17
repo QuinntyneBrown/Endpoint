@@ -270,6 +270,18 @@ public class ALaCarteCommandRequestHandler : IRequestHandler<ALaCarteCommandRequ
                             To = "destination/folder"
                         }
                     }
+                },
+                new RepositoryConfiguration
+                {
+                    LocalDirectory = "/path/to/local/directory",
+                    Folders = new List<FolderConfiguration>
+                    {
+                        new FolderConfiguration
+                        {
+                            From = "src/library",
+                            To = "lib"
+                        }
+                    }
                 }
             }
         };
@@ -324,8 +336,15 @@ public class ALaCarteCommandRequestHandler : IRequestHandler<ALaCarteCommandRequ
 
         foreach (var repo in request.Repositories)
         {
-            Console.WriteLine($"  Repository: {repo.Url}");
-            Console.WriteLine($"    Branch: {repo.Branch}");
+            if (!string.IsNullOrEmpty(repo.LocalDirectory))
+            {
+                Console.WriteLine($"  Local Directory: {repo.LocalDirectory}");
+            }
+            else
+            {
+                Console.WriteLine($"  Repository: {repo.Url}");
+                Console.WriteLine($"    Branch: {repo.Branch}");
+            }
             Console.WriteLine($"    Folder Mappings:");
             foreach (var folder in repo.Folders)
             {
