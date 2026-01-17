@@ -10,6 +10,10 @@ namespace Endpoint.Syntax;
 
 public class UtlitityService : IUtilityService
 {
+    private const string CopyrightHeader = "// Copyright (c) Quinntyne Brown. All Rights Reserved." + "\n" +
+                                          "// Licensed under the MIT License. See License.txt in the project root for license information." + "\n" +
+                                          "\n";
+    
     private readonly ILogger<UtlitityService> logger;
     private readonly Observable<INotification> observableNotifications;
     private readonly IFileSystem _fileSystem;
@@ -44,14 +48,10 @@ public class UtlitityService : IUtilityService
 
                 var content = _fileSystem.File.ReadAllText(path);
                 
-                // Check if file already has copyright notice
-                if (!content.StartsWith("// Copyright (c)"))
+                // Check if file already has copyright notice (handle both // and /* */ style comments)
+                if (!content.TrimStart().StartsWith("// Copyright") && !content.TrimStart().StartsWith("/* Copyright"))
                 {
-                    var copyrightHeader = "// Copyright (c) Quinntyne Brown. All Rights Reserved." + Environment.NewLine +
-                                        "// Licensed under the MIT License. See License.txt in the project root for license information." + Environment.NewLine +
-                                        Environment.NewLine;
-                    
-                    _fileSystem.File.WriteAllText(path, copyrightHeader + content);
+                    _fileSystem.File.WriteAllText(path, CopyrightHeader + content);
                 }
             }
         }
