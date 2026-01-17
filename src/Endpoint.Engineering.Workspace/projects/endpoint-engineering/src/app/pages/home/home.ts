@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { EmptyState, Button, Card } from 'endpoint-engineering-components';
 
 @Component({
@@ -8,15 +9,18 @@ import { EmptyState, Button, Card } from 'endpoint-engineering-components';
   styleUrl: './home.scss'
 })
 export class Home {
+  constructor(private router: Router) {}
+
   onNewComposition(): void {
-    console.log('Create new composition');
+    this.router.navigate(['/compose']);
   }
 
   onLoadConfiguration(): void {
-    console.log('Load saved configuration');
+    this.router.navigate(['/configurations']);
   }
 
   onQuickStart(option: string): void {
     console.log('Quick start:', option);
+    this.router.navigate(['/requests']);
   }
 }

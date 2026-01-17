@@ -1,0 +1,115 @@
+<ep-app-header title="A La Carte Requests">
+  <div header-actions>
+    <ep-button variant="primary" (click)="onCreateNew()">
+      <span class="material-icons">add</span>
+      New Request
+    </ep-button>
+  </div>
+</ep-app-header>
+
+<main class="requests-list">
+  <div class="requests-list__header">
+    <div>
+      <h1 class="requests-list__title">A La Carte Requests</h1>
+      <p class="requests-list__subtitle">Manage and execute your custom solution composition requests</p>
+    </div>
+  </div>
+
+  <div class="requests-list__search">
+    <ep-search-box
+      placeholder="Search requests by name, solution, or description..."
+      (search)="onSearch($event)"
+    />
+  </div>
+
+  @if (filteredRequests.length === 0 && searchQuery) {
+    <ep-empty-state
+      icon="search_off"
+      title="No requests found"
+      [description]="'No requests match your search: ' + searchQuery"
+    />
+  } @else if (filteredRequests.length === 0) {
+    <ep-empty-state
+      icon="description"
+      title="No requests yet"
+      description="Create your first A La Carte request to start composing custom solutions"
+    >
+      <ep-button variant="primary" (click)="onCreateNew()">
+        <span class="material-icons">add</span>
+        Create First Request
+      </ep-button>
+    </ep-empty-state>
+  } @else {
+    <div class="requests-list__grid">
+      @for (request of filteredRequests; track request.id) {
+        <ep-card class="requests-list__card" (click)="onViewRequest(request)">
+          <div class="requests-list__card-header">
+            <div class="requests-list__card-title-row">
+              <h3 class="requests-list__card-name">{{ request.name }}</h3>
+              <ep-status-indicator
+                [status]="getStatusType(request.status)"
+                [text]="getStatusLabel(request.status)"
+              />
+            </div>
+            <p class="requests-list__card-solution">{{ request.solutionName }}</p>
+          </div>
+
+          @if (request.description) {
+            <p class="requests-list__card-description">{{ request.description }}</p>
+          }
+
+          <div class="requests-list__card-meta">
+            <div class="requests-list__meta-item">
+              <span class="material-icons">folder_open</span>
+              <span>{{ request.outputDirectory }}</span>
+            </div>
+            <div class="requests-list__meta-item">
+              <span class="material-icons">code</span>
+              <span>{{ request.outputType }}</span>
+            </div>
+            <div class="requests-list__meta-item">
+              <span class="material-icons">source</span>
+              <span>{{ request.repositories.length }} repositories</span>
+            </div>
+          </div>
+
+          <div class="requests-list__card-footer">
+            <div class="requests-list__card-dates">
+              <span class="requests-list__date-label">Updated:</span>
+              <span class="requests-list__date-value">{{ formatDate(request.updatedAt) }}</span>
+            </div>
+
+            <div class="requests-list__card-actions" (click)="$event.stopPropagation()">
+              @if (request.status === 'ready' || request.status === 'completed' || request.status === 'failed') {
+                <ep-button
+                  variant="secondary"
+                  size="small"
+                  (click)="onExecuteRequest(request, $event)"
+                >
+                  <span class="material-icons">play_arrow</span>
+                  Execute
+                </ep-button>
+              }
+              <ep-button
+                variant="secondary"
+                size="small"
+                (click)="onEditRequest(request, $event)"
+              >
+                <span class="material-icons">edit</span>
+                Edit
+              </ep-button>
+              <ep-button
+                variant="secondary"
+                size="small"
+                (click)="onDeleteRequest(request, $event)"
+                title="Delete"
+              >
+                <span class="material-icons">delete</span>
+              </ep-button>
+            </div>
+          </div>
+        </ep-card>
+      }
+    </div>
+  }
+</main>

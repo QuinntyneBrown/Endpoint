@@ -1,0 +1,123 @@
+<ep-app-header title="Create A La Carte Request">
+  <div header-actions>
+    <ep-button variant="icon" title="Help">
+      <span class="material-icons">help_outline</span>
+    </ep-button>
+  </div>
+</ep-app-header>
+
+<main class="request-create">
+  <h1 class="request-create__title">Create New Request</h1>
+  <p class="request-create__subtitle">Define a new A La Carte request to compose a custom solution from multiple repositories</p>
+
+  <ep-card class="request-create__section">
+    <div class="request-create__section-header">
+      <span class="material-icons">info</span>
+      <h2 class="request-create__section-title">Request Information</h2>
+    </div>
+
+    <div class="request-create__field">
+      <ep-form-input
+        label="Request Name"
+        placeholder="e.g., My Custom API Solution"
+        [(ngModel)]="requestName"
+        [required]="true"
+        helpText="A descriptive name for this request"
+      />
+    </div>
+
+    <div class="request-create__field">
+      <ep-form-input
+        label="Solution Name"
+        placeholder="e.g., MyApiSolution"
+        [(ngModel)]="solutionName"
+        [required]="true"
+        helpText="Name for the generated solution file"
+      />
+    </div>
+
+    <div class="request-create__field">
+      <label class="request-create__label">Output Directory <span class="request-create__required">*</span></label>
+      <div class="request-create__input-group">
+        <input
+          type="text"
+          class="request-create__input"
+          placeholder="/output/path"
+          [(ngModel)]="outputDirectory"
+        />
+        <ep-button variant="secondary" (click)="onBrowseDirectory()">
+          <span class="material-icons">folder_open</span>
+        </ep-button>
+      </div>
+      <p class="request-create__help-text">Directory where the solution will be generated</p>
+    </div>
+
+    <div class="request-create__field">
+      <label class="request-create__label">Output Type <span class="request-create__required">*</span></label>
+      <select class="request-create__select" [(ngModel)]="outputType">
+        @for (type of outputTypes; track type.value) {
+          <option [value]="type.value">{{ type.label }}</option>
+        }
+      </select>
+      <p class="request-create__help-text">Type of solution to generate</p>
+    </div>
+  </ep-card>
+
+  <ep-card class="request-create__section">
+    <div class="request-create__section-header">
+      <span class="material-icons">source</span>
+      <h2 class="request-create__section-title">Repositories</h2>
+      <ep-badge variant="success">{{ repositories.length }} Added</ep-badge>
+    </div>
+
+    @if (repositories.length > 0) {
+      <div class="request-create__repo-list">
+        @for (repo of repositories; track repo.id) {
+          <div class="request-create__repo-item">
+            <span class="material-icons request-create__repo-icon">folder_special</span>
+            <div class="request-create__repo-details">
+              <div class="request-create__repo-url">{{ repo.url }}</div>
+              <div class="request-create__repo-meta">
+                @if (repo.branch) {
+                  <div class="request-create__repo-meta-item">
+                    <span class="material-icons">call_split</span>
+                    <span>{{ repo.branch }}</span>
+                  </div>
+                }
+                <div class="request-create__repo-meta-item">
+                  <span class="material-icons">folder</span>
+                  <span>{{ repo.folders.length }} folders</span>
+                </div>
+                <div class="request-create__repo-meta-item">
+                  <span class="material-icons">{{ repo.type === 'github' ? 'storage' : 'computer' }}</span>
+                  <span>{{ getRepositoryTypeLabel(repo.type) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="request-create__repo-actions">
+              <ep-button variant="icon" (click)="onEditRepository(repo)" title="Edit">
+                <span class="material-icons">edit</span>
+              </ep-button>
+              <ep-button variant="icon" (click)="onDeleteRepository(repo)" title="Delete">
+                <span class="material-icons">delete</span>
+              </ep-button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <button class="request-create__add-repo-btn" (click)="onAddRepository()">
+      <span class="material-icons">add</span>
+      Add Repository
+    </button>
+  </ep-card>
+
+  <div class="request-create__actions">
+    <ep-button variant="secondary" (click)="onCancel()">Cancel</ep-button>
+    <ep-button variant="primary" (click)="onSave()">
+      <span class="material-icons">save</span>
+      Save Request
+    </ep-button>
+  </div>
+</main>

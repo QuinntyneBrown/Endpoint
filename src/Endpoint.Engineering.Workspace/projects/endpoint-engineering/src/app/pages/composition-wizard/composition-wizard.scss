@@ -1,0 +1,233 @@
+.composition-wizard {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.composition-wizard__section {
+  margin-top: 24px;
+  margin-bottom: 24px;
+  padding: 24px;
+}
+
+.composition-wizard__title {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: var(--mat-on-surface);
+}
+
+.composition-wizard__description {
+  font-size: 14px;
+  color: var(--mat-on-surface-medium);
+  margin-bottom: 24px;
+}
+
+.composition-wizard__field {
+  margin-bottom: 24px;
+}
+
+.composition-wizard__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--mat-on-surface);
+}
+
+.composition-wizard__textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--mat-surface-elevated);
+  border: 1px solid var(--mat-divider);
+  border-radius: 4px;
+  color: var(--mat-on-surface);
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: var(--mat-primary);
+  }
+}
+
+.composition-wizard__radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.composition-wizard__radio-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--mat-surface-elevated);
+  border: 1px solid var(--mat-divider);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--mat-primary);
+  }
+
+  &--selected {
+    border-color: var(--mat-primary);
+    background: rgba(159, 168, 218, 0.08);
+  }
+}
+
+.composition-wizard__radio-input {
+  display: none;
+}
+
+.composition-wizard__radio-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--mat-divider);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .composition-wizard__radio-item--selected & {
+    border-color: var(--mat-primary);
+  }
+}
+
+.composition-wizard__radio-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--mat-primary);
+  display: none;
+
+  .composition-wizard__radio-item--selected & {
+    display: block;
+  }
+}
+
+.composition-wizard__checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.composition-wizard__checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--mat-surface-elevated);
+  border: 1px solid var(--mat-divider);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--mat-primary);
+  }
+
+  &--checked {
+    border-color: var(--mat-primary);
+  }
+}
+
+.composition-wizard__checkbox-input {
+  display: none;
+}
+
+.composition-wizard__checkbox-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid var(--mat-divider);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .composition-wizard__checkbox-item--checked & {
+    background: var(--mat-primary);
+    border-color: var(--mat-primary);
+  }
+
+  .material-icons {
+    font-size: 16px;
+    color: #121212;
+    display: none;
+  }
+
+  .composition-wizard__checkbox-item--checked & .material-icons {
+    display: block;
+  }
+}
+
+.composition-wizard__checkbox-content {
+  flex: 1;
+}
+
+.composition-wizard__checkbox-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--mat-on-surface);
+}
+
+.composition-wizard__checkbox-description {
+  font-size: 12px;
+  color: var(--mat-on-surface-medium);
+}
+
+.composition-wizard__placeholder {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--mat-on-surface-disabled);
+
+  .material-icons {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 14px;
+  }
+}
+
+.composition-wizard__actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 24px;
+  align-items: center;
+}
+
+.composition-wizard__spacer {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .composition-wizard {
+    padding: 16px;
+  }
+
+  .composition-wizard__section {
+    padding: 16px;
+  }
+
+  .composition-wizard__actions {
+    flex-wrap: wrap;
+
+    ep-button {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .composition-wizard__spacer {
+      display: none;
+    }
+  }
+}
