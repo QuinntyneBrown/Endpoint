@@ -1,0 +1,270 @@
+.main-content {
+  padding: 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--mat-on-surface-medium);
+}
+
+.execution-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 400;
+  margin-bottom: 8px;
+  color: var(--mat-on-surface);
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--mat-on-surface-medium);
+}
+
+.execution-card,
+.logs-card {
+  margin-bottom: 24px;
+  padding: 24px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: var(--mat-on-surface);
+}
+
+.progress-section {
+  padding: 20px 0;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.progress-percentage {
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--mat-primary);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--mat-surface-elevated);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--mat-primary);
+  transition: width 0.3s ease;
+}
+
+.current-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--mat-surface-elevated);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--mat-on-surface-medium);
+
+  .material-icons {
+    color: var(--mat-primary);
+    
+    &.rotating {
+      animation: rotate 1s linear infinite;
+    }
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.result-section {
+  padding: 20px 0;
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+
+  .material-icons {
+    font-size: 32px;
+    
+    &.success-icon {
+      color: var(--mat-success);
+    }
+    
+    &.error-icon {
+      color: var(--mat-warn);
+    }
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
+.result-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mat-on-surface-disabled);
+}
+
+.detail-value {
+  font-size: 14px;
+  color: var(--mat-on-surface);
+  word-break: break-word;
+}
+
+.warnings-section,
+.errors-section {
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.warnings-section {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.errors-section {
+  background: rgba(239, 83, 80, 0.1);
+  border: 1px solid rgba(239, 83, 80, 0.3);
+}
+
+.warnings-title,
+.errors-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: var(--mat-on-surface);
+
+  .material-icons {
+    font-size: 20px;
+    color: #ffc107;
+  }
+}
+
+.warnings-list,
+.errors-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--mat-on-surface-medium);
+    line-height: 1.5;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--mat-divider);
+    }
+  }
+}
+
+.logs-container {
+  background: var(--mat-surface-elevated);
+  border: 1px solid var(--mat-divider);
+  border-radius: 8px;
+  padding: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+}
+
+.log-entry {
+  font-size: 13px;
+  color: var(--mat-on-surface);
+  padding: 4px 0;
+  line-height: 1.6;
+}
+
+.no-logs {
+  text-align: center;
+  color: var(--mat-on-surface-disabled);
+  padding: 24px;
+  font-size: 14px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 24px;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px;
+  }
+
+  .execution-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .action-buttons {
+    flex-direction: column-reverse;
+
+    ep-button {
+      width: 100%;
+    }
+  }
+
+  .result-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,185 @@
+<ep-app-header title="New A La Carte Composition">
+  <div header-actions>
+    <button class="icon-btn" title="Save draft">
+      <span class="material-icons">save</span>
+    </button>
+  </div>
+</ep-app-header>
+
+<main class="main-content">
+  <ep-wizard-steps
+    [steps]="wizardSteps"
+    [currentStep]="currentStep"
+  />
+
+  @if (currentStep === 0) {
+    <ep-card class="wizard-section">
+      <h2 class="section-title">Project Information</h2>
+      
+      <div class="form-field">
+        <ep-form-input
+          label="Solution Name"
+          placeholder="Enter solution name"
+          [(ngModel)]="composition.solutionName"
+          [required]="true"
+          helpText="This will be the name of your generated solution"
+        />
+      </div>
+
+      <div class="form-field">
+        <ep-form-input
+          label="Output Directory"
+          placeholder="Select output directory"
+          [(ngModel)]="composition.outputDirectory"
+          [required]="true"
+          helpText="Where the generated files will be saved"
+        />
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Description</label>
+        <textarea
+          class="form-textarea"
+          placeholder="Describe your solution (optional)"
+          [(ngModel)]="composition.description"
+          rows="4"
+        ></textarea>
+      </div>
+    </ep-card>
+
+    <ep-card class="wizard-section">
+      <h2 class="section-title">Target Framework</h2>
+      
+      <div class="radio-group">
+        @for (framework of frameworks; track framework) {
+          <label class="radio-item" [class.selected]="composition.targetFramework === framework">
+            <input
+              type="radio"
+              name="framework"
+              [value]="framework"
+              [(ngModel)]="composition.targetFramework"
+              class="radio-input"
+            />
+            <div class="radio-indicator">
+              <div class="radio-dot"></div>
+            </div>
+            <span>{{ framework }}</span>
+          </label>
+        }
+      </div>
+    </ep-card>
+
+    <ep-card class="wizard-section">
+      <h2 class="section-title">Generation Options</h2>
+      
+      <div class="checkbox-group">
+        <label class="checkbox-item" [class.checked]="composition.includeTests">
+          <input
+            type="checkbox"
+            [(ngModel)]="composition.includeTests"
+            class="checkbox-input"
+          />
+          <div class="checkbox-indicator">
+            <span class="material-icons">check</span>
+          </div>
+          <div class="checkbox-content">
+            <div class="checkbox-title">Include Unit Tests</div>
+            <div class="checkbox-description">Generate xUnit test projects for your solution</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item" [class.checked]="composition.generateDocs">
+          <input
+            type="checkbox"
+            [(ngModel)]="composition.generateDocs"
+            class="checkbox-input"
+          />
+          <div class="checkbox-indicator">
+            <span class="material-icons">check</span>
+          </div>
+          <div class="checkbox-content">
+            <div class="checkbox-title">Generate Documentation</div>
+            <div class="checkbox-description">Create README and XML documentation comments</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item" [class.checked]="composition.addDocker">
+          <input
+            type="checkbox"
+            [(ngModel)]="composition.addDocker"
+            class="checkbox-input"
+          />
+          <div class="checkbox-indicator">
+            <span class="material-icons">check</span>
+          </div>
+          <div class="checkbox-content">
+            <div class="checkbox-title">Add Docker Support</div>
+            <div class="checkbox-description">Include Dockerfile and docker-compose configuration</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item" [class.checked]="composition.addCICD">
+          <input
+            type="checkbox"
+            [(ngModel)]="composition.addCICD"
+            class="checkbox-input"
+          />
+          <div class="checkbox-indicator">
+            <span class="material-icons">check</span>
+          </div>
+          <div class="checkbox-content">
+            <div class="checkbox-title">CI/CD Configuration</div>
+            <div class="checkbox-description">Add GitHub Actions workflow files</div>
+          </div>
+        </label>
+      </div>
+    </ep-card>
+  }
+
+  @if (currentStep === 1) {
+    <ep-card class="wizard-section">
+      <h2 class="section-title">Select Components</h2>
+      <p class="section-description">Choose the components and templates to include in your solution</p>
+      <div class="placeholder-content">
+        <span class="material-icons">folder_special</span>
+        <p>Component selection will be implemented here</p>
+      </div>
+    </ep-card>
+  }
+
+  @if (currentStep === 2) {
+    <ep-card class="wizard-section">
+      <h2 class="section-title">Configuration</h2>
+      <p class="section-description">Review and configure your composition settings</p>
+      <div class="placeholder-content">
+        <span class="material-icons">settings</span>
+        <p>Configuration options will be implemented here</p>
+      </div>
+    </ep-card>
+  }
+
+  <div class="wizard-actions">
+    @if (currentStep > 0) {
+      <ep-button variant="secondary" (click)="onPrevious()">
+        <span class="material-icons">arrow_back</span>
+        Previous
+      </ep-button>
+    }
+    <ep-button variant="secondary" (click)="onCancel()">
+      <span class="material-icons">close</span>
+      Cancel
+    </ep-button>
+    <div class="spacer"></div>
+    @if (currentStep < steps.length - 1) {
+      <ep-button variant="primary" (click)="onNext()" [disabled]="!canProceed()">
+        Next: {{ steps[currentStep + 1].label }}
+        <span class="material-icons">arrow_forward</span>
+      </ep-button>
+    } @else {
+      <ep-button variant="primary" (click)="onComplete()">
+        <span class="material-icons">check</span>
+        Complete
+      </ep-button>
+    }
+  </div>
+</main>

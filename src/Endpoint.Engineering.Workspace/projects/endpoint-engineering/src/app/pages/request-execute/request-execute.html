@@ -1,0 +1,143 @@
+<ep-app-header [title]="request?.name || 'Execute Request'">
+  <div header-actions>
+    @if (!executing && executionResult?.status === 'success') {
+      <ep-button variant="primary" size="small" (click)="onViewOutput()">
+        <span class="material-icons">visibility</span>
+        View Output
+      </ep-button>
+    }
+  </div>
+</ep-app-header>
+
+<main class="main-content">
+  @if (!request) {
+    <div class="loading">Loading...</div>
+  } @else {
+    <div class="execution-header">
+      <div>
+        <h1 class="page-title">{{ executing ? 'Executing Request' : 'Execution Complete' }}</h1>
+        <p class="page-subtitle">{{ request.name }}</p>
+      </div>
+      @if (executionResult) {
+        <ep-status-indicator
+          [status]="executionResult.status === 'success' ? 'success' : 'error'"
+          [text]="executionResult.status === 'success' ? 'Success' : 'Failed'"
+        />
+      }
+    </div>
+
+    <ep-card class="execution-card">
+      @if (executing) {
+        <div class="progress-section">
+          <div class="progress-header">
+            <h3 class="section-title">Progress</h3>
+            <span class="progress-percentage">{{ executionProgress }}%</span>
+          </div>
+          
+          <div class="progress-bar">
+            <div 
+              class="progress-fill" 
+              [style.width.%]="executionProgress"
+            ></div>
+          </div>
+
+          @if (currentStep) {
+            <div class="current-step">
+              <span class="material-icons rotating">sync</span>
+              <span>{{ currentStep }}</span>
+            </div>
+          }
+        </div>
+      } @else if (executionResult) {
+        <div class="result-section">
+          <div class="result-header">
+            @if (executionResult.status === 'success') {
+              <span class="material-icons success-icon">check_circle</span>
+              <h3>Execution Completed Successfully</h3>
+            } @else {
+              <span class="material-icons error-icon">error</span>
+              <h3>Execution Failed</h3>
+            }
+          </div>
+
+          @if (executionResult.status === 'success') {
+            <div class="result-details">
+              @if (executionResult.outputPath) {
+                <div class="detail-item">
+                  <span class="detail-label">Output Location:</span>
+                  <span class="detail-value">{{ executionResult.outputPath }}</span>
+                </div>
+              }
+              @if (executionResult.generatedFiles && executionResult.generatedFiles.length > 0) {
+                <div class="detail-item">
+                  <span class="detail-label">Files Generated:</span>
+                  <span class="detail-value">{{ executionResult.generatedFiles.length }} files</span>
+                </div>
+              }
+              @if (executionResult.executionTime) {
+                <div class="detail-item">
+                  <span class="detail-label">Execution Time:</span>
+                  <span class="detail-value">{{ executionResult.executionTime / 1000 }}s</span>
+                </div>
+              }
+            </div>
+
+            @if (executionResult.warnings && executionResult.warnings.length > 0) {
+              <div class="warnings-section">
+                <h4 class="warnings-title">
+                  <span class="material-icons">warning</span>
+                  Warnings ({{ executionResult.warnings.length }})
+                </h4>
+                <ul class="warnings-list">
+                  @for (warning of executionResult.warnings; track warning) {
+                    <li>{{ warning }}</li>
+                  }
+                </ul>
+              </div>
+            }
+          } @else {
+            @if (executionResult.errors && executionResult.errors.length > 0) {
+              <div class="errors-section">
+                <h4 class="errors-title">Errors:</h4>
+                <ul class="errors-list">
+                  @for (error of executionResult.errors; track error) {
+                    <li>{{ error }}</li>
+                  }
+                </ul>
+              </div>
+            }
+          }
+        </div>
+      }
+    </ep-card>
+
+    <ep-card class="logs-card">
+      <h3 class="section-title">Execution Log</h3>
+      <div class="logs-container">
+        @for (log of logs; track $index) {
+          <div class="log-entry">{{ log }}</div>
+        }
+        @if (logs.length === 0) {
+          <div class="no-logs">No logs yet...</div>
+        }
+      </div>
+    </ep-card>
+
+    <div class="action-buttons">
+      @if (!executing) {
+        <ep-button variant="secondary" (click)="onBackToRequest()">
+          Back to Request
+        </ep-button>
+        <ep-button variant="secondary" (click)="onBackToList()">
+          Back to List
+        </ep-button>
+        @if (executionResult?.status === 'success') {
+          <ep-button variant="primary" (click)="onViewOutput()">
+            <span class="material-icons">visibility</span>
+            View Output
+          </ep-button>
+        }
+      }
+    </div>
+  }
+</main>
