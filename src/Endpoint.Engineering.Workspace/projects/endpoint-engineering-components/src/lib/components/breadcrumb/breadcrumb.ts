@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 export interface BreadcrumbItem {
   label: string;
@@ -8,7 +10,7 @@ export interface BreadcrumbItem {
 
 @Component({
   selector: 'ep-breadcrumb',
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule],
   templateUrl: './breadcrumb.html',
   styleUrl: './breadcrumb.scss',
 })

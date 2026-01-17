@@ -1,3 +1,5 @@
-<div [class]="cardClasses">
-  <ng-content></ng-content>
-</div>
+<mat-card [appearance]="matAppearance" [class]="cardClasses">
+  <mat-card-content>
+    <ng-content></ng-content>
+  </mat-card-content>
+</mat-card>

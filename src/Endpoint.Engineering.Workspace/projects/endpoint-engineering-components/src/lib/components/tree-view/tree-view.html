@@ -7,18 +7,15 @@
     >
       <button
         *ngIf="hasChildren(node)"
+        mat-icon-button
         class="ep-tree-view__toggle"
         (click)="onToggle(node, $event)"
         [attr.aria-expanded]="node.expanded"
       >
-        <span class="material-icons">
-          {{ node.expanded ? 'expand_more' : 'chevron_right' }}
-        </span>
+        <mat-icon>{{ node.expanded ? 'expand_more' : 'chevron_right' }}</mat-icon>
       </button>
       <span *ngIf="!hasChildren(node)" class="ep-tree-view__spacer"></span>
-      <span *ngIf="node.icon" class="ep-tree-view__icon material-icons">
-        {{ node.icon }}
-      </span>
+      <mat-icon *ngIf="node.icon" class="ep-tree-view__icon">{{ node.icon }}</mat-icon>
       <span class="ep-tree-view__label">{{ node.label }}</span>
     </div>
     <div *ngIf="node.expanded && hasChildren(node)" class="ep-tree-view__children">

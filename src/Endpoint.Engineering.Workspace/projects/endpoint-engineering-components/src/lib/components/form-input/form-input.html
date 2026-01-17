@@ -1,12 +1,8 @@
-<div class="ep-form-input">
-  <label *ngIf="label" class="ep-form-input__label">
-    {{ label }}
-    <span *ngIf="required" class="ep-form-input__required">*</span>
-  </label>
+<mat-form-field class="ep-form-input" appearance="outline">
+  <mat-label *ngIf="label">{{ label }}</mat-label>
   <input
+    matInput
     [type]="type"
-    class="ep-form-input__field"
-    [class.ep-form-input__field--error]="errorText"
     [placeholder]="placeholder"
     [value]="value"
     [disabled]="disabled"
@@ -14,10 +10,6 @@
     (input)="onInput($event)"
     (blur)="onBlur()"
   />
-  <span *ngIf="helperText && !errorText" class="ep-form-input__helper">
-    {{ helperText }}
-  </span>
-  <span *ngIf="errorText" class="ep-form-input__error">
-    {{ errorText }}
-  </span>
-</div>
+  <mat-hint *ngIf="helperText && !errorText">{{ helperText }}</mat-hint>
+  <mat-error *ngIf="errorText">{{ errorText }}</mat-error>
+</mat-form-field>

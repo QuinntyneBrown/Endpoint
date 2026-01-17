@@ -1,48 +1,41 @@
 @import '../../tokens/design-tokens.scss';
 
+:host {
+  display: block;
+}
+
 .ep-card {
-  background: var(--mat-surface);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-base);
-
-  /* Variants */
-  &--default {
-    background: var(--mat-surface);
-  }
-
-  &--elevated {
-    background: var(--mat-surface-elevated);
-    box-shadow: var(--shadow-sm);
-  }
-
-  &--outlined {
-    background: transparent;
-    border: 1px solid var(--mat-divider);
-  }
-
-  /* Padding */
+  /* Padding variants */
   &--padding-none {
-    padding: 0;
+    .mat-mdc-card-content {
+      padding: 0;
+    }
   }
 
   &--padding-small {
-    padding: var(--spacing-md);
+    .mat-mdc-card-content {
+      padding: var(--spacing-md);
+    }
   }
 
   &--padding-medium {
-    padding: var(--spacing-lg);
+    .mat-mdc-card-content {
+      padding: var(--spacing-lg);
+    }
   }
 
   &--padding-large {
-    padding: var(--spacing-xl);
+    .mat-mdc-card-content {
+      padding: var(--spacing-xl);
+    }
   }
 
   /* Hoverable state */
   &--hoverable {
     cursor: pointer;
+    transition: all var(--transition-base);
 
     &:hover {
-      background: var(--mat-surface-elevated);
       box-shadow: var(--shadow-md);
       transform: translateY(-2px);
     }

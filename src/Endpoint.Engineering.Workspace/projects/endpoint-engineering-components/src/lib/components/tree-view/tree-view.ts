@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 export interface TreeNode {
   id: string;
@@ -13,7 +15,7 @@ export interface TreeNode {
 
 @Component({
   selector: 'ep-tree-view',
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule],
   templateUrl: './tree-view.html',
   styleUrl: './tree-view.scss',
 })

@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'ep-status-indicator',
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   templateUrl: './status-indicator.html',
   styleUrl: './status-indicator.scss',
 })

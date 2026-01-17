@@ -2,11 +2,11 @@
   <div class="ep-app-header__left">
     <button
       *ngIf="showBackButton"
-      class="ep-app-header__back-btn"
+      mat-icon-button
       (click)="onBackClick()"
       aria-label="Go back"
     >
-      <span class="material-icons">arrow_back</span>
+      <mat-icon>arrow_back</mat-icon>
     </button>
     <h1 class="ep-app-header__title">{{ title }}</h1>
   </div>

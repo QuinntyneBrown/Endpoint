@@ -68,7 +68,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n  args: {\r\n    variant: 'danger',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Delete</ep-button>',\r\n  }),\r\n}"
+                "defaultValue": "{\r\n  args: {\r\n    variant: 'danger',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Delete</ep-button>',\r\n  }),\r\n}"
             },
             {
                 "name": "Default",
@@ -168,7 +168,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: true,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Disabled Button</ep-button>',\r\n  }),\r\n}"
+                "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: true,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Disabled Button</ep-button>',\r\n  }),\r\n}"
             },
             {
                 "name": "Disabled",
@@ -248,7 +248,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: true,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Full Width Button</ep-button>',\r\n  }),\r\n}"
+                "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: true,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Full Width Button</ep-button>',\r\n  }),\r\n}"
             },
             {
                 "name": "Hoverable",
@@ -268,7 +268,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n  args: {\r\n    variant: 'icon',\r\n    size: 'medium',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\"><span class=\"material-icons\">settings</span></ep-button>',\r\n  }),\r\n}"
+                "defaultValue": "{\r\n  args: {\r\n    variant: 'icon',\r\n    size: 'medium',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    moduleMetadata: {\r\n      imports: [MatIconModule],\r\n    },\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\"><mat-icon>settings</mat-icon></ep-button>',\r\n  }),\r\n}"
             },
             {
                 "name": "Info",
@@ -298,7 +298,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'large',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Large Button</ep-button>',\r\n  }),\r\n}"
+                "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'large',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Large Button</ep-button>',\r\n  }),\r\n}"
             },
             {
                 "name": "Large",
@@ -329,6 +329,16 @@
                 "deprecationMessage": "",
                 "type": "Story",
                 "defaultValue": "{\r\n  args: {\r\n    steps: steps,\r\n    currentStep: 3,\r\n  },\r\n}"
+            },
+            {
+                "name": "loadFonts",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/endpoint-engineering-components/.storybook/preview.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "unknown",
+                "defaultValue": "() => {\r\n  const head = document.head;\r\n\r\n  // Preconnect to Google Fonts\r\n  const preconnect1 = document.createElement('link');\r\n  preconnect1.rel = 'preconnect';\r\n  preconnect1.href = 'https://fonts.googleapis.com';\r\n  head.appendChild(preconnect1);\r\n\r\n  const preconnect2 = document.createElement('link');\r\n  preconnect2.rel = 'preconnect';\r\n  preconnect2.href = 'https://fonts.gstatic.com';\r\n  preconnect2.crossOrigin = 'anonymous';\r\n  head.appendChild(preconnect2);\r\n\r\n  // Load Roboto font\r\n  const robotoLink = document.createElement('link');\r\n  robotoLink.rel = 'stylesheet';\r\n  robotoLink.href =\r\n    'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap';\r\n  head.appendChild(robotoLink);\r\n\r\n  // Load Material Icons\r\n  const iconsLink = document.createElement('link');\r\n  iconsLink.rel = 'stylesheet';\r\n  iconsLink.href = 'https://fonts.googleapis.com/icon?family=Material+Icons';\r\n  head.appendChild(iconsLink);\r\n}"
             },
             {
                 "name": "Loading",
@@ -388,7 +398,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Meta<Button>",
-                "defaultValue": "{\r\n  title: 'Components/Button',\r\n  component: Button,\r\n  tags: ['autodocs'],\r\n  argTypes: {\r\n    variant: {\r\n      control: 'select',\r\n      options: ['primary', 'secondary', 'danger', 'icon'],\r\n      description: 'Button visual style variant',\r\n    },\r\n    size: {\r\n      control: 'select',\r\n      options: ['small', 'medium', 'large'],\r\n      description: 'Button size',\r\n    },\r\n    disabled: {\r\n      control: 'boolean',\r\n      description: 'Disabled state',\r\n    },\r\n    fullWidth: {\r\n      control: 'boolean',\r\n      description: 'Full width button',\r\n    },\r\n    type: {\r\n      control: 'select',\r\n      options: ['button', 'submit', 'reset'],\r\n      description: 'HTML button type',\r\n    },\r\n  },\r\n}"
+                "defaultValue": "{\r\n  title: 'Components/Button',\r\n  component: Button,\r\n  tags: ['autodocs'],\r\n  argTypes: {\r\n    variant: {\r\n      control: 'select',\r\n      options: ['primary', 'secondary', 'danger', 'icon'],\r\n      description: 'Button visual style variant (wraps Angular Material button)',\r\n    },\r\n    size: {\r\n      control: 'select',\r\n      options: ['small', 'medium', 'large'],\r\n      description: 'Button size',\r\n    },\r\n    disabled: {\r\n      control: 'boolean',\r\n      description: 'Disabled state',\r\n    },\r\n    fullWidth: {\r\n      control: 'boolean',\r\n      description: 'Full width button',\r\n    },\r\n    type: {\r\n      control: 'select',\r\n      options: ['button', 'submit', 'reset'],\r\n      description: 'HTML button type',\r\n    },\r\n  },\r\n}"
             },
             {
                 "name": "meta",
@@ -558,7 +568,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Primary Button</ep-button>',\r\n  }),\r\n}"
+                "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Primary Button</ep-button>',\r\n  }),\r\n}"
             },
             {
                 "name": "Required",
@@ -598,7 +608,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n  args: {\r\n    variant: 'secondary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Secondary Button</ep-button>',\r\n  }),\r\n}"
+                "defaultValue": "{\r\n  args: {\r\n    variant: 'secondary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Secondary Button</ep-button>',\r\n  }),\r\n}"
             },
             {
                 "name": "Short",
@@ -628,7 +638,7 @@
                 "deprecated": false,
                 "deprecationMessage": "",
                 "type": "Story",
-                "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'small',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Small Button</ep-button>',\r\n  }),\r\n}"
+                "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'small',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Small Button</ep-button>',\r\n  }),\r\n}"
             },
             {
                 "name": "Small",
@@ -1236,7 +1246,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n  args: {\r\n    variant: 'danger',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Delete</ep-button>',\r\n  }),\r\n}"
+                    "defaultValue": "{\r\n  args: {\r\n    variant: 'danger',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Delete</ep-button>',\r\n  }),\r\n}"
                 },
                 {
                     "name": "Disabled",
@@ -1246,7 +1256,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: true,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Disabled Button</ep-button>',\r\n  }),\r\n}"
+                    "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: true,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Disabled Button</ep-button>',\r\n  }),\r\n}"
                 },
                 {
                     "name": "FullWidth",
@@ -1256,7 +1266,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: true,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Full Width Button</ep-button>',\r\n  }),\r\n}"
+                    "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: true,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Full Width Button</ep-button>',\r\n  }),\r\n}"
                 },
                 {
                     "name": "Icon",
@@ -1266,7 +1276,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n  args: {\r\n    variant: 'icon',\r\n    size: 'medium',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\"><span class=\"material-icons\">settings</span></ep-button>',\r\n  }),\r\n}"
+                    "defaultValue": "{\r\n  args: {\r\n    variant: 'icon',\r\n    size: 'medium',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    moduleMetadata: {\r\n      imports: [MatIconModule],\r\n    },\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\"><mat-icon>settings</mat-icon></ep-button>',\r\n  }),\r\n}"
                 },
                 {
                     "name": "Large",
@@ -1276,7 +1286,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'large',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Large Button</ep-button>',\r\n  }),\r\n}"
+                    "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'large',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Large Button</ep-button>',\r\n  }),\r\n}"
                 },
                 {
                     "name": "meta",
@@ -1286,7 +1296,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Meta<Button>",
-                    "defaultValue": "{\r\n  title: 'Components/Button',\r\n  component: Button,\r\n  tags: ['autodocs'],\r\n  argTypes: {\r\n    variant: {\r\n      control: 'select',\r\n      options: ['primary', 'secondary', 'danger', 'icon'],\r\n      description: 'Button visual style variant',\r\n    },\r\n    size: {\r\n      control: 'select',\r\n      options: ['small', 'medium', 'large'],\r\n      description: 'Button size',\r\n    },\r\n    disabled: {\r\n      control: 'boolean',\r\n      description: 'Disabled state',\r\n    },\r\n    fullWidth: {\r\n      control: 'boolean',\r\n      description: 'Full width button',\r\n    },\r\n    type: {\r\n      control: 'select',\r\n      options: ['button', 'submit', 'reset'],\r\n      description: 'HTML button type',\r\n    },\r\n  },\r\n}"
+                    "defaultValue": "{\r\n  title: 'Components/Button',\r\n  component: Button,\r\n  tags: ['autodocs'],\r\n  argTypes: {\r\n    variant: {\r\n      control: 'select',\r\n      options: ['primary', 'secondary', 'danger', 'icon'],\r\n      description: 'Button visual style variant (wraps Angular Material button)',\r\n    },\r\n    size: {\r\n      control: 'select',\r\n      options: ['small', 'medium', 'large'],\r\n      description: 'Button size',\r\n    },\r\n    disabled: {\r\n      control: 'boolean',\r\n      description: 'Disabled state',\r\n    },\r\n    fullWidth: {\r\n      control: 'boolean',\r\n      description: 'Full width button',\r\n    },\r\n    type: {\r\n      control: 'select',\r\n      options: ['button', 'submit', 'reset'],\r\n      description: 'HTML button type',\r\n    },\r\n  },\r\n}"
                 },
                 {
                     "name": "Primary",
@@ -1296,7 +1306,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Primary Button</ep-button>',\r\n  }),\r\n}"
+                    "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Primary Button</ep-button>',\r\n  }),\r\n}"
                 },
                 {
                     "name": "Secondary",
@@ -1306,7 +1316,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n  args: {\r\n    variant: 'secondary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Secondary Button</ep-button>',\r\n  }),\r\n}"
+                    "defaultValue": "{\r\n  args: {\r\n    variant: 'secondary',\r\n    size: 'medium',\r\n    disabled: false,\r\n    fullWidth: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\" [fullWidth]=\"fullWidth\">Secondary Button</ep-button>',\r\n  }),\r\n}"
                 },
                 {
                     "name": "Small",
@@ -1316,7 +1326,7 @@
                     "deprecated": false,
                     "deprecationMessage": "",
                     "type": "Story",
-                    "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'small',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template: '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Small Button</ep-button>',\r\n  }),\r\n}"
+                    "defaultValue": "{\r\n  args: {\r\n    variant: 'primary',\r\n    size: 'small',\r\n    disabled: false,\r\n  },\r\n  render: (args) => ({\r\n    props: args,\r\n    template:\r\n      '<ep-button [variant]=\"variant\" [size]=\"size\" [disabled]=\"disabled\">Small Button</ep-button>',\r\n  }),\r\n}"
                 }
             ],
             "projects/endpoint-engineering-components/src/lib/components/app-header/app-header.stories.ts": [
@@ -1797,6 +1807,16 @@
             ],
             "projects/endpoint-engineering-components/.storybook/preview.ts": [
                 {
+                    "name": "loadFonts",
+                    "ctype": "miscellaneous",
+                    "subtype": "variable",
+                    "file": "projects/endpoint-engineering-components/.storybook/preview.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "type": "unknown",
+                    "defaultValue": "() => {\r\n  const head = document.head;\r\n\r\n  // Preconnect to Google Fonts\r\n  const preconnect1 = document.createElement('link');\r\n  preconnect1.rel = 'preconnect';\r\n  preconnect1.href = 'https://fonts.googleapis.com';\r\n  head.appendChild(preconnect1);\r\n\r\n  const preconnect2 = document.createElement('link');\r\n  preconnect2.rel = 'preconnect';\r\n  preconnect2.href = 'https://fonts.gstatic.com';\r\n  preconnect2.crossOrigin = 'anonymous';\r\n  head.appendChild(preconnect2);\r\n\r\n  // Load Roboto font\r\n  const robotoLink = document.createElement('link');\r\n  robotoLink.rel = 'stylesheet';\r\n  robotoLink.href =\r\n    'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap';\r\n  head.appendChild(robotoLink);\r\n\r\n  // Load Material Icons\r\n  const iconsLink = document.createElement('link');\r\n  iconsLink.rel = 'stylesheet';\r\n  iconsLink.href = 'https://fonts.googleapis.com/icon?family=Material+Icons';\r\n  head.appendChild(iconsLink);\r\n}"
+                },
+                {
                     "name": "preview",
                     "ctype": "miscellaneous",
                     "subtype": "variable",
@@ -1991,6 +2011,16 @@
         "count": 0,
         "status": "low",
         "files": [
+            {
+                "filePath": "projects/endpoint-engineering-components/.storybook/preview.ts",
+                "type": "variable",
+                "linktype": "miscellaneous",
+                "linksubtype": "variable",
+                "name": "loadFonts",
+                "coveragePercent": 0,
+                "coverageCount": "0/1",
+                "status": "low"
+            },
             {
                 "filePath": "projects/endpoint-engineering-components/.storybook/preview.ts",
                 "type": "variable",

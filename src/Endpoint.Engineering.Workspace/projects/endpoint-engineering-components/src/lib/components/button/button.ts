@@ -1,9 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'ep-button',
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule],
   templateUrl: './button.html',
   styleUrl: './button.scss',
 })
@@ -13,24 +15,31 @@ export class Button {
   @Input() disabled: boolean = false;
   @Input() fullWidth: boolean = false;
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
-  @Output() click = new EventEmitter<MouseEvent>();
+  @Output() buttonClick = new EventEmitter<MouseEvent>();
 
   onClick(event: MouseEvent): void {
     if (!this.disabled) {
-      this.click.emit(event);
+      this.buttonClick.emit(event);
     }
   }
 
-  get buttonClasses(): string {
+  get hostClasses(): string {
     const classes = ['ep-button'];
-    classes.push(`ep-button--${this.variant}`);
     classes.push(`ep-button--${this.size}`);
     if (this.fullWidth) {
       classes.push('ep-button--full-width');
     }
-    if (this.disabled) {
-      classes.push('ep-button--disabled');
-    }
     return classes.join(' ');
+  }
+
+  get matColor(): 'primary' | 'accent' | 'warn' | undefined {
+    switch (this.variant) {
+      case 'primary':
+        return 'primary';
+      case 'danger':
+        return 'warn';
+      default:
+        return undefined;
+    }
   }
 }

@@ -7,7 +7,7 @@
   >
     <div class="ep-wizard-steps__indicator">
       <span *ngIf="!isCompleted(i)" class="ep-wizard-steps__number">{{ i + 1 }}</span>
-      <span *ngIf="isCompleted(i)" class="material-icons ep-wizard-steps__check">check</span>
+      <mat-icon *ngIf="isCompleted(i)" class="ep-wizard-steps__check">check</mat-icon>
     </div>
     <span class="ep-wizard-steps__label">{{ step.label }}</span>
     <div *ngIf="i < steps.length - 1" class="ep-wizard-steps__connector"></div>

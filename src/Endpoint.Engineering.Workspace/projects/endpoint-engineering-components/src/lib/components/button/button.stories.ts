@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { Button } from './button';
+import { MatIconModule } from '@angular/material/icon';
 
 const meta: Meta<Button> = {
   title: 'Components/Button',
@@ -9,7 +10,7 @@ const meta: Meta<Button> = {
     variant: {
       control: 'select',
       options: ['primary', 'secondary', 'danger', 'icon'],
-      description: 'Button visual style variant',
+      description: 'Button visual style variant (wraps Angular Material button)',
     },
     size: {
       control: 'select',
@@ -44,7 +45,8 @@ export const Primary: Story = {
   },
   render: (args) => ({
     props: args,
-    template: '<ep-button [variant]="variant" [size]="size" [disabled]="disabled" [fullWidth]="fullWidth">Primary Button</ep-button>',
+    template:
+      '<ep-button [variant]="variant" [size]="size" [disabled]="disabled" [fullWidth]="fullWidth">Primary Button</ep-button>',
   }),
 };
 
@@ -57,7 +59,8 @@ export const Secondary: Story = {
   },
   render: (args) => ({
     props: args,
-    template: '<ep-button [variant]="variant" [size]="size" [disabled]="disabled" [fullWidth]="fullWidth">Secondary Button</ep-button>',
+    template:
+      '<ep-button [variant]="variant" [size]="size" [disabled]="disabled" [fullWidth]="fullWidth">Secondary Button</ep-button>',
   }),
 };
 
@@ -70,7 +73,8 @@ export const Danger: Story = {
   },
   render: (args) => ({
     props: args,
-    template: '<ep-button [variant]="variant" [size]="size" [disabled]="disabled" [fullWidth]="fullWidth">Delete</ep-button>',
+    template:
+      '<ep-button [variant]="variant" [size]="size" [disabled]="disabled" [fullWidth]="fullWidth">Delete</ep-button>',
   }),
 };
 
@@ -82,7 +86,11 @@ export const Icon: Story = {
   },
   render: (args) => ({
     props: args,
-    template: '<ep-button [variant]="variant" [size]="size" [disabled]="disabled"><span class="material-icons">settings</span></ep-button>',
+    moduleMetadata: {
+      imports: [MatIconModule],
+    },
+    template:
+      '<ep-button [variant]="variant" [size]="size" [disabled]="disabled"><mat-icon>settings</mat-icon></ep-button>',
   }),
 };
 
@@ -94,7 +102,8 @@ export const Small: Story = {
   },
   render: (args) => ({
     props: args,
-    template: '<ep-button [variant]="variant" [size]="size" [disabled]="disabled">Small Button</ep-button>',
+    template:
+      '<ep-button [variant]="variant" [size]="size" [disabled]="disabled">Small Button</ep-button>',
   }),
 };
 
@@ -106,7 +115,8 @@ export const Large: Story = {
   },
   render: (args) => ({
     props: args,
-    template: '<ep-button [variant]="variant" [size]="size" [disabled]="disabled">Large Button</ep-button>',
+    template:
+      '<ep-button [variant]="variant" [size]="size" [disabled]="disabled">Large Button</ep-button>',
   }),
 };
 
@@ -118,7 +128,8 @@ export const Disabled: Story = {
   },
   render: (args) => ({
     props: args,
-    template: '<ep-button [variant]="variant" [size]="size" [disabled]="disabled">Disabled Button</ep-button>',
+    template:
+      '<ep-button [variant]="variant" [size]="size" [disabled]="disabled">Disabled Button</ep-button>',
   }),
 };
 
@@ -131,6 +142,7 @@ export const FullWidth: Story = {
   },
   render: (args) => ({
     props: args,
-    template: '<ep-button [variant]="variant" [size]="size" [disabled]="disabled" [fullWidth]="fullWidth">Full Width Button</ep-button>',
+    template:
+      '<ep-button [variant]="variant" [size]="size" [disabled]="disabled" [fullWidth]="fullWidth">Full Width Button</ep-button>',
   }),
 };

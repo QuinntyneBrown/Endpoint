@@ -1,8 +1,40 @@
-<button
-  [type]="type"
-  [class]="buttonClasses"
-  [disabled]="disabled"
-  (click)="onClick($event)"
->
-  <ng-content></ng-content>
-</button>
+<ng-container [ngSwitch]="variant">
+  <!-- Icon button -->
+  <button
+    *ngSwitchCase="'icon'"
+    mat-icon-button
+    [type]="type"
+    [disabled]="disabled"
+    [color]="matColor"
+    [class]="hostClasses"
+    (click)="onClick($event)"
+  >
+    <ng-content></ng-content>
+  </button>
+
+  <!-- Secondary/outlined button -->
+  <button
+    *ngSwitchCase="'secondary'"
+    mat-stroked-button
+    [type]="type"
+    [disabled]="disabled"
+    [color]="matColor"
+    [class]="hostClasses"
+    (click)="onClick($event)"
+  >
+    <ng-content></ng-content>
+  </button>
+
+  <!-- Primary and danger buttons (flat) -->
+  <button
+    *ngSwitchDefault
+    mat-flat-button
+    [type]="type"
+    [disabled]="disabled"
+    [color]="matColor"
+    [class]="hostClasses"
+    (click)="onClick($event)"
+  >
+    <ng-content></ng-content>
+  </button>
+</ng-container>

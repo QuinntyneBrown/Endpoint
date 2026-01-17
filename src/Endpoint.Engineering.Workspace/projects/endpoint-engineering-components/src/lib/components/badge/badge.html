@@ -1,3 +1,5 @@
-<span [class]="badgeClasses">
-  <ng-content></ng-content>
-</span>
+<mat-chip-set>
+  <mat-chip [class]="badgeClasses" [disabled]="false" [highlighted]="variant === 'primary'">
+    <ng-content></ng-content>
+  </mat-chip>
+</mat-chip-set>

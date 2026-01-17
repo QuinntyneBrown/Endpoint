@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'ep-badge',
-  imports: [CommonModule],
+  imports: [CommonModule, MatChipsModule],
   templateUrl: './badge.html',
   styleUrl: './badge.scss',
 })

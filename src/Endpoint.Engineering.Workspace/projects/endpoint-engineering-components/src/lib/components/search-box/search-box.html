@@ -1,8 +1,8 @@
-<div class="ep-search-box">
-  <span class="ep-search-box__icon material-icons">search</span>
+<mat-form-field class="ep-search-box" appearance="outline">
+  <mat-icon matPrefix>search</mat-icon>
   <input
+    matInput
     type="text"
-    class="ep-search-box__input"
     [placeholder]="placeholder"
     [value]="value"
     (input)="onInput($event)"
@@ -10,10 +10,11 @@
   />
   <button
     *ngIf="value"
-    class="ep-search-box__clear"
+    matSuffix
+    mat-icon-button
     (click)="onClear()"
     aria-label="Clear search"
   >
-    <span class="material-icons">close</span>
+    <mat-icon>close</mat-icon>
   </button>
-</div>
+</mat-form-field>

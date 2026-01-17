@@ -1,10 +1,10 @@
 <div [class]="statusClasses">
-  <span
+  <mat-icon
     *ngIf="showIcon"
-    class="ep-status-indicator__icon material-icons"
+    class="ep-status-indicator__icon"
     [class.ep-status-indicator__icon--spin]="status === 'loading'"
   >
     {{ iconName }}
-  </span>
+  </mat-icon>
   <span class="ep-status-indicator__text">{{ text }}</span>
 </div>
