@@ -105,6 +105,85 @@ public class ALaCarteService : IALaCarteService
             Directory.CreateDirectory(request.Directory);
         }
 
+        // Check if FromDirectory is provided (local directory copy mode)
+        if (!string.IsNullOrEmpty(request.FromDirectory))
+        {
+            return await TakeFromLocalDirectoryAsync(request, result, cancellationToken);
+        }
+
+        // Otherwise, proceed with Git clone mode
+        return await TakeFromGitRepositoryAsync(request, result, cancellationToken);
+    }
+
+    private async Task<ALaCarteTakeResult> TakeFromLocalDirectoryAsync(
+        ALaCarteTakeRequest request,
+        ALaCarteTakeResult result,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (!Directory.Exists(request.FromDirectory))
+            {
+                result.Errors.Add($"FromDirectory does not exist: {request.FromDirectory}");
+                result.Success = false;
+                return result;
+            }
+
+            _logger.LogInformation("Copying from local directory: {FromDirectory}", request.FromDirectory);
+
+            // Determine the source path
+            string sourcePath;
+            if (!string.IsNullOrEmpty(request.FromPath))
+            {
+                sourcePath = Path.Combine(request.FromDirectory, request.FromPath.TrimStart('/', '\\'));
+                if (!Directory.Exists(sourcePath))
+                {
+                    result.Errors.Add($"Source folder not found in FromDirectory: {request.FromPath}");
+                    result.Success = false;
+                    return result;
+                }
+            }
+            else
+            {
+                sourcePath = request.FromDirectory;
+            }
+
+            // Determine the destination folder name (use the folder name from the source)
+            var folderName = Path.GetFileName(sourcePath.TrimEnd('/', '\\'));
+            var destPath = Path.Combine(request.Directory, folderName);
+
+            _logger.LogInformation("Copying folder: {From} -> {To}", sourcePath, destPath);
+
+            // Copy the folder
+            CopyDirectoryForTake(sourcePath, destPath, result);
+            result.CopiedFolderPath = destPath;
+
+            // Detect project type and handle accordingly
+            await DetectAndHandleProjectType(request.Directory, destPath, request.SolutionName, request.Root, result, cancellationToken);
+
+            // Sanitize .csproj files if any were found
+            if (result.CsprojFiles.Count > 0)
+            {
+                SanitizeCsprojFilesForTake(request.Directory, result);
+            }
+
+            result.Success = result.Errors.Count == 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing Take request from local directory");
+            result.Errors.Add($"Unexpected error: {ex.Message}");
+            result.Success = false;
+        }
+
+        return result;
+    }
+
+    private async Task<ALaCarteTakeResult> TakeFromGitRepositoryAsync(
+        ALaCarteTakeRequest request,
+        ALaCarteTakeResult result,
+        CancellationToken cancellationToken)
+    {
         // Create a temporary directory for cloning
         var tempDir = Path.Combine(Path.GetTempPath(), $"alacarte_take_{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempDir);
@@ -148,7 +227,7 @@ public class ALaCarteService : IALaCarteService
             result.CopiedFolderPath = destPath;
 
             // Detect project type and handle accordingly
-            DetectAndHandleProjectType(request.Directory, destPath, request.SolutionName, request.Root, result, cancellationToken).Wait();
+            await DetectAndHandleProjectType(request.Directory, destPath, request.SolutionName, request.Root, result, cancellationToken);
 
             // Sanitize .csproj files if any were found
             if (result.CsprojFiles.Count > 0)

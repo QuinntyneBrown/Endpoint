@@ -43,4 +43,11 @@ public class ALaCarteTakeRequest
     /// has multiple segments (e.g., "nike/utils" instead of just "utils").
     /// </summary>
     public string? Root { get; set; }
+
+    /// <summary>
+    /// The local directory path to copy from instead of cloning from a Git repository.
+    /// When specified, the FromPath is treated as a subdirectory within this local directory.
+    /// If not specified, the command will clone from the Git repository URL.
+    /// </summary>
+    public string? FromDirectory { get; set; }
 }

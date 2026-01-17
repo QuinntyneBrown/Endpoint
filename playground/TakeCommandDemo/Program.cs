@@ -116,23 +116,91 @@ try
 
     DisplayResults(logger, angularResult);
 
+    // Demo 3: Take from a local directory (FromDirectory parameter)
+    logger.LogInformation("");
+    logger.LogInformation("=== Demo 3: Taking from a local directory (FromDirectory) ===");
+    logger.LogInformation("");
+
+    var localOutputDirectory = Path.Combine(Directory.GetCurrentDirectory(), "generated-output-from-local");
+
+    // Clean up any existing demo directory
+    if (Directory.Exists(localOutputDirectory))
+    {
+        logger.LogInformation("Cleaning up existing local output directory...");
+        Directory.Delete(localOutputDirectory, recursive: true);
+    }
+
+    // Create the output directory
+    Directory.CreateDirectory(localOutputDirectory);
+
+    // First, we need to create a source directory to copy from
+    var sourceDirectory = Path.Combine(Directory.GetCurrentDirectory(), "test-source");
+    if (!Directory.Exists(sourceDirectory))
+    {
+        Directory.CreateDirectory(sourceDirectory);
+        
+        // Create a sample project in the source directory
+        var sampleProjectDir = Path.Combine(sourceDirectory, "SampleProject");
+        Directory.CreateDirectory(sampleProjectDir);
+        
+        // Create a simple .csproj file
+        var csprojContent = @"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+</Project>";
+        File.WriteAllText(Path.Combine(sampleProjectDir, "SampleProject.csproj"), csprojContent);
+        
+        // Create a simple C# file
+        var csContent = @"namespace SampleProject;
+
+public class SampleClass
+{
+    public string GetMessage() => ""Hello from Sample Project!"";
+}";
+        File.WriteAllText(Path.Combine(sampleProjectDir, "SampleClass.cs"), csContent);
+        
+        logger.LogInformation("Created test source directory with sample project at: {SourceDirectory}", sourceDirectory);
+    }
+
+    var localRequest = new ALaCarteTakeRequest
+    {
+        FromDirectory = sourceDirectory,
+        FromPath = "SampleProject",
+        Directory = localOutputDirectory,
+        SolutionName = "LocalTakeDemo"
+    };
+
+    logger.LogInformation("Source Directory: {FromDirectory}", localRequest.FromDirectory);
+    logger.LogInformation("Folder to Take: {FromPath}", localRequest.FromPath);
+    logger.LogInformation("Output Directory: {Directory}", localRequest.Directory);
+    logger.LogInformation("Solution Name: {SolutionName}", localRequest.SolutionName);
+    logger.LogInformation("");
+
+    logger.LogInformation("Processing Take request from local directory...");
+    var localResult = await alaCarteService.TakeAsync(localRequest);
+
+    DisplayResults(logger, localResult);
+
     // Summary
     logger.LogInformation("");
     logger.LogInformation("=== Demo Complete ===");
     logger.LogInformation("");
     logger.LogInformation("The Take command allows you to:");
-    logger.LogInformation("  1. Clone a git/gitlab repository");
-    logger.LogInformation("  2. Extract a specific folder from any branch");
-    logger.LogInformation("  3. Automatically detect .NET or Angular projects");
-    logger.LogInformation("  4. Create/update .NET solutions for C# projects");
-    logger.LogInformation("  5. Create/update Angular workspaces for Angular projects");
+    logger.LogInformation("  1. Clone a git/gitlab repository and extract a specific folder");
+    logger.LogInformation("  2. Copy a folder from a local directory (using FromDirectory parameter)");
+    logger.LogInformation("  3. Extract a specific folder from any branch");
+    logger.LogInformation("  4. Automatically detect .NET or Angular projects");
+    logger.LogInformation("  5. Create/update .NET solutions for C# projects");
+    logger.LogInformation("  6. Create/update Angular workspaces for Angular projects");
     logger.LogInformation("");
     logger.LogInformation("CLI Usage:");
-    logger.LogInformation("  endpoint take -u <repo-url> -b <branch> -f <folder-path> [-d <directory>] [-s <solution-name>]");
+    logger.LogInformation("  From Git: endpoint take -u <repo-url> [-d <directory>] [-s <solution-name>]");
+    logger.LogInformation("  From Local: endpoint take -f <from-directory> [-d <directory>] [-s <solution-name>]");
     logger.LogInformation("");
     logger.LogInformation("Examples:");
-    logger.LogInformation("  endpoint take -u https://github.com/user/repo -b main -f src/MyProject");
-    logger.LogInformation("  endpoint take -u https://github.com/user/repo -b develop -f src/MyLib -s MySolution");
+    logger.LogInformation("  endpoint take -u https://github.com/user/repo/tree/main/src/MyProject");
+    logger.LogInformation("  endpoint take -f /path/to/local/project -d ./output -s MySolution");
 }
 catch (Exception ex)
 {

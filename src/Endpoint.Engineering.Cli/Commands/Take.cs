@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 namespace Endpoint.Engineering.Cli.Commands;
 
 /// <summary>
-/// Command to take a folder from a Git repository and copy it to a target directory.
+/// Command to take a folder from a Git repository or local directory and copy it to a target directory.
 /// Supports GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, and private/self-hosted git hosts.
 /// If the folder contains a .csproj, it will create/update a solution.
 /// If the folder is an Angular workspace project, it will create/update the workspace.
@@ -25,8 +25,9 @@ public class TakeRequest : IRequest
     /// The full Git URL to a folder.
     /// Supports GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, and private/self-hosted git hosts.
     /// This URL will be parsed to extract the repository URL, branch, and folder path.
+    /// Not required if FromDirectory is specified.
     /// </summary>
-    [Option('u', "url", Required = true, HelpText = "Full Git URL to the folder (supports GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, and private git hosts).")]
+    [Option('u', "url", Required = false, HelpText = "Full Git URL to the folder (supports GitHub, GitLab, Bitbucket, Azure DevOps, Gitea, and private git hosts).")]
     public string Url { get; set; } = string.Empty;
 
     /// <summary>
@@ -49,6 +50,13 @@ public class TakeRequest : IRequest
     /// </summary>
     [Option('r', "root", Required = false, HelpText = "The Angular library root path for angular.json (e.g., \"nike/utils\").")]
     public string? Root { get; set; }
+
+    /// <summary>
+    /// The local directory path to copy from instead of cloning from a Git repository.
+    /// When specified, the folder is copied from this local directory instead of cloning from Git.
+    /// </summary>
+    [Option('f', "from-directory", Required = false, HelpText = "The local directory to copy from (instead of cloning from Git).")]
+    public string? FromDirectory { get; set; }
 }
 
 /// <summary>
@@ -72,11 +80,45 @@ public class TakeRequestHandler : IRequestHandler<TakeRequest>
 
     public async Task Handle(TakeRequest request, CancellationToken cancellationToken)
     {
-        // Validate URL is provided
+        // Validate that either URL or FromDirectory is provided
+        if (string.IsNullOrEmpty(request.Url) && string.IsNullOrEmpty(request.FromDirectory))
+        {
+            _logger.LogError("Either URL or FromDirectory is required.");
+            _logger.LogInformation("Provide a Git URL using -u or a local directory using -f");
+            _logger.LogInformation("Git URL example: https://github.com/owner/repo/tree/branch/path/to/folder");
+            _logger.LogInformation("Local directory example: -f /path/to/local/directory");
+            return;
+        }
+
+        // If FromDirectory is provided, use it directly
+        if (!string.IsNullOrEmpty(request.FromDirectory))
+        {
+            if (!Directory.Exists(request.FromDirectory))
+            {
+                _logger.LogError("FromDirectory does not exist: {FromDirectory}", request.FromDirectory);
+                return;
+            }
+
+            _logger.LogInformation("Taking folder from local directory: {FromDirectory}", request.FromDirectory);
+
+            var takeRequest = new ALaCarteTakeRequest
+            {
+                FromDirectory = request.FromDirectory,
+                Directory = request.Directory,
+                SolutionName = request.SolutionName,
+                Root = request.Root
+            };
+
+            var result = await _alaCarteService.TakeAsync(takeRequest, cancellationToken);
+
+            DisplayResult(result);
+            return;
+        }
+
+        // Otherwise, parse the URL to extract repository URL, branch, and folder path
         if (string.IsNullOrEmpty(request.Url))
         {
-            _logger.LogError("URL is required. Please provide a full Git URL to a folder.");
-            _logger.LogInformation("Example: https://github.com/owner/repo/tree/branch/path/to/folder");
+            _logger.LogError("URL is required when FromDirectory is not provided.");
             return;
         }
 
@@ -120,6 +162,11 @@ public class TakeRequestHandler : IRequestHandler<TakeRequest>
 
         var result = await _alaCarteService.TakeAsync(takeRequest, cancellationToken);
 
+        DisplayResult(result);
+    }
+
+    private void DisplayResult(ALaCarteTakeResult result)
+    {
         if (result.Success)
         {
             _logger.LogInformation("Successfully copied folder to: {OutputDirectory}", result.OutputDirectory);
