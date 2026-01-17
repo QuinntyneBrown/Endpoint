@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endpoint Dashboard - Design 5: Modular Grid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Angular Material Dark Theme - Blue Grey/Amber */
+        :root {
+            --primary: #90caf9;
+            --primary-variant: #42a5f5;
+            --primary-dark: #1976d2;
+            --secondary: #ffca28;
+            --secondary-variant: #ffa000;
+            --background: #0f0f0f;
+            --surface: #1a1a1a;
+            --surface-1: #1f1f1f;
+            --surface-2: #242424;
+            --surface-3: #2a2a2a;
+            --surface-4: #333333;
+            --error: #f44336;
+            --on-primary: #000000;
+            --on-secondary: #000000;
+            --on-background: #fafafa;
+            --on-surface: #fafafa;
+            --text-high: rgba(255, 255, 255, 0.87);
+            --text-medium: rgba(255, 255, 255, 0.60);
+            --text-disabled: rgba(255, 255, 255, 0.38);
+            --divider: rgba(255, 255, 255, 0.12);
+            --success: #4caf50;
+            --warning: #ff9800;
+            --info: #2196f3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-high);
+            min-height: 100vh;
+        }
+
+        /* App Shell */
+        .app-shell {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top App Bar */
+        .top-bar {
+            height: 56px;
+            background: var(--surface-1);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .top-bar-start {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .menu-trigger {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            color: var(--text-high);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-trigger:hover {
+            background: var(--surface-2);
+        }
+
+        .app-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 6px;
+        }
+
+        .logo-text {
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .top-bar-end {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            color: var(--text-medium);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--surface-2);
+            color: var(--text-high);
+        }
+
+        .badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            padding: 12px;
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1fr;
+            padding-bottom: 80px;
+        }
+
+        /* Widget Card Base */
+        .widget {
+            background: var(--surface-1);
+            border-radius: 16px;
+            border: 1px solid var(--divider);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .widget:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .widget-header {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--divider);
+        }
+
+        .widget-title {
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .widget-title .material-icons {
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .widget-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .widget-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: none;
+            color: var(--text-disabled);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .widget-btn:hover {
+            background: var(--surface-3);
+            color: var(--text-medium);
+        }
+
+        .widget-btn .material-icons {
+            font-size: 18px;
+        }
+
+        .widget-body {
+            padding: 16px;
+        }
+
+        /* Stats Widget */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--surface-2);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .stat-icon.blue { background: rgba(33, 150, 243, 0.15); color: var(--info); }
+        .stat-icon.green { background: rgba(76, 175, 80, 0.15); color: var(--success); }
+        .stat-icon.orange { background: rgba(255, 152, 0, 0.15); color: var(--warning); }
+        .stat-icon.purple { background: rgba(156, 39, 176, 0.15); color: #ce93d8; }
+
+        .stat-icon .material-icons {
+            font-size: 20px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Quick Commands Widget */
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .command-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 12px;
+            background: var(--surface-2);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .command-btn:hover {
+            background: var(--surface-3);
+            border-color: var(--primary);
+        }
+
+        .command-btn .material-icons {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .command-btn span:last-child {
+            font-size: 12px;
+            color: var(--text-medium);
+        }
+
+        /* Recent Activity Widget */
+        .activity-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .activity-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 36px;
+            bottom: 0;
+            width: 2px;
+            background: var(--divider);
+        }
+
+        .activity-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: var(--surface-3);
+        }
+
+        .activity-dot .material-icons {
+            font-size: 16px;
+        }
+
+        .activity-dot.success { background: rgba(76, 175, 80, 0.15); color: var(--success); }
+        .activity-dot.info { background: rgba(33, 150, 243, 0.15); color: var(--info); }
+        .activity-dot.warning { background: rgba(255, 152, 0, 0.15); color: var(--warning); }
+
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .activity-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .activity-meta {
+            font-size: 11px;
+            color: var(--text-disabled);
+        }
+
+        /* Microservices Widget */
+        .services-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .service-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: var(--surface-2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .service-item:hover {
+            background: var(--surface-3);
+        }
+
+        .service-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface-4);
+        }
+
+        .service-icon .material-icons {
+            font-size: 20px;
+            color: var(--primary);
+        }
+
+        .service-info {
+            flex: 1;
+        }
+
+        .service-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .service-desc {
+            font-size: 11px;
+            color: var(--text-medium);
+        }
+
+        .service-add {
+            color: var(--text-disabled);
+        }
+
+        /* Code Output Widget */
+        .code-output {
+            background: var(--background);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .code-line {
+            display: flex;
+            margin-bottom: 4px;
+        }
+
+        .line-number {
+            color: var(--text-disabled);
+            width: 24px;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        .code-content {
+            color: var(--text-medium);
+        }
+
+        .code-keyword { color: var(--primary); }
+        .code-string { color: var(--success); }
+        .code-comment { color: var(--text-disabled); font-style: italic; }
+
+        /* Charts Widget */
+        .chart-placeholder {
+            height: 120px;
+            background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface-1) 100%);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 80px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 4px 4px 0 0;
+            min-height: 20px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .chart-bar:hover {
+            opacity: 1;
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+
+        .chart-label {
+            font-size: 10px;
+            color: var(--text-disabled);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: var(--surface-1);
+            border-top: 1px solid var(--divider);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 16px;
+            color: var(--text-medium);
+            text-decoration: none;
+            border-radius: 16px;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item .material-icons {
+            font-size: 24px;
+        }
+
+        .nav-item span:last-child {
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            background: var(--secondary);
+            color: var(--on-secondary);
+            border: none;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+            z-index: 99;
+        }
+
+        .fab:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .fab .material-icons {
+            font-size: 24px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-4);
+            border-radius: 3px;
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 24px;
+                max-width: 1400px;
+                margin: 0 auto;
+                padding-bottom: 24px;
+            }
+
+            .widget.wide {
+                grid-column: span 2;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .command-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+
+            .fab {
+                bottom: 24px;
+                right: 24px;
+            }
+
+            .top-bar {
+                padding: 0 24px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .widget.wide {
+                grid-column: span 2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <!-- Top App Bar -->
+        <header class="top-bar">
+            <div class="top-bar-start">
+                <button class="menu-trigger">
+                    <span class="material-icons">menu</span>
+                </button>
+                <div class="app-logo">
+                    <div class="logo-icon"></div>
+                    <span class="logo-text">Endpoint</span>
+                </div>
+            </div>
+            <div class="top-bar-end">
+                <button class="icon-btn">
+                    <span class="material-icons">search</span>
+                </button>
+                <button class="icon-btn">
+                    <span class="material-icons">notifications</span>
+                    <span class="badge"></span>
+                </button>
+                <button class="icon-btn">
+                    <span class="material-icons">account_circle</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Grid -->
+        <main class="dashboard-grid">
+            <!-- Stats Widget -->
+            <div class="widget wide">
+                <div class="widget-header">
+                    <span class="widget-title">
+                        <span class="material-icons">analytics</span>
+                        Overview
+                    </span>
+                    <div class="widget-actions">
+                        <button class="widget-btn">
+                            <span class="material-icons">more_horiz</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <span class="material-icons">folder</span>
+                            </div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Solutions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <span class="material-icons">code</span>
+                            </div>
+                            <div class="stat-value">147</div>
+                            <div class="stat-label">Files Generated</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <span class="material-icons">terminal</span>
+                            </div>
+                            <div class="stat-value">89</div>
+                            <div class="stat-label">Commands Run</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <span class="material-icons">hub</span>
+                            </div>
+                            <div class="stat-value">8</div>
+                            <div class="stat-label">Microservices</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Commands Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <span class="widget-title">
+                        <span class="material-icons">bolt</span>
+                        Quick Commands
+                    </span>
+                    <div class="widget-actions">
+                        <button class="widget-btn">
+                            <span class="material-icons">settings</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="command-grid">
+                        <button class="command-btn">
+                            <span class="material-icons">add_box</span>
+                            <span>New Solution</span>
+                        </button>
+                        <button class="command-btn">
+                            <span class="material-icons">data_object</span>
+                            <span>Add Entity</span>
+                        </button>
+                        <button class="command-btn">
+                            <span class="material-icons">api</span>
+                            <span>Controller</span>
+                        </button>
+                        <button class="command-btn">
+                            <span class="material-icons">science</span>
+                            <span>Add Test</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <span class="widget-title">
+                        <span class="material-icons">history</span>
+                        Recent Activity
+                    </span>
+                    <div class="widget-actions">
+                        <button class="widget-btn">
+                            <span class="material-icons">refresh</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="activity-timeline">
+                        <div class="activity-item">
+                            <div class="activity-dot success">
+                                <span class="material-icons">check</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Solution "ECommerce" created</div>
+                                <div class="activity-meta">2 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot info">
+                                <span class="material-icons">code</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Entity "Product" generated</div>
+                                <div class="activity-meta">15 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-dot warning">
+                                <span class="material-icons">warning</span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Code review: 3 warnings</div>
+                                <div class="activity-meta">1 hour ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Microservices Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <span class="widget-title">
+                        <span class="material-icons">hub</span>
+                        Microservices
+                    </span>
+                    <div class="widget-actions">
+                        <button class="widget-btn">
+                            <span class="material-icons">add</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="services-list">
+                        <div class="service-item">
+                            <div class="service-icon">
+                                <span class="material-icons">person</span>
+                            </div>
+                            <div class="service-info">
+                                <div class="service-name">Identity</div>
+                                <div class="service-desc">Authentication & Authorization</div>
+                            </div>
+                            <span class="material-icons service-add">chevron_right</span>
+                        </div>
+                        <div class="service-item">
+                            <div class="service-icon">
+                                <span class="material-icons">payment</span>
+                            </div>
+                            <div class="service-info">
+                                <div class="service-name">Billing</div>
+                                <div class="service-desc">Payments & Subscriptions</div>
+                            </div>
+                            <span class="material-icons service-add">chevron_right</span>
+                        </div>
+                        <div class="service-item">
+                            <div class="service-icon">
+                                <span class="material-icons">notifications</span>
+                            </div>
+                            <div class="service-info">
+                                <div class="service-name">Notifications</div>
+                                <div class="service-desc">Email, SMS, Push</div>
+                            </div>
+                            <span class="material-icons service-add">chevron_right</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Output Widget -->
+            <div class="widget">
+                <div class="widget-header">
+                    <span class="widget-title">
+                        <span class="material-icons">terminal</span>
+                        Last Output
+                    </span>
+                    <div class="widget-actions">
+                        <button class="widget-btn">
+                            <span class="material-icons">content_copy</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="code-output">
+                        <div class="code-line">
+                            <span class="line-number">1</span>
+                            <span class="code-content"><span class="code-keyword">public class</span> Customer</span>
+                        </div>
+                        <div class="code-line">
+                            <span class="line-number">2</span>
+                            <span class="code-content">{</span>
+                        </div>
+                        <div class="code-line">
+                            <span class="line-number">3</span>
+                            <span class="code-content">  <span class="code-keyword">public</span> Guid Id { get; set; }</span>
+                        </div>
+                        <div class="code-line">
+                            <span class="line-number">4</span>
+                            <span class="code-content">  <span class="code-keyword">public string</span> Name { get; set; }</span>
+                        </div>
+                        <div class="code-line">
+                            <span class="line-number">5</span>
+                            <span class="code-content">  <span class="code-keyword">public string</span> Email { get; set; }</span>
+                        </div>
+                        <div class="code-line">
+                            <span class="line-number">6</span>
+                            <span class="code-content">}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generation Stats Chart -->
+            <div class="widget">
+                <div class="widget-header">
+                    <span class="widget-title">
+                        <span class="material-icons">bar_chart</span>
+                        Weekly Generation
+                    </span>
+                    <div class="widget-actions">
+                        <button class="widget-btn">
+                            <span class="material-icons">more_horiz</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="chart-placeholder">
+                        <div class="chart-bars">
+                            <div class="chart-bar" style="height: 40%;"></div>
+                            <div class="chart-bar" style="height: 65%;"></div>
+                            <div class="chart-bar" style="height: 45%;"></div>
+                            <div class="chart-bar" style="height: 80%;"></div>
+                            <div class="chart-bar" style="height: 55%;"></div>
+                            <div class="chart-bar" style="height: 70%;"></div>
+                            <div class="chart-bar" style="height: 90%;"></div>
+                        </div>
+                        <div class="chart-labels">
+                            <span class="chart-label">Mon</span>
+                            <span class="chart-label">Tue</span>
+                            <span class="chart-label">Wed</span>
+                            <span class="chart-label">Thu</span>
+                            <span class="chart-label">Fri</span>
+                            <span class="chart-label">Sat</span>
+                            <span class="chart-label">Sun</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- FAB -->
+        <button class="fab">
+            <span class="material-icons">add</span>
+        </button>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a class="nav-item active" href="#">
+                <span class="material-icons">dashboard</span>
+                <span>Dashboard</span>
+            </a>
+            <a class="nav-item" href="#">
+                <span class="material-icons">folder</span>
+                <span>Projects</span>
+            </a>
+            <a class="nav-item" href="#">
+                <span class="material-icons">code</span>
+                <span>Generate</span>
+            </a>
+            <a class="nav-item" href="#">
+                <span class="material-icons">settings</span>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </div>
+</body>
+</html>
