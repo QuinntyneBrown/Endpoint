@@ -15,10 +15,10 @@ namespace Endpoint.Engineering.ALaCarte.Infrastructure.Migrations
                 name: "RepositoryConfigurations",
                 columns: table => new
                 {
-                    RepositoryConfigurationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Url = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    Branch = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false, defaultValue: "main"),
-                    LocalDirectory = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    RepositoryConfigurationId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Url = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
+                    Branch = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false, defaultValue: "main"),
+                    LocalDirectory = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true)
                 },
                 constraints: table =>
                 {

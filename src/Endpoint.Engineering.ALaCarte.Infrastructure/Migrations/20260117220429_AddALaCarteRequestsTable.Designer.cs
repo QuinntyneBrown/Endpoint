@@ -4,21 +4,49 @@ using Endpoint.Engineering.ALaCarte.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
 namespace Endpoint.Engineering.ALaCarte.Infrastructure.Migrations
 {
     [DbContext(typeof(ALaCarteContext))]
-    [Migration("20260117194441_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260117220429_AddALaCarteRequestsTable")]
+    partial class AddALaCarteRequestsTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
+
+            modelBuilder.Entity("Endpoint.Engineering.ALaCarte.Core.Models.ALaCarteRequest", b =>
+                {
+                    b.Property<Guid>("ALaCarteRequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Directory")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("OutputType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("SolutionName")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("ALaCarte.sln");
+
+                    b.HasKey("ALaCarteRequestId");
+
+                    b.ToTable("ALaCarteRequests");
+                });
 
             modelBuilder.Entity("Endpoint.Engineering.ALaCarte.Core.Models.RepositoryConfiguration", b =>
                 {
