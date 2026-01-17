@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endpoint Dashboard - Empty Shell</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Angular Material Dark Theme - Indigo/Pink */
+        :root {
+            --primary: #536dfe;
+            --primary-light: #8187ff;
+            --primary-dark: #304ffe;
+            --accent: #ff4081;
+            --accent-light: #ff79b0;
+            --background: #0d1117;
+            --surface: #161b22;
+            --surface-light: #21262d;
+            --surface-elevated: #30363d;
+            --border: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --success: #3fb950;
+            --warning: #d29922;
+            --error: #f85149;
+            --info: #58a6ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Top Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            z-index: 1000;
+            gap: 8px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-right: 12px;
+            border-right: 1px solid var(--border);
+        }
+
+        .logo-mark {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 6px;
+        }
+
+        .logo-name {
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .header-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: default;
+            white-space: nowrap;
+        }
+
+        .header-nav-item .material-icons {
+            font-size: 16px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: default;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            margin-top: 48px;
+            min-height: calc(100vh - 48px);
+        }
+
+        /* Sidebar (Desktop) */
+        .sidebar {
+            width: 240px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: none;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+
+        .sidebar-nav {
+            padding: 8px;
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: 16px;
+        }
+
+        .nav-section-title {
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            padding: 8px 12px 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: default;
+            font-size: 13px;
+        }
+
+        .nav-item .material-icons {
+            font-size: 18px;
+        }
+
+        .nav-item-badge {
+            margin-left: auto;
+            width: 20px;
+            height: 14px;
+            background: var(--surface-elevated);
+            border-radius: 7px;
+        }
+
+        .sidebar-footer {
+            padding: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--surface-elevated);
+            border-radius: 50%;
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name-placeholder {
+            width: 80px;
+            height: 12px;
+            background: var(--surface-elevated);
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+
+        .user-role-placeholder {
+            width: 50px;
+            height: 10px;
+            background: var(--surface-light);
+            border-radius: 3px;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 16px;
+            padding-bottom: 72px;
+            overflow-y: auto;
+        }
+
+        /* Empty Content Placeholders */
+        .content-placeholder {
+            background: var(--surface);
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .placeholder-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            background: var(--surface-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .placeholder-icon .material-icons {
+            font-size: 24px;
+            color: var(--text-muted);
+        }
+
+        .placeholder-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .placeholder-desc {
+            font-size: 12px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .grid-item {
+            background: var(--surface);
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            height: 120px;
+        }
+
+        .grid-item-wide {
+            height: 180px;
+        }
+
+        /* Bottom Navigation (Mobile) */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .bottom-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            cursor: default;
+        }
+
+        .bottom-tab .material-icons {
+            font-size: 22px;
+        }
+
+        .bottom-tab span:last-child {
+            font-size: 10px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-elevated);
+            border-radius: 4px;
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 768px) {
+            .logo-name {
+                display: block;
+            }
+
+            .sidebar {
+                display: flex;
+            }
+
+            .content {
+                padding: 24px;
+                padding-bottom: 24px;
+            }
+
+            .content-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .bottom-bar {
+                display: none;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .content {
+                padding: 32px;
+            }
+
+            .content-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-logo">
+            <div class="logo-mark"></div>
+            <span class="logo-name">Endpoint</span>
+        </div>
+        <div class="header-nav">
+            <div class="header-nav-item">
+                <span class="material-icons">dashboard</span>
+                Dashboard
+            </div>
+            <div class="header-nav-item">
+                <span class="material-icons">folder</span>
+                Explorer
+            </div>
+            <div class="header-nav-item">
+                <span class="material-icons">auto_awesome</span>
+                Generate
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn">
+                <span class="material-icons">search</span>
+            </button>
+            <button class="icon-btn">
+                <span class="material-icons">notifications</span>
+            </button>
+            <button class="icon-btn">
+                <span class="material-icons">settings</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar (Desktop) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Navigation</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <div class="nav-item">
+                        <span class="material-icons">dashboard</span>
+                        Dashboard
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">folder</span>
+                        Explorer
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">source</span>
+                        Repositories
+                        <div class="nav-item-badge"></div>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Generation</div>
+                    <div class="nav-item">
+                        <span class="material-icons">auto_awesome</span>
+                        Generate
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">history</span>
+                        History
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">code</span>
+                        Templates
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Settings</div>
+                    <div class="nav-item">
+                        <span class="material-icons">settings</span>
+                        Preferences
+                    </div>
+                    <div class="nav-item">
+                        <span class="material-icons">key</span>
+                        Credentials
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar"></div>
+                    <div class="user-details">
+                        <div class="user-name-placeholder"></div>
+                        <div class="user-role-placeholder"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <main class="content">
+            <!-- Main Placeholder -->
+            <div class="content-placeholder">
+                <div class="placeholder-icon">
+                    <span class="material-icons">widgets</span>
+                </div>
+                <div class="placeholder-title">Content Area</div>
+                <div class="placeholder-desc">Main content will be displayed here</div>
+            </div>
+
+            <!-- Grid Placeholders -->
+            <div class="content-grid">
+                <div class="grid-item"></div>
+                <div class="grid-item"></div>
+                <div class="grid-item"></div>
+                <div class="grid-item grid-item-wide"></div>
+                <div class="grid-item grid-item-wide"></div>
+                <div class="grid-item"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-bar">
+        <a class="bottom-tab">
+            <span class="material-icons">dashboard</span>
+            <span>Home</span>
+        </a>
+        <a class="bottom-tab">
+            <span class="material-icons">folder</span>
+            <span>Explorer</span>
+        </a>
+        <a class="bottom-tab">
+            <span class="material-icons">add_circle</span>
+            <span>Generate</span>
+        </a>
+        <a class="bottom-tab">
+            <span class="material-icons">source</span>
+            <span>Repos</span>
+        </a>
+        <a class="bottom-tab">
+            <span class="material-icons">settings</span>
+            <span>Settings</span>
+        </a>
+    </nav>
+</body>
+</html>

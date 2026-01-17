@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Configuration - Create | Endpoint Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Angular Material Dark Theme - Indigo/Pink */
+        :root {
+            --primary: #536dfe;
+            --primary-light: #8187ff;
+            --primary-dark: #304ffe;
+            --accent: #ff4081;
+            --accent-light: #ff79b0;
+            --background: #0d1117;
+            --surface: #161b22;
+            --surface-light: #21262d;
+            --surface-elevated: #30363d;
+            --border: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --success: #3fb950;
+            --warning: #d29922;
+            --error: #f85149;
+            --info: #58a6ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Top Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            z-index: 1000;
+            gap: 8px;
+        }
+
+        .header-back {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .header-back:hover {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        .header-title {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            margin-top: 48px;
+            min-height: calc(100vh - 48px);
+        }
+
+        /* Sidebar (Desktop) */
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: none;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .sidebar-nav {
+            padding: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .nav-item:hover {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(83, 109, 254, 0.15);
+            color: var(--primary-light);
+        }
+
+        .nav-item .material-icons {
+            font-size: 18px;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 16px;
+            padding-bottom: 80px;
+            overflow-y: auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-title .material-icons {
+            color: var(--primary-light);
+        }
+
+        .page-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Form Card */
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .form-section {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title .material-icons {
+            font-size: 16px;
+        }
+
+        /* Form Fields */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-label .required {
+            color: var(--error);
+            margin-left: 2px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(83, 109, 254, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input.code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Select Dropdown */
+        .form-select {
+            width: 100%;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%238b949e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 36px;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(83, 109, 254, 0.1);
+        }
+
+        /* Toggle Switch */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-group:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-label {
+            flex: 1;
+        }
+
+        .toggle-title {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .toggle-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--surface-elevated);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        /* Credential Type Cards */
+        .credential-options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .credential-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: var(--background);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .credential-option:hover {
+            border-color: var(--surface-elevated);
+        }
+
+        .credential-option.selected {
+            border-color: var(--primary);
+            background: rgba(83, 109, 254, 0.05);
+        }
+
+        .credential-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--surface-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .credential-icon .material-icons {
+            color: var(--primary-light);
+        }
+
+        .credential-info {
+            flex: 1;
+        }
+
+        .credential-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .credential-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .credential-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .credential-option.selected .credential-check {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .credential-option.selected .credential-check .material-icons {
+            font-size: 14px;
+            color: white;
+        }
+
+        /* Bottom Action Bar */
+        .action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 16px;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-secondary {
+            background: var(--surface-light);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-elevated);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        .btn-primary:disabled {
+            background: var(--surface-elevated);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* Form Row for inline fields */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-elevated);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 768px) {
+            .sidebar {
+                display: flex;
+            }
+
+            .content {
+                padding: 24px 32px;
+                padding-bottom: 100px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .form-card {
+                max-width: 700px;
+            }
+
+            .form-section {
+                padding: 24px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .credential-options {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .action-bar {
+                left: 260px;
+                padding: 0 32px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .content {
+                padding: 32px 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <button class="header-back">
+            <span class="material-icons">arrow_back</span>
+        </button>
+        <span class="header-title">Create Repository</span>
+        <div class="header-actions">
+            <button class="icon-btn">
+                <span class="material-icons">help_outline</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar (Desktop) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Configuration</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active">
+                    <span class="material-icons">source</span>
+                    Repositories
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">settings</span>
+                    General Settings
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">key</span>
+                    Credentials
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">webhook</span>
+                    Webhooks
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">history</span>
+                    Activity Log
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Content -->
+        <main class="content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <span class="material-icons">add_circle</span>
+                    New Repository Configuration
+                </h1>
+                <p class="page-subtitle">Configure a new repository for code generation</p>
+            </div>
+
+            <!-- Form -->
+            <div class="form-card">
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="material-icons">info</span>
+                        Basic Information
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Repository Name <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-input" placeholder="e.g., ECommerce.Api" value="">
+                        <div class="form-hint">A unique name to identify this repository</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Description
+                        </label>
+                        <textarea class="form-input form-textarea" placeholder="Brief description of this repository..."></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Repository Type <span class="required">*</span>
+                            </label>
+                            <select class="form-select">
+                                <option value="">Select type...</option>
+                                <option value="git" selected>Git Repository</option>
+                                <option value="azure">Azure DevOps</option>
+                                <option value="local">Local Directory</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                Default Branch
+                            </label>
+                            <input type="text" class="form-input" placeholder="main" value="main">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Repository URL -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="material-icons">link</span>
+                        Repository Location
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Repository URL <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-input code" placeholder="https://github.com/org/repo.git">
+                        <div class="form-hint">Full URL to the Git repository (HTTPS or SSH)</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                Clone Path
+                            </label>
+                            <input type="text" class="form-input code" placeholder="/workspace/repos">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                Solution File
+                            </label>
+                            <input type="text" class="form-input code" placeholder="src/ECommerce.sln">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Authentication -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="material-icons">security</span>
+                        Authentication
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Authentication Method</label>
+                        <div class="credential-options">
+                            <div class="credential-option">
+                                <div class="credential-icon">
+                                    <span class="material-icons">public</span>
+                                </div>
+                                <div class="credential-info">
+                                    <div class="credential-name">Public</div>
+                                    <div class="credential-desc">No authentication</div>
+                                </div>
+                                <div class="credential-check">
+                                    <span class="material-icons"></span>
+                                </div>
+                            </div>
+
+                            <div class="credential-option selected">
+                                <div class="credential-icon">
+                                    <span class="material-icons">token</span>
+                                </div>
+                                <div class="credential-info">
+                                    <div class="credential-name">Access Token</div>
+                                    <div class="credential-desc">Personal access token</div>
+                                </div>
+                                <div class="credential-check">
+                                    <span class="material-icons">check</span>
+                                </div>
+                            </div>
+
+                            <div class="credential-option">
+                                <div class="credential-icon">
+                                    <span class="material-icons">vpn_key</span>
+                                </div>
+                                <div class="credential-info">
+                                    <div class="credential-name">SSH Key</div>
+                                    <div class="credential-desc">SSH key authentication</div>
+                                </div>
+                                <div class="credential-check">
+                                    <span class="material-icons"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Access Token <span class="required">*</span>
+                        </label>
+                        <input type="password" class="form-input code" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                        <div class="form-hint">Personal access token with repo permissions</div>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="material-icons">tune</span>
+                        Settings
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Auto-sync on changes</div>
+                            <div class="toggle-desc">Automatically pull changes when detected</div>
+                        </div>
+                        <div class="toggle-switch active"></div>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Enable webhooks</div>
+                            <div class="toggle-desc">Listen for push events from the repository</div>
+                        </div>
+                        <div class="toggle-switch"></div>
+                    </div>
+
+                    <div class="toggle-group">
+                        <div class="toggle-label">
+                            <div class="toggle-title">Generate on commit</div>
+                            <div class="toggle-desc">Run code generation after each commit</div>
+                        </div>
+                        <div class="toggle-switch active"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <button class="btn btn-secondary">Cancel</button>
+        <button class="btn btn-primary">Create Repository</button>
+    </div>
+
+    <script>
+        // Toggle switch interaction
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('active');
+            });
+        });
+
+        // Credential option selection
+        document.querySelectorAll('.credential-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.credential-option').forEach(o => {
+                    o.classList.remove('selected');
+                    o.querySelector('.credential-check .material-icons').textContent = '';
+                });
+                option.classList.add('selected');
+                option.querySelector('.credential-check .material-icons').textContent = 'check';
+            });
+        });
+    </script>
+</body>
+</html>

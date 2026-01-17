@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Configuration - Delete | Endpoint Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Angular Material Dark Theme - Indigo/Pink */
+        :root {
+            --primary: #536dfe;
+            --primary-light: #8187ff;
+            --primary-dark: #304ffe;
+            --accent: #ff4081;
+            --accent-light: #ff79b0;
+            --background: #0d1117;
+            --surface: #161b22;
+            --surface-light: #21262d;
+            --surface-elevated: #30363d;
+            --border: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --success: #3fb950;
+            --warning: #d29922;
+            --error: #f85149;
+            --info: #58a6ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Top Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            z-index: 1000;
+            gap: 8px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-right: 12px;
+            border-right: 1px solid var(--border);
+        }
+
+        .logo-mark {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 6px;
+        }
+
+        .logo-name {
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .header-title {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            margin-top: 48px;
+            min-height: calc(100vh - 48px);
+        }
+
+        /* Sidebar (Desktop) */
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: none;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .sidebar-nav {
+            padding: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .nav-item:hover {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(83, 109, 254, 0.15);
+            color: var(--primary-light);
+        }
+
+        .nav-item .material-icons {
+            font-size: 18px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--surface-elevated);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 16px;
+            padding-bottom: 80px;
+            overflow-y: auto;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        /* Delete Confirmation Card */
+        .delete-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .delete-header {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .delete-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            background: rgba(248, 81, 73, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-icon .material-icons {
+            font-size: 32px;
+            color: var(--error);
+        }
+
+        .delete-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .delete-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Repository Info */
+        .repo-info-card {
+            margin: 20px;
+            padding: 16px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .repo-info-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .repo-info-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--surface-light);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .repo-info-icon .material-icons {
+            color: var(--primary-light);
+            font-size: 24px;
+        }
+
+        .repo-info-details {
+            flex: 1;
+        }
+
+        .repo-info-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .repo-info-url {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .repo-stats-row {
+            display: flex;
+            gap: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .repo-stat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .repo-stat .material-icons {
+            font-size: 14px;
+        }
+
+        .repo-stat-value {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Warning Box */
+        .warning-box {
+            margin: 0 20px 20px;
+            padding: 14px 16px;
+            background: rgba(210, 153, 34, 0.1);
+            border: 1px solid rgba(210, 153, 34, 0.3);
+            border-radius: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .warning-box .material-icons {
+            color: var(--warning);
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .warning-content {
+            flex: 1;
+        }
+
+        .warning-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--warning);
+            margin-bottom: 4px;
+        }
+
+        .warning-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Deletion List */
+        .deletion-list {
+            margin: 0 20px 20px;
+        }
+
+        .deletion-title {
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .deletion-items {
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .deletion-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .deletion-item:last-child {
+            border-bottom: none;
+        }
+
+        .deletion-item .material-icons {
+            font-size: 18px;
+            color: var(--error);
+        }
+
+        .deletion-item-text {
+            flex: 1;
+            color: var(--text-secondary);
+        }
+
+        .deletion-count {
+            font-size: 11px;
+            padding: 2px 8px;
+            background: var(--surface-light);
+            border-radius: 10px;
+            color: var(--text-muted);
+        }
+
+        /* Confirmation Input */
+        .confirmation-section {
+            margin: 0 20px 20px;
+        }
+
+        .confirmation-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .confirmation-label code {
+            background: var(--surface-light);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .confirmation-input {
+            width: 100%;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .confirmation-input:focus {
+            border-color: var(--error);
+            box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.1);
+        }
+
+        .confirmation-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Action Buttons */
+        .delete-actions {
+            padding: 16px 20px;
+            background: var(--surface-light);
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+            text-align: center;
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-elevated);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #da3633;
+        }
+
+        .btn-danger:disabled {
+            background: var(--surface-elevated);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        /* Checkbox */
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 0 20px 20px;
+            padding: 12px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+            margin-top: 1px;
+        }
+
+        .checkbox.checked {
+            background: var(--error);
+            border-color: var(--error);
+        }
+
+        .checkbox .material-icons {
+            font-size: 14px;
+            color: white;
+            display: none;
+        }
+
+        .checkbox.checked .material-icons {
+            display: block;
+        }
+
+        .checkbox-label {
+            flex: 1;
+        }
+
+        .checkbox-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .checkbox-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Bottom Navigation (Mobile) */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .bottom-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .bottom-tab.active {
+            color: var(--primary-light);
+        }
+
+        .bottom-tab .material-icons {
+            font-size: 22px;
+        }
+
+        .bottom-tab span:last-child {
+            font-size: 10px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-elevated);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 768px) {
+            .logo-name {
+                display: block;
+            }
+
+            .sidebar {
+                display: flex;
+            }
+
+            .content {
+                padding: 32px;
+                padding-bottom: 32px;
+                align-items: center;
+            }
+
+            .delete-card {
+                margin-top: 0;
+            }
+
+            .delete-header {
+                padding: 32px;
+            }
+
+            .delete-title {
+                font-size: 24px;
+            }
+
+            .bottom-bar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-logo">
+            <div class="logo-mark"></div>
+            <span class="logo-name">Endpoint</span>
+        </div>
+        <span class="header-title">Delete Repository</span>
+        <div class="header-actions">
+            <button class="icon-btn">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar (Desktop) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Configuration</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active">
+                    <span class="material-icons">source</span>
+                    Repositories
+                    <span class="nav-badge">3</span>
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">settings</span>
+                    General Settings
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">key</span>
+                    Credentials
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">webhook</span>
+                    Webhooks
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">history</span>
+                    Activity Log
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Content -->
+        <main class="content">
+            <!-- Delete Confirmation Card -->
+            <div class="delete-card">
+                <div class="delete-header">
+                    <div class="delete-icon">
+                        <span class="material-icons">delete_forever</span>
+                    </div>
+                    <h1 class="delete-title">Delete Repository?</h1>
+                    <p class="delete-subtitle">This action cannot be undone</p>
+                </div>
+
+                <!-- Repository Info -->
+                <div class="repo-info-card">
+                    <div class="repo-info-header">
+                        <div class="repo-info-icon">
+                            <span class="material-icons">inventory_2</span>
+                        </div>
+                        <div class="repo-info-details">
+                            <div class="repo-info-name">ECommerce.Api</div>
+                            <div class="repo-info-url">github.com/org/ecommerce-api</div>
+                        </div>
+                    </div>
+                    <div class="repo-stats-row">
+                        <div class="repo-stat">
+                            <span class="material-icons">folder</span>
+                            <span class="repo-stat-value">4</span> folders
+                        </div>
+                        <div class="repo-stat">
+                            <span class="material-icons">code</span>
+                            <span class="repo-stat-value">31</span> files
+                        </div>
+                        <div class="repo-stat">
+                            <span class="material-icons">schedule</span>
+                            <span class="repo-stat-value">2d</span> ago
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Warning -->
+                <div class="warning-box">
+                    <span class="material-icons">warning</span>
+                    <div class="warning-content">
+                        <div class="warning-title">Permanent deletion</div>
+                        <div class="warning-text">
+                            Deleting this repository will permanently remove all configuration data,
+                            folder mappings, and generation history associated with it.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- What will be deleted -->
+                <div class="deletion-list">
+                    <div class="deletion-title">The following will be deleted</div>
+                    <div class="deletion-items">
+                        <div class="deletion-item">
+                            <span class="material-icons">remove_circle</span>
+                            <span class="deletion-item-text">Repository configuration</span>
+                        </div>
+                        <div class="deletion-item">
+                            <span class="material-icons">remove_circle</span>
+                            <span class="deletion-item-text">Folder configurations</span>
+                            <span class="deletion-count">4 folders</span>
+                        </div>
+                        <div class="deletion-item">
+                            <span class="material-icons">remove_circle</span>
+                            <span class="deletion-item-text">Generation history</span>
+                            <span class="deletion-count">127 records</span>
+                        </div>
+                        <div class="deletion-item">
+                            <span class="material-icons">remove_circle</span>
+                            <span class="deletion-item-text">Cached metadata</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkbox confirmation -->
+                <div class="checkbox-group" onclick="toggleCheckbox(this)">
+                    <div class="checkbox">
+                        <span class="material-icons">check</span>
+                    </div>
+                    <div class="checkbox-label">
+                        <div class="checkbox-title">I understand this is permanent</div>
+                        <div class="checkbox-desc">This repository and all its data will be permanently deleted</div>
+                    </div>
+                </div>
+
+                <!-- Type to confirm -->
+                <div class="confirmation-section">
+                    <div class="confirmation-label">
+                        Type <code>ECommerce.Api</code> to confirm
+                    </div>
+                    <input type="text" class="confirmation-input" placeholder="Enter repository name">
+                </div>
+
+                <!-- Actions -->
+                <div class="delete-actions">
+                    <button class="btn btn-secondary">Cancel</button>
+                    <button class="btn btn-danger" disabled>Delete Repository</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-bar">
+        <a class="bottom-tab" href="#">
+            <span class="material-icons">folder</span>
+            <span>Explorer</span>
+        </a>
+        <a class="bottom-tab active" href="#">
+            <span class="material-icons">source</span>
+            <span>Repos</span>
+        </a>
+        <a class="bottom-tab" href="#">
+            <span class="material-icons">add_circle</span>
+            <span>Generate</span>
+        </a>
+        <a class="bottom-tab" href="#">
+            <span class="material-icons">settings</span>
+            <span>Settings</span>
+        </a>
+    </nav>
+
+    <script>
+        function toggleCheckbox(group) {
+            const checkbox = group.querySelector('.checkbox');
+            checkbox.classList.toggle('checked');
+            validateForm();
+        }
+
+        const confirmInput = document.querySelector('.confirmation-input');
+        const deleteBtn = document.querySelector('.btn-danger');
+
+        confirmInput.addEventListener('input', validateForm);
+
+        function validateForm() {
+            const checkbox = document.querySelector('.checkbox');
+            const isChecked = checkbox.classList.contains('checked');
+            const inputValue = confirmInput.value;
+            const isMatch = inputValue === 'ECommerce.Api';
+
+            deleteBtn.disabled = !(isChecked && isMatch);
+        }
+    </script>
+</body>
+</html>

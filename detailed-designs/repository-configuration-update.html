@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Configuration - Update | Endpoint Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Angular Material Dark Theme - Indigo/Pink */
+        :root {
+            --primary: #536dfe;
+            --primary-light: #8187ff;
+            --primary-dark: #304ffe;
+            --accent: #ff4081;
+            --accent-light: #ff79b0;
+            --background: #0d1117;
+            --surface: #161b22;
+            --surface-light: #21262d;
+            --surface-elevated: #30363d;
+            --border: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --success: #3fb950;
+            --warning: #d29922;
+            --error: #f85149;
+            --info: #58a6ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Top Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            z-index: 1000;
+            gap: 8px;
+        }
+
+        .header-back {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .header-back:hover {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        .header-title {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        .icon-btn.danger:hover {
+            background: rgba(248, 81, 73, 0.1);
+            color: var(--error);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: flex;
+            margin-top: 48px;
+            min-height: calc(100vh - 48px);
+        }
+
+        /* Sidebar (Desktop) */
+        .sidebar {
+            width: 260px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: none;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .sidebar-nav {
+            padding: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .nav-item:hover {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(83, 109, 254, 0.15);
+            color: var(--primary-light);
+        }
+
+        .nav-item .material-icons {
+            font-size: 18px;
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 16px;
+            padding-bottom: 80px;
+            overflow-y: auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-title .material-icons {
+            color: var(--primary-light);
+        }
+
+        .page-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: fit-content;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        /* Form Card */
+        .form-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .form-section {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title .material-icons {
+            font-size: 16px;
+        }
+
+        .section-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .section-action:hover {
+            background: var(--primary-light);
+        }
+
+        .section-action .material-icons {
+            font-size: 16px;
+        }
+
+        /* Form Fields */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .form-label .required {
+            color: var(--error);
+            margin-left: 2px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(83, 109, 254, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-input.code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        /* Select Dropdown */
+        .form-select {
+            width: 100%;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: var(--text-primary);
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%238b949e'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 36px;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(83, 109, 254, 0.1);
+        }
+
+        /* Folder List - Draggable */
+        .folder-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--background);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            transition: all 0.2s;
+            cursor: grab;
+        }
+
+        .folder-item:hover {
+            border-color: var(--surface-elevated);
+        }
+
+        .folder-item.dragging {
+            opacity: 0.5;
+            border-color: var(--primary);
+            cursor: grabbing;
+        }
+
+        .folder-item.drag-over {
+            border-color: var(--primary);
+            background: rgba(83, 109, 254, 0.05);
+        }
+
+        .folder-drag-handle {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 4px;
+            color: var(--text-muted);
+            cursor: grab;
+        }
+
+        .folder-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .folder-drag-handle .material-icons {
+            font-size: 18px;
+        }
+
+        .folder-order {
+            width: 24px;
+            height: 24px;
+            background: var(--surface-light);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .folder-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--surface-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .folder-icon .material-icons {
+            color: var(--warning);
+            font-size: 20px;
+        }
+
+        .folder-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .folder-path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .folder-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .folder-type-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            background: var(--surface-light);
+            border-radius: 10px;
+            color: var(--text-muted);
+        }
+
+        .folder-status {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .folder-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .folder-action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .folder-action-btn:hover {
+            background: var(--surface-light);
+            color: var(--text-primary);
+        }
+
+        .folder-action-btn.danger:hover {
+            background: rgba(248, 81, 73, 0.1);
+            color: var(--error);
+        }
+
+        .folder-action-btn .material-icons {
+            font-size: 18px;
+        }
+
+        /* Add Folder Button */
+        .add-folder-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-folder-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary-light);
+            background: rgba(83, 109, 254, 0.05);
+        }
+
+        .add-folder-btn .material-icons {
+            font-size: 20px;
+        }
+
+        /* Empty State */
+        .empty-folders {
+            text-align: center;
+            padding: 32px 16px;
+        }
+
+        .empty-folders .material-icons {
+            font-size: 48px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .empty-folders-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .empty-folders-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Folder Type Selector Modal */
+        .folder-type-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .folder-type-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 12px;
+            background: var(--background);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .folder-type-option:hover {
+            border-color: var(--surface-elevated);
+        }
+
+        .folder-type-option.selected {
+            border-color: var(--primary);
+            background: rgba(83, 109, 254, 0.05);
+        }
+
+        .folder-type-option .material-icons {
+            font-size: 24px;
+            color: var(--primary-light);
+        }
+
+        .folder-type-name {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Drag hint */
+        .drag-hint {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding: 8px 12px;
+            background: var(--surface-light);
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .drag-hint .material-icons {
+            font-size: 14px;
+        }
+
+        /* Bottom Action Bar */
+        .action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 1000;
+        }
+
+        .action-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .unsaved-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--warning);
+        }
+
+        .unsaved-indicator .material-icons {
+            font-size: 16px;
+        }
+
+        .action-bar-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-secondary {
+            background: var(--surface-light);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-elevated);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-elevated);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 768px) {
+            .sidebar {
+                display: flex;
+            }
+
+            .content {
+                padding: 24px 32px;
+                padding-bottom: 100px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .form-card {
+                max-width: 800px;
+            }
+
+            .form-section {
+                padding: 24px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .folder-type-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .action-bar {
+                left: 260px;
+                padding: 0 32px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .content {
+                padding: 32px 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <button class="header-back">
+            <span class="material-icons">arrow_back</span>
+        </button>
+        <span class="header-title">Edit Repository</span>
+        <div class="header-actions">
+            <button class="icon-btn">
+                <span class="material-icons">sync</span>
+            </button>
+            <button class="icon-btn danger">
+                <span class="material-icons">delete</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Sidebar (Desktop) -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Configuration</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active">
+                    <span class="material-icons">source</span>
+                    Repositories
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">settings</span>
+                    General Settings
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">key</span>
+                    Credentials
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">webhook</span>
+                    Webhooks
+                </div>
+                <div class="nav-item">
+                    <span class="material-icons">history</span>
+                    Activity Log
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Content -->
+        <main class="content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">
+                    <span class="material-icons">edit</span>
+                    ECommerce.Api
+                </h1>
+                <p class="page-subtitle">github.com/org/ecommerce-api</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab">General</div>
+                <div class="tab active">Folders</div>
+                <div class="tab">Authentication</div>
+                <div class="tab">Settings</div>
+            </div>
+
+            <!-- Folder Configuration Form -->
+            <div class="form-card">
+                <!-- Folder List Section -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <span class="material-icons">folder</span>
+                            Configured Folders
+                        </div>
+                        <button class="section-action">
+                            <span class="material-icons">add</span>
+                            Add Folder
+                        </button>
+                    </div>
+
+                    <div class="drag-hint">
+                        <span class="material-icons">drag_indicator</span>
+                        Drag folders to reorder generation priority
+                    </div>
+
+                    <div class="folder-list">
+                        <!-- Folder Item 1 -->
+                        <div class="folder-item" draggable="true">
+                            <div class="folder-drag-handle">
+                                <span class="material-icons">drag_indicator</span>
+                            </div>
+                            <div class="folder-order">1</div>
+                            <div class="folder-icon">
+                                <span class="material-icons">folder</span>
+                            </div>
+                            <div class="folder-details">
+                                <div class="folder-path">src/ECommerce.Domain/Entities</div>
+                                <div class="folder-meta">
+                                    <span class="folder-type-badge">Entities</span>
+                                    <span class="folder-status">12 files</span>
+                                </div>
+                            </div>
+                            <div class="folder-actions">
+                                <button class="folder-action-btn" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="folder-action-btn danger" title="Remove">
+                                    <span class="material-icons">remove_circle</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Folder Item 2 -->
+                        <div class="folder-item" draggable="true">
+                            <div class="folder-drag-handle">
+                                <span class="material-icons">drag_indicator</span>
+                            </div>
+                            <div class="folder-order">2</div>
+                            <div class="folder-icon">
+                                <span class="material-icons">folder</span>
+                            </div>
+                            <div class="folder-details">
+                                <div class="folder-path">src/ECommerce.Application/Commands</div>
+                                <div class="folder-meta">
+                                    <span class="folder-type-badge">Commands</span>
+                                    <span class="folder-status">8 files</span>
+                                </div>
+                            </div>
+                            <div class="folder-actions">
+                                <button class="folder-action-btn" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="folder-action-btn danger" title="Remove">
+                                    <span class="material-icons">remove_circle</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Folder Item 3 -->
+                        <div class="folder-item" draggable="true">
+                            <div class="folder-drag-handle">
+                                <span class="material-icons">drag_indicator</span>
+                            </div>
+                            <div class="folder-order">3</div>
+                            <div class="folder-icon">
+                                <span class="material-icons">folder</span>
+                            </div>
+                            <div class="folder-details">
+                                <div class="folder-path">src/ECommerce.Application/Queries</div>
+                                <div class="folder-meta">
+                                    <span class="folder-type-badge">Queries</span>
+                                    <span class="folder-status">6 files</span>
+                                </div>
+                            </div>
+                            <div class="folder-actions">
+                                <button class="folder-action-btn" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="folder-action-btn danger" title="Remove">
+                                    <span class="material-icons">remove_circle</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Folder Item 4 -->
+                        <div class="folder-item drag-over" draggable="true">
+                            <div class="folder-drag-handle">
+                                <span class="material-icons">drag_indicator</span>
+                            </div>
+                            <div class="folder-order">4</div>
+                            <div class="folder-icon">
+                                <span class="material-icons">folder</span>
+                            </div>
+                            <div class="folder-details">
+                                <div class="folder-path">src/ECommerce.Api/Controllers</div>
+                                <div class="folder-meta">
+                                    <span class="folder-type-badge">Controllers</span>
+                                    <span class="folder-status">5 files</span>
+                                </div>
+                            </div>
+                            <div class="folder-actions">
+                                <button class="folder-action-btn" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="folder-action-btn danger" title="Remove">
+                                    <span class="material-icons">remove_circle</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Add Folder Button -->
+                        <div class="add-folder-btn">
+                            <span class="material-icons">add</span>
+                            Add another folder
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Folder Type Templates -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="material-icons">category</span>
+                        Quick Add by Type
+                    </div>
+
+                    <div class="folder-type-grid">
+                        <div class="folder-type-option">
+                            <span class="material-icons">data_object</span>
+                            <span class="folder-type-name">Entities</span>
+                        </div>
+                        <div class="folder-type-option selected">
+                            <span class="material-icons">send</span>
+                            <span class="folder-type-name">Commands</span>
+                        </div>
+                        <div class="folder-type-option">
+                            <span class="material-icons">search</span>
+                            <span class="folder-type-name">Queries</span>
+                        </div>
+                        <div class="folder-type-option">
+                            <span class="material-icons">api</span>
+                            <span class="folder-type-name">Controllers</span>
+                        </div>
+                        <div class="folder-type-option">
+                            <span class="material-icons">hub</span>
+                            <span class="folder-type-name">Services</span>
+                        </div>
+                        <div class="folder-type-option">
+                            <span class="material-icons">storage</span>
+                            <span class="folder-type-name">Repositories</span>
+                        </div>
+                        <div class="folder-type-option">
+                            <span class="material-icons">science</span>
+                            <span class="folder-type-name">Tests</span>
+                        </div>
+                        <div class="folder-type-option">
+                            <span class="material-icons">more_horiz</span>
+                            <span class="folder-type-name">Custom</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add New Folder Form (Inline) -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="material-icons">create_new_folder</span>
+                        Add New Folder
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Folder Path <span class="required">*</span>
+                        </label>
+                        <input type="text" class="form-input code" placeholder="src/Project/FolderName" value="">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Folder Type</label>
+                            <select class="form-select">
+                                <option value="">Select type...</option>
+                                <option value="entities">Entities</option>
+                                <option value="commands">Commands</option>
+                                <option value="queries">Queries</option>
+                                <option value="controllers">Controllers</option>
+                                <option value="services">Services</option>
+                                <option value="repositories">Repositories</option>
+                                <option value="tests">Tests</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Priority Order</label>
+                            <select class="form-select">
+                                <option value="5">5 (Add to end)</option>
+                                <option value="1">1 (First)</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <div class="action-bar-left">
+            <div class="unsaved-indicator">
+                <span class="material-icons">circle</span>
+                Unsaved changes
+            </div>
+        </div>
+        <div class="action-bar-right">
+            <button class="btn btn-secondary">Discard</button>
+            <button class="btn btn-primary">Save Changes</button>
+        </div>
+    </div>
+
+    <script>
+        // Drag and drop functionality
+        const folderList = document.querySelector('.folder-list');
+        const folderItems = document.querySelectorAll('.folder-item[draggable="true"]');
+
+        let draggedItem = null;
+
+        folderItems.forEach(item => {
+            item.addEventListener('dragstart', function(e) {
+                draggedItem = this;
+                this.classList.add('dragging');
+            });
+
+            item.addEventListener('dragend', function(e) {
+                this.classList.remove('dragging');
+                document.querySelectorAll('.folder-item').forEach(i => {
+                    i.classList.remove('drag-over');
+                });
+            });
+
+            item.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                if (this !== draggedItem) {
+                    this.classList.add('drag-over');
+                }
+            });
+
+            item.addEventListener('dragleave', function(e) {
+                this.classList.remove('drag-over');
+            });
+
+            item.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (this !== draggedItem) {
+                    const allItems = [...folderList.querySelectorAll('.folder-item[draggable="true"]')];
+                    const draggedIndex = allItems.indexOf(draggedItem);
+                    const droppedIndex = allItems.indexOf(this);
+
+                    if (draggedIndex < droppedIndex) {
+                        this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                    } else {
+                        this.parentNode.insertBefore(draggedItem, this);
+                    }
+
+                    // Update order numbers
+                    updateOrderNumbers();
+                }
+                this.classList.remove('drag-over');
+            });
+        });
+
+        function updateOrderNumbers() {
+            const items = document.querySelectorAll('.folder-item[draggable="true"]');
+            items.forEach((item, index) => {
+                const orderEl = item.querySelector('.folder-order');
+                if (orderEl) {
+                    orderEl.textContent = index + 1;
+                }
+            });
+        }
+
+        // Folder type selection
+        document.querySelectorAll('.folder-type-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.folder-type-option').forEach(o => {
+                    o.classList.remove('selected');
+                });
+                option.classList.add('selected');
+            });
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
