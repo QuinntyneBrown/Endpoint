@@ -1,0 +1,23 @@
+<nav class="ep-breadcrumb" aria-label="Breadcrumb">
+  <ol class="ep-breadcrumb__list">
+    <li
+      *ngFor="let item of items; let i = index"
+      class="ep-breadcrumb__item"
+      [class.ep-breadcrumb__item--active]="isLast(i)"
+    >
+      <button
+        *ngIf="!isLast(i)"
+        class="ep-breadcrumb__link"
+        (click)="onItemClick(item, i)"
+      >
+        {{ item.label }}
+      </button>
+      <span *ngIf="isLast(i)" class="ep-breadcrumb__current">
+        {{ item.label }}
+      </span>
+      <span *ngIf="!isLast(i)" class="ep-breadcrumb__separator">
+        <span class="material-icons">chevron_right</span>
+      </span>
+    </li>
+  </ol>
+</nav>

@@ -1,0 +1,19 @@
+<div class="ep-search-box">
+  <span class="ep-search-box__icon material-icons">search</span>
+  <input
+    type="text"
+    class="ep-search-box__input"
+    [placeholder]="placeholder"
+    [value]="value"
+    (input)="onInput($event)"
+    (keydown)="onKeyDown($event)"
+  />
+  <button
+    *ngIf="value"
+    class="ep-search-box__clear"
+    (click)="onClear()"
+    aria-label="Clear search"
+  >
+    <span class="material-icons">close</span>
+  </button>
+</div>

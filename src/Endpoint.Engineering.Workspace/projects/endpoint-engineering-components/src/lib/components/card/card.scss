@@ -1,0 +1,55 @@
+@import '../../tokens/design-tokens.scss';
+
+.ep-card {
+  background: var(--mat-surface);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+
+  /* Variants */
+  &--default {
+    background: var(--mat-surface);
+  }
+
+  &--elevated {
+    background: var(--mat-surface-elevated);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &--outlined {
+    background: transparent;
+    border: 1px solid var(--mat-divider);
+  }
+
+  /* Padding */
+  &--padding-none {
+    padding: 0;
+  }
+
+  &--padding-small {
+    padding: var(--spacing-md);
+  }
+
+  &--padding-medium {
+    padding: var(--spacing-lg);
+  }
+
+  &--padding-large {
+    padding: var(--spacing-xl);
+  }
+
+  /* Hoverable state */
+  &--hoverable {
+    cursor: pointer;
+
+    &:hover {
+      background: var(--mat-surface-elevated);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+}

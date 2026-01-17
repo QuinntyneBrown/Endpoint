@@ -1,0 +1,57 @@
+@import '../../tokens/design-tokens.scss';
+
+.ep-app-header {
+  background: var(--mat-surface);
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--mat-divider);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-sticky);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+
+  &__back-btn {
+    background: none;
+    border: none;
+    color: var(--mat-on-surface);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-base);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &:active {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .material-icons {
+      font-size: 24px;
+    }
+  }
+
+  &__title {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--mat-on-surface);
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+}
