@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solution Composer - Saved Configurations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --mat-primary: #9fa8da;
+            --mat-primary-lighter: #c5cae9;
+            --mat-accent: #f48fb1;
+            --mat-warn: #ef5350;
+            --mat-success: #81c784;
+            --mat-background: #0d1117;
+            --mat-surface: #161b22;
+            --mat-surface-elevated: #21262d;
+            --mat-surface-high: #30363d;
+            --mat-on-surface: #e6edf3;
+            --mat-on-surface-medium: rgba(230,237,243,0.7);
+            --mat-on-surface-disabled: rgba(230,237,243,0.38);
+            --mat-divider: rgba(230,237,243,0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--mat-background);
+            color: var(--mat-on-surface);
+            min-height: 100vh;
+        }
+
+        .app-header {
+            background: var(--mat-surface);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn, .icon-btn {
+            background: none;
+            border: none;
+            color: var(--mat-on-surface);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .page-title-header {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .main-content {
+            padding: 72px 16px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box .material-icons {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--mat-on-surface-disabled);
+            font-size: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-divider);
+            border-radius: 8px;
+            padding: 10px 12px 10px 40px;
+            color: var(--mat-on-surface);
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+        }
+
+        .filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-divider);
+            border-radius: 8px;
+            color: var(--mat-on-surface);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--mat-primary);
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .config-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .config-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .config-card {
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-divider);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .config-card:hover {
+            border-color: var(--mat-primary);
+            transform: translateY(-2px);
+        }
+
+        .config-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .config-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--mat-surface-elevated);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .config-icon .material-icons {
+            font-size: 28px;
+            color: var(--mat-primary);
+        }
+
+        .config-menu {
+            background: none;
+            border: none;
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .config-menu:hover {
+            color: var(--mat-on-surface);
+        }
+
+        .config-name {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .config-description {
+            font-size: 13px;
+            color: var(--mat-on-surface-medium);
+            margin-bottom: 16px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .config-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top: 16px;
+            border-top: 1px solid var(--mat-divider);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--mat-on-surface-medium);
+        }
+
+        .meta-item .material-icons {
+            font-size: 16px;
+        }
+
+        .config-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--mat-surface-elevated);
+            color: var(--mat-on-surface-medium);
+        }
+
+        .tag.github {
+            background: rgba(35, 134, 54, 0.2);
+            color: #3fb950;
+        }
+
+        .tag.local {
+            background: rgba(244, 143, 177, 0.2);
+            color: var(--mat-accent);
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--mat-primary);
+            color: #121212;
+        }
+
+        .btn-primary:hover {
+            background: var(--mat-primary-lighter);
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 24px;
+            padding: 20px;
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-divider);
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--mat-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--mat-on-surface-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .last-used {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(129, 199, 132, 0.2);
+            color: var(--mat-success);
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-left">
+            <button class="back-btn">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <span class="page-title-header">Saved Configurations</span>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn">
+                <span class="material-icons">help_outline</span>
+            </button>
+            <button class="icon-btn">
+                <span class="material-icons">more_vert</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">My Configurations</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary">
+                    <span class="material-icons">add</span>
+                    New Configuration
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Saved Configs</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">48</div>
+                <div class="stat-label">Total Repos</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value">127</div>
+                <div class="stat-label">Components</div>
+            </div>
+        </div>
+
+        <div class="search-filter">
+            <div class="search-box">
+                <span class="material-icons">search</span>
+                <input type="text" class="search-input" placeholder="Search configurations...">
+            </div>
+            <button class="filter-btn">
+                <span class="material-icons">filter_list</span>
+                Filter
+            </button>
+            <button class="filter-btn">
+                <span class="material-icons">sort</span>
+                Sort
+            </button>
+        </div>
+
+        <div class="config-grid">
+            <div class="config-card">
+                <div class="config-icon">
+                    <span class="material-icons">layers</span>
+                </div>
+                <div class="config-header">
+                    <div>
+                        <div class="config-name">E-Commerce API</div>
+                        <div class="last-used">
+                            <span class="material-icons" style="font-size: 12px;">access_time</span>
+                            Used 2 hours ago
+                        </div>
+                    </div>
+                    <button class="config-menu">
+                        <span class="material-icons">more_vert</span>
+                    </button>
+                </div>
+                <div class="config-description">
+                    Complete e-commerce solution with authentication, product catalog, shopping cart, and order management
+                </div>
+                <div class="config-meta">
+                    <div class="meta-item">
+                        <span class="material-icons">storage</span>
+                        3 repositories
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">folder</span>
+                        12 components
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">schedule</span>
+                        Updated 2 days ago
+                    </div>
+                </div>
+                <div class="config-tags">
+                    <span class="tag github">GitHub</span>
+                    <span class="tag local">Local</span>
+                    <span class="tag">.NET 8</span>
+                </div>
+            </div>
+
+            <div class="config-card">
+                <div class="config-icon">
+                    <span class="material-icons">layers</span>
+                </div>
+                <div class="config-header">
+                    <div>
+                        <div class="config-name">Microservices Template</div>
+                    </div>
+                    <button class="config-menu">
+                        <span class="material-icons">more_vert</span>
+                    </button>
+                </div>
+                <div class="config-description">
+                    Multi-service architecture with API gateway, message bus, and shared libraries
+                </div>
+                <div class="config-meta">
+                    <div class="meta-item">
+                        <span class="material-icons">storage</span>
+                        5 repositories
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">folder</span>
+                        24 components
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">schedule</span>
+                        Updated 5 days ago
+                    </div>
+                </div>
+                <div class="config-tags">
+                    <span class="tag github">GitHub</span>
+                    <span class="tag">.NET 8</span>
+                    <span class="tag">Docker</span>
+                </div>
+            </div>
+
+            <div class="config-card">
+                <div class="config-icon">
+                    <span class="material-icons">layers</span>
+                </div>
+                <div class="config-header">
+                    <div>
+                        <div class="config-name">Minimal API Starter</div>
+                    </div>
+                    <button class="config-menu">
+                        <span class="material-icons">more_vert</span>
+                    </button>
+                </div>
+                <div class="config-description">
+                    Lightweight API template with essential features for quick project starts
+                </div>
+                <div class="config-meta">
+                    <div class="meta-item">
+                        <span class="material-icons">storage</span>
+                        2 repositories
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">folder</span>
+                        6 components
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">schedule</span>
+                        Updated 1 week ago
+                    </div>
+                </div>
+                <div class="config-tags">
+                    <span class="tag github">GitHub</span>
+                    <span class="tag">.NET 8</span>
+                </div>
+            </div>
+
+            <div class="config-card">
+                <div class="config-icon">
+                    <span class="material-icons">layers</span>
+                </div>
+                <div class="config-header">
+                    <div>
+                        <div class="config-name">Authentication Module</div>
+                    </div>
+                    <button class="config-menu">
+                        <span class="material-icons">more_vert</span>
+                    </button>
+                </div>
+                <div class="config-description">
+                    JWT-based authentication with user management, role-based access control
+                </div>
+                <div class="config-meta">
+                    <div class="meta-item">
+                        <span class="material-icons">storage</span>
+                        1 repository
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">folder</span>
+                        4 components
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">schedule</span>
+                        Updated 2 weeks ago
+                    </div>
+                </div>
+                <div class="config-tags">
+                    <span class="tag local">Local</span>
+                    <span class="tag">.NET 8</span>
+                </div>
+            </div>
+
+            <div class="config-card">
+                <div class="config-icon">
+                    <span class="material-icons">layers</span>
+                </div>
+                <div class="config-header">
+                    <div>
+                        <div class="config-name">CQRS Pattern Base</div>
+                    </div>
+                    <button class="config-menu">
+                        <span class="material-icons">more_vert</span>
+                    </button>
+                </div>
+                <div class="config-description">
+                    Command Query Responsibility Segregation pattern implementation with MediatR
+                </div>
+                <div class="config-meta">
+                    <div class="meta-item">
+                        <span class="material-icons">storage</span>
+                        2 repositories
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">folder</span>
+                        8 components
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">schedule</span>
+                        Updated 3 weeks ago
+                    </div>
+                </div>
+                <div class="config-tags">
+                    <span class="tag github">GitHub</span>
+                    <span class="tag">.NET 7</span>
+                </div>
+            </div>
+
+            <div class="config-card">
+                <div class="config-icon">
+                    <span class="material-icons">layers</span>
+                </div>
+                <div class="config-header">
+                    <div>
+                        <div class="config-name">Clean Architecture</div>
+                    </div>
+                    <button class="config-menu">
+                        <span class="material-icons">more_vert</span>
+                    </button>
+                </div>
+                <div class="config-description">
+                    Full clean architecture setup with domain, application, infrastructure layers
+                </div>
+                <div class="config-meta">
+                    <div class="meta-item">
+                        <span class="material-icons">storage</span>
+                        4 repositories
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">folder</span>
+                        18 components
+                    </div>
+                    <div class="meta-item">
+                        <span class="material-icons">schedule</span>
+                        Updated 1 month ago
+                    </div>
+                </div>
+                <div class="config-tags">
+                    <span class="tag github">GitHub</span>
+                    <span class="tag local">Local</span>
+                    <span class="tag">.NET 8</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
