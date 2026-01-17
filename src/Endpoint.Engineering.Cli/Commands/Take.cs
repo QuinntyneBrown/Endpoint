@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -101,7 +102,7 @@ public class TakeRequestHandler : IRequestHandler<TakeRequest>
 
             _logger.LogInformation("Taking folder from local directory: {FromDirectory}", request.FromDirectory);
 
-            var takeRequest = new ALaCarteTakeRequest
+            var localTakeRequest = new ALaCarteTakeRequest
             {
                 FromDirectory = request.FromDirectory,
                 Directory = request.Directory,
@@ -109,9 +110,9 @@ public class TakeRequestHandler : IRequestHandler<TakeRequest>
                 Root = request.Root
             };
 
-            var result = await _alaCarteService.TakeAsync(takeRequest, cancellationToken);
+            var localResult = await _alaCarteService.TakeAsync(localTakeRequest, cancellationToken);
 
-            DisplayResult(result);
+            DisplayResult(localResult);
             return;
         }
 
