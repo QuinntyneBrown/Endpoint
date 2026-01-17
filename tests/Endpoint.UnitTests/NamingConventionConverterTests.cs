@@ -224,10 +224,10 @@ public class NamingConventionConverterTests
     }
 
     [Fact]
-    public void IsNamingConventionType_UnsupportedConvention_ThrowsNotImplementedException()
+    public void IsNamingConventionType_UnsupportedConvention_ReturnsFalse()
     {
-        Assert.Throws<NotImplementedException>(() =>
-            _converter.IsNamingConventionType(NamingConvention.AllCaps, "TEST"));
+        var result = _converter.IsNamingConventionType(NamingConvention.AllCaps, "TEST");
+        Assert.False(result);
     }
 
     #endregion

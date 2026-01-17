@@ -16,6 +16,6 @@ public class FileFactory : IFileFactory
 
     public TemplatedFileModel CreateTemplate(string template, string name, string directory, string extension = ".cs", string filename = null, Dictionary<string, object> tokens = null)
     {
-        throw new NotImplementedException();
+        return new TemplatedFileModel(template, name, directory, extension, tokens);
     }
 }

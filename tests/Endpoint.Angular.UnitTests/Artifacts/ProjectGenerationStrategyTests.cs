@@ -78,14 +78,17 @@ public class ProjectGenerationStrategyTests
     }
 
     [Fact]
-    public void Priority_ShouldThrowNotImplementedException()
+    public void Priority_ShouldReturnOne()
     {
         // Arrange
         var mockCommandService = new Mock<ICommandService>();
         var mockLogger = new Mock<ILogger<ProjectGenerationStrategy>>();
         var strategy = new ProjectGenerationStrategy(mockCommandService.Object, mockLogger.Object);
 
-        // Act & Assert
-        Assert.Throws<NotImplementedException>(() => strategy.Priority);
+        // Act
+        var priority = strategy.Priority;
+
+        // Assert
+        Assert.Equal(1, priority);
     }
 }

@@ -10,6 +10,11 @@ namespace Endpoint.Syntax;
 
 public class UtlitityService : IUtilityService
 {
+    private static readonly string CopyrightHeader = 
+        "// Copyright (c) Quinntyne Brown. All Rights Reserved." + Environment.NewLine +
+        "// Licensed under the MIT License. See License.txt in the project root for license information." + Environment.NewLine +
+        Environment.NewLine;
+    
     private readonly ILogger<UtlitityService> logger;
     private readonly Observable<INotification> observableNotifications;
     private readonly IFileSystem _fileSystem;
@@ -42,7 +47,14 @@ public class UtlitityService : IUtilityService
             {
                 logger.LogInformation("Broadcasting FileCreated Notification for {path}", path);
 
-                // TODO: write the copyright
+                var content = _fileSystem.File.ReadAllText(path);
+                var trimmedContent = content.TrimStart();
+                
+                // Check if file already has copyright notice (handle both // and /* */ style comments)
+                if (!trimmedContent.StartsWith("// Copyright") && !trimmedContent.StartsWith("/* Copyright"))
+                {
+                    _fileSystem.File.WriteAllText(path, CopyrightHeader + content);
+                }
             }
         }
     }

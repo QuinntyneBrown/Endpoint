@@ -175,9 +175,10 @@ public class NamingConventionConverter : INamingConventionConverter
             case NamingConvention.SnakeCase:
                 return !value.Contains(" ")
                     && !value.Any(c => char.IsUpper(c));
+            
+            default:
+                return false;
         }
-
-        throw new NotImplementedException();
     }
 
     public string FirstCharacterUpperAfterASpace(string value)
