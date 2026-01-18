@@ -1,0 +1,23 @@
+.request-create-page {
+  padding: 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-container {
+  margin-top: 24px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--mat-divider);
+}

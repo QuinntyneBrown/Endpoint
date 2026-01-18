@@ -1,0 +1,68 @@
+<div class="request-create-page">
+  <ee-page-header
+    title="Create A La Carte Request"
+    icon="add_circle_outline"
+  />
+
+  <div class="form-container">
+    <ee-form-section title="Basic Information">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Request Name</mat-label>
+        <input
+          matInput
+          [ngModel]="name()"
+          (ngModelChange)="name.set($event)"
+          placeholder="e.g., Backend API Project"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Solution Name</mat-label>
+        <input
+          matInput
+          [ngModel]="solutionName()"
+          (ngModelChange)="solutionName.set($event)"
+          placeholder="e.g., MyApi"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Output Directory</mat-label>
+        <input
+          matInput
+          [ngModel]="outputDirectory()"
+          (ngModelChange)="outputDirectory.set($event)"
+          placeholder="e.g., /projects/my-api"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Output Type</mat-label>
+        <mat-select
+          [ngModel]="outputType()"
+          (ngModelChange)="outputType.set($event)"
+        >
+          @for (type of outputTypes; track type) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </ee-form-section>
+
+    <div class="form-actions">
+      <ee-button
+        variant="secondary"
+        (clicked)="onCancel()"
+      >
+        Cancel
+      </ee-button>
+      <ee-button
+        variant="primary"
+        [disabled]="!isValid()"
+        (clicked)="onSave()"
+      >
+        Create Request
+      </ee-button>
+    </div>
+  </div>
+</div>
