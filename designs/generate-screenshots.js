@@ -51,9 +51,6 @@ async function captureScreenshots() {
         waitUntil: 'networkidle'
       });
       
-      // Wait for the page to be fully loaded
-      await page.waitForLoadState('domcontentloaded');
-      
       // Take full page screenshot
       const outputPath = path.join(designsDir, `${baseName}-${viewport.name}.png`);
       await page.screenshot({
@@ -74,7 +71,10 @@ async function captureScreenshots() {
 
 // Run the script with error handling
 captureScreenshots().catch(error => {
-  if (error.message.includes('browserType.launch') || error.message.includes('playwright')) {
+  if (error.code === 'MODULE_NOT_FOUND' || 
+      error.constructor.name === 'BrowserNotFoundError' ||
+      error.message.toLowerCase().includes('browser') ||
+      error.message.toLowerCase().includes('playwright')) {
     console.error('\n❌ Error: Playwright is not installed or browser is not available.');
     console.error('\nTo fix this, run the following commands:');
     console.error('  1. npm install (if you haven\'t already)');
