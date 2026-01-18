@@ -1,0 +1,53 @@
+<div class="home-page">
+  <ee-empty-state
+    title="Start Composing Your Solution"
+    description="Create a custom solution by selecting components from repositories, local folders, or templates. Build exactly what you need with drag-and-drop simplicity."
+  >
+    <div actions class="empty-state-actions">
+      <ee-button
+        variant="primary"
+        icon="add_circle_outline"
+        (clicked)="onNewComposition()"
+      >
+        New Composition
+      </ee-button>
+      <ee-button
+        variant="secondary"
+        icon="folder_open"
+        (clicked)="onLoadConfiguration()"
+      >
+        Load Saved Configuration
+      </ee-button>
+    </div>
+
+    <div quickStart class="quick-start">
+      <h3 class="quick-start-title">Quick Start</h3>
+      <div class="quick-start-options">
+        <ee-quick-option
+          icon="code"
+          title="From GitHub"
+          description="Clone from a Git repository"
+          (clicked)="onQuickOption('github')"
+        />
+        <ee-quick-option
+          icon="folder"
+          title="From Local"
+          description="Browse your file system"
+          (clicked)="onQuickOption('local')"
+        />
+        <ee-quick-option
+          icon="history"
+          title="Recent"
+          description="Continue previous work"
+          (clicked)="onQuickOption('recent')"
+        />
+        <ee-quick-option
+          icon="star"
+          title="Templates"
+          description="Start from a template"
+          (clicked)="onQuickOption('template')"
+        />
+      </div>
+    </div>
+  </ee-empty-state>
+</div>

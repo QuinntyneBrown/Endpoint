@@ -1,1 +1,36 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global Styles */
+:root {
+  --mat-primary: #9fa8da;
+  --mat-primary-lighter: #c5cae9;
+  --mat-primary-darker: #7986cb;
+  --mat-accent: #f48fb1;
+  --mat-accent-lighter: #f8bbd0;
+  --mat-accent-darker: #f06292;
+  --mat-warn: #ef5350;
+  --mat-success: #81c784;
+  --mat-background: #0d1117;
+  --mat-surface: #161b22;
+  --mat-surface-elevated: #21262d;
+  --mat-surface-high: #30363d;
+  --mat-on-surface: #e6edf3;
+  --mat-on-surface-medium: rgba(230, 237, 243, 0.7);
+  --mat-on-surface-disabled: rgba(230, 237, 243, 0.38);
+  --mat-divider: rgba(230, 237, 243, 0.12);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  background: var(--mat-background);
+  color: var(--mat-on-surface);
+  margin: 0;
+}

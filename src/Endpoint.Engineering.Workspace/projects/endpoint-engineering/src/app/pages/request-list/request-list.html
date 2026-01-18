@@ -1,0 +1,106 @@
+<div class="request-list-page">
+  <ee-page-header
+    title="A La Carte Requests"
+    icon="list"
+  >
+    <div actions>
+      <ee-button
+        variant="primary"
+        icon="add"
+        (clicked)="onNewRequest()"
+      >
+        New Request
+      </ee-button>
+    </div>
+  </ee-page-header>
+
+  <ee-stats-bar [stats]="stats()" />
+
+  <div class="list-controls">
+    <ee-search-box
+      placeholder="Search requests..."
+      (searchChanged)="onSearch($event)"
+    />
+  </div>
+
+  @if (requests().length === 0) {
+    <div class="empty-state">
+      <p>No requests found. Create your first A La Carte request to get started.</p>
+      <ee-button
+        variant="primary"
+        icon="add"
+        (clicked)="onNewRequest()"
+      >
+        Create First Request
+      </ee-button>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table mat-table [dataSource]="requests()" class="requests-table">
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <td mat-cell *matCellDef="let request">{{ request.name }}</td>
+        </ng-container>
+
+        <!-- Solution Name Column -->
+        <ng-container matColumnDef="solutionName">
+          <th mat-header-cell *matHeaderCellDef>Solution Name</th>
+          <td mat-cell *matCellDef="let request">{{ request.solutionName }}</td>
+        </ng-container>
+
+        <!-- Repositories Column -->
+        <ng-container matColumnDef="repositories">
+          <th mat-header-cell *matHeaderCellDef>Repositories</th>
+          <td mat-cell *matCellDef="let request">
+            <ee-tag [label]="request.repositories.length.toString()" variant="primary" />
+          </td>
+        </ng-container>
+
+        <!-- Created Column -->
+        <ng-container matColumnDef="created">
+          <th mat-header-cell *matHeaderCellDef>Created</th>
+          <td mat-cell *matCellDef="let request">{{ formatDate(request.createdAt) }}</td>
+        </ng-container>
+
+        <!-- Last Used Column -->
+        <ng-container matColumnDef="lastUsed">
+          <th mat-header-cell *matHeaderCellDef>Last Used</th>
+          <td mat-cell *matCellDef="let request">{{ formatDate(request.lastUsed) }}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let request">
+            <div class="actions">
+              <ee-icon-button
+                icon="visibility"
+                ariaLabel="View"
+                (clicked)="onView(request)"
+              />
+              <ee-icon-button
+                icon="edit"
+                ariaLabel="Edit"
+                (clicked)="onEdit(request)"
+              />
+              <ee-icon-button
+                icon="play_arrow"
+                ariaLabel="Execute"
+                (clicked)="onExecute(request)"
+              />
+              <ee-icon-button
+                icon="delete"
+                ariaLabel="Delete"
+                (clicked)="onDelete(request)"
+              />
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  }
+</div>
