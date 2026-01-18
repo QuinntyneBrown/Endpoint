@@ -28,7 +28,7 @@ async function captureScreenshots() {
     { name: 'mobile', width: 375, height: 812 }
   ];
 
-  const designsDir = __dirname;
+  const designsDir = path.resolve(__dirname);
   
   for (const file of files) {
     const baseName = file.replace('.html', '');
