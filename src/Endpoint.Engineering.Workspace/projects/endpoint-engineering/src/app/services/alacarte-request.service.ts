@@ -107,7 +107,7 @@ export class ALaCarteRequestService {
   }
 
   private generateId(): string {
-    return `alacarte-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `alacarte-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   }
 
   private loadMockData(): void {
