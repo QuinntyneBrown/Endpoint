@@ -1,0 +1,145 @@
+<div class="request-detail-page">
+  @if (loading()) {
+    <div class="loading">Loading...</div>
+  } @else if (!request()) {
+    <div class="not-found">
+      <mat-icon>error_outline</mat-icon>
+      <h2>Request Not Found</h2>
+      <p>The requested A La Carte request could not be found.</p>
+      <ee-button variant="primary" (clicked)="onBack()">
+        Back to Requests
+      </ee-button>
+    </div>
+  } @else {
+    <ee-page-header
+      [title]="request()!.name"
+      [showBackButton]="false"
+      [showHelpButton]="false"
+      [showMenuButton]="false"
+    >
+      <div class="header-actions">
+        <ee-button variant="secondary" (clicked)="onBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Back
+        </ee-button>
+        <ee-button variant="secondary" (clicked)="onEdit()">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </ee-button>
+        <ee-button variant="primary" (clicked)="onExecute()">
+          <mat-icon>play_arrow</mat-icon>
+          Execute
+        </ee-button>
+      </div>
+    </ee-page-header>
+
+    <mat-tab-group
+      [(selectedIndex)]="activeTab"
+      class="detail-tabs"
+    >
+      <!-- Configuration Tab -->
+      <mat-tab label="Configuration">
+        <div class="tab-content">
+          <div class="info-section">
+            <h3>Basic Information</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Request Name</span>
+                <span class="info-value">{{ request()!.name }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Solution Name</span>
+                <span class="info-value">{{ request()!.solutionName }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Output Directory</span>
+                <span class="info-value mono">{{ request()!.outputDirectory }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Output Type</span>
+                <span class="info-value">{{ request()!.outputType }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Repositories</span>
+                <span class="info-value">{{ request()!.repositories.length }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Created</span>
+                <span class="info-value">{{ request()!.createdAt | date:'medium' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Last Used</span>
+                <span class="info-value">{{ request()!.lastUsed ? (request()!.lastUsed | date:'medium') : 'Never' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Execution Count</span>
+                <span class="info-value">{{ request()!.executionCount }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h3>Repositories</h3>
+            @if (request()!.repositories.length === 0) {
+              <p class="empty-message">No repositories configured</p>
+            } @else {
+              @for (repo of request()!.repositories; track $index) {
+                <div class="repo-item">
+                  <div class="repo-header">
+                    <mat-icon>{{ repo.isLocal ? 'folder' : 'cloud' }}</mat-icon>
+                    <span class="repo-url">{{ repo.isLocal ? 'Local' : repo.url }}</span>
+                    @if (!repo.isLocal) {
+                      <span class="repo-branch">{{ repo.branch }}</span>
+                    }
+                  </div>
+                  <div class="repo-folders">
+                    <span class="folder-count">{{ repo.folders.length }} folder mappings</span>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+
+          <div class="info-section">
+            <h3>Request JSON</h3>
+            <ee-json-preview
+              [data]="requestJson()"
+              title="Configuration"
+              maxHeight="300px"
+            />
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Execution Tab -->
+      <mat-tab label="Execution">
+        <div class="tab-content">
+          @if (execution()) {
+            <div class="execution-info">
+              <h3>Current Execution</h3>
+              <p>Status: {{ execution()!.status }}</p>
+            </div>
+          } @else {
+            <div class="no-execution">
+              <mat-icon>play_circle_outline</mat-icon>
+              <p>No active execution</p>
+              <ee-button variant="primary" (clicked)="onExecute()">
+                Start Execution
+              </ee-button>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- History Tab -->
+      <mat-tab label="History">
+        <div class="tab-content">
+          <div class="no-history">
+            <mat-icon>history</mat-icon>
+            <p>No execution history available</p>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

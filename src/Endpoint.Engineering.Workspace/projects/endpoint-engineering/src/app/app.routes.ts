@@ -17,5 +17,31 @@ export const routes: Routes = [
   {
     path: 'request/create',
     loadComponent: () => import('./pages/request-create/request-create').then(m => m.RequestCreatePage)
+  },
+  {
+    path: 'request/:id',
+    loadComponent: () => import('./pages/request-detail/request-detail').then(m => m.RequestDetailPage)
+  },
+  {
+    path: 'request/:id/edit',
+    loadComponent: () => import('./pages/request-create/request-create').then(m => m.RequestCreatePage)
+  },
+  {
+    path: 'settings',
+    loadComponent: () => import('./pages/settings/settings').then(m => m.SettingsPage)
+  },
+  // Placeholder routes for rail navigation
+  {
+    path: 'explorer',
+    redirectTo: 'home'
+  },
+  {
+    path: 'search',
+    redirectTo: 'requests'
+  },
+  // Wildcard route
+  {
+    path: '**',
+    redirectTo: 'home'
   }
 ];

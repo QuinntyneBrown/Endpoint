@@ -1,0 +1,214 @@
+.global-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height, 48px);
+  background: var(--mat-surface, #161b22);
+  border-bottom: 1px solid var(--mat-divider, rgba(230, 237, 243, 0.12));
+  display: flex;
+  align-items: center;
+  z-index: 200;
+  padding: 0 var(--space-2, 8px);
+}
+
+// Left section - Logo & Menu
+.global-header__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  flex-shrink: 0;
+}
+
+.global-header__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  padding: var(--space-2, 8px);
+  color: var(--mat-on-surface, #e6edf3);
+  text-decoration: none;
+  border-radius: var(--radius-sm, 4px);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--mat-hover, rgba(255, 255, 255, 0.08));
+  }
+}
+
+.global-header__logo-icon {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, var(--mat-primary, #9fa8da), var(--mat-accent, #f48fb1));
+  border-radius: var(--radius-sm, 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #121212;
+  }
+}
+
+.global-header__logo-text {
+  font-size: var(--font-size-sm, 12px);
+  font-weight: 500;
+  display: none;
+
+  @media (min-width: 768px) {
+    display: block;
+  }
+}
+
+// Menu Items
+.global-header__menu {
+  display: none;
+  align-items: center;
+  gap: var(--space-1, 4px);
+
+  @media (min-width: 768px) {
+    display: flex;
+  }
+}
+
+.global-header__menu-item {
+  font-size: var(--font-size-sm, 12px);
+  color: var(--mat-on-surface-medium, rgba(230, 237, 243, 0.7));
+  min-width: auto;
+  padding: var(--space-1, 4px) var(--space-3, 12px);
+}
+
+// Mobile Menu Button
+.global-header__mobile-menu {
+  display: flex;
+
+  @media (min-width: 768px) {
+    display: none;
+  }
+}
+
+// Center section - Search Bar
+.global-header__center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--space-4, 16px);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.global-header__search {
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  cursor: pointer;
+}
+
+.global-header__search-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 var(--space-3, 12px) 0 36px;
+  background: var(--mat-surface-elevated, #21262d);
+  border: 1px solid var(--mat-border, #30363d);
+  border-radius: var(--radius-sm, 4px);
+  color: var(--mat-on-surface, #e6edf3);
+  font-family: inherit;
+  font-size: var(--font-size-sm, 12px);
+  transition: all 0.15s ease;
+  cursor: pointer;
+
+  &::placeholder {
+    color: var(--mat-on-surface-disabled, rgba(230, 237, 243, 0.38));
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--mat-primary, #9fa8da);
+    background: var(--mat-surface-high, #30363d);
+  }
+}
+
+.global-header__search-icon {
+  position: absolute;
+  left: var(--space-2, 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--mat-on-surface-disabled, rgba(230, 237, 243, 0.38));
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.global-header__search-shortcut {
+  position: absolute;
+  right: var(--space-2, 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  align-items: center;
+  gap: 2px;
+
+  @media (min-width: 992px) {
+    display: flex;
+  }
+}
+
+.global-header__search-key {
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  background: var(--mat-surface-high, #30363d);
+  border: 1px solid var(--mat-border, #30363d);
+  border-radius: 3px;
+  color: var(--mat-on-surface-disabled, rgba(230, 237, 243, 0.38));
+}
+
+// Right section - Actions
+.global-header__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  flex-shrink: 0;
+}
+
+.global-header__action {
+  color: var(--mat-on-surface-medium, rgba(230, 237, 243, 0.7));
+}
+
+// Window Controls (VS Code style)
+.global-header__window-controls {
+  display: none;
+  align-items: center;
+  margin-left: var(--space-2, 8px);
+
+  @media (min-width: 768px) {
+    display: flex;
+  }
+}
+
+.global-header__window-btn {
+  width: 46px;
+  height: var(--header-height, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--mat-on-surface-medium, rgba(230, 237, 243, 0.7));
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--mat-hover, rgba(255, 255, 255, 0.08));
+  }
+
+  &--close:hover {
+    background: var(--mat-warn, #ef5350);
+    color: white;
+  }
+
+  mat-icon {
+    font-size: 18px;
+  }
+}

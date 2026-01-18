@@ -1,0 +1,28 @@
+<div class="main-layout">
+  <!-- Global Header -->
+  <app-global-header
+    title="Endpoint Engineering"
+    [notificationCount]="notificationCount()"
+    (menuToggle)="onMenuToggle()"
+    (searchClick)="onSearchClick()"
+    (notificationsClick)="onNotificationsClick()"
+    (accountClick)="onAccountClick()"
+  />
+
+  <!-- Mobile Menu Overlay -->
+  @if (mobileMenuOpen()) {
+    <div class="mobile-overlay" (click)="closeMobileMenu()"></div>
+  }
+
+  <!-- Rail (Activity Bar) -->
+  <app-rail
+    [isOpen]="mobileMenuOpen()"
+    (settingsClick)="onSettingsClick()"
+    (itemClick)="closeMobileMenu()"
+  />
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <router-outlet />
+  </main>
+</div>
