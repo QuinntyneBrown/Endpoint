@@ -1,0 +1,98 @@
+<div class="folder-mapping-list">
+  @if (repositoryName()) {
+    <div class="folder-mapping-list__header">
+      <mat-icon class="folder-mapping-list__header-icon">cloud</mat-icon>
+      <span class="folder-mapping-list__header-title">{{ repositoryName() }}</span>
+    </div>
+  }
+
+  <div class="folder-mapping-list__content">
+    @if (folders().length === 0) {
+      <div class="folder-mapping-list__empty">
+        <mat-icon>folder_off</mat-icon>
+        <span>No folder mappings configured</span>
+      </div>
+    } @else {
+      <ul
+        class="folder-list"
+        cdkDropList
+        [cdkDropListData]="folders()"
+        (cdkDropListDropped)="onDrop($event)"
+      >
+        @for (folder of folders(); track folder.id) {
+          <li
+            class="folder-item"
+            [class.folder-item--editing]="isEditing(folder)"
+            cdkDrag
+            [cdkDragDisabled]="!editable()"
+          >
+            <!-- Drag Handle -->
+            @if (editable()) {
+              <span class="folder-item__drag" cdkDragHandle>
+                <mat-icon>drag_indicator</mat-icon>
+              </span>
+            }
+
+            <!-- Folder Icon -->
+            <mat-icon class="folder-item__icon">folder</mat-icon>
+
+            <!-- Content -->
+            @if (isEditing(folder)) {
+              <div class="folder-item__edit-form">
+                <mat-form-field appearance="outline" class="folder-item__field">
+                  <mat-label>Source Path</mat-label>
+                  <input
+                    matInput
+                    [ngModel]="folder.sourcePath"
+                    (ngModelChange)="onSourcePathChange(folder, $event)"
+                    placeholder="src/Core"
+                  />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="folder-item__field">
+                  <mat-label>Destination Path</mat-label>
+                  <input
+                    matInput
+                    [ngModel]="folder.destinationPath"
+                    (ngModelChange)="onDestinationPathChange(folder, $event)"
+                    placeholder="libs/core"
+                  />
+                </mat-form-field>
+                <button class="folder-item__done-btn" (click)="finishEditing()">
+                  <mat-icon>check</mat-icon>
+                </button>
+              </div>
+            } @else {
+              <div class="folder-item__content">
+                <span class="folder-item__from">{{ folder.sourcePath }}</span>
+                <mat-icon class="folder-item__arrow">arrow_forward</mat-icon>
+                <span class="folder-item__to">{{ folder.destinationPath }}</span>
+              </div>
+            }
+
+            <!-- Actions -->
+            @if (editable() && !isEditing(folder)) {
+              <div class="folder-item__actions">
+                <button class="folder-item__action-btn" (click)="onEdit(folder)" aria-label="Edit">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button class="folder-item__action-btn folder-item__action-btn--danger" (click)="onDelete(folder)" aria-label="Delete">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+
+            <!-- Drag Placeholder -->
+            <div class="folder-item__placeholder" *cdkDragPlaceholder></div>
+          </li>
+        }
+      </ul>
+    }
+
+    @if (editable()) {
+      <button class="add-button" (click)="onAdd()">
+        <mat-icon>add</mat-icon>
+        <span>Add Folder Mapping</span>
+      </button>
+    }
+  </div>
+</div>

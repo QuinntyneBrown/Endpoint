@@ -1,0 +1,129 @@
+.json-preview {
+  background: var(--mat-surface, #161b22);
+  border: 1px solid var(--mat-border, #30363d);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.json-preview__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--mat-surface-elevated, #21262d);
+  border-bottom: 1px solid var(--mat-divider, rgba(230, 237, 243, 0.12));
+}
+
+.json-preview__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--mat-on-surface, #e6edf3);
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--mat-primary, #9fa8da);
+  }
+}
+
+.json-preview__copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--mat-surface-high, #30363d);
+  border: 1px solid var(--mat-border, #30363d);
+  border-radius: 4px;
+  color: var(--mat-on-surface-medium, rgba(230, 237, 243, 0.7));
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--mat-hover, rgba(255, 255, 255, 0.08));
+    border-color: var(--mat-primary, #9fa8da);
+    color: var(--mat-on-surface, #e6edf3);
+  }
+
+  &--copied {
+    background: var(--mat-success, #81c784);
+    border-color: var(--mat-success, #81c784);
+    color: #121212;
+
+    &:hover {
+      background: var(--mat-success, #81c784);
+      border-color: var(--mat-success, #81c784);
+    }
+  }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.json-preview__content {
+  overflow: auto;
+  padding: 16px;
+  background: var(--mat-background, #0d1117);
+}
+
+.json-preview__code {
+  margin: 0;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--mat-on-surface, #e6edf3);
+  white-space: pre;
+  tab-size: 2;
+
+  // Syntax highlighting colors
+  :global(.json-key) {
+    color: var(--mat-primary, #9fa8da);
+  }
+
+  :global(.json-string) {
+    color: var(--mat-success, #81c784);
+  }
+
+  :global(.json-number) {
+    color: var(--mat-accent, #f48fb1);
+  }
+
+  :global(.json-boolean) {
+    color: var(--mat-info, #64b5f6);
+  }
+
+  :global(.json-null) {
+    color: var(--mat-on-surface-disabled, rgba(230, 237, 243, 0.38));
+  }
+}
+
+// Handle the innerHTML syntax highlighting
+::ng-deep {
+  .json-key {
+    color: var(--mat-primary, #9fa8da);
+  }
+
+  .json-string {
+    color: var(--mat-success, #81c784);
+  }
+
+  .json-number {
+    color: var(--mat-accent, #f48fb1);
+  }
+
+  .json-boolean {
+    color: #64b5f6;
+  }
+
+  .json-null {
+    color: rgba(230, 237, 243, 0.38);
+  }
+}

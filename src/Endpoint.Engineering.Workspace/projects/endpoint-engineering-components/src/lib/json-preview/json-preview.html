@@ -1,0 +1,21 @@
+<div class="json-preview">
+  <div class="json-preview__header">
+    <div class="json-preview__title">
+      <mat-icon>code</mat-icon>
+      <span>{{ title() }}</span>
+    </div>
+    @if (showCopyButton()) {
+      <button
+        class="json-preview__copy-btn"
+        (click)="copyToClipboard()"
+        [class.json-preview__copy-btn--copied]="copied"
+      >
+        <mat-icon>{{ copied ? 'check' : 'content_copy' }}</mat-icon>
+        <span>{{ copied ? 'Copied!' : 'Copy' }}</span>
+      </button>
+    }
+  </div>
+  <div class="json-preview__content" [style.maxHeight]="maxHeight()">
+    <pre class="json-preview__code" [innerHTML]="formattedJson()"></pre>
+  </div>
+</div>

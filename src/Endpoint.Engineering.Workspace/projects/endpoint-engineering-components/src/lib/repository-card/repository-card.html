@@ -1,0 +1,62 @@
+<div class="repo-card" [class.repo-card--expanded]="expanded()">
+  <div class="repo-card__header">
+    <div class="repo-card__title">
+      <mat-icon class="repo-card__icon">
+        {{ repository().isLocal ? 'folder' : 'cloud' }}
+      </mat-icon>
+      <span class="repo-card__name">{{ getDisplayName() }}</span>
+      @if (repository().foldersCount !== undefined && repository().foldersCount! > 0) {
+        <span class="repo-card__badge">{{ repository().foldersCount }} folders</span>
+      }
+    </div>
+    @if (editable()) {
+      <div class="repo-card__actions">
+        <button class="repo-card__action-btn" (click)="onEdit()" aria-label="Edit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button class="repo-card__action-btn repo-card__action-btn--danger" (click)="onDelete()" aria-label="Delete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (expanded()) {
+    <div class="repo-card__body">
+      @if (repository().isLocal) {
+        <mat-form-field appearance="outline" class="repo-card__field">
+          <mat-label>Local Directory</mat-label>
+          <input
+            matInput
+            [ngModel]="repository().localDirectory"
+            (ngModelChange)="onLocalDirectoryChange($event)"
+            placeholder="/path/to/local/project"
+          />
+          <mat-icon matPrefix>folder</mat-icon>
+        </mat-form-field>
+      } @else {
+        <mat-form-field appearance="outline" class="repo-card__field">
+          <mat-label>Repository URL</mat-label>
+          <input
+            matInput
+            [ngModel]="repository().url"
+            (ngModelChange)="onUrlChange($event)"
+            placeholder="https://github.com/user/repo.git"
+          />
+          <mat-icon matPrefix>link</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="repo-card__field">
+          <mat-label>Branch</mat-label>
+          <input
+            matInput
+            [ngModel]="repository().branch"
+            (ngModelChange)="onBranchChange($event)"
+            placeholder="main"
+          />
+          <mat-icon matPrefix>account_tree</mat-icon>
+        </mat-form-field>
+      }
+    </div>
+  }
+</div>

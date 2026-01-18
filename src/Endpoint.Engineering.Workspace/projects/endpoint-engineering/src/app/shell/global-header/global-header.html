@@ -1,0 +1,151 @@
+<header class="global-header">
+  <!-- Left: Logo & Menu -->
+  <div class="global-header__left">
+    <!-- Mobile Menu Button -->
+    <button
+      mat-icon-button
+      class="global-header__mobile-menu"
+      (click)="onMenuToggle()"
+      aria-label="Toggle menu"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <!-- Logo -->
+    <a routerLink="/home" class="global-header__logo">
+      <div class="global-header__logo-icon">
+        <mat-icon>layers</mat-icon>
+      </div>
+      <span class="global-header__logo-text">{{ title() }}</span>
+    </a>
+
+    <!-- Menu Items (Desktop) -->
+    <nav class="global-header__menu">
+      <button mat-button [matMenuTriggerFor]="fileMenu" class="global-header__menu-item">File</button>
+      <mat-menu #fileMenu="matMenu">
+        <button mat-menu-item routerLink="/request/create">
+          <mat-icon>add</mat-icon>
+          <span>New Request</span>
+        </button>
+        <button mat-menu-item routerLink="/requests">
+          <mat-icon>folder_open</mat-icon>
+          <span>Open Request</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item>
+          <mat-icon>save</mat-icon>
+          <span>Save</span>
+        </button>
+      </mat-menu>
+
+      <button mat-button [matMenuTriggerFor]="editMenu" class="global-header__menu-item">Edit</button>
+      <mat-menu #editMenu="matMenu">
+        <button mat-menu-item>
+          <mat-icon>undo</mat-icon>
+          <span>Undo</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>redo</mat-icon>
+          <span>Redo</span>
+        </button>
+      </mat-menu>
+
+      <button mat-button [matMenuTriggerFor]="viewMenu" class="global-header__menu-item">View</button>
+      <mat-menu #viewMenu="matMenu">
+        <button mat-menu-item>
+          <mat-icon>refresh</mat-icon>
+          <span>Refresh</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>fullscreen</mat-icon>
+          <span>Toggle Full Screen</span>
+        </button>
+      </mat-menu>
+
+      <button mat-button [matMenuTriggerFor]="goMenu" class="global-header__menu-item">Go</button>
+      <mat-menu #goMenu="matMenu">
+        <button mat-menu-item routerLink="/home">
+          <mat-icon>home</mat-icon>
+          <span>Home</span>
+        </button>
+        <button mat-menu-item routerLink="/requests">
+          <mat-icon>list_alt</mat-icon>
+          <span>Requests</span>
+        </button>
+      </mat-menu>
+
+      <button mat-button [matMenuTriggerFor]="runMenu" class="global-header__menu-item">Run</button>
+      <mat-menu #runMenu="matMenu">
+        <button mat-menu-item>
+          <mat-icon>play_arrow</mat-icon>
+          <span>Execute Request</span>
+        </button>
+      </mat-menu>
+
+      <button mat-button [matMenuTriggerFor]="helpMenu" class="global-header__menu-item">Help</button>
+      <mat-menu #helpMenu="matMenu">
+        <button mat-menu-item>
+          <mat-icon>help_outline</mat-icon>
+          <span>Documentation</span>
+        </button>
+        <button mat-menu-item>
+          <mat-icon>info</mat-icon>
+          <span>About</span>
+        </button>
+      </mat-menu>
+    </nav>
+  </div>
+
+  <!-- Center: Search Bar -->
+  <div class="global-header__center">
+    <div class="global-header__search" (click)="onSearchClick()">
+      <mat-icon class="global-header__search-icon">search</mat-icon>
+      <input
+        type="text"
+        class="global-header__search-input"
+        placeholder="Search files, commands..."
+        readonly
+      />
+      <div class="global-header__search-shortcut">
+        <span class="global-header__search-key">Ctrl</span>
+        <span class="global-header__search-key">P</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Actions & Window Controls -->
+  <div class="global-header__right">
+    <button
+      mat-icon-button
+      class="global-header__action"
+      (click)="onNotificationsClick()"
+      [matBadge]="notificationCount() > 0 ? notificationCount() : null"
+      matBadgeColor="accent"
+      matBadgeSize="small"
+      aria-label="Notifications"
+    >
+      <mat-icon>notifications_none</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      class="global-header__action"
+      (click)="onAccountClick()"
+      aria-label="Account"
+    >
+      <mat-icon>account_circle</mat-icon>
+    </button>
+
+    <!-- Window Controls (VS Code style) -->
+    <div class="global-header__window-controls">
+      <button class="global-header__window-btn" aria-label="Minimize">
+        <mat-icon>remove</mat-icon>
+      </button>
+      <button class="global-header__window-btn" aria-label="Maximize">
+        <mat-icon>crop_square</mat-icon>
+      </button>
+      <button class="global-header__window-btn global-header__window-btn--close" aria-label="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+</header>

@@ -1,63 +1,262 @@
-<div class="request-create-page">
-  <div class="form-container">
-    <ee-form-section title="Basic Information">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Request Name</mat-label>
-        <input
-          matInput
-          [ngModel]="name()"
-          (ngModelChange)="name.set($event)"
-          placeholder="e.g., Backend API Project"
-        />
-      </mat-form-field>
+<div class="wizard-container">
+  <!-- Wizard Stepper -->
+  <div class="wizard-stepper">
+    <ee-wizard-steps
+      [steps]="steps"
+      [currentStep]="currentStep()"
+    />
+  </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Solution Name</mat-label>
-        <input
-          matInput
-          [ngModel]="solutionName()"
-          (ngModelChange)="solutionName.set($event)"
-          placeholder="e.g., MyApi"
-        />
-      </mat-form-field>
+  <!-- Wizard Content -->
+  <div class="wizard-content">
+    <!-- Step 1: Basic Info -->
+    @if (currentStep() === 0) {
+      <div class="wizard-step">
+        <div class="wizard-step__header">
+          <h2 class="wizard-step__title">Basic Information</h2>
+          <p class="wizard-step__description">
+            Configure the output settings for your A La Carte request.
+          </p>
+        </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Output Directory</mat-label>
-        <input
-          matInput
-          [ngModel]="outputDirectory()"
-          (ngModelChange)="outputDirectory.set($event)"
-          placeholder="e.g., /projects/my-api"
-        />
-      </mat-form-field>
+        <ee-form-section title="Request Details">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Request Name</mat-label>
+            <input
+              matInput
+              [ngModel]="name()"
+              (ngModelChange)="name.set($event)"
+              placeholder="e.g., Backend API Project"
+            />
+            <mat-hint>A descriptive name for this request configuration</mat-hint>
+          </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Output Type</mat-label>
-        <mat-select
-          [ngModel]="outputType()"
-          (ngModelChange)="outputType.set($event)"
-        >
-          @for (type of outputTypes; track type) {
-            <mat-option [value]="type">{{ type }}</mat-option>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Solution Name</mat-label>
+            <input
+              matInput
+              [ngModel]="solutionName()"
+              (ngModelChange)="solutionName.set($event)"
+              placeholder="e.g., MyApi.sln"
+            />
+            <mat-hint>The name of the solution file to create</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Output Directory</mat-label>
+            <input
+              matInput
+              [ngModel]="outputDirectory()"
+              (ngModelChange)="outputDirectory.set($event)"
+              placeholder="e.g., /projects/my-api"
+            />
+            <mat-icon matPrefix>folder</mat-icon>
+            <mat-hint>Where the composed solution will be created</mat-hint>
+          </mat-form-field>
+        </ee-form-section>
+
+        <ee-form-section title="Output Type">
+          <mat-radio-group
+            class="output-type-group"
+            [ngModel]="outputType()"
+            (ngModelChange)="outputType.set($event)"
+          >
+            <mat-radio-button class="output-type-option" [value]="OutputType.DotNetSolution">
+              <div class="output-type-content">
+                <span class="output-type-label">.NET Solution</span>
+                <span class="output-type-description">Create a .sln containing all .csproj files</span>
+              </div>
+            </mat-radio-button>
+            <mat-radio-button class="output-type-option" [value]="OutputType.AngularWorkspace">
+              <div class="output-type-content">
+                <span class="output-type-label">Angular Workspace</span>
+                <span class="output-type-description">Create an Angular workspace with multiple projects</span>
+              </div>
+            </mat-radio-button>
+            <mat-radio-button class="output-type-option" [value]="OutputType.ReactApp">
+              <div class="output-type-content">
+                <span class="output-type-label">React Application</span>
+                <span class="output-type-description">Create a React application structure</span>
+              </div>
+            </mat-radio-button>
+            <mat-radio-button class="output-type-option" [value]="OutputType.Custom">
+              <div class="output-type-content">
+                <span class="output-type-label">Custom</span>
+                <span class="output-type-description">Just copy folders without framework-specific setup</span>
+              </div>
+            </mat-radio-button>
+          </mat-radio-group>
+        </ee-form-section>
+      </div>
+    }
+
+    <!-- Step 2: Repositories -->
+    @if (currentStep() === 1) {
+      <div class="wizard-step">
+        <div class="wizard-step__header">
+          <h2 class="wizard-step__title">Add Repositories</h2>
+          <p class="wizard-step__description">
+            Add Git repositories or local directories to include in your composition.
+            Each repository can contain multiple folder mappings.
+          </p>
+        </div>
+
+        <div class="repositories-list">
+          @for (repo of repositories(); track repo.id; let i = $index) {
+            <ee-repository-card
+              [repository]="repo"
+              [expanded]="true"
+              (delete)="deleteRepository($event)"
+              (urlChange)="onRepositoryUrlChange(i, $event)"
+              (branchChange)="onRepositoryBranchChange(i, $event)"
+              (localDirectoryChange)="onRepositoryLocalDirectoryChange(i, $event)"
+            />
           }
-        </mat-select>
-      </mat-form-field>
-    </ee-form-section>
 
-    <div class="form-actions">
-      <ee-button
-        variant="secondary"
-        (clicked)="onCancel()"
-      >
-        Cancel
+          @if (repositories().length === 0) {
+            <div class="empty-repositories">
+              <mat-icon>source</mat-icon>
+              <p>No repositories added yet</p>
+              <p class="empty-repositories__hint">Add a Git repository or local directory to get started</p>
+            </div>
+          }
+
+          <div class="add-buttons">
+            <button class="add-button" (click)="addRepository(false)">
+              <mat-icon>cloud</mat-icon>
+              <span>Add Git Repository</span>
+            </button>
+            <button class="add-button" (click)="addRepository(true)">
+              <mat-icon>folder</mat-icon>
+              <span>Add Local Directory</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step 3: Folders -->
+    @if (currentStep() === 2) {
+      <div class="wizard-step">
+        <div class="wizard-step__header">
+          <h2 class="wizard-step__title">Configure Folders</h2>
+          <p class="wizard-step__description">
+            Map source folders to destination paths for each repository. Drag to reorder.
+          </p>
+        </div>
+
+        @if (repositories().length === 0) {
+          <div class="empty-repositories">
+            <mat-icon>warning</mat-icon>
+            <p>No repositories configured</p>
+            <p class="empty-repositories__hint">Go back and add at least one repository first</p>
+          </div>
+        } @else {
+          <div class="folder-configurations">
+            @for (repo of repositories(); track repo.id; let i = $index) {
+              <ee-folder-mapping-list
+                [folders]="repo.folders"
+                [repositoryName]="getRepoDisplayName(repo)"
+                (foldersChange)="updateFolders(i, $event)"
+                (add)="addFolderMapping(i)"
+                (delete)="deleteFolder(i, $event)"
+              />
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Step 4: Review -->
+    @if (currentStep() === 3) {
+      <div class="wizard-step">
+        <div class="wizard-step__header">
+          <h2 class="wizard-step__title">Review & Create</h2>
+          <p class="wizard-step__description">
+            Review your configuration before creating the A La Carte request.
+          </p>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="summary-card">
+          <div class="summary-card__header">
+            <mat-icon>assignment</mat-icon>
+            <span class="summary-card__title">Request Summary</span>
+          </div>
+          <div class="summary-card__body">
+            <div class="summary-row">
+              <span class="summary-row__label">Request Name</span>
+              <span class="summary-row__value">{{ name() }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-row__label">Solution Name</span>
+              <span class="summary-row__value">{{ solutionName() }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-row__label">Output Directory</span>
+              <span class="summary-row__value">{{ outputDirectory() }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-row__label">Output Type</span>
+              <span class="summary-row__value">{{ outputType() }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-row__label">Repositories</span>
+              <span class="summary-row__value">{{ repositories().length }}</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-row__label">Total Folders</span>
+              <span class="summary-row__value">{{ totalFolders() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- JSON Preview -->
+        <ee-json-preview
+          [data]="requestPreview()"
+          title="Request JSON"
+          maxHeight="300px"
+        />
+      </div>
+    }
+  </div>
+
+  <!-- Wizard Footer -->
+  <div class="wizard-footer">
+    <div class="wizard-footer__left">
+      @if (currentStep() > 0) {
+        <ee-button variant="secondary" (clicked)="prevStep()">
+          <mat-icon>arrow_back</mat-icon>
+          Back
+        </ee-button>
+      } @else {
+        <ee-button variant="secondary" (clicked)="onCancel()">
+          Cancel
+        </ee-button>
+      }
+    </div>
+    <div class="wizard-footer__right">
+      <ee-button variant="secondary" (clicked)="onSaveDraft()">
+        Save Draft
       </ee-button>
-      <ee-button
-        variant="primary"
-        [disabled]="!isValid()"
-        (clicked)="onSave()"
-      >
-        Create Request
-      </ee-button>
+      @if (currentStep() < 3) {
+        <ee-button
+          variant="primary"
+          [disabled]="!canProceed()"
+          (clicked)="nextStep()"
+        >
+          Next
+          <mat-icon>arrow_forward</mat-icon>
+        </ee-button>
+      } @else {
+        <ee-button
+          variant="primary"
+          [disabled]="!isStepValid(3)"
+          (clicked)="onSubmit()"
+        >
+          Create Request
+        </ee-button>
+      }
     </div>
   </div>
 </div>

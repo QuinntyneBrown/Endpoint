@@ -1,0 +1,111 @@
+.repo-card {
+  background: var(--mat-surface, #161b22);
+  border: 1px solid var(--mat-border, #30363d);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--mat-primary, #9fa8da);
+  }
+
+  &--expanded {
+    .repo-card__header {
+      border-bottom: 1px solid var(--mat-divider, rgba(230, 237, 243, 0.12));
+    }
+  }
+}
+
+.repo-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--mat-surface-elevated, #21262d);
+}
+
+.repo-card__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.repo-card__icon {
+  color: var(--mat-primary, #9fa8da);
+  flex-shrink: 0;
+}
+
+.repo-card__name {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--mat-on-surface, #e6edf3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.repo-card__badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  background: var(--mat-surface-high, #30363d);
+  border-radius: 12px;
+  font-size: 11px;
+  color: var(--mat-on-surface-medium, rgba(230, 237, 243, 0.7));
+}
+
+.repo-card__actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.repo-card__action-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: var(--mat-on-surface-medium, rgba(230, 237, 243, 0.7));
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--mat-hover, rgba(255, 255, 255, 0.08));
+    color: var(--mat-on-surface, #e6edf3);
+  }
+
+  &--danger:hover {
+    background: rgba(239, 83, 80, 0.2);
+    color: var(--mat-warn, #ef5350);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.repo-card__body {
+  padding: 16px;
+}
+
+.repo-card__field {
+  width: 100%;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  // Style the input to have monospace font for paths
+  input {
+    font-family: 'Roboto Mono', monospace;
+  }
+}

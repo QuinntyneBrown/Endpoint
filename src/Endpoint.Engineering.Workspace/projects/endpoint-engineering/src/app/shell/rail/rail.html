@@ -1,0 +1,61 @@
+<nav class="rail" [class.rail--open]="isOpen()">
+  <div class="rail__nav">
+    @for (item of navItems; track item.id) {
+      @if (item.route) {
+        <a
+          class="rail__item"
+          [routerLink]="item.route"
+          routerLinkActive="rail__item--active"
+          [matTooltip]="item.label"
+          matTooltipPosition="right"
+          [matBadge]="item.badge || null"
+          [matBadgeHidden]="!item.badge"
+          matBadgeColor="accent"
+          matBadgeSize="small"
+          (click)="onItemClick(item)"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </a>
+      } @else {
+        <button
+          class="rail__item"
+          [matTooltip]="item.label"
+          matTooltipPosition="right"
+          [matBadge]="item.badge || null"
+          [matBadgeHidden]="!item.badge"
+          matBadgeColor="accent"
+          matBadgeSize="small"
+          (click)="onItemClick(item)"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </button>
+      }
+    }
+  </div>
+
+  <div class="rail__footer">
+    @for (item of footerItems; track item.id) {
+      @if (item.route) {
+        <a
+          class="rail__item"
+          [routerLink]="item.route"
+          routerLinkActive="rail__item--active"
+          [matTooltip]="item.label"
+          matTooltipPosition="right"
+          (click)="onItemClick(item)"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </a>
+      } @else {
+        <button
+          class="rail__item"
+          [matTooltip]="item.label"
+          matTooltipPosition="right"
+          (click)="onItemClick(item)"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+        </button>
+      }
+    }
+  </div>
+</nav>

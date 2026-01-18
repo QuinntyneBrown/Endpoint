@@ -1,0 +1,83 @@
+.rail {
+  position: fixed;
+  top: var(--header-height, 48px);
+  left: 0;
+  bottom: 0;
+  width: var(--rail-width, 48px);
+  background: var(--mat-surface, #161b22);
+  border-right: 1px solid var(--mat-divider, rgba(230, 237, 243, 0.12));
+  display: none;
+  flex-direction: column;
+  z-index: 100;
+
+  // Show rail on tablet and above
+  @media (min-width: 768px) {
+    display: flex;
+  }
+
+  // Mobile open state
+  &--open {
+    display: flex;
+    z-index: 300;
+  }
+}
+
+.rail__nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2, 8px) 0;
+}
+
+.rail__item {
+  position: relative;
+  width: var(--rail-width, 48px);
+  height: var(--rail-width, 48px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--mat-on-surface-disabled, rgba(230, 237, 243, 0.38));
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--mat-on-surface, #e6edf3);
+  }
+
+  &--active {
+    color: var(--mat-on-surface, #e6edf3);
+
+    // Active indicator bar
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2px;
+      height: 24px;
+      background: var(--mat-primary, #9fa8da);
+      border-radius: 0 2px 2px 0;
+    }
+  }
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.rail__footer {
+  padding: var(--space-2, 8px) 0;
+  border-top: 1px solid var(--mat-divider, rgba(230, 237, 243, 0.12));
+}
+
+// Badge positioning override
+.rail__item ::ng-deep .mat-badge-content {
+  top: 6px !important;
+  right: 6px !important;
+}

@@ -1,0 +1,103 @@
+<div class="settings-page">
+  <ee-page-header
+    title="Settings"
+    subtitle="Configure application preferences"
+  />
+
+  <div class="settings-content">
+    <ee-form-section title="General">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Default Output Directory</mat-label>
+        <input
+          matInput
+          [ngModel]="defaultOutputDirectory()"
+          (ngModelChange)="defaultOutputDirectory.set($event)"
+          placeholder="/projects/output"
+        />
+        <mat-icon matPrefix>folder</mat-icon>
+        <mat-hint>Default directory for new requests</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Default Branch</mat-label>
+        <input
+          matInput
+          [ngModel]="defaultBranch()"
+          (ngModelChange)="defaultBranch.set($event)"
+          placeholder="main"
+        />
+        <mat-hint>Default branch for Git repositories</mat-hint>
+      </mat-form-field>
+
+      <div class="toggle-setting">
+        <div class="toggle-info">
+          <span class="toggle-label">Auto-save Drafts</span>
+          <span class="toggle-description">Automatically save request drafts while editing</span>
+        </div>
+        <mat-slide-toggle
+          [ngModel]="autoSaveDrafts()"
+          (ngModelChange)="autoSaveDrafts.set($event)"
+        />
+      </div>
+    </ee-form-section>
+
+    <ee-form-section title="Appearance">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Theme</mat-label>
+        <mat-select
+          [ngModel]="theme()"
+          (ngModelChange)="theme.set($event)"
+        >
+          <mat-option value="dark">Dark</mat-option>
+          <mat-option value="light">Light</mat-option>
+          <mat-option value="system">System Default</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="toggle-setting">
+        <div class="toggle-info">
+          <span class="toggle-label">Show Welcome on Startup</span>
+          <span class="toggle-description">Display the welcome screen when the application starts</span>
+        </div>
+        <mat-slide-toggle
+          [ngModel]="showWelcomeOnStartup()"
+          (ngModelChange)="showWelcomeOnStartup.set($event)"
+        />
+      </div>
+    </ee-form-section>
+
+    <ee-form-section title="Git Configuration">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Git Username</mat-label>
+        <input
+          matInput
+          [ngModel]="gitUsername()"
+          (ngModelChange)="gitUsername.set($event)"
+          placeholder="Your Name"
+        />
+        <mat-icon matPrefix>person</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Git Email</mat-label>
+        <input
+          matInput
+          type="email"
+          [ngModel]="gitEmail()"
+          (ngModelChange)="gitEmail.set($event)"
+          placeholder="you@example.com"
+        />
+        <mat-icon matPrefix>email</mat-icon>
+      </mat-form-field>
+    </ee-form-section>
+
+    <div class="settings-actions">
+      <ee-button variant="secondary" (clicked)="onReset()">
+        Reset to Defaults
+      </ee-button>
+      <ee-button variant="primary" (clicked)="onSave()">
+        Save Settings
+      </ee-button>
+    </div>
+  </div>
+</div>
