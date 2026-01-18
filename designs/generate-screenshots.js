@@ -51,8 +51,8 @@ async function captureScreenshots() {
         waitUntil: 'networkidle'
       });
       
-      // Wait a bit for any animations or dynamic content
-      await page.waitForTimeout(500);
+      // Wait for the page to be fully loaded
+      await page.waitForLoadState('domcontentloaded');
       
       // Take full page screenshot
       const outputPath = path.join(designsDir, `${baseName}-${viewport.name}.png`);
@@ -72,8 +72,16 @@ async function captureScreenshots() {
   console.log('\n✓ All screenshots generated successfully!');
 }
 
-// Run the script
+// Run the script with error handling
 captureScreenshots().catch(error => {
-  console.error('Error generating screenshots:', error);
+  if (error.message.includes('browserType.launch') || error.message.includes('playwright')) {
+    console.error('\n❌ Error: Playwright is not installed or browser is not available.');
+    console.error('\nTo fix this, run the following commands:');
+    console.error('  1. npm install (if you haven\'t already)');
+    console.error('  2. npx playwright install chromium');
+    console.error('\nThen try running this script again.\n');
+  } else {
+    console.error('Error generating screenshots:', error);
+  }
   process.exit(1);
 });
