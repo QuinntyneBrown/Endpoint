@@ -36,6 +36,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,6 +54,8 @@
     <ProjectReference Include="..\Endpoint.Angular\Endpoint.Angular.csproj" />
     <ProjectReference Include="..\Endpoint.DotNet\Endpoint.DotNet.csproj" />
     <ProjectReference Include="..\Endpoint.Engineering\Endpoint.Engineering.csproj" />
+    <ProjectReference Include="..\Endpoint.Engineering.ALaCarte.Core\Endpoint.Engineering.ALaCarte.Core.csproj" />
+    <ProjectReference Include="..\Endpoint.Engineering.ALaCarte.Infrastructure\Endpoint.Engineering.ALaCarte.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

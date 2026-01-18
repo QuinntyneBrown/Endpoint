@@ -8,6 +8,9 @@ using CommandLine;
 using Endpoint.Angular;
 using Endpoint.DotNet;
 using Endpoint.DotNet.Services;
+using Endpoint.Engineering.ALaCarte.Core;
+using Endpoint.Engineering.ALaCarte.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -53,6 +56,12 @@ Log.Logger = configuration.CreateBootstrapLogger();
 
 Log.Information("Starting Endpoint");
 
+// Configure database path in user's home directory to persist across CLI installations
+var userHomeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+var appDataDirectory = Path.Combine(userHomeDirectory, ".endpoint-alacarte");
+Directory.CreateDirectory(appDataDirectory);
+var databasePath = Path.Combine(appDataDirectory, "ALaCarte.db");
+
 var app = CodeGeneratorApplication.CreateBuilder()
     .ConfigureServices(services =>
     {
@@ -63,6 +72,11 @@ var app = CodeGeneratorApplication.CreateBuilder()
         services.AddAngularServices();
         services.AddRedisPubSubServices();
         services.AddEngineeringServices();
+
+        // Register ALaCarte database context
+        services.AddDbContext<ALaCarteContext>(options =>
+            options.UseSqlite($"Data Source={databasePath}"));
+        services.AddScoped<IALaCarteContext>(provider => provider.GetRequiredService<ALaCarteContext>());
     })
     .Build();
 
