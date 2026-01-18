@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "emitDecoratorMetadata": true,
+    "types": ["node"]
+  },
+  "exclude": ["../node_modules/**/*"],
+  "include": ["../projects/endpoint-engineering-components/**/*", "./*"]
+}
