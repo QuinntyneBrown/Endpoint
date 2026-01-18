@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Header Component - VS Code Style</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* ============================================================
+           CSS VARIABLES - Angular Material Dark Theme
+           ============================================================ */
+        :root {
+            /* Primary Colors (Indigo) */
+            --mat-primary: #9fa8da;
+            --mat-primary-lighter: #c5cae9;
+            --mat-primary-darker: #7986cb;
+
+            /* Accent Colors (Pink) */
+            --mat-accent: #f48fb1;
+            --mat-accent-lighter: #f8bbd0;
+            --mat-accent-darker: #f06292;
+
+            /* Semantic Colors */
+            --mat-warn: #ef5350;
+            --mat-success: #81c784;
+
+            /* Background Colors */
+            --mat-background: #0d1117;
+            --mat-surface: #161b22;
+            --mat-surface-elevated: #21262d;
+            --mat-surface-high: #30363d;
+
+            /* Text Colors */
+            --mat-on-surface: #e6edf3;
+            --mat-on-surface-medium: rgba(230, 237, 243, 0.7);
+            --mat-on-surface-disabled: rgba(230, 237, 243, 0.38);
+
+            /* Border & State */
+            --mat-divider: rgba(230, 237, 243, 0.12);
+            --mat-border: #30363d;
+            --mat-hover: rgba(255, 255, 255, 0.08);
+            --mat-focus: rgba(159, 168, 218, 0.24);
+
+            /* Spacing */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-6: 24px;
+
+            /* Component Sizes */
+            --header-height: 48px;
+            --rail-width: 48px;
+
+            /* Typography */
+            --font-family-base: 'Roboto', sans-serif;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.2s ease;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-full: 9999px;
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            background: var(--mat-background);
+            color: var(--mat-on-surface);
+            min-height: 100vh;
+        }
+
+        /* ============================================================
+           GLOBAL HEADER COMPONENT
+           VS Code-inspired title bar with Angular Material styling
+           ============================================================ */
+
+        .global-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--mat-surface);
+            border-bottom: 1px solid var(--mat-divider);
+            display: flex;
+            align-items: center;
+            z-index: 200;
+            padding: 0 var(--space-2);
+        }
+
+        /* ----------------------------------------
+           Header Left - Logo & Menu
+           ---------------------------------------- */
+        .global-header__left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            flex-shrink: 0;
+        }
+
+        .global-header__logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2);
+            color: var(--mat-on-surface);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: background var(--transition-fast);
+        }
+
+        .global-header__logo:hover {
+            background: var(--mat-hover);
+        }
+
+        .global-header__logo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--mat-primary), var(--mat-accent));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .global-header__logo-icon .material-icons {
+            font-size: 16px;
+            color: #121212;
+        }
+
+        .global-header__logo-text {
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .global-header__logo-text {
+                display: block;
+            }
+        }
+
+        /* Menu Items */
+        .global-header__menu {
+            display: none;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        @media (min-width: 768px) {
+            .global-header__menu {
+                display: flex;
+            }
+        }
+
+        .global-header__menu-item {
+            padding: var(--space-1) var(--space-3);
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+            background: none;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .global-header__menu-item:hover {
+            background: var(--mat-hover);
+            color: var(--mat-on-surface);
+        }
+
+        /* Mobile Menu Button */
+        .global-header__mobile-menu {
+            display: flex;
+        }
+
+        @media (min-width: 768px) {
+            .global-header__mobile-menu {
+                display: none;
+            }
+        }
+
+        /* ----------------------------------------
+           Header Center - Search Bar
+           ---------------------------------------- */
+        .global-header__center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 0 var(--space-4);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .global-header__search {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .global-header__search-input {
+            width: 100%;
+            height: 32px;
+            padding: 0 var(--space-3) 0 36px;
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-border);
+            border-radius: var(--radius-sm);
+            color: var(--mat-on-surface);
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .global-header__search-input::placeholder {
+            color: var(--mat-on-surface-disabled);
+        }
+
+        .global-header__search-input:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+            background: var(--mat-surface-high);
+        }
+
+        .global-header__search-icon {
+            position: absolute;
+            left: var(--space-2);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--mat-on-surface-disabled);
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        .global-header__search-shortcut {
+            position: absolute;
+            right: var(--space-2);
+            top: 50%;
+            transform: translateY(-50%);
+            display: none;
+            align-items: center;
+            gap: 2px;
+        }
+
+        @media (min-width: 992px) {
+            .global-header__search-shortcut {
+                display: flex;
+            }
+        }
+
+        .global-header__search-key {
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 500;
+            background: var(--mat-surface-high);
+            border: 1px solid var(--mat-border);
+            border-radius: 3px;
+            color: var(--mat-on-surface-disabled);
+        }
+
+        /* ----------------------------------------
+           Header Right - Actions & Close
+           ---------------------------------------- */
+        .global-header__right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            flex-shrink: 0;
+        }
+
+        .global-header__action {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .global-header__action:hover {
+            background: var(--mat-hover);
+            color: var(--mat-on-surface);
+        }
+
+        .global-header__action .material-icons {
+            font-size: 20px;
+        }
+
+        /* Window Controls (VS Code style) */
+        .global-header__window-controls {
+            display: none;
+            align-items: center;
+            margin-left: var(--space-2);
+        }
+
+        @media (min-width: 768px) {
+            .global-header__window-controls {
+                display: flex;
+            }
+        }
+
+        .global-header__window-btn {
+            width: 46px;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .global-header__window-btn:hover {
+            background: var(--mat-hover);
+        }
+
+        .global-header__window-btn--close:hover {
+            background: var(--mat-warn);
+            color: white;
+        }
+
+        .global-header__window-btn .material-icons {
+            font-size: 18px;
+        }
+
+        /* ============================================================
+           DEMO CONTENT
+           ============================================================ */
+        .demo-content {
+            padding: calc(var(--header-height) + var(--space-6)) var(--space-4);
+        }
+
+        .demo-section {
+            max-width: 800px;
+            margin: 0 auto var(--space-8);
+        }
+
+        .demo-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: var(--space-4);
+            color: var(--mat-primary);
+        }
+
+        .demo-desc {
+            color: var(--mat-on-surface-medium);
+            line-height: 1.6;
+            margin-bottom: var(--space-4);
+        }
+
+        .demo-box {
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-divider);
+            border-radius: 8px;
+            padding: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .demo-box__title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: var(--space-3);
+            color: var(--mat-on-surface);
+        }
+
+        .demo-box__content {
+            font-size: 12px;
+            color: var(--mat-on-surface-medium);
+        }
+
+        /* Feature List */
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-2);
+            padding: var(--space-2) 0;
+            color: var(--mat-on-surface-medium);
+            font-size: var(--font-size-sm);
+        }
+
+        .feature-list .material-icons {
+            font-size: 18px;
+            color: var(--mat-success);
+            flex-shrink: 0;
+        }
+
+        /* Responsive indicator */
+        .responsive-indicator {
+            position: fixed;
+            bottom: var(--space-4);
+            right: var(--space-4);
+            background: var(--mat-accent);
+            color: #121212;
+            padding: var(--space-2) var(--space-4);
+            border-radius: 8px;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+
+        .responsive-indicator::before {
+            content: 'Mobile (XS)';
+        }
+
+        @media (min-width: 576px) {
+            .responsive-indicator::before {
+                content: 'Mobile (SM)';
+            }
+        }
+
+        @media (min-width: 768px) {
+            .responsive-indicator::before {
+                content: 'Tablet (MD)';
+            }
+        }
+
+        @media (min-width: 992px) {
+            .responsive-indicator::before {
+                content: 'Desktop (LG)';
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .responsive-indicator::before {
+                content: 'Desktop (XL)';
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ============================================================
+         GLOBAL HEADER COMPONENT
+         ============================================================ -->
+    <header class="global-header">
+        <!-- Left: Logo & Menu -->
+        <div class="global-header__left">
+            <!-- Mobile Menu Button -->
+            <button class="global-header__action global-header__mobile-menu">
+                <span class="material-icons">menu</span>
+            </button>
+
+            <!-- Logo -->
+            <a href="#" class="global-header__logo">
+                <div class="global-header__logo-icon">
+                    <span class="material-icons">layers</span>
+                </div>
+                <span class="global-header__logo-text">Endpoint Engineering</span>
+            </a>
+
+            <!-- Menu Items (Desktop) -->
+            <nav class="global-header__menu">
+                <button class="global-header__menu-item">File</button>
+                <button class="global-header__menu-item">Edit</button>
+                <button class="global-header__menu-item">View</button>
+                <button class="global-header__menu-item">Go</button>
+                <button class="global-header__menu-item">Run</button>
+                <button class="global-header__menu-item">Help</button>
+            </nav>
+        </div>
+
+        <!-- Center: Search Bar -->
+        <div class="global-header__center">
+            <div class="global-header__search">
+                <span class="material-icons global-header__search-icon">search</span>
+                <input
+                    type="text"
+                    class="global-header__search-input"
+                    placeholder="Search files, commands..."
+                >
+                <div class="global-header__search-shortcut">
+                    <span class="global-header__search-key">Ctrl</span>
+                    <span class="global-header__search-key">P</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Actions & Window Controls -->
+        <div class="global-header__right">
+            <button class="global-header__action" title="Notifications">
+                <span class="material-icons">notifications_none</span>
+            </button>
+            <button class="global-header__action" title="Account">
+                <span class="material-icons">account_circle</span>
+            </button>
+
+            <!-- Window Controls (VS Code style) -->
+            <div class="global-header__window-controls">
+                <button class="global-header__window-btn" title="Minimize">
+                    <span class="material-icons">remove</span>
+                </button>
+                <button class="global-header__window-btn" title="Maximize">
+                    <span class="material-icons">crop_square</span>
+                </button>
+                <button class="global-header__window-btn global-header__window-btn--close" title="Close">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Demo Content -->
+    <main class="demo-content">
+        <section class="demo-section">
+            <h1 class="demo-title">Global Header Component</h1>
+            <p class="demo-desc">
+                VS Code-inspired global header with Angular Material dark theme styling.
+                This component provides consistent navigation across the application.
+            </p>
+
+            <div class="demo-box">
+                <h3 class="demo-box__title">Component Features</h3>
+                <ul class="feature-list">
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Logo & Branding</strong> - App icon with gradient, collapsible text</span>
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Menu Items</strong> - File, Edit, View, Go, Run, Help (hidden on mobile)</span>
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Search Bar</strong> - Centered search with keyboard shortcut indicator</span>
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Action Buttons</strong> - Notifications, Account icons</span>
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Window Controls</strong> - Minimize, Maximize, Close (desktop only)</span>
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Mobile Menu</strong> - Hamburger button replaces menu on small screens</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="demo-box">
+                <h3 class="demo-box__title">Responsive Behavior</h3>
+                <div class="demo-box__content">
+                    <p><strong>Mobile (XS-SM):</strong> Hamburger menu, compact logo, search centered</p>
+                    <p><strong>Tablet (MD):</strong> Full menu visible, logo text shown, window controls hidden</p>
+                    <p><strong>Desktop (LG+):</strong> All elements visible including window controls</p>
+                </div>
+            </div>
+
+            <div class="demo-box">
+                <h3 class="demo-box__title">Angular Material Components Used</h3>
+                <div class="demo-box__content">
+                    <p>mat-icon-button, mat-icon, mat-form-field, mat-input, mat-menu, mat-toolbar</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Responsive Indicator -->
+    <div class="responsive-indicator"></div>
+</body>
+</html>
