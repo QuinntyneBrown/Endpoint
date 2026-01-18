@@ -6,6 +6,32 @@
   },
   "newProjectRoot": "projects",
   "projects": {
+    "endpoint-engineering-components": {
+      "projectType": "library",
+      "root": "projects/endpoint-engineering-components",
+      "sourceRoot": "projects/endpoint-engineering-components/src",
+      "prefix": "ee",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/endpoint-engineering-components/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/endpoint-engineering-components/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/endpoint-engineering-components/tsconfig.spec.json"
+          }
+        }
+      }
+    },
     "endpoint-engineering": {
       "projectType": "application",
       "schematics": {
@@ -71,78 +97,6 @@
         },
         "test": {
           "builder": "@angular/build:unit-test"
-        },
-        "storybook": {
-          "builder": "@storybook/angular:start-storybook",
-          "options": {
-            "configDir": "projects/endpoint-engineering/.storybook",
-            "browserTarget": "endpoint-engineering:build",
-            "compodoc": true,
-            "compodocArgs": [
-              "-e",
-              "json",
-              "-d",
-              "projects/endpoint-engineering"
-            ],
-            "port": 6006
-          }
-        },
-        "build-storybook": {
-          "builder": "@storybook/angular:build-storybook",
-          "options": {
-            "configDir": "projects/endpoint-engineering/.storybook",
-            "browserTarget": "endpoint-engineering:build",
-            "compodoc": true,
-            "compodocArgs": [
-              "-e",
-              "json",
-              "-d",
-              "projects/endpoint-engineering"
-            ],
-            "outputDir": "dist/storybook/endpoint-engineering"
-          }
-        }
-      }
-    },
-    "endpoint-engineering-components": {
-      "projectType": "library",
-      "root": "projects/endpoint-engineering-components",
-      "sourceRoot": "projects/endpoint-engineering-components/src",
-      "prefix": "ee",
-      "architect": {
-        "build": {
-          "builder": "@angular/build:ng-packagr",
-          "configurations": {
-            "production": {
-              "tsConfig": "projects/endpoint-engineering-components/tsconfig.lib.prod.json"
-            },
-            "development": {
-              "tsConfig": "projects/endpoint-engineering-components/tsconfig.lib.json"
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "test": {
-          "builder": "@angular/build:unit-test",
-          "options": {
-            "tsConfig": "projects/endpoint-engineering-components/tsconfig.spec.json"
-          }
-        },
-        "storybook": {
-          "builder": "@storybook/angular:start-storybook",
-          "options": {
-            "configDir": "projects/endpoint-engineering-components/.storybook",
-            "browserTarget": "endpoint-engineering:build",
-            "port": 6006
-          }
-        },
-        "build-storybook": {
-          "builder": "@storybook/angular:build-storybook",
-          "options": {
-            "configDir": "projects/endpoint-engineering-components/.storybook",
-            "browserTarget": "endpoint-engineering:build",
-            "outputDir": "dist/storybook/endpoint-engineering-components"
-          }
         }
       }
     }

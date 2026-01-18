@@ -29,16 +29,16 @@
   "files": [],
   "references": [
     {
-      "path": "./projects/endpoint-engineering/tsconfig.app.json"
-    },
-    {
-      "path": "./projects/endpoint-engineering/tsconfig.spec.json"
-    },
-    {
       "path": "./projects/endpoint-engineering-components/tsconfig.lib.json"
     },
     {
       "path": "./projects/endpoint-engineering-components/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/endpoint-engineering/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/endpoint-engineering/tsconfig.spec.json"
     }
   ]
 }

@@ -3,4 +3,3 @@
  */
 
 export * from './lib/endpoint-engineering-components';
-export * from './lib/components';

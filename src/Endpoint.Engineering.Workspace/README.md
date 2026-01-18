@@ -1,6 +1,6 @@
 # EndpointEngineeringWorkspace
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.0.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.3.
 
 ## Development server
 
