@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { PageHeader, Button, FormSection } from 'endpoint-engineering-components';
+import { Button, FormSection } from 'endpoint-engineering-components';
 import { ALaCarteRequestService } from '../../services/alacarte-request.service';
 import { OutputType } from '../../models/alacarte-request.model';
 
@@ -17,7 +17,6 @@ import { OutputType } from '../../models/alacarte-request.model';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    PageHeader,
     Button,
     FormSection
   ],

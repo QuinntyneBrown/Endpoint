@@ -1,18 +1,13 @@
 <div class="request-list-page">
-  <ee-page-header
-    title="A La Carte Requests"
-    icon="list"
-  >
-    <div actions>
-      <ee-button
-        variant="primary"
-        icon="add"
-        (clicked)="onNewRequest()"
-      >
-        New Request
-      </ee-button>
-    </div>
-  </ee-page-header>
+  <div class="page-actions">
+    <ee-button
+      variant="primary"
+      icon="add"
+      (clicked)="onNewRequest()"
+    >
+      New Request
+    </ee-button>
+  </div>
 
   <ee-stats-bar [stats]="stats()" />
 

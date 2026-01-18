@@ -19,7 +19,11 @@
 
     .material-icons {
       font-size: 64px;
+      width: 64px;
+      height: 64px;
       color: var(--ee-on-surface-disabled);
+      line-height: 64px;
+      text-align: center;
     }
   }
 

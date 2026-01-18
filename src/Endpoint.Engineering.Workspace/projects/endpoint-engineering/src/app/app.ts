@@ -11,5 +11,5 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = 'A La Carte Composer';
+  protected readonly title = 'Endpoint Engineering';
 }

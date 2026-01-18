@@ -12,7 +12,8 @@ var databasePath = Path.Combine(appDataDirectory, "ALaCarte.db");
 
 // Add services to the container.
 builder.Services.AddDbContext<ALaCarteContext>(options =>
-    options.UseSqlite($"Data Source={databasePath}"));
+    options.UseSqlite($"Data Source={databasePath}",
+        b => b.MigrationsAssembly("Endpoint.Engineering.ALaCarte.Infrastructure")));
 
 builder.Services.AddScoped<IALaCarteContext>(provider => provider.GetRequiredService<ALaCarteContext>());
 

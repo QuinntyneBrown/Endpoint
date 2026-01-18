@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { PageHeader, StatsBar, SearchBox, Button, IconButton, Tag } from 'endpoint-engineering-components';
+import { StatsBar, SearchBox, Button, IconButton, Tag } from 'endpoint-engineering-components';
 import { ALaCarteRequestService } from '../../services/alacarte-request.service';
 import { ALaCarteRequest } from '../../models/alacarte-request.model';
 
@@ -19,7 +19,6 @@ import { ALaCarteRequest } from '../../models/alacarte-request.model';
     MatIconModule,
     MatFormFieldModule,
     MatInputModule,
-    PageHeader,
     StatsBar,
     SearchBox,
     Button,
