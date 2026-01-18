@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endpoint Engineering - Full VS Code Layout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* ============================================================
+           CSS VARIABLES - Angular Material Dark Theme (Indigo/Pink)
+           ============================================================ */
+        :root {
+            /* Primary Colors (Indigo) */
+            --mat-primary: #9fa8da;
+            --mat-primary-lighter: #c5cae9;
+            --mat-primary-darker: #7986cb;
+
+            /* Accent Colors (Pink) */
+            --mat-accent: #f48fb1;
+            --mat-accent-lighter: #f8bbd0;
+            --mat-accent-darker: #f06292;
+
+            /* Semantic Colors */
+            --mat-warn: #ef5350;
+            --mat-success: #81c784;
+            --mat-info: #64b5f6;
+
+            /* Background Colors */
+            --mat-background: #0d1117;
+            --mat-surface: #161b22;
+            --mat-surface-elevated: #21262d;
+            --mat-surface-high: #30363d;
+            --mat-surface-highest: #484f58;
+
+            /* Text Colors */
+            --mat-on-surface: #e6edf3;
+            --mat-on-surface-medium: rgba(230, 237, 243, 0.7);
+            --mat-on-surface-disabled: rgba(230, 237, 243, 0.38);
+            --mat-on-primary: #121212;
+
+            /* Border & State */
+            --mat-divider: rgba(230, 237, 243, 0.12);
+            --mat-border: #30363d;
+            --mat-hover: rgba(255, 255, 255, 0.08);
+            --mat-focus: rgba(159, 168, 218, 0.24);
+            --mat-selected: rgba(159, 168, 218, 0.16);
+
+            /* Spacing */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-6: 24px;
+            --space-8: 32px;
+
+            /* Component Sizes */
+            --header-height: 48px;
+            --rail-width: 48px;
+            --sidebar-width: 240px;
+            --status-bar-height: 22px;
+
+            /* Typography */
+            --font-family-base: 'Roboto', sans-serif;
+            --font-family-mono: 'Roboto Mono', monospace;
+            --font-size-xs: 10px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 16px;
+            --font-size-lg: 18px;
+
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.2s ease;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-full: 9999px;
+
+            /* Z-Index */
+            --z-rail: 100;
+            --z-sidebar: 150;
+            --z-header: 200;
+            --z-status-bar: 200;
+            --z-overlay: 300;
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            background: var(--mat-background);
+            color: var(--mat-on-surface);
+        }
+
+        /* ============================================================
+           APP SHELL - VS Code Layout Structure
+           ============================================================ */
+        .app-shell {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* ============================================================
+           GLOBAL HEADER
+           ============================================================ */
+        .global-header {
+            height: var(--header-height);
+            background: var(--mat-surface);
+            border-bottom: 1px solid var(--mat-divider);
+            display: flex;
+            align-items: center;
+            z-index: var(--z-header);
+            flex-shrink: 0;
+            padding: 0 var(--space-2);
+        }
+
+        /* Header Left */
+        .global-header__left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            flex-shrink: 0;
+        }
+
+        .global-header__logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2);
+            color: var(--mat-on-surface);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+        }
+
+        .global-header__logo:hover {
+            background: var(--mat-hover);
+        }
+
+        .global-header__logo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--mat-primary), var(--mat-accent));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .global-header__logo-icon .material-icons {
+            font-size: 16px;
+            color: #121212;
+        }
+
+        .global-header__logo-text {
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .global-header__logo-text {
+                display: block;
+            }
+        }
+
+        /* Menu Button (Mobile) */
+        .global-header__menu-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+        }
+
+        .global-header__menu-btn:hover {
+            background: var(--mat-hover);
+        }
+
+        @media (min-width: 768px) {
+            .global-header__menu-btn {
+                display: none;
+            }
+        }
+
+        /* Menu Items (Desktop) */
+        .global-header__menu {
+            display: none;
+            align-items: center;
+            gap: var(--space-1);
+            margin-left: var(--space-2);
+        }
+
+        @media (min-width: 768px) {
+            .global-header__menu {
+                display: flex;
+            }
+        }
+
+        .global-header__menu-item {
+            padding: var(--space-1) var(--space-3);
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+            background: none;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
+        .global-header__menu-item:hover {
+            background: var(--mat-hover);
+            color: var(--mat-on-surface);
+        }
+
+        /* Header Center - Search */
+        .global-header__center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 0 var(--space-4);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .global-header__search {
+            width: 100%;
+            position: relative;
+        }
+
+        .global-header__search-input {
+            width: 100%;
+            height: 30px;
+            padding: 0 var(--space-3) 0 32px;
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-border);
+            border-radius: var(--radius-sm);
+            color: var(--mat-on-surface);
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-sm);
+        }
+
+        .global-header__search-input::placeholder {
+            color: var(--mat-on-surface-disabled);
+        }
+
+        .global-header__search-input:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+        }
+
+        .global-header__search-icon {
+            position: absolute;
+            left: var(--space-2);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--mat-on-surface-disabled);
+            font-size: 16px;
+        }
+
+        /* Header Right */
+        .global-header__right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            flex-shrink: 0;
+        }
+
+        .global-header__action {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+        }
+
+        .global-header__action:hover {
+            background: var(--mat-hover);
+            color: var(--mat-on-surface);
+        }
+
+        .global-header__action .material-icons {
+            font-size: 20px;
+        }
+
+        /* Window Controls */
+        .global-header__window-controls {
+            display: none;
+            align-items: center;
+            margin-left: var(--space-2);
+        }
+
+        @media (min-width: 992px) {
+            .global-header__window-controls {
+                display: flex;
+            }
+        }
+
+        .global-header__window-btn {
+            width: 46px;
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+        }
+
+        .global-header__window-btn:hover {
+            background: var(--mat-hover);
+        }
+
+        .global-header__window-btn--close:hover {
+            background: var(--mat-warn);
+            color: white;
+        }
+
+        .global-header__window-btn .material-icons {
+            font-size: 18px;
+        }
+
+        /* ============================================================
+           MAIN CONTAINER (Rail + Sidebar + Content)
+           ============================================================ */
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ============================================================
+           RAIL (Activity Bar)
+           ============================================================ */
+        .rail {
+            width: var(--rail-width);
+            background: var(--mat-surface);
+            border-right: 1px solid var(--mat-divider);
+            display: none;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: var(--z-rail);
+        }
+
+        @media (min-width: 768px) {
+            .rail {
+                display: flex;
+            }
+        }
+
+        .rail__nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: var(--space-2) 0;
+        }
+
+        .rail__item {
+            position: relative;
+            width: var(--rail-width);
+            height: var(--rail-width);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--mat-on-surface-disabled);
+            cursor: pointer;
+            transition: color var(--transition-fast);
+        }
+
+        .rail__item:hover {
+            color: var(--mat-on-surface);
+        }
+
+        .rail__item--active {
+            color: var(--mat-on-surface);
+        }
+
+        .rail__item--active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 24px;
+            background: var(--mat-primary);
+        }
+
+        .rail__item .material-icons {
+            font-size: 24px;
+        }
+
+        .rail__item-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            background: var(--mat-accent);
+            color: #121212;
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rail__footer {
+            padding: var(--space-2) 0;
+            border-top: 1px solid var(--mat-divider);
+        }
+
+        /* ============================================================
+           SIDEBAR (Explorer Panel)
+           ============================================================ */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--mat-surface);
+            border-right: 1px solid var(--mat-divider);
+            display: none;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: var(--z-sidebar);
+        }
+
+        @media (min-width: 992px) {
+            .sidebar {
+                display: flex;
+            }
+        }
+
+        .sidebar__header {
+            height: 35px;
+            padding: 0 var(--space-4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--mat-on-surface-medium);
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        .sidebar__content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Tree View */
+        .tree-section {
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        .tree-section__header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-2) var(--space-4);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .tree-section__header:hover {
+            background: var(--mat-hover);
+        }
+
+        .tree-section__header .material-icons {
+            font-size: 18px;
+            color: var(--mat-on-surface-medium);
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-1) var(--space-4);
+            padding-left: calc(var(--space-4) + 16px);
+            font-size: var(--font-size-sm);
+            cursor: pointer;
+        }
+
+        .tree-item:hover {
+            background: var(--mat-hover);
+        }
+
+        .tree-item--selected {
+            background: var(--mat-selected);
+        }
+
+        .tree-item .material-icons {
+            font-size: 16px;
+            color: var(--mat-accent);
+        }
+
+        .tree-item__label {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ============================================================
+           MAIN CONTENT AREA
+           ============================================================ */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--mat-background);
+        }
+
+        /* Tabs Bar */
+        .tabs-bar {
+            height: 35px;
+            background: var(--mat-surface);
+            border-bottom: 1px solid var(--mat-divider);
+            display: flex;
+            align-items: flex-end;
+            overflow-x: auto;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            height: 35px;
+            padding: 0 var(--space-3);
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            flex-shrink: 0;
+        }
+
+        .tab:hover {
+            background: var(--mat-hover);
+        }
+
+        .tab--active {
+            color: var(--mat-on-surface);
+            background: var(--mat-background);
+            border-bottom-color: var(--mat-primary);
+        }
+
+        .tab .material-icons {
+            font-size: 16px;
+        }
+
+        .tab__close {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            opacity: 0;
+        }
+
+        .tab:hover .tab__close {
+            opacity: 0.7;
+        }
+
+        .tab__close:hover {
+            opacity: 1;
+            background: var(--mat-hover);
+        }
+
+        .tab__close .material-icons {
+            font-size: 14px;
+        }
+
+        /* Editor/Content */
+        .editor {
+            flex: 1;
+            overflow: auto;
+            padding: var(--space-4);
+        }
+
+        @media (min-width: 768px) {
+            .editor {
+                padding: var(--space-6);
+            }
+        }
+
+        /* Wizard Content Preview */
+        .wizard-preview {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .wizard-preview__title {
+            font-size: var(--font-size-lg);
+            font-weight: 500;
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .wizard-preview__title .material-icons {
+            color: var(--mat-primary);
+        }
+
+        .wizard-card {
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-border);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-4);
+        }
+
+        .wizard-card__header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--mat-divider);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .wizard-card__title {
+            font-weight: 500;
+        }
+
+        .wizard-card__body {
+            padding: var(--space-4);
+        }
+
+        /* Form Field */
+        .form-field {
+            margin-bottom: var(--space-4);
+        }
+
+        .form-field:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-field__label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            margin-bottom: var(--space-2);
+        }
+
+        .form-field__input {
+            width: 100%;
+            height: 40px;
+            padding: 0 var(--space-3);
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-border);
+            border-radius: var(--radius-sm);
+            color: var(--mat-on-surface);
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-sm);
+        }
+
+        .form-field__input:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+        }
+
+        /* Button Row */
+        .button-row {
+            display: flex;
+            gap: var(--space-3);
+            margin-top: var(--space-6);
+        }
+
+        .mat-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            padding: 0 var(--space-4);
+            height: 36px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+
+        .mat-btn--primary {
+            background: var(--mat-primary);
+            color: var(--mat-on-primary);
+        }
+
+        .mat-btn--primary:hover {
+            background: var(--mat-primary-lighter);
+        }
+
+        .mat-btn--outlined {
+            background: transparent;
+            color: var(--mat-on-surface);
+            border: 1px solid var(--mat-border);
+        }
+
+        .mat-btn--outlined:hover {
+            background: var(--mat-hover);
+        }
+
+        /* ============================================================
+           STATUS BAR
+           ============================================================ */
+        .status-bar {
+            height: var(--status-bar-height);
+            background: var(--mat-primary-darker);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-2);
+            font-size: var(--font-size-xs);
+            flex-shrink: 0;
+            z-index: var(--z-status-bar);
+        }
+
+        .status-bar__section {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .status-bar__item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 0 var(--space-1);
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .status-bar__item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .status-bar__item .material-icons {
+            font-size: 14px;
+        }
+
+        /* ============================================================
+           RESPONSIVE INDICATOR
+           ============================================================ */
+        .responsive-indicator {
+            position: fixed;
+            bottom: calc(var(--status-bar-height) + var(--space-4));
+            right: var(--space-4);
+            background: var(--mat-accent);
+            color: #121212;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            z-index: 999;
+        }
+
+        .responsive-indicator::before {
+            content: 'Mobile';
+        }
+
+        @media (min-width: 768px) {
+            .responsive-indicator::before {
+                content: 'Tablet (Rail visible)';
+            }
+        }
+
+        @media (min-width: 992px) {
+            .responsive-indicator::before {
+                content: 'Desktop (Sidebar visible)';
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .responsive-indicator::before {
+                content: 'Large Desktop';
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <!-- ============================================================
+             GLOBAL HEADER
+             ============================================================ -->
+        <header class="global-header">
+            <!-- Left -->
+            <div class="global-header__left">
+                <button class="global-header__menu-btn">
+                    <span class="material-icons">menu</span>
+                </button>
+
+                <a href="#" class="global-header__logo">
+                    <div class="global-header__logo-icon">
+                        <span class="material-icons">layers</span>
+                    </div>
+                    <span class="global-header__logo-text">Endpoint Engineering</span>
+                </a>
+
+                <nav class="global-header__menu">
+                    <button class="global-header__menu-item">File</button>
+                    <button class="global-header__menu-item">Edit</button>
+                    <button class="global-header__menu-item">View</button>
+                    <button class="global-header__menu-item">Go</button>
+                    <button class="global-header__menu-item">Run</button>
+                    <button class="global-header__menu-item">Help</button>
+                </nav>
+            </div>
+
+            <!-- Center -->
+            <div class="global-header__center">
+                <div class="global-header__search">
+                    <span class="material-icons global-header__search-icon">search</span>
+                    <input type="text" class="global-header__search-input" placeholder="Search...">
+                </div>
+            </div>
+
+            <!-- Right -->
+            <div class="global-header__right">
+                <button class="global-header__action" title="Notifications">
+                    <span class="material-icons">notifications_none</span>
+                </button>
+                <button class="global-header__action" title="Account">
+                    <span class="material-icons">account_circle</span>
+                </button>
+
+                <div class="global-header__window-controls">
+                    <button class="global-header__window-btn" title="Minimize">
+                        <span class="material-icons">remove</span>
+                    </button>
+                    <button class="global-header__window-btn" title="Maximize">
+                        <span class="material-icons">crop_square</span>
+                    </button>
+                    <button class="global-header__window-btn global-header__window-btn--close" title="Close">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ============================================================
+             MAIN CONTAINER
+             ============================================================ -->
+        <div class="main-container">
+            <!-- ============================================================
+                 RAIL (Activity Bar)
+                 ============================================================ -->
+            <nav class="rail">
+                <div class="rail__nav">
+                    <button class="rail__item" title="Explorer">
+                        <span class="material-icons">folder</span>
+                    </button>
+                    <button class="rail__item" title="Search">
+                        <span class="material-icons">search</span>
+                    </button>
+                    <button class="rail__item" title="Source Control">
+                        <span class="material-icons">account_tree</span>
+                        <span class="rail__item-badge">3</span>
+                    </button>
+                    <button class="rail__item" title="Run and Debug">
+                        <span class="material-icons">bug_report</span>
+                    </button>
+                    <button class="rail__item" title="Extensions">
+                        <span class="material-icons">extension</span>
+                    </button>
+                    <button class="rail__item rail__item--active" title="A La Carte Composer">
+                        <span class="material-icons">layers</span>
+                    </button>
+                    <button class="rail__item" title="Requests">
+                        <span class="material-icons">list_alt</span>
+                        <span class="rail__item-badge">12</span>
+                    </button>
+                </div>
+
+                <div class="rail__footer">
+                    <button class="rail__item" title="Account">
+                        <span class="material-icons">account_circle</span>
+                    </button>
+                    <button class="rail__item" title="Settings">
+                        <span class="material-icons">settings</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- ============================================================
+                 SIDEBAR (Explorer Panel)
+                 ============================================================ -->
+            <aside class="sidebar">
+                <div class="sidebar__header">
+                    <span>Explorer</span>
+                    <span class="material-icons" style="font-size: 16px; cursor: pointer;">more_horiz</span>
+                </div>
+
+                <div class="sidebar__content">
+                    <!-- Requests Section -->
+                    <div class="tree-section">
+                        <div class="tree-section__header">
+                            <span class="material-icons">expand_more</span>
+                            <span>A La Carte Requests</span>
+                        </div>
+                        <div class="tree-item tree-item--selected">
+                            <span class="material-icons">description</span>
+                            <span class="tree-item__label">New Request</span>
+                        </div>
+                        <div class="tree-item">
+                            <span class="material-icons">description</span>
+                            <span class="tree-item__label">My Solution.json</span>
+                        </div>
+                        <div class="tree-item">
+                            <span class="material-icons">description</span>
+                            <span class="tree-item__label">Backend API.json</span>
+                        </div>
+                    </div>
+
+                    <!-- Recent Section -->
+                    <div class="tree-section">
+                        <div class="tree-section__header">
+                            <span class="material-icons">expand_more</span>
+                            <span>Recent</span>
+                        </div>
+                        <div class="tree-item">
+                            <span class="material-icons">history</span>
+                            <span class="tree-item__label">Frontend Build</span>
+                        </div>
+                        <div class="tree-item">
+                            <span class="material-icons">history</span>
+                            <span class="tree-item__label">Microservices</span>
+                        </div>
+                    </div>
+
+                    <!-- Saved Configs Section -->
+                    <div class="tree-section">
+                        <div class="tree-section__header">
+                            <span class="material-icons">expand_more</span>
+                            <span>Saved Configurations</span>
+                        </div>
+                        <div class="tree-item">
+                            <span class="material-icons">bookmark</span>
+                            <span class="tree-item__label">Core Libraries</span>
+                        </div>
+                        <div class="tree-item">
+                            <span class="material-icons">bookmark</span>
+                            <span class="tree-item__label">API Template</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ============================================================
+                 CONTENT AREA
+                 ============================================================ -->
+            <main class="content-area">
+                <!-- Tabs Bar -->
+                <div class="tabs-bar">
+                    <button class="tab tab--active">
+                        <span class="material-icons">add_circle</span>
+                        <span>New Request</span>
+                        <span class="tab__close">
+                            <span class="material-icons">close</span>
+                        </span>
+                    </button>
+                    <button class="tab">
+                        <span class="material-icons">description</span>
+                        <span>My Solution.json</span>
+                        <span class="tab__close">
+                            <span class="material-icons">close</span>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Editor Content -->
+                <div class="editor">
+                    <div class="wizard-preview">
+                        <h2 class="wizard-preview__title">
+                            <span class="material-icons">layers</span>
+                            Create A La Carte Request
+                        </h2>
+
+                        <!-- Basic Settings Card -->
+                        <div class="wizard-card">
+                            <div class="wizard-card__header">
+                                <span class="wizard-card__title">Basic Settings</span>
+                            </div>
+                            <div class="wizard-card__body">
+                                <div class="form-field">
+                                    <label class="form-field__label">Solution Name</label>
+                                    <input type="text" class="form-field__input" value="MyComposition.sln">
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-field__label">Output Directory</label>
+                                    <input type="text" class="form-field__input" value="/home/user/projects/output">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Repositories Card -->
+                        <div class="wizard-card">
+                            <div class="wizard-card__header">
+                                <span class="wizard-card__title">Repositories (2)</span>
+                                <button class="mat-btn mat-btn--outlined" style="height: 28px; font-size: 12px;">
+                                    <span class="material-icons" style="font-size: 16px;">add</span>
+                                    Add
+                                </button>
+                            </div>
+                            <div class="wizard-card__body">
+                                <div class="tree-item" style="padding-left: var(--space-3); margin-bottom: var(--space-2); background: var(--mat-surface-elevated); border-radius: var(--radius-sm);">
+                                    <span class="material-icons" style="color: var(--mat-info);">cloud</span>
+                                    <span class="tree-item__label">github.com/user/my-repo (main)</span>
+                                </div>
+                                <div class="tree-item" style="padding-left: var(--space-3); background: var(--mat-surface-elevated); border-radius: var(--radius-sm);">
+                                    <span class="material-icons" style="color: var(--mat-accent);">folder</span>
+                                    <span class="tree-item__label">/home/user/local-project</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="button-row">
+                            <button class="mat-btn mat-btn--outlined">
+                                <span class="material-icons" style="font-size: 18px;">save</span>
+                                Save Draft
+                            </button>
+                            <button class="mat-btn mat-btn--primary">
+                                <span class="material-icons" style="font-size: 18px;">play_arrow</span>
+                                Create Request
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- ============================================================
+             STATUS BAR
+             ============================================================ -->
+        <footer class="status-bar">
+            <div class="status-bar__section">
+                <div class="status-bar__item">
+                    <span class="material-icons">account_tree</span>
+                    <span>main</span>
+                </div>
+                <div class="status-bar__item">
+                    <span class="material-icons">sync</span>
+                    <span>0 ↓ 0 ↑</span>
+                </div>
+                <div class="status-bar__item">
+                    <span class="material-icons">error_outline</span>
+                    <span>0</span>
+                    <span class="material-icons">warning_amber</span>
+                    <span>0</span>
+                </div>
+            </div>
+            <div class="status-bar__section">
+                <div class="status-bar__item">
+                    <span>Endpoint Engineering v2.0</span>
+                </div>
+                <div class="status-bar__item">
+                    <span class="material-icons">notifications</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Responsive Indicator -->
+    <div class="responsive-indicator"></div>
+</body>
+</html>

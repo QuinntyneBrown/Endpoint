@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endpoint Engineering - Style Guide v2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* ============================================================
+           ANGULAR MATERIAL DARK THEME - INDIGO/PINK
+           Standard Angular Material theme - no custom colors
+           ============================================================ */
+
+        :root {
+            /* ----------------------------------------
+               COLOR PALETTE
+               Angular Material Dark Theme (Indigo/Pink)
+               ---------------------------------------- */
+
+            /* Primary Colors (Indigo) */
+            --mat-primary-50: #e8eaf6;
+            --mat-primary-100: #c5cae9;
+            --mat-primary-200: #9fa8da;
+            --mat-primary-300: #7986cb;
+            --mat-primary-400: #5c6bc0;
+            --mat-primary-500: #3f51b5;
+            --mat-primary-600: #3949ab;
+            --mat-primary-700: #303f9f;
+            --mat-primary-800: #283593;
+            --mat-primary-900: #1a237e;
+            --mat-primary: #9fa8da; /* Light variant for dark theme */
+            --mat-primary-lighter: #c5cae9;
+            --mat-primary-darker: #7986cb;
+
+            /* Accent Colors (Pink) */
+            --mat-accent-50: #fce4ec;
+            --mat-accent-100: #f8bbd0;
+            --mat-accent-200: #f48fb1;
+            --mat-accent-300: #f06292;
+            --mat-accent-400: #ec407a;
+            --mat-accent-500: #e91e63;
+            --mat-accent-600: #d81b60;
+            --mat-accent-700: #c2185b;
+            --mat-accent-800: #ad1457;
+            --mat-accent-900: #880e4f;
+            --mat-accent: #f48fb1; /* Light variant for dark theme */
+            --mat-accent-lighter: #f8bbd0;
+            --mat-accent-darker: #f06292;
+
+            /* Semantic Colors */
+            --mat-warn: #ef5350;
+            --mat-warn-lighter: #ef9a9a;
+            --mat-warn-darker: #e53935;
+            --mat-success: #81c784;
+            --mat-success-lighter: #a5d6a7;
+            --mat-success-darker: #66bb6a;
+            --mat-info: #64b5f6;
+            --mat-info-lighter: #90caf9;
+            --mat-info-darker: #42a5f5;
+
+            /* Background Colors (Dark Theme) */
+            --mat-background: #0d1117;
+            --mat-background-alt: #010409;
+            --mat-surface: #161b22;
+            --mat-surface-elevated: #21262d;
+            --mat-surface-high: #30363d;
+            --mat-surface-highest: #484f58;
+
+            /* Text Colors */
+            --mat-on-surface: #e6edf3;
+            --mat-on-surface-high: #ffffff;
+            --mat-on-surface-medium: rgba(230, 237, 243, 0.7);
+            --mat-on-surface-disabled: rgba(230, 237, 243, 0.38);
+            --mat-on-primary: #121212;
+            --mat-on-accent: #121212;
+
+            /* Border & Divider */
+            --mat-divider: rgba(230, 237, 243, 0.12);
+            --mat-divider-strong: rgba(230, 237, 243, 0.24);
+            --mat-border: #30363d;
+            --mat-border-hover: #8b949e;
+
+            /* State Colors */
+            --mat-hover: rgba(255, 255, 255, 0.08);
+            --mat-focus: rgba(159, 168, 218, 0.24);
+            --mat-selected: rgba(159, 168, 218, 0.16);
+            --mat-active: rgba(159, 168, 218, 0.24);
+            --mat-ripple: rgba(255, 255, 255, 0.12);
+
+            /* ----------------------------------------
+               SPACING SCALE (8px base unit)
+               ---------------------------------------- */
+            --space-0: 0;
+            --space-1: 4px;   /* Extra small */
+            --space-2: 8px;   /* Small */
+            --space-3: 12px;  /* Small-Medium */
+            --space-4: 16px;  /* Medium (base) */
+            --space-5: 20px;  /* Medium-Large */
+            --space-6: 24px;  /* Large */
+            --space-8: 32px;  /* Extra Large */
+            --space-10: 40px; /* 2x Large */
+            --space-12: 48px; /* 3x Large */
+            --space-16: 64px; /* 4x Large */
+            --space-20: 80px; /* 5x Large */
+            --space-24: 96px; /* 6x Large */
+
+            /* ----------------------------------------
+               TYPOGRAPHY
+               ---------------------------------------- */
+            --font-family-base: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-family-mono: 'Roboto Mono', 'Consolas', 'Monaco', monospace;
+
+            /* Font Sizes */
+            --font-size-xs: 10px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 20px;
+            --font-size-2xl: 24px;
+            --font-size-3xl: 32px;
+            --font-size-4xl: 40px;
+
+            /* Font Weights */
+            --font-weight-light: 300;
+            --font-weight-regular: 400;
+            --font-weight-medium: 500;
+            --font-weight-bold: 700;
+
+            /* Line Heights */
+            --line-height-tight: 1.2;
+            --line-height-base: 1.5;
+            --line-height-relaxed: 1.75;
+
+            /* ----------------------------------------
+               BORDER RADIUS
+               ---------------------------------------- */
+            --radius-none: 0;
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-2xl: 24px;
+            --radius-full: 9999px;
+
+            /* ----------------------------------------
+               SHADOWS (for elevation)
+               ---------------------------------------- */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+
+            /* ----------------------------------------
+               TRANSITIONS
+               ---------------------------------------- */
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.2s ease;
+            --transition-slow: 0.3s ease;
+
+            /* ----------------------------------------
+               Z-INDEX SCALE
+               ---------------------------------------- */
+            --z-rail: 100;
+            --z-header: 200;
+            --z-dropdown: 300;
+            --z-modal-backdrop: 400;
+            --z-modal: 500;
+            --z-tooltip: 600;
+            --z-toast: 700;
+
+            /* ----------------------------------------
+               COMPONENT SIZES
+               ---------------------------------------- */
+            --header-height: 48px;
+            --rail-width: 48px;
+            --rail-width-expanded: 240px;
+            --status-bar-height: 22px;
+            --icon-size-sm: 18px;
+            --icon-size-md: 24px;
+            --icon-size-lg: 32px;
+            --button-height-sm: 32px;
+            --button-height-md: 40px;
+            --button-height-lg: 48px;
+
+            /* ----------------------------------------
+               BREAKPOINTS
+               ---------------------------------------- */
+            --breakpoint-xs: 0;
+            --breakpoint-sm: 576px;
+            --breakpoint-md: 768px;
+            --breakpoint-lg: 992px;
+            --breakpoint-xl: 1200px;
+            --breakpoint-xxl: 1400px;
+        }
+
+        /* ============================================================
+           RESET & BASE STYLES
+           ============================================================ */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-base);
+            background: var(--mat-background);
+            color: var(--mat-on-surface);
+            min-height: 100vh;
+        }
+
+        /* ============================================================
+           STYLE GUIDE DOCUMENTATION STYLES
+           ============================================================ */
+
+        .style-guide {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-6);
+        }
+
+        .style-guide__header {
+            text-align: center;
+            padding: var(--space-12) 0;
+            border-bottom: 1px solid var(--mat-divider);
+            margin-bottom: var(--space-12);
+        }
+
+        .style-guide__title {
+            font-size: var(--font-size-4xl);
+            font-weight: var(--font-weight-light);
+            color: var(--mat-primary);
+            margin-bottom: var(--space-4);
+        }
+
+        .style-guide__subtitle {
+            font-size: var(--font-size-md);
+            color: var(--mat-on-surface-medium);
+        }
+
+        .style-guide__section {
+            margin-bottom: var(--space-16);
+        }
+
+        .style-guide__section-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-3);
+            border-bottom: 2px solid var(--mat-primary);
+            display: inline-block;
+        }
+
+        .style-guide__section-desc {
+            color: var(--mat-on-surface-medium);
+            margin-bottom: var(--space-6);
+            max-width: 800px;
+        }
+
+        .style-guide__subsection {
+            margin-bottom: var(--space-8);
+        }
+
+        .style-guide__subsection-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-4);
+            color: var(--mat-on-surface);
+        }
+
+        /* ============================================================
+           COLOR SWATCHES
+           ============================================================ */
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--space-4);
+        }
+
+        .color-swatch {
+            background: var(--mat-surface);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--mat-divider);
+        }
+
+        .color-swatch__preview {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .color-swatch__info {
+            padding: var(--space-3);
+            background: var(--mat-surface-elevated);
+        }
+
+        .color-swatch__name {
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-1);
+        }
+
+        .color-swatch__value {
+            font-size: var(--font-size-xs);
+            font-family: var(--font-family-mono);
+            color: var(--mat-on-surface-medium);
+        }
+
+        /* ============================================================
+           SPACING DEMO
+           ============================================================ */
+
+        .spacing-demo {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .spacing-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .spacing-item__label {
+            width: 100px;
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+        }
+
+        .spacing-item__bar {
+            height: 24px;
+            background: var(--mat-primary);
+            border-radius: var(--radius-sm);
+            opacity: 0.8;
+        }
+
+        .spacing-item__value {
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+            min-width: 50px;
+        }
+
+        /* ============================================================
+           TYPOGRAPHY DEMO
+           ============================================================ */
+
+        .typography-demo {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-6);
+        }
+
+        .typography-item {
+            padding: var(--space-4);
+            background: var(--mat-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--mat-divider);
+        }
+
+        .typography-item__label {
+            font-size: var(--font-size-xs);
+            font-family: var(--font-family-mono);
+            color: var(--mat-on-surface-medium);
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ============================================================
+           BREAKPOINT DEMO
+           ============================================================ */
+
+        .breakpoint-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--mat-surface);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--mat-divider);
+        }
+
+        .breakpoint-table th,
+        .breakpoint-table td {
+            padding: var(--space-3) var(--space-4);
+            text-align: left;
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        .breakpoint-table th {
+            background: var(--mat-surface-elevated);
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .breakpoint-table td {
+            font-size: var(--font-size-base);
+        }
+
+        .breakpoint-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .breakpoint-table .mono {
+            font-family: var(--font-family-mono);
+            color: var(--mat-primary);
+        }
+
+        /* ============================================================
+           BUTTON DEMO
+           ============================================================ */
+
+        .button-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            align-items: center;
+        }
+
+        .mat-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            padding: 0 var(--space-4);
+            height: var(--button-height-md);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            font-family: var(--font-family-base);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            border: none;
+            text-decoration: none;
+        }
+
+        .mat-btn--primary {
+            background: var(--mat-primary);
+            color: var(--mat-on-primary);
+        }
+
+        .mat-btn--primary:hover {
+            background: var(--mat-primary-lighter);
+        }
+
+        .mat-btn--accent {
+            background: var(--mat-accent);
+            color: var(--mat-on-accent);
+        }
+
+        .mat-btn--accent:hover {
+            background: var(--mat-accent-lighter);
+        }
+
+        .mat-btn--outlined {
+            background: transparent;
+            color: var(--mat-primary);
+            border: 1px solid var(--mat-primary);
+        }
+
+        .mat-btn--outlined:hover {
+            background: var(--mat-focus);
+        }
+
+        .mat-btn--text {
+            background: transparent;
+            color: var(--mat-primary);
+        }
+
+        .mat-btn--text:hover {
+            background: var(--mat-hover);
+        }
+
+        .mat-btn--icon {
+            width: var(--button-height-md);
+            padding: 0;
+            border-radius: var(--radius-full);
+            background: transparent;
+            color: var(--mat-on-surface-medium);
+        }
+
+        .mat-btn--icon:hover {
+            background: var(--mat-hover);
+            color: var(--mat-on-surface);
+        }
+
+        /* ============================================================
+           COMPONENT SIZE DEMO
+           ============================================================ */
+
+        .size-demo {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .size-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-3);
+            background: var(--mat-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--mat-divider);
+        }
+
+        .size-item__visual {
+            background: var(--mat-primary);
+            opacity: 0.6;
+            border-radius: var(--radius-sm);
+        }
+
+        .size-item__label {
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-mono);
+        }
+
+        .size-item__value {
+            color: var(--mat-on-surface-medium);
+            font-size: var(--font-size-sm);
+        }
+
+        /* ============================================================
+           RESPONSIVE BEHAVIOR INDICATOR
+           ============================================================ */
+
+        .responsive-indicator {
+            position: fixed;
+            bottom: var(--space-4);
+            right: var(--space-4);
+            background: var(--mat-accent);
+            color: var(--mat-on-accent);
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            z-index: var(--z-toast);
+        }
+
+        .responsive-indicator::before {
+            content: 'XS';
+        }
+
+        @media (min-width: 576px) {
+            .responsive-indicator::before {
+                content: 'SM (576px+)';
+            }
+        }
+
+        @media (min-width: 768px) {
+            .responsive-indicator::before {
+                content: 'MD (768px+)';
+            }
+        }
+
+        @media (min-width: 992px) {
+            .responsive-indicator::before {
+                content: 'LG (992px+)';
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .responsive-indicator::before {
+                content: 'XL (1200px+)';
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .responsive-indicator::before {
+                content: 'XXL (1400px+)';
+            }
+        }
+
+        /* ============================================================
+           SHADOW DEMO
+           ============================================================ */
+
+        .shadow-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .shadow-item {
+            height: 100px;
+            background: var(--mat-surface-elevated);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+        }
+
+        /* ============================================================
+           RADIUS DEMO
+           ============================================================ */
+
+        .radius-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+            align-items: flex-end;
+        }
+
+        .radius-item {
+            text-align: center;
+        }
+
+        .radius-item__preview {
+            width: 64px;
+            height: 64px;
+            background: var(--mat-primary);
+            opacity: 0.8;
+            margin-bottom: var(--space-2);
+        }
+
+        .radius-item__label {
+            font-size: var(--font-size-xs);
+            font-family: var(--font-family-mono);
+            color: var(--mat-on-surface-medium);
+        }
+
+        /* ============================================================
+           ICON DEMO
+           ============================================================ */
+
+        .icon-demo {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-4);
+            background: var(--mat-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--mat-divider);
+            min-width: 100px;
+        }
+
+        .icon-item .material-icons {
+            margin-bottom: var(--space-2);
+            color: var(--mat-on-surface);
+        }
+
+        .icon-item__label {
+            font-size: var(--font-size-xs);
+            color: var(--mat-on-surface-medium);
+            text-align: center;
+        }
+
+        /* ============================================================
+           CODE BLOCK
+           ============================================================ */
+
+        .code-block {
+            background: var(--mat-background-alt);
+            border: 1px solid var(--mat-divider);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            overflow-x: auto;
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-sm);
+            line-height: var(--line-height-relaxed);
+        }
+
+        .code-block code {
+            color: var(--mat-on-surface);
+        }
+
+        .code-block .comment {
+            color: var(--mat-on-surface-disabled);
+        }
+
+        .code-block .property {
+            color: var(--mat-primary);
+        }
+
+        .code-block .value {
+            color: var(--mat-accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="style-guide">
+        <!-- Header -->
+        <header class="style-guide__header">
+            <h1 class="style-guide__title">Endpoint Engineering</h1>
+            <p class="style-guide__subtitle">Style Guide v2 - VS Code Inspired Angular Material Dark Theme</p>
+        </header>
+
+        <!-- Color Palette -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Color Palette</h2>
+            <p class="style-guide__section-desc">
+                Standard Angular Material Dark Theme using Indigo as primary and Pink as accent.
+                All colors are optimized for WCAG AA accessibility on dark backgrounds.
+            </p>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Primary Colors (Indigo)</h3>
+                <div class="color-grid">
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-primary);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Primary</div>
+                            <div class="color-swatch__value">#9fa8da</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-primary-lighter);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Primary Lighter</div>
+                            <div class="color-swatch__value">#c5cae9</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-primary-darker);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Primary Darker</div>
+                            <div class="color-swatch__value">#7986cb</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Accent Colors (Pink)</h3>
+                <div class="color-grid">
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-accent);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Accent</div>
+                            <div class="color-swatch__value">#f48fb1</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-accent-lighter);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Accent Lighter</div>
+                            <div class="color-swatch__value">#f8bbd0</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-accent-darker);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Accent Darker</div>
+                            <div class="color-swatch__value">#f06292</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Semantic Colors</h3>
+                <div class="color-grid">
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-success);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Success</div>
+                            <div class="color-swatch__value">#81c784</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-warn);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Warn / Error</div>
+                            <div class="color-swatch__value">#ef5350</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-info);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Info</div>
+                            <div class="color-swatch__value">#64b5f6</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Surface Colors</h3>
+                <div class="color-grid">
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-background);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Background</div>
+                            <div class="color-swatch__value">#0d1117</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-surface);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Surface</div>
+                            <div class="color-swatch__value">#161b22</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-surface-elevated);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Surface Elevated</div>
+                            <div class="color-swatch__value">#21262d</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-surface-high);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Surface High</div>
+                            <div class="color-swatch__value">#30363d</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Text Colors</h3>
+                <div class="color-grid">
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-surface); display: flex; align-items: center; justify-content: center;">
+                            <span style="color: var(--mat-on-surface); font-size: 14px;">Text</span>
+                        </div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">On Surface</div>
+                            <div class="color-swatch__value">#e6edf3</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-surface); display: flex; align-items: center; justify-content: center;">
+                            <span style="color: var(--mat-on-surface-medium); font-size: 14px;">Medium</span>
+                        </div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">On Surface Medium</div>
+                            <div class="color-swatch__value">rgba(230,237,243,0.7)</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--mat-surface); display: flex; align-items: center; justify-content: center;">
+                            <span style="color: var(--mat-on-surface-disabled); font-size: 14px;">Disabled</span>
+                        </div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">On Surface Disabled</div>
+                            <div class="color-swatch__value">rgba(230,237,243,0.38)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Spacing -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Spacing Scale</h2>
+            <p class="style-guide__section-desc">
+                8px base unit system for consistent spacing throughout the application.
+                Use spacing tokens instead of arbitrary pixel values.
+            </p>
+
+            <div class="spacing-demo">
+                <div class="spacing-item">
+                    <span class="spacing-item__label">--space-1</span>
+                    <div class="spacing-item__bar" style="width: 4px;"></div>
+                    <span class="spacing-item__value">4px</span>
+                </div>
+                <div class="spacing-item">
+                    <span class="spacing-item__label">--space-2</span>
+                    <div class="spacing-item__bar" style="width: 8px;"></div>
+                    <span class="spacing-item__value">8px</span>
+                </div>
+                <div class="spacing-item">
+                    <span class="spacing-item__label">--space-3</span>
+                    <div class="spacing-item__bar" style="width: 12px;"></div>
+                    <span class="spacing-item__value">12px</span>
+                </div>
+                <div class="spacing-item">
+                    <span class="spacing-item__label">--space-4</span>
+                    <div class="spacing-item__bar" style="width: 16px;"></div>
+                    <span class="spacing-item__value">16px</span>
+                </div>
+                <div class="spacing-item">
+                    <span class="spacing-item__label">--space-6</span>
+                    <div class="spacing-item__bar" style="width: 24px;"></div>
+                    <span class="spacing-item__value">24px</span>
+                </div>
+                <div class="spacing-item">
+                    <span class="spacing-item__label">--space-8</span>
+                    <div class="spacing-item__bar" style="width: 32px;"></div>
+                    <span class="spacing-item__value">32px</span>
+                </div>
+                <div class="spacing-item">
+                    <span class="spacing-item__label">--space-12</span>
+                    <div class="spacing-item__bar" style="width: 48px;"></div>
+                    <span class="spacing-item__value">48px</span>
+                </div>
+                <div class="spacing-item">
+                    <span class="spacing-item__label">--space-16</span>
+                    <div class="spacing-item__bar" style="width: 64px;"></div>
+                    <span class="spacing-item__value">64px</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Typography -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Typography</h2>
+            <p class="style-guide__section-desc">
+                Roboto font family for UI text, Roboto Mono for code.
+                Type scale follows Material Design guidelines.
+            </p>
+
+            <div class="typography-demo">
+                <div class="typography-item">
+                    <div class="typography-item__label">Headline Large (32px)</div>
+                    <div style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-light);">The quick brown fox</div>
+                </div>
+                <div class="typography-item">
+                    <div class="typography-item__label">Headline Medium (24px)</div>
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-regular);">The quick brown fox</div>
+                </div>
+                <div class="typography-item">
+                    <div class="typography-item__label">Headline Small (20px)</div>
+                    <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-medium);">The quick brown fox</div>
+                </div>
+                <div class="typography-item">
+                    <div class="typography-item__label">Title Large (18px)</div>
+                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-medium);">The quick brown fox jumps over the lazy dog</div>
+                </div>
+                <div class="typography-item">
+                    <div class="typography-item__label">Title Medium (16px)</div>
+                    <div style="font-size: var(--font-size-md); font-weight: var(--font-weight-medium);">The quick brown fox jumps over the lazy dog</div>
+                </div>
+                <div class="typography-item">
+                    <div class="typography-item__label">Body Large (16px)</div>
+                    <div style="font-size: var(--font-size-md); font-weight: var(--font-weight-regular);">The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.</div>
+                </div>
+                <div class="typography-item">
+                    <div class="typography-item__label">Body Medium (14px) - Default</div>
+                    <div style="font-size: var(--font-size-base); font-weight: var(--font-weight-regular);">The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.</div>
+                </div>
+                <div class="typography-item">
+                    <div class="typography-item__label">Body Small (12px)</div>
+                    <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-regular);">The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.</div>
+                </div>
+                <div class="typography-item">
+                    <div class="typography-item__label">Label / Caption (10px)</div>
+                    <div style="font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); text-transform: uppercase; letter-spacing: 0.5px;">Label text uppercase</div>
+                </div>
+                <div class="typography-item">
+                    <div class="typography-item__label">Monospace (14px)</div>
+                    <div style="font-family: var(--font-family-mono); font-size: var(--font-size-base);">const code = "example";</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Responsive Breakpoints -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Responsive Breakpoints</h2>
+            <p class="style-guide__section-desc">
+                Mobile-first approach using Bootstrap-inspired breakpoints.
+                Start with mobile styles, then add responsive overrides.
+            </p>
+
+            <table class="breakpoint-table">
+                <thead>
+                    <tr>
+                        <th>Breakpoint</th>
+                        <th>Min Width</th>
+                        <th>CSS Variable</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>XS</strong></td>
+                        <td class="mono">0</td>
+                        <td class="mono">--breakpoint-xs</td>
+                        <td>Mobile phones (portrait)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SM</strong></td>
+                        <td class="mono">576px</td>
+                        <td class="mono">--breakpoint-sm</td>
+                        <td>Mobile phones (landscape)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MD</strong></td>
+                        <td class="mono">768px</td>
+                        <td class="mono">--breakpoint-md</td>
+                        <td>Tablets (portrait)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LG</strong></td>
+                        <td class="mono">992px</td>
+                        <td class="mono">--breakpoint-lg</td>
+                        <td>Tablets (landscape) / Small laptops</td>
+                    </tr>
+                    <tr>
+                        <td><strong>XL</strong></td>
+                        <td class="mono">1200px</td>
+                        <td class="mono">--breakpoint-xl</td>
+                        <td>Desktops</td>
+                    </tr>
+                    <tr>
+                        <td><strong>XXL</strong></td>
+                        <td class="mono">1400px</td>
+                        <td class="mono">--breakpoint-xxl</td>
+                        <td>Large desktops</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="code-block" style="margin-top: var(--space-6);">
+                <code>
+<span class="comment">/* Mobile-first approach */</span>
+.component {
+  <span class="property">padding</span>: <span class="value">var(--space-4)</span>;      <span class="comment">/* Base mobile styles */</span>
+}
+
+<span class="comment">/* Tablet and up */</span>
+@media (min-width: 768px) {
+  .component {
+    <span class="property">padding</span>: <span class="value">var(--space-6)</span>;
+  }
+}
+
+<span class="comment">/* Desktop and up */</span>
+@media (min-width: 1200px) {
+  .component {
+    <span class="property">padding</span>: <span class="value">var(--space-8)</span>;
+  }
+}
+                </code>
+            </div>
+        </section>
+
+        <!-- Component Sizes -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Component Sizes</h2>
+            <p class="style-guide__section-desc">
+                Standard sizes for VS Code-inspired layout components.
+            </p>
+
+            <div class="size-demo">
+                <div class="size-item">
+                    <div class="size-item__visual" style="width: 100%; height: 48px;"></div>
+                    <div>
+                        <div class="size-item__label">--header-height</div>
+                        <div class="size-item__value">48px - Global header bar</div>
+                    </div>
+                </div>
+                <div class="size-item">
+                    <div class="size-item__visual" style="width: 48px; height: 200px;"></div>
+                    <div>
+                        <div class="size-item__label">--rail-width</div>
+                        <div class="size-item__value">48px - Activity bar (collapsed)</div>
+                    </div>
+                </div>
+                <div class="size-item">
+                    <div class="size-item__visual" style="width: 240px; height: 100px;"></div>
+                    <div>
+                        <div class="size-item__label">--rail-width-expanded</div>
+                        <div class="size-item__value">240px - Sidebar (expanded)</div>
+                    </div>
+                </div>
+                <div class="size-item">
+                    <div class="size-item__visual" style="width: 100%; height: 22px;"></div>
+                    <div>
+                        <div class="size-item__label">--status-bar-height</div>
+                        <div class="size-item__value">22px - Status bar at bottom</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Buttons -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Buttons</h2>
+            <p class="style-guide__section-desc">
+                Angular Material button variants for consistent UI patterns.
+            </p>
+
+            <div class="button-demo">
+                <button class="mat-btn mat-btn--primary">
+                    <span class="material-icons" style="font-size: 18px;">add</span>
+                    Primary Button
+                </button>
+                <button class="mat-btn mat-btn--accent">
+                    <span class="material-icons" style="font-size: 18px;">star</span>
+                    Accent Button
+                </button>
+                <button class="mat-btn mat-btn--outlined">Outlined</button>
+                <button class="mat-btn mat-btn--text">Text Button</button>
+                <button class="mat-btn mat-btn--icon">
+                    <span class="material-icons">more_vert</span>
+                </button>
+                <button class="mat-btn mat-btn--icon">
+                    <span class="material-icons">settings</span>
+                </button>
+                <button class="mat-btn mat-btn--icon">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Border Radius -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Border Radius</h2>
+            <p class="style-guide__section-desc">
+                Consistent corner rounding for UI elements.
+            </p>
+
+            <div class="radius-demo">
+                <div class="radius-item">
+                    <div class="radius-item__preview" style="border-radius: var(--radius-none);"></div>
+                    <div class="radius-item__label">none (0)</div>
+                </div>
+                <div class="radius-item">
+                    <div class="radius-item__preview" style="border-radius: var(--radius-sm);"></div>
+                    <div class="radius-item__label">sm (4px)</div>
+                </div>
+                <div class="radius-item">
+                    <div class="radius-item__preview" style="border-radius: var(--radius-md);"></div>
+                    <div class="radius-item__label">md (8px)</div>
+                </div>
+                <div class="radius-item">
+                    <div class="radius-item__preview" style="border-radius: var(--radius-lg);"></div>
+                    <div class="radius-item__label">lg (12px)</div>
+                </div>
+                <div class="radius-item">
+                    <div class="radius-item__preview" style="border-radius: var(--radius-xl);"></div>
+                    <div class="radius-item__label">xl (16px)</div>
+                </div>
+                <div class="radius-item">
+                    <div class="radius-item__preview" style="border-radius: var(--radius-full);"></div>
+                    <div class="radius-item__label">full</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shadows -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Elevation & Shadows</h2>
+            <p class="style-guide__section-desc">
+                Subtle shadows for elevation on dark backgrounds.
+            </p>
+
+            <div class="shadow-demo">
+                <div class="shadow-item" style="box-shadow: var(--shadow-sm);">shadow-sm</div>
+                <div class="shadow-item" style="box-shadow: var(--shadow-md);">shadow-md</div>
+                <div class="shadow-item" style="box-shadow: var(--shadow-lg);">shadow-lg</div>
+                <div class="shadow-item" style="box-shadow: var(--shadow-xl);">shadow-xl</div>
+            </div>
+        </section>
+
+        <!-- Icons -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Icons (Material Icons)</h2>
+            <p class="style-guide__section-desc">
+                Common icons used throughout the VS Code-inspired interface.
+            </p>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Rail / Activity Bar</h3>
+                <div class="icon-demo">
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">folder</span>
+                        <span class="icon-item__label">Explorer</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">search</span>
+                        <span class="icon-item__label">Search</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">account_tree</span>
+                        <span class="icon-item__label">Source Control</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">bug_report</span>
+                        <span class="icon-item__label">Debug</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">extension</span>
+                        <span class="icon-item__label">Extensions</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">layers</span>
+                        <span class="icon-item__label">Composer</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">settings</span>
+                        <span class="icon-item__label">Settings</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Actions</h3>
+                <div class="icon-demo">
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">add</span>
+                        <span class="icon-item__label">Add</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">edit</span>
+                        <span class="icon-item__label">Edit</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">delete</span>
+                        <span class="icon-item__label">Delete</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">save</span>
+                        <span class="icon-item__label">Save</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">play_arrow</span>
+                        <span class="icon-item__label">Run</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">close</span>
+                        <span class="icon-item__label">Close</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons" style="font-size: 24px;">more_vert</span>
+                        <span class="icon-item__label">More</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Mobile-First Guidelines -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Mobile-First Guidelines</h2>
+            <p class="style-guide__section-desc">
+                Design principles for responsive VS Code-like interface.
+            </p>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Layout Behavior</h3>
+                <table class="breakpoint-table">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Mobile (XS-SM)</th>
+                            <th>Tablet (MD)</th>
+                            <th>Desktop (LG+)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Header</strong></td>
+                            <td>Full width, hamburger menu</td>
+                            <td>Full width, visible menu</td>
+                            <td>Full width, all elements visible</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rail</strong></td>
+                            <td>Hidden, accessible via hamburger</td>
+                            <td>48px collapsed rail</td>
+                            <td>48px rail, optional 240px sidebar</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Content</strong></td>
+                            <td>Full width, single column</td>
+                            <td>Minus rail width</td>
+                            <td>Minus rail/sidebar, multi-column</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Wizard</strong></td>
+                            <td>Full screen, stacked steps</td>
+                            <td>Card-based, scrollable</td>
+                            <td>Split view with preview</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Touch Targets</h3>
+                <p style="color: var(--mat-on-surface-medium); margin-bottom: var(--space-4);">
+                    Minimum touch target size: <strong>48x48px</strong> for mobile devices.
+                    Icons in rail and buttons should meet this requirement.
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <!-- Responsive Breakpoint Indicator -->
+    <div class="responsive-indicator"></div>
+</body>
+</html>

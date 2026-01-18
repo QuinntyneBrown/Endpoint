@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALaCarteRequest Wizard - Multi-Step Flow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* ============================================================
+           CSS VARIABLES - Angular Material Dark Theme
+           ============================================================ */
+        :root {
+            /* Primary Colors (Indigo) */
+            --mat-primary: #9fa8da;
+            --mat-primary-lighter: #c5cae9;
+            --mat-primary-darker: #7986cb;
+
+            /* Accent Colors (Pink) */
+            --mat-accent: #f48fb1;
+            --mat-accent-lighter: #f8bbd0;
+            --mat-accent-darker: #f06292;
+
+            /* Semantic Colors */
+            --mat-warn: #ef5350;
+            --mat-warn-lighter: #ef9a9a;
+            --mat-success: #81c784;
+            --mat-success-lighter: #a5d6a7;
+            --mat-info: #64b5f6;
+
+            /* Background Colors */
+            --mat-background: #0d1117;
+            --mat-surface: #161b22;
+            --mat-surface-elevated: #21262d;
+            --mat-surface-high: #30363d;
+            --mat-surface-highest: #484f58;
+
+            /* Text Colors */
+            --mat-on-surface: #e6edf3;
+            --mat-on-surface-medium: rgba(230, 237, 243, 0.7);
+            --mat-on-surface-disabled: rgba(230, 237, 243, 0.38);
+
+            /* Border & State */
+            --mat-divider: rgba(230, 237, 243, 0.12);
+            --mat-border: #30363d;
+            --mat-hover: rgba(255, 255, 255, 0.08);
+            --mat-focus: rgba(159, 168, 218, 0.24);
+            --mat-selected: rgba(159, 168, 218, 0.16);
+
+            /* Spacing */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-8: 32px;
+            --space-10: 40px;
+            --space-12: 48px;
+
+            /* Component Sizes */
+            --header-height: 48px;
+            --rail-width: 48px;
+            --status-bar-height: 22px;
+
+            /* Typography */
+            --font-family-base: 'Roboto', sans-serif;
+            --font-family-mono: 'Roboto Mono', monospace;
+            --font-size-xs: 10px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-md: 16px;
+            --font-size-lg: 18px;
+            --font-size-xl: 20px;
+            --font-size-2xl: 24px;
+
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.2s ease;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-full: 9999px;
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            background: var(--mat-background);
+            color: var(--mat-on-surface);
+            min-height: 100vh;
+        }
+
+        /* ============================================================
+           LAYOUT SHELL
+           ============================================================ */
+        .app-shell {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .global-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--mat-surface);
+            border-bottom: 1px solid var(--mat-divider);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--space-4);
+            z-index: 200;
+        }
+
+        .global-header__back {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            border-radius: var(--radius-sm);
+            color: var(--mat-on-surface-medium);
+            cursor: pointer;
+            margin-right: var(--space-3);
+        }
+
+        .global-header__back:hover {
+            background: var(--mat-hover);
+            color: var(--mat-on-surface);
+        }
+
+        .global-header__title {
+            font-size: var(--font-size-md);
+            font-weight: 500;
+        }
+
+        /* Rail placeholder */
+        .rail {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .rail {
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                bottom: 0;
+                width: var(--rail-width);
+                background: var(--mat-surface);
+                border-right: 1px solid var(--mat-divider);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: var(--space-2) 0;
+            }
+
+            .rail__item {
+                width: var(--rail-width);
+                height: var(--rail-width);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--mat-on-surface-disabled);
+                cursor: pointer;
+            }
+
+            .rail__item--active {
+                color: var(--mat-on-surface);
+            }
+        }
+
+        /* ============================================================
+           WIZARD CONTAINER
+           ============================================================ */
+        .wizard-container {
+            margin-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height));
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 768px) {
+            .wizard-container {
+                margin-left: var(--rail-width);
+            }
+        }
+
+        /* ============================================================
+           WIZARD STEPPER
+           ============================================================ */
+        .wizard-stepper {
+            background: var(--mat-surface);
+            border-bottom: 1px solid var(--mat-divider);
+            padding: var(--space-4);
+            overflow-x: auto;
+        }
+
+        .wizard-stepper__track {
+            display: flex;
+            align-items: center;
+            min-width: max-content;
+        }
+
+        .wizard-stepper__step {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .wizard-stepper__circle {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .wizard-stepper__step--completed .wizard-stepper__circle {
+            background: var(--mat-success);
+            color: #121212;
+        }
+
+        .wizard-stepper__step--active .wizard-stepper__circle {
+            background: var(--mat-primary);
+            color: #121212;
+        }
+
+        .wizard-stepper__step--pending .wizard-stepper__circle {
+            background: var(--mat-surface-high);
+            color: var(--mat-on-surface-disabled);
+        }
+
+        .wizard-stepper__label {
+            font-size: var(--font-size-sm);
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .wizard-stepper__label {
+                display: block;
+            }
+        }
+
+        .wizard-stepper__step--completed .wizard-stepper__label {
+            color: var(--mat-success);
+        }
+
+        .wizard-stepper__step--active .wizard-stepper__label {
+            color: var(--mat-on-surface);
+            font-weight: 500;
+        }
+
+        .wizard-stepper__step--pending .wizard-stepper__label {
+            color: var(--mat-on-surface-disabled);
+        }
+
+        .wizard-stepper__connector {
+            width: 40px;
+            height: 2px;
+            margin: 0 var(--space-2);
+            background: var(--mat-surface-high);
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .wizard-stepper__connector {
+                width: 60px;
+            }
+        }
+
+        .wizard-stepper__connector--completed {
+            background: var(--mat-success);
+        }
+
+        /* ============================================================
+           WIZARD CONTENT
+           ============================================================ */
+        .wizard-content {
+            flex: 1;
+            padding: var(--space-4);
+            overflow-y: auto;
+        }
+
+        @media (min-width: 768px) {
+            .wizard-content {
+                padding: var(--space-6);
+            }
+        }
+
+        @media (min-width: 992px) {
+            .wizard-content {
+                padding: var(--space-8);
+                max-width: 900px;
+                margin: 0 auto;
+            }
+        }
+
+        .wizard-step {
+            display: none;
+        }
+
+        .wizard-step--active {
+            display: block;
+        }
+
+        .wizard-step__header {
+            margin-bottom: var(--space-6);
+        }
+
+        .wizard-step__title {
+            font-size: var(--font-size-xl);
+            font-weight: 500;
+            margin-bottom: var(--space-2);
+        }
+
+        @media (min-width: 768px) {
+            .wizard-step__title {
+                font-size: var(--font-size-2xl);
+            }
+        }
+
+        .wizard-step__description {
+            color: var(--mat-on-surface-medium);
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+           FORM COMPONENTS
+           ============================================================ */
+
+        /* Form Group */
+        .form-group {
+            margin-bottom: var(--space-6);
+        }
+
+        .form-label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            margin-bottom: var(--space-2);
+            color: var(--mat-on-surface);
+        }
+
+        .form-label--required::after {
+            content: ' *';
+            color: var(--mat-warn);
+        }
+
+        .form-hint {
+            font-size: var(--font-size-xs);
+            color: var(--mat-on-surface-medium);
+            margin-top: var(--space-1);
+        }
+
+        /* Text Input (mat-form-field style) */
+        .mat-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 var(--space-4);
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-border);
+            border-radius: var(--radius-sm);
+            color: var(--mat-on-surface);
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            transition: all var(--transition-fast);
+        }
+
+        .mat-input::placeholder {
+            color: var(--mat-on-surface-disabled);
+        }
+
+        .mat-input:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+            background: var(--mat-surface-high);
+        }
+
+        .mat-input--mono {
+            font-family: var(--font-family-mono);
+        }
+
+        /* Select (mat-select style) */
+        .mat-select {
+            width: 100%;
+            height: 48px;
+            padding: 0 var(--space-4);
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-border);
+            border-radius: var(--radius-sm);
+            color: var(--mat-on-surface);
+            font-family: var(--font-family-base);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23e6edf3'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .mat-select:focus {
+            outline: none;
+            border-color: var(--mat-primary);
+        }
+
+        /* Radio Group (mat-radio-group style) */
+        .mat-radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        @media (min-width: 576px) {
+            .mat-radio-group--horizontal {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: var(--space-4);
+            }
+        }
+
+        .mat-radio {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3) var(--space-4);
+            background: var(--mat-surface-elevated);
+            border: 1px solid var(--mat-border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .mat-radio:hover {
+            border-color: var(--mat-primary);
+            background: var(--mat-surface-high);
+        }
+
+        .mat-radio--selected {
+            border-color: var(--mat-primary);
+            background: var(--mat-selected);
+        }
+
+        .mat-radio__circle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--mat-border);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .mat-radio--selected .mat-radio__circle {
+            border-color: var(--mat-primary);
+        }
+
+        .mat-radio__circle::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: var(--mat-primary);
+            border-radius: var(--radius-full);
+            opacity: 0;
+            transform: scale(0);
+            transition: all var(--transition-fast);
+        }
+
+        .mat-radio--selected .mat-radio__circle::after {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .mat-radio__content {
+            flex: 1;
+        }
+
+        .mat-radio__label {
+            font-size: var(--font-size-base);
+            font-weight: 500;
+        }
+
+        .mat-radio__description {
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+            margin-top: var(--space-1);
+        }
+
+        /* ============================================================
+           CARDS & LISTS
+           ============================================================ */
+
+        /* Repository Card */
+        .repo-card {
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-border);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-4);
+            overflow: hidden;
+        }
+
+        .repo-card__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-4);
+            background: var(--mat-surface-elevated);
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        .repo-card__title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-weight: 500;
+        }
+
+        .repo-card__title .material-icons {
+            color: var(--mat-primary);
+        }
+
+        .repo-card__actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .repo-card__body {
+            padding: var(--space-4);
+        }
+
+        /* Folder List */
+        .folder-list {
+            list-style: none;
+        }
+
+        .folder-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            background: var(--mat-surface-elevated);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-2);
+        }
+
+        .folder-item__drag {
+            color: var(--mat-on-surface-disabled);
+            cursor: grab;
+        }
+
+        .folder-item__icon {
+            color: var(--mat-accent);
+        }
+
+        .folder-item__content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .folder-item__from {
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .folder-item__arrow {
+            color: var(--mat-on-surface-disabled);
+            font-size: var(--font-size-sm);
+        }
+
+        .folder-item__to {
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .folder-item__actions {
+            display: flex;
+            gap: var(--space-1);
+        }
+
+        /* Add Button */
+        .add-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            width: 100%;
+            padding: var(--space-4);
+            background: none;
+            border: 2px dashed var(--mat-border);
+            border-radius: var(--radius-md);
+            color: var(--mat-on-surface-medium);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .add-button:hover {
+            border-color: var(--mat-primary);
+            color: var(--mat-primary);
+            background: var(--mat-focus);
+        }
+
+        /* ============================================================
+           BUTTONS
+           ============================================================ */
+        .mat-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            padding: 0 var(--space-4);
+            height: 40px;
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            font-family: var(--font-family-base);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: none;
+            text-decoration: none;
+        }
+
+        .mat-btn--primary {
+            background: var(--mat-primary);
+            color: #121212;
+        }
+
+        .mat-btn--primary:hover {
+            background: var(--mat-primary-lighter);
+        }
+
+        .mat-btn--accent {
+            background: var(--mat-accent);
+            color: #121212;
+        }
+
+        .mat-btn--accent:hover {
+            background: var(--mat-accent-lighter);
+        }
+
+        .mat-btn--outlined {
+            background: transparent;
+            color: var(--mat-on-surface);
+            border: 1px solid var(--mat-border);
+        }
+
+        .mat-btn--outlined:hover {
+            background: var(--mat-hover);
+            border-color: var(--mat-on-surface-medium);
+        }
+
+        .mat-btn--text {
+            background: transparent;
+            color: var(--mat-primary);
+        }
+
+        .mat-btn--text:hover {
+            background: var(--mat-hover);
+        }
+
+        .mat-btn--icon {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--mat-on-surface-medium);
+        }
+
+        .mat-btn--icon:hover {
+            background: var(--mat-hover);
+            color: var(--mat-on-surface);
+        }
+
+        .mat-btn--icon .material-icons {
+            font-size: 20px;
+        }
+
+        /* ============================================================
+           WIZARD FOOTER
+           ============================================================ */
+        .wizard-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-4);
+            background: var(--mat-surface);
+            border-top: 1px solid var(--mat-divider);
+        }
+
+        @media (min-width: 768px) {
+            .wizard-footer {
+                padding: var(--space-4) var(--space-6);
+            }
+        }
+
+        .wizard-footer__left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .wizard-footer__right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        /* ============================================================
+           SUMMARY PREVIEW
+           ============================================================ */
+        .summary-card {
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-border);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-4);
+        }
+
+        .summary-card__header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--mat-divider);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .summary-card__header .material-icons {
+            color: var(--mat-primary);
+        }
+
+        .summary-card__title {
+            font-weight: 500;
+        }
+
+        .summary-card__body {
+            padding: var(--space-4);
+        }
+
+        .summary-row {
+            display: flex;
+            padding: var(--space-2) 0;
+            border-bottom: 1px solid var(--mat-divider);
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row__label {
+            width: 140px;
+            flex-shrink: 0;
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+        }
+
+        .summary-row__value {
+            flex: 1;
+            font-size: var(--font-size-sm);
+            font-family: var(--font-family-mono);
+        }
+
+        /* JSON Preview */
+        .json-preview {
+            background: var(--mat-background);
+            border: 1px solid var(--mat-border);
+            border-radius: var(--radius-sm);
+            padding: var(--space-4);
+            font-family: var(--font-family-mono);
+            font-size: var(--font-size-sm);
+            line-height: 1.6;
+            overflow-x: auto;
+            max-height: 300px;
+        }
+
+        .json-preview .key {
+            color: var(--mat-primary);
+        }
+
+        .json-preview .string {
+            color: var(--mat-success);
+        }
+
+        .json-preview .number {
+            color: var(--mat-accent);
+        }
+
+        /* ============================================================
+           RESPONSIVE INDICATOR
+           ============================================================ */
+        .responsive-indicator {
+            position: fixed;
+            bottom: var(--space-4);
+            right: var(--space-4);
+            background: var(--mat-accent);
+            color: #121212;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            z-index: 300;
+        }
+
+        .responsive-indicator::before {
+            content: 'Mobile (XS)';
+        }
+
+        @media (min-width: 576px) {
+            .responsive-indicator::before {
+                content: 'Mobile (SM)';
+            }
+        }
+
+        @media (min-width: 768px) {
+            .responsive-indicator::before {
+                content: 'Tablet (MD)';
+            }
+        }
+
+        @media (min-width: 992px) {
+            .responsive-indicator::before {
+                content: 'Desktop (LG)';
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-shell">
+        <!-- ============================================================
+             GLOBAL HEADER
+             ============================================================ -->
+        <header class="global-header">
+            <button class="global-header__back">
+                <span class="material-icons">arrow_back</span>
+            </button>
+            <span class="global-header__title">New A La Carte Request</span>
+        </header>
+
+        <!-- ============================================================
+             RAIL (Desktop)
+             ============================================================ -->
+        <nav class="rail">
+            <button class="rail__item">
+                <span class="material-icons">folder</span>
+            </button>
+            <button class="rail__item rail__item--active">
+                <span class="material-icons">layers</span>
+            </button>
+            <button class="rail__item">
+                <span class="material-icons">list_alt</span>
+            </button>
+            <div style="flex: 1;"></div>
+            <button class="rail__item">
+                <span class="material-icons">settings</span>
+            </button>
+        </nav>
+
+        <!-- ============================================================
+             WIZARD CONTAINER
+             ============================================================ -->
+        <main class="wizard-container">
+            <!-- Wizard Stepper -->
+            <div class="wizard-stepper">
+                <div class="wizard-stepper__track">
+                    <!-- Step 1: Basic Info -->
+                    <div class="wizard-stepper__step wizard-stepper__step--completed">
+                        <div class="wizard-stepper__circle">
+                            <span class="material-icons" style="font-size: 18px;">check</span>
+                        </div>
+                        <span class="wizard-stepper__label">Basic Info</span>
+                    </div>
+                    <div class="wizard-stepper__connector wizard-stepper__connector--completed"></div>
+
+                    <!-- Step 2: Repositories -->
+                    <div class="wizard-stepper__step wizard-stepper__step--active">
+                        <div class="wizard-stepper__circle">2</div>
+                        <span class="wizard-stepper__label">Repositories</span>
+                    </div>
+                    <div class="wizard-stepper__connector"></div>
+
+                    <!-- Step 3: Folders -->
+                    <div class="wizard-stepper__step wizard-stepper__step--pending">
+                        <div class="wizard-stepper__circle">3</div>
+                        <span class="wizard-stepper__label">Folders</span>
+                    </div>
+                    <div class="wizard-stepper__connector"></div>
+
+                    <!-- Step 4: Review -->
+                    <div class="wizard-stepper__step wizard-stepper__step--pending">
+                        <div class="wizard-stepper__circle">4</div>
+                        <span class="wizard-stepper__label">Review</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wizard Content -->
+            <div class="wizard-content">
+                <!-- ============================================================
+                     STEP 1: Basic Info (hidden, shown for reference)
+                     ============================================================ -->
+                <div class="wizard-step" id="step-1">
+                    <div class="wizard-step__header">
+                        <h2 class="wizard-step__title">Basic Information</h2>
+                        <p class="wizard-step__description">
+                            Configure the output settings for your A La Carte request.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label--required">Solution Name</label>
+                        <input type="text" class="mat-input mat-input--mono" value="ALaCarte.sln" placeholder="MySolution.sln">
+                        <p class="form-hint">The name of the .NET solution file to create</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label--required">Output Directory</label>
+                        <input type="text" class="mat-input mat-input--mono" value="/home/user/output" placeholder="/path/to/output">
+                        <p class="form-hint">Where the composed solution will be created</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label form-label--required">Output Type</label>
+                        <div class="mat-radio-group">
+                            <div class="mat-radio">
+                                <div class="mat-radio__circle"></div>
+                                <div class="mat-radio__content">
+                                    <div class="mat-radio__label">Not Specified</div>
+                                    <div class="mat-radio__description">No solution or workspace created</div>
+                                </div>
+                            </div>
+                            <div class="mat-radio mat-radio--selected">
+                                <div class="mat-radio__circle"></div>
+                                <div class="mat-radio__content">
+                                    <div class="mat-radio__label">.NET Solution</div>
+                                    <div class="mat-radio__description">Create a .sln containing all .csproj files</div>
+                                </div>
+                            </div>
+                            <div class="mat-radio">
+                                <div class="mat-radio__circle"></div>
+                                <div class="mat-radio__content">
+                                    <div class="mat-radio__label">Mixed Solution</div>
+                                    <div class="mat-radio__description">.NET solution with other folders</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                     STEP 2: Repositories (ACTIVE)
+                     ============================================================ -->
+                <div class="wizard-step wizard-step--active" id="step-2">
+                    <div class="wizard-step__header">
+                        <h2 class="wizard-step__title">Add Repositories</h2>
+                        <p class="wizard-step__description">
+                            Add Git repositories or local directories to include in your composition.
+                            Each repository can contain multiple folder mappings.
+                        </p>
+                    </div>
+
+                    <!-- Repository 1 -->
+                    <div class="repo-card">
+                        <div class="repo-card__header">
+                            <div class="repo-card__title">
+                                <span class="material-icons">cloud</span>
+                                <span>github.com/user/my-repo</span>
+                            </div>
+                            <div class="repo-card__actions">
+                                <button class="mat-btn mat-btn--icon" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="mat-btn mat-btn--icon" title="Delete">
+                                    <span class="material-icons">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="repo-card__body">
+                            <div class="form-group" style="margin-bottom: var(--space-4);">
+                                <label class="form-label">Repository URL</label>
+                                <input type="text" class="mat-input mat-input--mono" value="https://github.com/user/my-repo.git">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Branch</label>
+                                <input type="text" class="mat-input" value="main" placeholder="main">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repository 2 (Local) -->
+                    <div class="repo-card">
+                        <div class="repo-card__header">
+                            <div class="repo-card__title">
+                                <span class="material-icons">folder</span>
+                                <span>/home/user/local-project</span>
+                            </div>
+                            <div class="repo-card__actions">
+                                <button class="mat-btn mat-btn--icon" title="Edit">
+                                    <span class="material-icons">edit</span>
+                                </button>
+                                <button class="mat-btn mat-btn--icon" title="Delete">
+                                    <span class="material-icons">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="repo-card__body">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Local Directory</label>
+                                <input type="text" class="mat-input mat-input--mono" value="/home/user/local-project">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add Repository Button -->
+                    <button class="add-button">
+                        <span class="material-icons">add</span>
+                        <span>Add Repository</span>
+                    </button>
+                </div>
+
+                <!-- ============================================================
+                     STEP 3: Folders (for reference)
+                     ============================================================ -->
+                <div class="wizard-step" id="step-3">
+                    <div class="wizard-step__header">
+                        <h2 class="wizard-step__title">Configure Folders</h2>
+                        <p class="wizard-step__description">
+                            Map source folders to destination paths. Drag to reorder.
+                        </p>
+                    </div>
+
+                    <!-- Repository 1 Folders -->
+                    <div class="repo-card">
+                        <div class="repo-card__header">
+                            <div class="repo-card__title">
+                                <span class="material-icons">cloud</span>
+                                <span>github.com/user/my-repo</span>
+                            </div>
+                        </div>
+                        <div class="repo-card__body">
+                            <ul class="folder-list">
+                                <li class="folder-item">
+                                    <span class="material-icons folder-item__drag">drag_indicator</span>
+                                    <span class="material-icons folder-item__icon">folder</span>
+                                    <div class="folder-item__content">
+                                        <div class="folder-item__from">src/Core</div>
+                                        <span class="folder-item__arrow">→</span>
+                                        <div class="folder-item__to">libs/core</div>
+                                    </div>
+                                    <div class="folder-item__actions">
+                                        <button class="mat-btn mat-btn--icon">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="mat-btn mat-btn--icon">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </li>
+                                <li class="folder-item">
+                                    <span class="material-icons folder-item__drag">drag_indicator</span>
+                                    <span class="material-icons folder-item__icon">folder</span>
+                                    <div class="folder-item__content">
+                                        <div class="folder-item__from">src/Api</div>
+                                        <span class="folder-item__arrow">→</span>
+                                        <div class="folder-item__to">apps/api</div>
+                                    </div>
+                                    <div class="folder-item__actions">
+                                        <button class="mat-btn mat-btn--icon">
+                                            <span class="material-icons">edit</span>
+                                        </button>
+                                        <button class="mat-btn mat-btn--icon">
+                                            <span class="material-icons">delete</span>
+                                        </button>
+                                    </div>
+                                </li>
+                            </ul>
+                            <button class="add-button" style="margin-top: var(--space-3);">
+                                <span class="material-icons">add</span>
+                                <span>Add Folder Mapping</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                     STEP 4: Review (for reference)
+                     ============================================================ -->
+                <div class="wizard-step" id="step-4">
+                    <div class="wizard-step__header">
+                        <h2 class="wizard-step__title">Review & Create</h2>
+                        <p class="wizard-step__description">
+                            Review your configuration before creating the A La Carte request.
+                        </p>
+                    </div>
+
+                    <!-- Summary Card -->
+                    <div class="summary-card">
+                        <div class="summary-card__header">
+                            <span class="material-icons">assignment</span>
+                            <span class="summary-card__title">Request Summary</span>
+                        </div>
+                        <div class="summary-card__body">
+                            <div class="summary-row">
+                                <span class="summary-row__label">Solution Name</span>
+                                <span class="summary-row__value">ALaCarte.sln</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-row__label">Output Directory</span>
+                                <span class="summary-row__value">/home/user/output</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-row__label">Output Type</span>
+                                <span class="summary-row__value">DotNetSolution</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-row__label">Repositories</span>
+                                <span class="summary-row__value">2</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-row__label">Total Folders</span>
+                                <span class="summary-row__value">4</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JSON Preview -->
+                    <div class="form-group">
+                        <label class="form-label">Request JSON</label>
+                        <div class="json-preview">
+{
+  <span class="key">"aLaCarteRequestId"</span>: <span class="string">"00000000-0000-0000-0000-000000000000"</span>,
+  <span class="key">"solutionName"</span>: <span class="string">"ALaCarte.sln"</span>,
+  <span class="key">"directory"</span>: <span class="string">"/home/user/output"</span>,
+  <span class="key">"outputType"</span>: <span class="number">1</span>,
+  <span class="key">"repositories"</span>: [
+    {
+      <span class="key">"url"</span>: <span class="string">"https://github.com/user/my-repo.git"</span>,
+      <span class="key">"branch"</span>: <span class="string">"main"</span>,
+      <span class="key">"folders"</span>: [...]
+    }
+  ]
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wizard Footer -->
+            <div class="wizard-footer">
+                <div class="wizard-footer__left">
+                    <button class="mat-btn mat-btn--outlined">
+                        <span class="material-icons" style="font-size: 18px;">arrow_back</span>
+                        Back
+                    </button>
+                </div>
+                <div class="wizard-footer__right">
+                    <button class="mat-btn mat-btn--text">Save Draft</button>
+                    <button class="mat-btn mat-btn--primary">
+                        Next
+                        <span class="material-icons" style="font-size: 18px;">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Responsive Indicator -->
+    <div class="responsive-indicator"></div>
+</body>
+</html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rail Component - VS Code Activity Bar Style</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* ============================================================
+           CSS VARIABLES - Angular Material Dark Theme
+           ============================================================ */
+        :root {
+            /* Primary Colors (Indigo) */
+            --mat-primary: #9fa8da;
+            --mat-primary-lighter: #c5cae9;
+            --mat-primary-darker: #7986cb;
+
+            /* Accent Colors (Pink) */
+            --mat-accent: #f48fb1;
+            --mat-accent-lighter: #f8bbd0;
+            --mat-accent-darker: #f06292;
+
+            /* Semantic Colors */
+            --mat-warn: #ef5350;
+            --mat-success: #81c784;
+            --mat-info: #64b5f6;
+
+            /* Background Colors */
+            --mat-background: #0d1117;
+            --mat-surface: #161b22;
+            --mat-surface-elevated: #21262d;
+            --mat-surface-high: #30363d;
+
+            /* Text Colors */
+            --mat-on-surface: #e6edf3;
+            --mat-on-surface-medium: rgba(230, 237, 243, 0.7);
+            --mat-on-surface-disabled: rgba(230, 237, 243, 0.38);
+
+            /* Border & State */
+            --mat-divider: rgba(230, 237, 243, 0.12);
+            --mat-border: #30363d;
+            --mat-hover: rgba(255, 255, 255, 0.08);
+            --mat-focus: rgba(159, 168, 218, 0.24);
+            --mat-selected: rgba(159, 168, 218, 0.16);
+
+            /* Spacing */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-6: 24px;
+            --space-8: 32px;
+
+            /* Component Sizes */
+            --header-height: 48px;
+            --rail-width: 48px;
+            --status-bar-height: 22px;
+
+            /* Typography */
+            --font-family-base: 'Roboto', sans-serif;
+            --font-size-xs: 10px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-base: 0.2s ease;
+
+            /* Border Radius */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-full: 9999px;
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-base);
+            background: var(--mat-background);
+            color: var(--mat-on-surface);
+            min-height: 100vh;
+        }
+
+        /* ============================================================
+           SIMPLIFIED HEADER (for context)
+           ============================================================ */
+        .global-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--mat-surface);
+            border-bottom: 1px solid var(--mat-divider);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .global-header__title {
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+        }
+
+        /* ============================================================
+           RAIL COMPONENT (Activity Bar)
+           ============================================================ */
+        .rail {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            bottom: var(--status-bar-height);
+            width: var(--rail-width);
+            background: var(--mat-surface);
+            border-right: 1px solid var(--mat-divider);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        /* Hide rail on mobile, show as overlay via hamburger */
+        @media (max-width: 767px) {
+            .rail {
+                display: none;
+            }
+
+            .rail--mobile-open {
+                display: flex;
+                left: 0;
+                z-index: 300;
+            }
+        }
+
+        /* ----------------------------------------
+           Rail Navigation Items
+           ---------------------------------------- */
+        .rail__nav {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: var(--space-2) 0;
+        }
+
+        .rail__item {
+            position: relative;
+            width: var(--rail-width);
+            height: var(--rail-width);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--mat-on-surface-disabled);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .rail__item:hover {
+            color: var(--mat-on-surface);
+        }
+
+        .rail__item--active {
+            color: var(--mat-on-surface);
+        }
+
+        /* Active indicator bar */
+        .rail__item--active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 24px;
+            background: var(--mat-primary);
+            border-radius: 0 2px 2px 0;
+        }
+
+        .rail__item .material-icons {
+            font-size: 24px;
+        }
+
+        /* Badge for notifications */
+        .rail__item-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            background: var(--mat-accent);
+            color: #121212;
+            font-size: var(--font-size-xs);
+            font-weight: 500;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Tooltip on hover */
+        .rail__item-tooltip {
+            position: absolute;
+            left: calc(var(--rail-width) + 8px);
+            top: 50%;
+            transform: translateY(-50%);
+            padding: var(--space-1) var(--space-2);
+            background: var(--mat-surface-high);
+            color: var(--mat-on-surface);
+            font-size: var(--font-size-sm);
+            white-space: nowrap;
+            border-radius: var(--radius-sm);
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-fast);
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .rail__item:hover .rail__item-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ----------------------------------------
+           Rail Footer - Settings
+           ---------------------------------------- */
+        .rail__footer {
+            padding: var(--space-2) 0;
+            border-top: 1px solid var(--mat-divider);
+        }
+
+        /* ============================================================
+           STATUS BAR (VS Code style)
+           ============================================================ */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--status-bar-height);
+            background: var(--mat-primary-darker);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-2);
+            font-size: var(--font-size-xs);
+            z-index: 200;
+        }
+
+        .status-bar__left,
+        .status-bar__right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .status-bar__item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            padding: 0 var(--space-1);
+            height: 100%;
+        }
+
+        .status-bar__item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .status-bar__item .material-icons {
+            font-size: 14px;
+        }
+
+        /* ============================================================
+           MAIN CONTENT AREA
+           ============================================================ */
+        .main-content {
+            margin-top: var(--header-height);
+            margin-left: 0;
+            margin-bottom: var(--status-bar-height);
+            min-height: calc(100vh - var(--header-height) - var(--status-bar-height));
+            padding: var(--space-4);
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                margin-left: var(--rail-width);
+            }
+        }
+
+        /* ============================================================
+           DEMO CONTENT
+           ============================================================ */
+        .demo-section {
+            max-width: 800px;
+            margin: 0 auto var(--space-8);
+        }
+
+        .demo-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: var(--space-4);
+            color: var(--mat-primary);
+        }
+
+        .demo-desc {
+            color: var(--mat-on-surface-medium);
+            line-height: 1.6;
+            margin-bottom: var(--space-4);
+        }
+
+        .demo-box {
+            background: var(--mat-surface);
+            border: 1px solid var(--mat-divider);
+            border-radius: var(--radius-md);
+            padding: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .demo-box__title {
+            font-size: var(--font-size-base);
+            font-weight: 500;
+            margin-bottom: var(--space-3);
+            color: var(--mat-on-surface);
+        }
+
+        .demo-box__content {
+            font-size: var(--font-size-sm);
+            color: var(--mat-on-surface-medium);
+            line-height: 1.6;
+        }
+
+        /* Feature List */
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-2);
+            padding: var(--space-2) 0;
+            color: var(--mat-on-surface-medium);
+            font-size: var(--font-size-sm);
+        }
+
+        .feature-list .material-icons {
+            font-size: 18px;
+            color: var(--mat-success);
+            flex-shrink: 0;
+        }
+
+        /* Icon Grid */
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: var(--space-3);
+        }
+
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-3);
+            background: var(--mat-surface-elevated);
+            border-radius: var(--radius-sm);
+            text-align: center;
+        }
+
+        .icon-item .material-icons {
+            font-size: 24px;
+            margin-bottom: var(--space-2);
+            color: var(--mat-on-surface);
+        }
+
+        .icon-item span:last-child {
+            font-size: var(--font-size-xs);
+            color: var(--mat-on-surface-medium);
+        }
+
+        /* Responsive indicator */
+        .responsive-indicator {
+            position: fixed;
+            bottom: calc(var(--status-bar-height) + var(--space-4));
+            right: var(--space-4);
+            background: var(--mat-accent);
+            color: #121212;
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+            z-index: 300;
+        }
+
+        .responsive-indicator::before {
+            content: 'Mobile (Rail Hidden)';
+        }
+
+        @media (min-width: 768px) {
+            .responsive-indicator::before {
+                content: 'Tablet+ (Rail Visible)';
+            }
+        }
+
+        @media (min-width: 992px) {
+            .responsive-indicator::before {
+                content: 'Desktop (LG)';
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ============================================================
+         GLOBAL HEADER (simplified)
+         ============================================================ -->
+    <header class="global-header">
+        <span class="global-header__title">Endpoint Engineering - Rail Component Demo</span>
+    </header>
+
+    <!-- ============================================================
+         RAIL COMPONENT (Activity Bar)
+         ============================================================ -->
+    <nav class="rail">
+        <div class="rail__nav">
+            <!-- Explorer -->
+            <button class="rail__item rail__item--active" title="Explorer">
+                <span class="material-icons">folder</span>
+                <span class="rail__item-tooltip">Explorer</span>
+            </button>
+
+            <!-- Search -->
+            <button class="rail__item" title="Search">
+                <span class="material-icons">search</span>
+                <span class="rail__item-tooltip">Search</span>
+            </button>
+
+            <!-- Source Control -->
+            <button class="rail__item" title="Source Control">
+                <span class="material-icons">account_tree</span>
+                <span class="rail__item-badge">3</span>
+                <span class="rail__item-tooltip">Source Control</span>
+            </button>
+
+            <!-- Debug -->
+            <button class="rail__item" title="Run and Debug">
+                <span class="material-icons">bug_report</span>
+                <span class="rail__item-tooltip">Run and Debug</span>
+            </button>
+
+            <!-- Extensions -->
+            <button class="rail__item" title="Extensions">
+                <span class="material-icons">extension</span>
+                <span class="rail__item-tooltip">Extensions</span>
+            </button>
+
+            <!-- A La Carte Composer -->
+            <button class="rail__item" title="A La Carte Composer">
+                <span class="material-icons">layers</span>
+                <span class="rail__item-tooltip">Composer</span>
+            </button>
+
+            <!-- Requests -->
+            <button class="rail__item" title="Requests">
+                <span class="material-icons">list_alt</span>
+                <span class="rail__item-badge">12</span>
+                <span class="rail__item-tooltip">Requests</span>
+            </button>
+        </div>
+
+        <div class="rail__footer">
+            <!-- Account -->
+            <button class="rail__item" title="Account">
+                <span class="material-icons">account_circle</span>
+                <span class="rail__item-tooltip">Account</span>
+            </button>
+
+            <!-- Settings (at the very bottom) -->
+            <button class="rail__item" title="Settings">
+                <span class="material-icons">settings</span>
+                <span class="rail__item-tooltip">Settings</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+         STATUS BAR
+         ============================================================ -->
+    <footer class="status-bar">
+        <div class="status-bar__left">
+            <div class="status-bar__item">
+                <span class="material-icons">account_tree</span>
+                <span>main</span>
+            </div>
+            <div class="status-bar__item">
+                <span class="material-icons">sync</span>
+                <span>0 ↓ 0 ↑</span>
+            </div>
+            <div class="status-bar__item">
+                <span class="material-icons">error_outline</span>
+                <span>0</span>
+                <span class="material-icons">warning_amber</span>
+                <span>0</span>
+            </div>
+        </div>
+        <div class="status-bar__right">
+            <div class="status-bar__item">
+                <span>Ln 1, Col 1</span>
+            </div>
+            <div class="status-bar__item">
+                <span>UTF-8</span>
+            </div>
+            <div class="status-bar__item">
+                <span>TypeScript</span>
+            </div>
+            <div class="status-bar__item">
+                <span class="material-icons">notifications</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+         MAIN CONTENT
+         ============================================================ -->
+    <main class="main-content">
+        <section class="demo-section">
+            <h1 class="demo-title">Rail Component (Activity Bar)</h1>
+            <p class="demo-desc">
+                VS Code-inspired vertical navigation bar with Angular Material icons.
+                Fixed on the left side, providing quick access to main application areas.
+            </p>
+
+            <div class="demo-box">
+                <h3 class="demo-box__title">Component Features</h3>
+                <ul class="feature-list">
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Fixed Position</strong> - Always visible on left side (desktop/tablet)</span>
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Icon Navigation</strong> - Material icons for each section</span>
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Active Indicator</strong> - Primary color bar on active item</span>
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Badge Support</strong> - Notification badges for counts</span>
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Hover Tooltips</strong> - Labels appear on hover</span>
+                    </li>
+                    <li>
+                        <span class="material-icons">check_circle</span>
+                        <span><strong>Settings at Bottom</strong> - Gear icon anchored to footer</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="demo-box">
+                <h3 class="demo-box__title">Rail Icons</h3>
+                <div class="icon-grid">
+                    <div class="icon-item">
+                        <span class="material-icons">folder</span>
+                        <span>Explorer</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons">search</span>
+                        <span>Search</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons">account_tree</span>
+                        <span>Source Control</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons">bug_report</span>
+                        <span>Debug</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons">extension</span>
+                        <span>Extensions</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons">layers</span>
+                        <span>Composer</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons">list_alt</span>
+                        <span>Requests</span>
+                    </div>
+                    <div class="icon-item">
+                        <span class="material-icons">settings</span>
+                        <span>Settings</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-box">
+                <h3 class="demo-box__title">Responsive Behavior</h3>
+                <div class="demo-box__content">
+                    <p><strong>Mobile (XS-SM):</strong> Rail is hidden. Access via hamburger menu overlay.</p>
+                    <p><strong>Tablet (MD):</strong> 48px collapsed rail visible with icons only.</p>
+                    <p><strong>Desktop (LG+):</strong> 48px rail with optional expanded sidebar (240px).</p>
+                </div>
+            </div>
+
+            <div class="demo-box">
+                <h3 class="demo-box__title">Angular Material Components Used</h3>
+                <div class="demo-box__content">
+                    <p>mat-icon-button, mat-icon, mat-badge, mat-tooltip, mat-sidenav (for expanded state)</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Responsive Indicator -->
+    <div class="responsive-indicator"></div>
+</body>
+</html>
