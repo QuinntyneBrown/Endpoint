@@ -1,0 +1,57 @@
+@use '../styles/variables';
+
+.empty-state {
+  text-align: center;
+  padding: 48px var(--ee-spacing-xl);
+  max-width: 480px;
+  margin: 0 auto;
+
+  &__icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto var(--ee-spacing-xl);
+    background: var(--ee-surface-elevated);
+    border-radius: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--ee-divider);
+
+    .material-icons {
+      font-size: 64px;
+      color: var(--ee-on-surface-disabled);
+    }
+  }
+
+  &__title {
+    font-size: var(--ee-font-size-title);
+    font-weight: 500;
+    margin-bottom: var(--ee-spacing-md);
+    color: var(--ee-on-surface);
+  }
+
+  &__description {
+    font-size: var(--ee-font-size-base);
+    color: var(--ee-on-surface-medium);
+    line-height: 1.6;
+    margin-bottom: var(--ee-spacing-xxl);
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ee-spacing-md);
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__quick-start {
+    margin-top: 48px;
+
+    &:empty {
+      display: none;
+    }
+  }
+}

@@ -1,0 +1,47 @@
+<div class="config-card" (click)="onCardClick()">
+  <div class="config-card__icon">
+    <span class="material-icons">{{ icon() }}</span>
+  </div>
+
+  <div class="config-card__header">
+    <div class="config-card__header-left">
+      <div class="config-card__name">{{ name() }}</div>
+      @if (lastUsed()) {
+        <div class="config-card__last-used">
+          <span class="material-icons">access_time</span>
+          {{ lastUsed() }}
+        </div>
+      }
+    </div>
+    <button
+      class="config-card__menu"
+      (click)="onMenuClick($event)"
+      aria-label="More options"
+    >
+      <span class="material-icons">more_vert</span>
+    </button>
+  </div>
+
+  @if (description()) {
+    <div class="config-card__description">{{ description() }}</div>
+  }
+
+  @if (meta().length > 0) {
+    <div class="config-card__meta">
+      @for (item of meta(); track item.label) {
+        <div class="config-card__meta-item">
+          <span class="material-icons">{{ item.icon }}</span>
+          {{ item.label }}
+        </div>
+      }
+    </div>
+  }
+
+  @if (tags().length > 0) {
+    <div class="config-card__tags">
+      @for (tag of tags(); track tag.label) {
+        <ee-tag [label]="tag.label" [variant]="tag.variant || 'default'"></ee-tag>
+      }
+    </div>
+  }
+</div>

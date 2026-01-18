@@ -1,0 +1,66 @@
+@use '../styles/variables';
+
+.warning-box {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ee-spacing-md);
+  padding: var(--ee-spacing-lg);
+  border-radius: var(--ee-radius-sm);
+
+  &--warning {
+    background: rgba(255, 170, 0, 0.1);
+    border: 1px solid #ffaa00;
+
+    .warning-box__icon {
+      color: #ffaa00;
+    }
+  }
+
+  &--error {
+    background: rgba(239, 83, 80, 0.1);
+    border: 1px solid var(--ee-warn);
+
+    .warning-box__icon {
+      color: var(--ee-warn);
+    }
+  }
+
+  &--info {
+    background: rgba(159, 168, 218, 0.1);
+    border: 1px solid var(--ee-primary);
+
+    .warning-box__icon {
+      color: var(--ee-primary);
+    }
+  }
+
+  &--success {
+    background: rgba(129, 199, 132, 0.1);
+    border: 1px solid var(--ee-success);
+
+    .warning-box__icon {
+      color: var(--ee-success);
+    }
+  }
+
+  &__icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  &__content {
+    flex: 1;
+    font-size: var(--ee-font-size-base);
+    line-height: 1.5;
+    color: var(--ee-on-surface);
+  }
+
+  &__title {
+    display: block;
+    margin-bottom: var(--ee-spacing-xs);
+  }
+
+  &__message {
+    color: var(--ee-on-surface-medium);
+  }
+}

@@ -1,0 +1,70 @@
+@use '../styles/variables';
+
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--ee-spacing-xxl);
+  overflow-x: auto;
+
+  &__step {
+    display: flex;
+    align-items: center;
+    gap: var(--ee-spacing-md);
+  }
+
+  &__indicator {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--ee-radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--ee-font-size-base);
+    font-weight: 500;
+    background: var(--ee-surface-elevated);
+    color: var(--ee-on-surface-medium);
+    border: 2px solid var(--ee-divider);
+    flex-shrink: 0;
+    transition: all var(--ee-transition-base);
+
+    .wizard-steps__step--active & {
+      background: var(--ee-primary);
+      color: #121212;
+      border-color: var(--ee-primary);
+    }
+
+    .wizard-steps__step--completed & {
+      background: var(--ee-success);
+      color: #121212;
+      border-color: var(--ee-success);
+    }
+  }
+
+  &__check {
+    font-size: 18px;
+  }
+
+  &__label {
+    font-size: var(--ee-font-size-md);
+    white-space: nowrap;
+    color: var(--ee-on-surface-medium);
+
+    .wizard-steps__step--active &,
+    .wizard-steps__step--completed & {
+      color: var(--ee-on-surface);
+    }
+  }
+
+  &__connector {
+    width: 40px;
+    height: 2px;
+    background: var(--ee-divider);
+    margin: 0 var(--ee-spacing-sm);
+    flex-shrink: 0;
+    transition: background var(--ee-transition-base);
+
+    &--completed {
+      background: var(--ee-success);
+    }
+  }
+}

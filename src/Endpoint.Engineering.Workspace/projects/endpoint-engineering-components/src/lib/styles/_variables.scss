@@ -1,0 +1,69 @@
+// Angular Material Dark Theme - Indigo/Pink Color Palette
+// Based on the design system from the UI mockups
+
+:root {
+  // Primary Colors
+  --ee-primary: #9fa8da;
+  --ee-primary-lighter: #c5cae9;
+  --ee-primary-darker: #7986cb;
+
+  // Accent Colors
+  --ee-accent: #f48fb1;
+  --ee-accent-lighter: #f8bbd0;
+  --ee-accent-darker: #f06292;
+
+  // Semantic Colors
+  --ee-warn: #ef5350;
+  --ee-success: #81c784;
+
+  // Background Colors
+  --ee-background: #0d1117;
+  --ee-surface: #161b22;
+  --ee-surface-elevated: #21262d;
+  --ee-surface-high: #30363d;
+
+  // Text Colors
+  --ee-on-surface: #e6edf3;
+  --ee-on-surface-medium: rgba(230, 237, 243, 0.7);
+  --ee-on-surface-disabled: rgba(230, 237, 243, 0.38);
+
+  // Border Colors
+  --ee-divider: rgba(230, 237, 243, 0.12);
+
+  // Spacing
+  --ee-spacing-xs: 4px;
+  --ee-spacing-sm: 8px;
+  --ee-spacing-md: 12px;
+  --ee-spacing-lg: 16px;
+  --ee-spacing-xl: 24px;
+  --ee-spacing-xxl: 32px;
+
+  // Border Radius
+  --ee-radius-sm: 4px;
+  --ee-radius-md: 8px;
+  --ee-radius-lg: 12px;
+  --ee-radius-full: 50%;
+
+  // Typography
+  --ee-font-family: 'Roboto', sans-serif;
+  --ee-font-size-xs: 11px;
+  --ee-font-size-sm: 12px;
+  --ee-font-size-md: 13px;
+  --ee-font-size-base: 14px;
+  --ee-font-size-lg: 16px;
+  --ee-font-size-xl: 18px;
+  --ee-font-size-xxl: 20px;
+  --ee-font-size-title: 24px;
+  --ee-font-size-display: 28px;
+
+  // Shadows
+  --ee-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --ee-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --ee-shadow-lg: 0 11px 15px -7px rgba(0, 0, 0, 0.2),
+    0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12);
+
+  // Transitions
+  --ee-transition-fast: 0.15s ease;
+  --ee-transition-base: 0.2s ease;
+  --ee-transition-slow: 0.3s ease;
+}

@@ -1,0 +1,24 @@
+<div class="wizard-steps">
+  @for (step of steps(); track $index; let i = $index; let last = $last) {
+    <div
+      class="wizard-steps__step"
+      [class.wizard-steps__step--active]="i === currentStep()"
+      [class.wizard-steps__step--completed]="step.completed || i < currentStep()"
+    >
+      <div class="wizard-steps__indicator">
+        @if (step.completed || i < currentStep()) {
+          <span class="material-icons wizard-steps__check">check</span>
+        } @else {
+          {{ i + 1 }}
+        }
+      </div>
+      <span class="wizard-steps__label">{{ step.label }}</span>
+    </div>
+    @if (!last) {
+      <div
+        class="wizard-steps__connector"
+        [class.wizard-steps__connector--completed]="i < currentStep()"
+      ></div>
+    }
+  }
+</div>

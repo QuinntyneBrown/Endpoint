@@ -1,0 +1,22 @@
+@use '../styles/variables';
+
+.form-section {
+  background: var(--ee-surface);
+  border: 1px solid var(--ee-divider);
+  border-radius: var(--ee-radius-lg);
+  padding: var(--ee-spacing-xl);
+  margin-bottom: var(--ee-spacing-xl);
+
+  &__title {
+    font-size: var(--ee-font-size-xl);
+    font-weight: 500;
+    margin-bottom: var(--ee-spacing-lg);
+    color: var(--ee-on-surface);
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ee-spacing-lg);
+  }
+}

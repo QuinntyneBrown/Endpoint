@@ -1,0 +1,9 @@
+<span
+  class="badge"
+  [class.badge--success]="variant() === 'success'"
+  [class.badge--processing]="variant() === 'processing'"
+  [class.badge--pending]="variant() === 'pending'"
+  [class.badge--error]="variant() === 'error'"
+>
+  {{ label() }}
+</span>

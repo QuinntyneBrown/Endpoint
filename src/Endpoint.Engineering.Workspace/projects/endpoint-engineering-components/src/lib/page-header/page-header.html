@@ -1,0 +1,30 @@
+<header class="page-header">
+  <div class="page-header__left">
+    @if (showBackButton()) {
+      <ee-icon-button
+        icon="arrow_back"
+        variant="back"
+        ariaLabel="Go back"
+        (clicked)="onBackClick()"
+      ></ee-icon-button>
+    }
+    <span class="page-header__title">{{ title() }}</span>
+  </div>
+  <div class="page-header__actions">
+    <ng-content></ng-content>
+    @if (showHelpButton()) {
+      <ee-icon-button
+        icon="help_outline"
+        ariaLabel="Help"
+        (clicked)="onHelpClick()"
+      ></ee-icon-button>
+    }
+    @if (showMenuButton()) {
+      <ee-icon-button
+        icon="more_vert"
+        ariaLabel="More options"
+        (clicked)="onMenuClick()"
+      ></ee-icon-button>
+    }
+  </div>
+</header>
