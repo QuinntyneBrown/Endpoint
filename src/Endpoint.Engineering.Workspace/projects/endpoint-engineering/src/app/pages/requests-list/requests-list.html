@@ -1,12 +1,3 @@
-<ep-app-header title="A La Carte Requests">
-  <div header-actions>
-    <ep-button variant="primary" (click)="onCreateNew()">
-      <span class="material-icons">add</span>
-      New Request
-    </ep-button>
-  </div>
-</ep-app-header>
-
 <main class="requests-list">
   <div class="requests-list__header">
     <div>
@@ -34,10 +25,10 @@
       title="No requests yet"
       description="Create your first A La Carte request to start composing custom solutions"
     >
-      <ep-button variant="primary" (click)="onCreateNew()">
-        <span class="material-icons">add</span>
+      <button mat-flat-button color="primary" (click)="onCreateNew()">
+        <mat-icon>add</mat-icon>
         Create First Request
-      </ep-button>
+      </button>
     </ep-empty-state>
   } @else {
     <div class="requests-list__grid">
@@ -81,31 +72,18 @@
 
             <div class="requests-list__card-actions" (click)="$event.stopPropagation()">
               @if (request.status === 'ready' || request.status === 'completed' || request.status === 'failed') {
-                <ep-button
-                  variant="secondary"
-                  size="small"
-                  (click)="onExecuteRequest(request, $event)"
-                >
-                  <span class="material-icons">play_arrow</span>
+                <button mat-stroked-button (click)="onExecuteRequest(request, $event)">
+                  <mat-icon>play_arrow</mat-icon>
                   Execute
-                </ep-button>
+                </button>
               }
-              <ep-button
-                variant="secondary"
-                size="small"
-                (click)="onEditRequest(request, $event)"
-              >
-                <span class="material-icons">edit</span>
+              <button mat-stroked-button (click)="onEditRequest(request, $event)">
+                <mat-icon>edit</mat-icon>
                 Edit
-              </ep-button>
-              <ep-button
-                variant="secondary"
-                size="small"
-                (click)="onDeleteRequest(request, $event)"
-                title="Delete"
-              >
-                <span class="material-icons">delete</span>
-              </ep-button>
+              </button>
+              <button mat-icon-button (click)="onDeleteRequest(request, $event)" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
           </div>
         </ep-card>

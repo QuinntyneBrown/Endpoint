@@ -2,18 +2,18 @@
   <div class="home__container">
     <ep-empty-state
       icon="build_circle"
-      title="Welcome to Solution Composer"
+      title="Welcome to Endpoint Engineering"
       description="Start by creating a new composition or loading a saved configuration"
     >
       <div class="home__actions">
-        <ep-button variant="primary" size="large" (click)="onNewComposition()">
-          <span class="material-icons">add</span>
+        <button mat-flat-button color="primary" (click)="onNewComposition()">
+          <mat-icon>add</mat-icon>
           New Composition
-        </ep-button>
-        <ep-button variant="secondary" size="large" (click)="onLoadConfiguration()">
-          <span class="material-icons">folder_open</span>
+        </button>
+        <button mat-stroked-button (click)="onLoadConfiguration()">
+          <mat-icon>folder_open</mat-icon>
           Load Saved Configuration
-        </ep-button>
+        </button>
       </div>
     </ep-empty-state>
 

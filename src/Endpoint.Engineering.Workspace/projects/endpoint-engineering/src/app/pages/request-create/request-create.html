@@ -1,11 +1,3 @@
-<ep-app-header title="Create A La Carte Request">
-  <div header-actions>
-    <ep-button variant="icon" title="Help">
-      <span class="material-icons">help_outline</span>
-    </ep-button>
-  </div>
-</ep-app-header>
-
 <main class="request-create">
   <h1 class="request-create__title">Create New Request</h1>
   <p class="request-create__subtitle">Define a new A La Carte request to compose a custom solution from multiple repositories</p>
@@ -45,9 +37,9 @@
           placeholder="/output/path"
           [(ngModel)]="outputDirectory"
         />
-        <ep-button variant="secondary" (click)="onBrowseDirectory()">
-          <span class="material-icons">folder_open</span>
-        </ep-button>
+        <button mat-stroked-button (click)="onBrowseDirectory()">
+          <mat-icon>folder_open</mat-icon>
+        </button>
       </div>
       <p class="request-create__help-text">Directory where the solution will be generated</p>
     </div>
@@ -95,12 +87,12 @@
               </div>
             </div>
             <div class="request-create__repo-actions">
-              <ep-button variant="icon" (click)="onEditRepository(repo)" title="Edit">
-                <span class="material-icons">edit</span>
-              </ep-button>
-              <ep-button variant="icon" (click)="onDeleteRepository(repo)" title="Delete">
-                <span class="material-icons">delete</span>
-              </ep-button>
+              <button mat-icon-button (click)="onEditRepository(repo)" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="onDeleteRepository(repo)" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
             </div>
           </div>
         }
@@ -114,10 +106,10 @@
   </ep-card>
 
   <div class="request-create__actions">
-    <ep-button variant="secondary" (click)="onCancel()">Cancel</ep-button>
-    <ep-button variant="primary" (click)="onSave()">
-      <span class="material-icons">save</span>
+    <button mat-stroked-button (click)="onCancel()">Cancel</button>
+    <button mat-flat-button color="primary" (click)="onSave()">
+      <mat-icon>save</mat-icon>
       Save Request
-    </ep-button>
+    </button>
   </div>
 </main>

@@ -8,6 +8,7 @@
 
 // Design tokens - Material Dark Theme Colors (Indigo/Pink)
 :root {
+  // Colors
   --mat-primary: #9fa8da;
   --mat-primary-lighter: #c5cae9;
   --mat-primary-darker: #7986cb;
@@ -16,6 +17,7 @@
   --mat-accent-darker: #f06292;
   --mat-warn: #ef5350;
   --mat-success: #81c784;
+  --mat-warning: #ffb74d;
   --mat-background: #0d1117;
   --mat-surface: #161b22;
   --mat-surface-elevated: #21262d;
@@ -24,6 +26,32 @@
   --mat-on-surface-medium: rgba(230,237,243,0.7);
   --mat-on-surface-disabled: rgba(230,237,243,0.38);
   --mat-divider: rgba(230,237,243,0.12);
+  --mat-on-color: #000000;
+
+  // Spacing
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-xxl: 32px;
+  --spacing-xxxl: 48px;
+
+  // Border Radius
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 50%;
+
+  // Transitions
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  // Shadows
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.16);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.24);
 }
 
 html {

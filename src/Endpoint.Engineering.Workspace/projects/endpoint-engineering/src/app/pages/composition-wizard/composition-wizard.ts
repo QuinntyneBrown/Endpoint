@@ -2,7 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AppHeader, Button, Card, FormInput, WizardSteps } from 'endpoint-engineering-components';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { Card, FormInput, WizardSteps } from 'endpoint-engineering-components';
 import { CompositionInput } from '../../models/alacarte-request.model';
 
 interface WizardStep {
@@ -12,7 +14,7 @@ interface WizardStep {
 
 @Component({
   selector: 'app-composition-wizard',
-  imports: [CommonModule, FormsModule, AppHeader, Button, Card, FormInput, WizardSteps],
+  imports: [CommonModule, FormsModule, Card, FormInput, WizardSteps, MatButtonModule, MatIconModule],
   templateUrl: './composition-wizard.html',
   styleUrl: './composition-wizard.scss'
 })

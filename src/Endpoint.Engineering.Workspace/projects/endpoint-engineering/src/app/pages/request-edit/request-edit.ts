@@ -2,13 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppHeader, Button, Card, FormInput, Badge } from 'endpoint-engineering-components';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { Card, FormInput, Badge } from 'endpoint-engineering-components';
 import { ALaCarteRequestService } from '../../services/alacarte-request.service';
 import { ALaCarteRequest, OutputType, RepositoryConfig } from '../../models/alacarte-request.model';
 
 @Component({
   selector: 'app-request-edit',
-  imports: [CommonModule, FormsModule, AppHeader, Button, Card, FormInput, Badge],
+  imports: [CommonModule, FormsModule, Card, FormInput, Badge, MatButtonModule, MatIconModule],
   templateUrl: './request-edit.html',
   styleUrl: './request-edit.scss'
 })

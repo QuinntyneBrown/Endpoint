@@ -9,5 +9,5 @@ import { AppHeader } from 'endpoint-engineering-components';
   styleUrl: './main-layout.scss'
 })
 export class MainLayout {
-  protected readonly appTitle = 'Solution Composer';
+  protected readonly appTitle = 'Endpoint Engineering';
 }

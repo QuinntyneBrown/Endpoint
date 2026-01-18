@@ -5,29 +5,26 @@
 }
 
 .ep-card {
+  /* Default padding for mat-card-content */
+  .mat-mdc-card-content {
+    padding: var(--spacing-lg);
+  }
+
   /* Padding variants */
-  &--padding-none {
-    .mat-mdc-card-content {
-      padding: 0;
-    }
+  &--padding-none .mat-mdc-card-content {
+    padding: 0;
   }
 
-  &--padding-small {
-    .mat-mdc-card-content {
-      padding: var(--spacing-md);
-    }
+  &--padding-small .mat-mdc-card-content {
+    padding: var(--spacing-md);
   }
 
-  &--padding-medium {
-    .mat-mdc-card-content {
-      padding: var(--spacing-lg);
-    }
+  &--padding-medium .mat-mdc-card-content {
+    padding: var(--spacing-lg);
   }
 
-  &--padding-large {
-    .mat-mdc-card-content {
-      padding: var(--spacing-xl);
-    }
+  &--padding-large .mat-mdc-card-content {
+    padding: var(--spacing-xl);
   }
 
   /* Hoverable state */

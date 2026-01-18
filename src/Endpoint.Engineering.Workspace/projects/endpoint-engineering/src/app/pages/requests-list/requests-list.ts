@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AppHeader, Button, Card, SearchBox, EmptyState, StatusIndicator } from 'endpoint-engineering-components';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { Card, SearchBox, EmptyState, StatusIndicator } from 'endpoint-engineering-components';
 import { ALaCarteRequestService } from '../../services/alacarte-request.service';
 import { ALaCarteRequest } from '../../models/alacarte-request.model';
 
 @Component({
   selector: 'app-requests-list',
-  imports: [CommonModule, AppHeader, Button, Card, SearchBox, EmptyState, StatusIndicator],
+  imports: [CommonModule, Card, SearchBox, EmptyState, StatusIndicator, MatButtonModule, MatIconModule],
   templateUrl: './requests-list.html',
   styleUrl: './requests-list.scss'
 })

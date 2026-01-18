@@ -2,13 +2,15 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AppHeader, Button, Card, FormInput, Badge } from 'endpoint-engineering-components';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { Card, FormInput, Badge } from 'endpoint-engineering-components';
 import { ALaCarteRequestService } from '../../services/alacarte-request.service';
 import { OutputType, RepositoryConfig } from '../../models/alacarte-request.model';
 
 @Component({
   selector: 'app-request-create',
-  imports: [CommonModule, FormsModule, AppHeader, Button, Card, FormInput, Badge],
+  imports: [CommonModule, FormsModule, Card, FormInput, Badge, MatButtonModule, MatIconModule],
   templateUrl: './request-create.html',
   styleUrl: './request-create.scss'
 })

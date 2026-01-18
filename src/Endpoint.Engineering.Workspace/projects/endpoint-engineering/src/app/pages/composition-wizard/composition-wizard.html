@@ -1,11 +1,3 @@
-<ep-app-header title="New A La Carte Composition">
-  <div header-actions>
-    <ep-button variant="icon" title="Save draft">
-      <span class="material-icons">save</span>
-    </ep-button>
-  </div>
-</ep-app-header>
-
 <main class="composition-wizard">
   <ep-wizard-steps
     [steps]="wizardSteps"
@@ -160,26 +152,26 @@
 
   <div class="composition-wizard__actions">
     @if (currentStep > 0) {
-      <ep-button variant="secondary" (click)="onPrevious()">
-        <span class="material-icons">arrow_back</span>
+      <button mat-stroked-button (click)="onPrevious()">
+        <mat-icon>arrow_back</mat-icon>
         Previous
-      </ep-button>
+      </button>
     }
-    <ep-button variant="secondary" (click)="onCancel()">
-      <span class="material-icons">close</span>
+    <button mat-stroked-button (click)="onCancel()">
+      <mat-icon>close</mat-icon>
       Cancel
-    </ep-button>
+    </button>
     <div class="composition-wizard__spacer"></div>
     @if (currentStep < steps.length - 1) {
-      <ep-button variant="primary" (click)="onNext()" [disabled]="!canProceed()">
+      <button mat-flat-button color="primary" (click)="onNext()" [disabled]="!canProceed()">
         Next: {{ steps[currentStep + 1].label }}
-        <span class="material-icons">arrow_forward</span>
-      </ep-button>
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
     } @else {
-      <ep-button variant="primary" (click)="onComplete()">
-        <span class="material-icons">check</span>
+      <button mat-flat-button color="primary" (click)="onComplete()">
+        <mat-icon>check</mat-icon>
         Complete
-      </ep-button>
+      </button>
     }
   </div>
 </main>

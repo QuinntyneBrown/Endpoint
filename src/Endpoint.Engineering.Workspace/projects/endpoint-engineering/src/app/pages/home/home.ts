@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { EmptyState, Button, Card } from 'endpoint-engineering-components';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { EmptyState, Card } from 'endpoint-engineering-components';
 
 @Component({
   selector: 'app-home',
-  imports: [EmptyState, Button, Card],
+  imports: [EmptyState, Card, MatButtonModule, MatIconModule],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })

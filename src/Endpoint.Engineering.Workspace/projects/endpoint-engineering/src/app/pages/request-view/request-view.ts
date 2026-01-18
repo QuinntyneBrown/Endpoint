@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppHeader, Button, Card, Badge, StatusIndicator, Breadcrumb } from 'endpoint-engineering-components';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { Card, Badge, StatusIndicator, Breadcrumb } from 'endpoint-engineering-components';
 import { ALaCarteRequestService } from '../../services/alacarte-request.service';
 import { ALaCarteRequest } from '../../models/alacarte-request.model';
 
 @Component({
   selector: 'app-request-view',
-  imports: [CommonModule, AppHeader, Button, Card, Badge, StatusIndicator, Breadcrumb],
+  imports: [CommonModule, Card, Badge, StatusIndicator, Breadcrumb, MatButtonModule, MatIconModule],
   templateUrl: './request-view.html',
   styleUrl: './request-view.scss'
 })

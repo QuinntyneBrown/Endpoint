@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AppHeader, Button, Card, StatusIndicator } from 'endpoint-engineering-components';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { Card, StatusIndicator } from 'endpoint-engineering-components';
 import { ALaCarteRequestService } from '../../services/alacarte-request.service';
 import { ALaCarteRequest, ExecutionResult } from '../../models/alacarte-request.model';
 
 @Component({
   selector: 'app-request-execute',
-  imports: [CommonModule, AppHeader, Button, Card, StatusIndicator],
+  imports: [CommonModule, Card, StatusIndicator, MatButtonModule, MatIconModule],
   templateUrl: './request-execute.html',
   styleUrl: './request-execute.scss'
 })
