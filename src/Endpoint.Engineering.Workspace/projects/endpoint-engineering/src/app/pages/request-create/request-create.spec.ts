@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { vi } from 'vitest';
 import { RequestCreatePage } from './request-create';
 import { ALaCarteRequestService } from '../../services/alacarte-request.service';
 import { OutputType } from '../../models/alacarte-request.model';
@@ -11,7 +12,9 @@ describe('RequestCreatePage', () => {
   let router: Router;
 
   beforeEach(async () => {
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const routerSpy = {
+      navigate: vi.fn()
+    };
 
     await TestBed.configureTestingModule({
       imports: [RequestCreatePage],

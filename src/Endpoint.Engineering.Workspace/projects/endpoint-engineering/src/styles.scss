@@ -1,25 +1,3 @@
-/* Angular Material Dark Theme - Indigo/Pink */
-@use '@angular/material' as mat;
-
-@include mat.core();
-
-/* Define custom theme colors matching the design system */
-$endpoint-primary: mat.define-palette(mat.$indigo-palette, 300);
-$endpoint-accent: mat.define-palette(mat.$pink-palette, 200);
-$endpoint-warn: mat.define-palette(mat.$red-palette, 300);
-
-$endpoint-theme: mat.define-dark-theme((
-  color: (
-    primary: $endpoint-primary,
-    accent: $endpoint-accent,
-    warn: $endpoint-warn,
-  ),
-  typography: mat.define-typography-config(),
-  density: 0,
-));
-
-@include mat.all-component-themes($endpoint-theme);
-
 /* Global Styles */
 :root {
   --mat-primary: #9fa8da;
@@ -51,7 +29,7 @@ html, body {
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
   background: var(--mat-background);
   color: var(--mat-on-surface);
   margin: 0;

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { vi } from 'vitest';
 import { HomePage } from './home';
 
 describe('HomePage', () => {
@@ -8,7 +9,9 @@ describe('HomePage', () => {
   let router: Router;
 
   beforeEach(async () => {
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const routerSpy = {
+      navigate: vi.fn()
+    };
 
     await TestBed.configureTestingModule({
       imports: [HomePage],

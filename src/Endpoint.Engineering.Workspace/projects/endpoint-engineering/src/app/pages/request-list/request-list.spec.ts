@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { vi } from 'vitest';
 import { RequestListPage } from './request-list';
 import { ALaCarteRequestService } from '../../services/alacarte-request.service';
 import { ALaCarteRequest, OutputType } from '../../models/alacarte-request.model';
@@ -11,7 +12,9 @@ describe('RequestListPage', () => {
   let router: Router;
 
   beforeEach(async () => {
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const routerSpy = {
+      navigate: vi.fn()
+    };
 
     await TestBed.configureTestingModule({
       imports: [RequestListPage],
@@ -89,23 +92,25 @@ describe('RequestListPage', () => {
   });
 
   it('should delete request after confirmation', () => {
-    spyOn(window, 'confirm').and.returnValue(true);
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
     const request = service.getAll()[0];
     const initialCount = service.getAll().length;
 
     component.onDelete(request);
 
     expect(service.getAll().length).toBe(initialCount - 1);
+    confirmSpy.mockRestore();
   });
 
   it('should not delete request if not confirmed', () => {
-    spyOn(window, 'confirm').and.returnValue(false);
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false);
     const request = service.getAll()[0];
     const initialCount = service.getAll().length;
 
     component.onDelete(request);
 
     expect(service.getAll().length).toBe(initialCount);
+    confirmSpy.mockRestore();
   });
 
   it('should format date correctly', () => {
