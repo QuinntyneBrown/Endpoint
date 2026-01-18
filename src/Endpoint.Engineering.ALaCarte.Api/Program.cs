@@ -4,10 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure database path in user's home directory to persist across CLI installations
+var userHomeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+var appDataDirectory = Path.Combine(userHomeDirectory, ".endpoint-alacarte");
+Directory.CreateDirectory(appDataDirectory);
+var databasePath = Path.Combine(appDataDirectory, "ALaCarte.db");
+
 // Add services to the container.
 builder.Services.AddDbContext<ALaCarteContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ??
-        "Data Source=ALaCarte.db"));
+    options.UseSqlite($"Data Source={databasePath}"));
 
 builder.Services.AddScoped<IALaCarteContext>(provider => provider.GetRequiredService<ALaCarteContext>());
 
@@ -29,6 +34,13 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Apply pending migrations automatically to ensure database schema is up-to-date
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ALaCarteContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
