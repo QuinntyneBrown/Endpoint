@@ -1,0 +1,28 @@
+<div class="log-output">
+  @if (title()) {
+    <div class="log-output__header">
+      <span class="material-icons">terminal</span>
+      {{ title() }}
+    </div>
+  }
+  <div
+    #logContainer
+    class="log-output__container"
+    [style.maxHeight]="maxHeight()"
+  >
+    @for (log of logs(); track $index) {
+      <div
+        class="log-output__line"
+        [class.log-output__line--info]="log.level === 'info'"
+        [class.log-output__line--success]="log.level === 'success'"
+        [class.log-output__line--warning]="log.level === 'warning'"
+        [class.log-output__line--error]="log.level === 'error'"
+      >
+        {{ getLevelPrefix(log.level) }} {{ log.message }}
+      </div>
+    }
+    @if (logs().length === 0) {
+      <div class="log-output__empty">No log entries</div>
+    }
+  </div>
+</div>

@@ -1,0 +1,37 @@
+@use '../styles/variables';
+
+.icon-button {
+  background: none;
+  border: none;
+  color: var(--ee-on-surface-medium);
+  cursor: pointer;
+  padding: var(--ee-spacing-sm);
+  border-radius: var(--ee-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--ee-transition-base);
+
+  &:hover:not(.icon-button--disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--ee-on-surface);
+  }
+
+  &:focus {
+    outline: 2px solid var(--ee-primary);
+    outline-offset: 2px;
+  }
+
+  &--back {
+    color: var(--ee-on-surface);
+  }
+
+  &--disabled {
+    color: var(--ee-on-surface-disabled);
+    cursor: not-allowed;
+  }
+
+  .material-icons {
+    font-size: 24px;
+  }
+}

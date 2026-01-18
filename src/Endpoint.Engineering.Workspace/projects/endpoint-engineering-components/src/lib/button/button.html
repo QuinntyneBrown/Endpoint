@@ -1,0 +1,22 @@
+<button
+  class="button"
+  [class.button--primary]="variant() === 'primary'"
+  [class.button--secondary]="variant() === 'secondary'"
+  [class.button--danger]="variant() === 'danger'"
+  [class.button--disabled]="disabled()"
+  [class.button--full-width]="fullWidth()"
+  [class.button--icon-end]="iconPosition() === 'end'"
+  [disabled]="disabled()"
+  [type]="type()"
+  (click)="onClick()"
+>
+  @if (icon() && iconPosition() === 'start') {
+    <span class="material-icons button__icon">{{ icon() }}</span>
+  }
+  <span class="button__content">
+    <ng-content></ng-content>
+  </span>
+  @if (icon() && iconPosition() === 'end') {
+    <span class="material-icons button__icon">{{ icon() }}</span>
+  }
+</button>

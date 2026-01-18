@@ -1,0 +1,116 @@
+@use '../styles/variables';
+
+.config-card {
+  background: var(--ee-surface);
+  border: 1px solid var(--ee-divider);
+  border-radius: var(--ee-radius-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: all var(--ee-transition-base);
+
+  &:hover {
+    border-color: var(--ee-primary);
+    transform: translateY(-2px);
+  }
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    background: var(--ee-surface-elevated);
+    border-radius: var(--ee-radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--ee-spacing-md);
+
+    .material-icons {
+      font-size: 28px;
+      color: var(--ee-primary);
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--ee-spacing-md);
+  }
+
+  &__header-left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: var(--ee-font-size-lg);
+    font-weight: 500;
+    margin-bottom: var(--ee-spacing-sm);
+    color: var(--ee-on-surface);
+  }
+
+  &__last-used {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ee-spacing-xs);
+    font-size: var(--ee-font-size-xs);
+    padding: 3px var(--ee-spacing-sm);
+    border-radius: var(--ee-radius-sm);
+    background: rgba(129, 199, 132, 0.2);
+    color: var(--ee-success);
+
+    .material-icons {
+      font-size: 12px;
+    }
+  }
+
+  &__menu {
+    background: none;
+    border: none;
+    color: var(--ee-on-surface-medium);
+    cursor: pointer;
+    padding: var(--ee-spacing-xs);
+    margin: -4px -4px 0 0;
+
+    &:hover {
+      color: var(--ee-on-surface);
+    }
+  }
+
+  &__description {
+    font-size: var(--ee-font-size-md);
+    color: var(--ee-on-surface-medium);
+    margin-bottom: var(--ee-spacing-lg);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ee-spacing-sm);
+    padding-top: var(--ee-spacing-lg);
+    border-top: 1px solid var(--ee-divider);
+  }
+
+  &__meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--ee-spacing-sm);
+    font-size: var(--ee-font-size-sm);
+    color: var(--ee-on-surface-medium);
+
+    .material-icons {
+      font-size: 16px;
+    }
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: var(--ee-spacing-md);
+  }
+}

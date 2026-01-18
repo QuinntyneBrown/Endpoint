@@ -1,0 +1,36 @@
+@use '../styles/variables';
+
+.stats-bar {
+  display: flex;
+  gap: var(--ee-spacing-xl);
+  padding: 20px;
+  background: var(--ee-surface);
+  border: 1px solid var(--ee-divider);
+  border-radius: var(--ee-radius-lg);
+
+  &__stat {
+    flex: 1;
+    text-align: center;
+  }
+
+  &__value {
+    font-size: var(--ee-font-size-display);
+    font-weight: 500;
+    color: var(--ee-primary);
+    margin-bottom: var(--ee-spacing-xs);
+  }
+
+  &__label {
+    font-size: var(--ee-font-size-sm);
+    color: var(--ee-on-surface-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-bar {
+    flex-direction: column;
+    gap: var(--ee-spacing-lg);
+  }
+}

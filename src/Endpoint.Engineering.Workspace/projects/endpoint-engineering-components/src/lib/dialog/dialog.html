@@ -1,0 +1,29 @@
+@if (open()) {
+  <div class="dialog-overlay" (click)="onOverlayClick($event)">
+    <div class="dialog" role="dialog" aria-modal="true">
+      <div class="dialog__header">
+        <div class="dialog__title">
+          @if (icon()) {
+            <span class="material-icons dialog__title-icon">{{ icon() }}</span>
+          }
+          {{ title() }}
+        </div>
+        @if (showCloseButton()) {
+          <ee-icon-button
+            icon="close"
+            ariaLabel="Close dialog"
+            (clicked)="onClose()"
+          ></ee-icon-button>
+        }
+      </div>
+
+      <div class="dialog__content">
+        <ng-content></ng-content>
+      </div>
+
+      <div class="dialog__actions">
+        <ng-content select="[actions]"></ng-content>
+      </div>
+    </div>
+  </div>
+}

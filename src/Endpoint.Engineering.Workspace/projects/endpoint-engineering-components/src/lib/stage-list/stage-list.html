@@ -1,0 +1,32 @@
+<div class="stage-list">
+  @for (stage of stages(); track stage.name) {
+    <div
+      class="stage-list__item"
+      [class.stage-list__item--active]="stage.status === 'active'"
+      [class.stage-list__item--completed]="stage.status === 'completed'"
+      [class.stage-list__item--error]="stage.status === 'error'"
+    >
+      <span
+        class="material-icons stage-list__icon"
+        [class.stage-list__icon--pending]="stage.status === 'pending'"
+        [class.stage-list__icon--active]="stage.status === 'active'"
+        [class.stage-list__icon--completed]="stage.status === 'completed'"
+        [class.stage-list__icon--error]="stage.status === 'error'"
+      >
+        {{ getIconForStatus(stage.status) }}
+      </span>
+
+      <div class="stage-list__details">
+        <div class="stage-list__name">{{ stage.name }}</div>
+        @if (stage.description) {
+          <div class="stage-list__status">{{ stage.description }}</div>
+        }
+      </div>
+
+      <ee-badge
+        [label]="getBadgeLabel(stage.status)"
+        [variant]="getBadgeVariant(stage.status)"
+      ></ee-badge>
+    </div>
+  }
+</div>

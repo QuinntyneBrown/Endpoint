@@ -1,0 +1,15 @@
+<div
+  class="warning-box"
+  [class.warning-box--warning]="variant() === 'warning'"
+  [class.warning-box--error]="variant() === 'error'"
+  [class.warning-box--info]="variant() === 'info'"
+  [class.warning-box--success]="variant() === 'success'"
+>
+  <span class="material-icons warning-box__icon">{{ getIcon() }}</span>
+  <div class="warning-box__content">
+    @if (title()) {
+      <strong class="warning-box__title">{{ title() }}</strong>
+    }
+    <span class="warning-box__message">{{ message() }}</span>
+  </div>
+</div>

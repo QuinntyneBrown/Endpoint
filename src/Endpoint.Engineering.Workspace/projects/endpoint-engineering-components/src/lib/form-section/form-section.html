@@ -1,0 +1,8 @@
+<div class="form-section">
+  @if (title()) {
+    <h2 class="form-section__title">{{ title() }}</h2>
+  }
+  <div class="form-section__content">
+    <ng-content></ng-content>
+  </div>
+</div>

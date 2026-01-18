@@ -1,0 +1,75 @@
+@use '../styles/variables';
+
+.stage-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ee-spacing-md);
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--ee-spacing-md);
+    padding: var(--ee-spacing-md);
+    background: var(--ee-surface-high);
+    border-radius: var(--ee-radius-sm);
+    border: 1px solid transparent;
+
+    &--active {
+      border-color: var(--ee-primary);
+    }
+
+    &--completed {
+      border-color: var(--ee-success);
+    }
+
+    &--error {
+      border-color: var(--ee-warn);
+    }
+  }
+
+  &__icon {
+    font-size: 24px;
+
+    &--pending {
+      color: var(--ee-on-surface-disabled);
+    }
+
+    &--active {
+      color: var(--ee-primary);
+      animation: spin 1s linear infinite;
+    }
+
+    &--completed {
+      color: var(--ee-success);
+    }
+
+    &--error {
+      color: var(--ee-warn);
+    }
+  }
+
+  &__details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-weight: 500;
+    margin-bottom: var(--ee-spacing-xs);
+    color: var(--ee-on-surface);
+  }
+
+  &__status {
+    font-size: var(--ee-font-size-md);
+    color: var(--ee-on-surface-medium);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

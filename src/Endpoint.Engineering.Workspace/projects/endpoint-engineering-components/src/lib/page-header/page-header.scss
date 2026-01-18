@@ -1,0 +1,33 @@
+@use '../styles/variables';
+
+.page-header {
+  background: var(--ee-surface);
+  padding: var(--ee-spacing-md) var(--ee-spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--ee-divider);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: var(--ee-spacing-md);
+  }
+
+  &__title {
+    font-size: var(--ee-font-size-lg);
+    font-weight: 500;
+    color: var(--ee-on-surface);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--ee-spacing-sm);
+  }
+}

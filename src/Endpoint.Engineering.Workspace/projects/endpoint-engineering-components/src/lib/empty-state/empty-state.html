@@ -1,0 +1,15 @@
+<div class="empty-state">
+  <div class="empty-state__icon">
+    <span class="material-icons">{{ icon() }}</span>
+  </div>
+  <h1 class="empty-state__title">{{ title() }}</h1>
+  @if (description()) {
+    <p class="empty-state__description">{{ description() }}</p>
+  }
+  <div class="empty-state__actions">
+    <ng-content select="[actions]"></ng-content>
+  </div>
+  <div class="empty-state__quick-start">
+    <ng-content select="[quickStart]"></ng-content>
+  </div>
+</div>

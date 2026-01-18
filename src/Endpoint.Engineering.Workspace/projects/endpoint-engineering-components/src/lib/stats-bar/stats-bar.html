@@ -1,0 +1,8 @@
+<div class="stats-bar">
+  @for (stat of stats(); track stat.label) {
+    <div class="stats-bar__stat">
+      <div class="stats-bar__value">{{ stat.value }}</div>
+      <div class="stats-bar__label">{{ stat.label }}</div>
+    </div>
+  }
+</div>

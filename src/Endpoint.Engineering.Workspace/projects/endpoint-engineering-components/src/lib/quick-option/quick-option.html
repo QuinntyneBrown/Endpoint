@@ -1,0 +1,11 @@
+<button class="quick-option" (click)="onSelect()">
+  <div class="quick-option__icon">
+    <span class="material-icons">{{ icon() }}</span>
+  </div>
+  <div class="quick-option__content">
+    <div class="quick-option__title">{{ title() }}</div>
+    @if (description()) {
+      <div class="quick-option__description">{{ description() }}</div>
+    }
+  </div>
+</button>

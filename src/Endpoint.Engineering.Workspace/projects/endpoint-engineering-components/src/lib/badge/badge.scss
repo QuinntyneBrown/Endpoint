@@ -1,0 +1,29 @@
+@use '../styles/variables';
+
+.badge {
+  display: inline-block;
+  padding: var(--ee-spacing-xs) var(--ee-spacing-sm);
+  border-radius: var(--ee-radius-sm);
+  font-size: var(--ee-font-size-xs);
+  font-weight: 500;
+
+  &--success {
+    background: rgba(129, 199, 132, 0.15);
+    color: var(--ee-success);
+  }
+
+  &--processing {
+    background: rgba(159, 168, 218, 0.15);
+    color: var(--ee-primary);
+  }
+
+  &--pending {
+    background: rgba(230, 237, 243, 0.1);
+    color: var(--ee-on-surface-medium);
+  }
+
+  &--error {
+    background: rgba(239, 83, 80, 0.15);
+    color: var(--ee-warn);
+  }
+}

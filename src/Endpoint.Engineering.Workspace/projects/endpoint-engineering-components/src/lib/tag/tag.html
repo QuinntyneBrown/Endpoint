@@ -1,0 +1,18 @@
+<span
+  class="tag"
+  [class.tag--github]="variant() === 'github'"
+  [class.tag--local]="variant() === 'local'"
+  [class.tag--primary]="variant() === 'primary'"
+>
+  {{ label() }}
+  @if (removable()) {
+    <button
+      class="tag__remove"
+      type="button"
+      (click)="onRemove($event)"
+      aria-label="Remove tag"
+    >
+      <span class="material-icons">close</span>
+    </button>
+  }
+</span>

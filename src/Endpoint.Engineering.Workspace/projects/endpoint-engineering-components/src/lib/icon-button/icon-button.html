@@ -1,0 +1,10 @@
+<button
+  class="icon-button"
+  [class.icon-button--back]="variant() === 'back'"
+  [class.icon-button--disabled]="disabled()"
+  [disabled]="disabled()"
+  [attr.aria-label]="ariaLabel() || icon()"
+  (click)="onClick()"
+>
+  <span class="material-icons">{{ icon() }}</span>
+</button>

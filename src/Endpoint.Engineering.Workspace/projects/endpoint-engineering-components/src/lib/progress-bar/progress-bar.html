@@ -1,0 +1,19 @@
+<div class="progress-bar">
+  @if (label() || showPercentage()) {
+    <div class="progress-bar__text">
+      @if (label()) {
+        <span class="progress-bar__label">{{ label() }}</span>
+      }
+      @if (showPercentage()) {
+        <span class="progress-bar__percentage">{{ value() }}% Complete</span>
+      }
+    </div>
+  }
+  <div class="progress-bar__track">
+    <div
+      class="progress-bar__fill"
+      [class.progress-bar__fill--animated]="animated()"
+      [style.width.%]="value()"
+    ></div>
+  </div>
+</div>
