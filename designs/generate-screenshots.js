@@ -1,6 +1,5 @@
 const { chromium } = require('playwright');
 const path = require('path');
-const fs = require('fs');
 
 /**
  * Generate screenshots from HTML mockup files
