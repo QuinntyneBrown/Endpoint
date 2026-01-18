@@ -14,7 +14,7 @@
     &--active {
       .ep-wizard-steps__indicator {
         background: var(--mat-primary);
-        color: #000;
+        color: var(--mat-on-color);
         border-color: var(--mat-primary);
       }
 
@@ -28,7 +28,7 @@
       .ep-wizard-steps__indicator {
         background: var(--mat-success);
         border-color: var(--mat-success);
-        color: #000;
+        color: var(--mat-on-color);
       }
 
       .ep-wizard-steps__label {
@@ -38,8 +38,8 @@
   }
 
   &__indicator {
-    width: 32px;
-    height: 32px;
+    width: var(--button-height-sm);
+    height: var(--button-height-sm);
     border-radius: var(--radius-full);
     border: 2px solid var(--mat-divider);
     background: var(--mat-surface);
@@ -58,7 +58,7 @@
   }
 
   &__check {
-    font-size: 18px;
+    font-size: var(--icon-size-md);
   }
 
   &__label {
@@ -70,7 +70,7 @@
   }
 
   &__connector {
-    width: 32px;
+    width: var(--button-height-sm);
     height: 2px;
     background: var(--mat-divider);
     margin: 0 var(--spacing-sm);

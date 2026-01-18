@@ -13,27 +13,27 @@
 
   /* Variants */
   &--primary {
-    background: rgba(159, 168, 218, 0.2);
+    background: var(--color-primary-muted);
     color: var(--mat-primary-lighter);
   }
 
   &--success {
-    background: rgba(129, 199, 132, 0.2);
+    background: var(--color-success-muted);
     color: var(--mat-success);
   }
 
   &--warning {
-    background: rgba(255, 183, 77, 0.2);
-    color: #ffb74d;
+    background: var(--color-warning-muted);
+    color: var(--mat-warning);
   }
 
   &--danger {
-    background: rgba(239, 83, 80, 0.2);
+    background: var(--color-danger-muted);
     color: var(--mat-warn);
   }
 
   &--neutral {
-    background: rgba(230, 237, 243, 0.12);
+    background: var(--mat-divider);
     color: var(--mat-on-surface-medium);
   }
 
@@ -50,10 +50,10 @@
 
   /* Dot variant */
   &--dot {
-    width: 8px;
-    height: 8px;
+    width: var(--spacing-sm);
+    height: var(--spacing-sm);
     padding: 0;
     border-radius: var(--radius-full);
-    min-width: 8px;
+    min-width: var(--spacing-sm);
   }
 }

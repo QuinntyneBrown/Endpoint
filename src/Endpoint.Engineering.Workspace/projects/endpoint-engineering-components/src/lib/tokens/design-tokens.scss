@@ -76,4 +76,56 @@
   --z-index-modal: 1050;
   --z-index-popover: 1060;
   --z-index-tooltip: 1070;
+
+  /* Warning Color (missing from palette) */
+  --mat-warning: #ffb74d;
+
+  /* State/Interactive Colors (for hover, active, selected states) */
+  --state-hover: rgba(255, 255, 255, 0.08);
+  --state-active: rgba(255, 255, 255, 0.12);
+  --state-selected: rgba(159, 168, 218, 0.15);
+  --state-selected-hover: rgba(159, 168, 218, 0.2);
+
+  /* Semantic Background Colors with Opacity */
+  --color-primary-subtle: rgba(159, 168, 218, 0.15);
+  --color-primary-muted: rgba(159, 168, 218, 0.2);
+  --color-success-subtle: rgba(129, 199, 132, 0.15);
+  --color-success-muted: rgba(129, 199, 132, 0.2);
+  --color-warning-subtle: rgba(255, 183, 77, 0.15);
+  --color-warning-muted: rgba(255, 183, 77, 0.2);
+  --color-danger-subtle: rgba(239, 83, 80, 0.15);
+  --color-danger-muted: rgba(239, 83, 80, 0.2);
+
+  /* Alert/Help Text Backgrounds & Borders */
+  --alert-info-bg: rgba(159, 168, 218, 0.1);
+  --alert-info-border: rgba(159, 168, 218, 0.3);
+  --alert-warning-bg: rgba(255, 183, 77, 0.1);
+  --alert-warning-border: rgba(255, 183, 77, 0.3);
+  --alert-success-bg: rgba(129, 199, 132, 0.1);
+  --alert-success-border: rgba(129, 199, 132, 0.3);
+
+  /* Overlay */
+  --overlay-backdrop: rgba(0, 0, 0, 0.6);
+
+  /* Additional Icon Sizes */
+  --icon-size-sm: 16px;
+  --icon-size-md: 18px;
+  --icon-size-base: 20px;
+  --icon-size-lg: 24px;
+  --icon-size-xl: 64px;
+
+  /* Component-specific Sizes */
+  --button-height-sm: 32px;
+  --button-height-md: 40px;
+  --button-height-lg: 48px;
+
+  --dialog-width-sm: 400px;
+  --dialog-width-md: 600px;
+  --dialog-width-lg: 900px;
+
+  /* On-dark text (for colored backgrounds) */
+  --mat-on-color: #000000;
+
+  /* Line Height */
+  --line-height-relaxed: 1.5;
 }

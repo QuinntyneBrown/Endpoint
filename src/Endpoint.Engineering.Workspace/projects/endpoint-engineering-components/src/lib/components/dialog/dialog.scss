@@ -6,7 +6,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--overlay-backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -25,17 +25,17 @@
   /* Widths */
   &--small {
     width: 100%;
-    max-width: 400px;
+    max-width: var(--dialog-width-sm);
   }
 
   &--medium {
     width: 100%;
-    max-width: 600px;
+    max-width: var(--dialog-width-md);
   }
 
   &--large {
     width: 100%;
-    max-width: 900px;
+    max-width: var(--dialog-width-lg);
   }
 
   &__header {

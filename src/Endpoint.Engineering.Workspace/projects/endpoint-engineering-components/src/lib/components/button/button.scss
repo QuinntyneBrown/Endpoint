@@ -8,7 +8,7 @@
   /* Size variants */
   &--small {
     &.mdc-button {
-      height: 32px;
+      height: var(--button-height-sm);
       font-size: var(--font-size-sm);
       padding: 0 var(--spacing-lg);
     }
@@ -16,14 +16,14 @@
 
   &--medium {
     &.mdc-button {
-      height: 40px;
+      height: var(--button-height-md);
       font-size: var(--font-size-base);
     }
   }
 
   &--large {
     &.mdc-button {
-      height: 48px;
+      height: var(--button-height-lg);
       font-size: var(--font-size-md);
       padding: 0 var(--spacing-xxl);
     }

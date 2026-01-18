@@ -30,15 +30,15 @@
     transition: background var(--transition-base);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--state-hover);
     }
 
     &:active {
-      background: rgba(255, 255, 255, 0.12);
+      background: var(--state-active);
     }
 
     .material-icons {
-      font-size: 24px;
+      font-size: var(--icon-size-lg);
     }
   }
 

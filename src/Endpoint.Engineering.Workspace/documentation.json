@@ -444,16 +444,6 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/endpoint-engineering-components/src/lib/components/help-text/help-text.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "type": "Meta<HelpText>",
-                "defaultValue": "{\r\n  title: 'Components/HelpText',\r\n  component: HelpText,\r\n  tags: ['autodocs'],\r\n}"
-            },
-            {
-                "name": "meta",
-                "ctype": "miscellaneous",
-                "subtype": "variable",
                 "file": "projects/endpoint-engineering-components/src/lib/components/search-box/search-box.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
@@ -464,11 +454,11 @@
                 "name": "meta",
                 "ctype": "miscellaneous",
                 "subtype": "variable",
-                "file": "projects/endpoint-engineering-components/src/lib/components/status-indicator/status-indicator.stories.ts",
+                "file": "projects/endpoint-engineering-components/src/lib/components/help-text/help-text.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
-                "type": "Meta<StatusIndicator>",
-                "defaultValue": "{\r\n  title: 'Components/StatusIndicator',\r\n  component: StatusIndicator,\r\n  tags: ['autodocs'],\r\n}"
+                "type": "Meta<HelpText>",
+                "defaultValue": "{\r\n  title: 'Components/HelpText',\r\n  component: HelpText,\r\n  tags: ['autodocs'],\r\n}"
             },
             {
                 "name": "meta",
@@ -479,6 +469,16 @@
                 "deprecationMessage": "",
                 "type": "Meta<TreeView>",
                 "defaultValue": "{\r\n  title: 'Components/TreeView',\r\n  component: TreeView,\r\n  tags: ['autodocs'],\r\n  argTypes: {\r\n    selectable: {\r\n      control: 'boolean',\r\n      description: 'Enable node selection',\r\n    },\r\n    expandable: {\r\n      control: 'boolean',\r\n      description: 'Enable expand/collapse',\r\n    },\r\n  },\r\n}"
+            },
+            {
+                "name": "meta",
+                "ctype": "miscellaneous",
+                "subtype": "variable",
+                "file": "projects/endpoint-engineering-components/src/lib/components/status-indicator/status-indicator.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "type": "Meta<StatusIndicator>",
+                "defaultValue": "{\r\n  title: 'Components/StatusIndicator',\r\n  component: StatusIndicator,\r\n  tags: ['autodocs'],\r\n}"
             },
             {
                 "name": "meta",
@@ -925,17 +925,6 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<HelpText>",
-                "file": "projects/endpoint-engineering-components/src/lib/components/help-text/help-text.stories.ts",
-                "deprecated": false,
-                "deprecationMessage": "",
-                "description": "",
-                "kind": 184
-            },
-            {
-                "name": "Story",
-                "ctype": "miscellaneous",
-                "subtype": "typealias",
                 "rawtype": "StoryObj<SearchBox>",
                 "file": "projects/endpoint-engineering-components/src/lib/components/search-box/search-box.stories.ts",
                 "deprecated": false,
@@ -947,8 +936,8 @@
                 "name": "Story",
                 "ctype": "miscellaneous",
                 "subtype": "typealias",
-                "rawtype": "StoryObj<StatusIndicator>",
-                "file": "projects/endpoint-engineering-components/src/lib/components/status-indicator/status-indicator.stories.ts",
+                "rawtype": "StoryObj<HelpText>",
+                "file": "projects/endpoint-engineering-components/src/lib/components/help-text/help-text.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -960,6 +949,17 @@
                 "subtype": "typealias",
                 "rawtype": "StoryObj<TreeView>",
                 "file": "projects/endpoint-engineering-components/src/lib/components/tree-view/tree-view.stories.ts",
+                "deprecated": false,
+                "deprecationMessage": "",
+                "description": "",
+                "kind": 184
+            },
+            {
+                "name": "Story",
+                "ctype": "miscellaneous",
+                "subtype": "typealias",
+                "rawtype": "StoryObj<StatusIndicator>",
+                "file": "projects/endpoint-engineering-components/src/lib/components/status-indicator/status-indicator.stories.ts",
                 "deprecated": false,
                 "deprecationMessage": "",
                 "description": "",
@@ -1935,19 +1935,6 @@
                     "kind": 184
                 }
             ],
-            "projects/endpoint-engineering-components/src/lib/components/help-text/help-text.stories.ts": [
-                {
-                    "name": "Story",
-                    "ctype": "miscellaneous",
-                    "subtype": "typealias",
-                    "rawtype": "StoryObj<HelpText>",
-                    "file": "projects/endpoint-engineering-components/src/lib/components/help-text/help-text.stories.ts",
-                    "deprecated": false,
-                    "deprecationMessage": "",
-                    "description": "",
-                    "kind": 184
-                }
-            ],
             "projects/endpoint-engineering-components/src/lib/components/search-box/search-box.stories.ts": [
                 {
                     "name": "Story",
@@ -1961,13 +1948,13 @@
                     "kind": 184
                 }
             ],
-            "projects/endpoint-engineering-components/src/lib/components/status-indicator/status-indicator.stories.ts": [
+            "projects/endpoint-engineering-components/src/lib/components/help-text/help-text.stories.ts": [
                 {
                     "name": "Story",
                     "ctype": "miscellaneous",
                     "subtype": "typealias",
-                    "rawtype": "StoryObj<StatusIndicator>",
-                    "file": "projects/endpoint-engineering-components/src/lib/components/status-indicator/status-indicator.stories.ts",
+                    "rawtype": "StoryObj<HelpText>",
+                    "file": "projects/endpoint-engineering-components/src/lib/components/help-text/help-text.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",
@@ -1981,6 +1968,19 @@
                     "subtype": "typealias",
                     "rawtype": "StoryObj<TreeView>",
                     "file": "projects/endpoint-engineering-components/src/lib/components/tree-view/tree-view.stories.ts",
+                    "deprecated": false,
+                    "deprecationMessage": "",
+                    "description": "",
+                    "kind": 184
+                }
+            ],
+            "projects/endpoint-engineering-components/src/lib/components/status-indicator/status-indicator.stories.ts": [
+                {
+                    "name": "Story",
+                    "ctype": "miscellaneous",
+                    "subtype": "typealias",
+                    "rawtype": "StoryObj<StatusIndicator>",
+                    "file": "projects/endpoint-engineering-components/src/lib/components/status-indicator/status-indicator.stories.ts",
                     "deprecated": false,
                     "deprecationMessage": "",
                     "description": "",

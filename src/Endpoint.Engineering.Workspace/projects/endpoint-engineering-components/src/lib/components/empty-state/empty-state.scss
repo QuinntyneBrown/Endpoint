@@ -13,9 +13,9 @@
     color: var(--mat-on-surface-disabled);
 
     .material-icons {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
+      font-size: var(--icon-size-xl);
+      width: var(--icon-size-xl);
+      height: var(--icon-size-xl);
     }
   }
 
