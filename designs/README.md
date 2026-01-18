@@ -4,6 +4,8 @@
 
 This folder contains mobile-first UI mock designs for the Endpoint Engineering Angular application. The designs clone the VS Code interface using Angular Material components and the standard Indigo/Pink dark theme.
 
+> 📊 **Implementation Status:** See [IMPLEMENTATION_GAP_ANALYSIS.md](./IMPLEMENTATION_GAP_ANALYSIS.md) for a comprehensive audit of what has been implemented vs. the design specifications.
+
 ---
 
 ## Mock Files
@@ -28,57 +30,36 @@ This folder contains mobile-first UI mock designs for the Endpoint Engineering A
 
 ## Taking Screenshots
 
-### Using Browser DevTools
+### Automated Script (Recommended)
+
+Use the included `generate-screenshots.js` script to automatically generate all PNG files:
+
+```bash
+# Install dependencies (first time only)
+npm install
+
+# Generate all screenshots
+cd designs
+node generate-screenshots.js
+```
+
+This will generate both desktop (1440x900) and mobile (375x812) screenshots for all HTML files:
+- `00-style-guide-desktop.png` / `00-style-guide-mobile.png`
+- `01-global-header-desktop.png` / `01-global-header-mobile.png`
+- `02-rail-desktop.png` / `02-rail-mobile.png`
+- `03-alacarte-wizard-desktop.png` / `03-alacarte-wizard-mobile.png`
+- `04-full-layout-desktop.png` / `04-full-layout-mobile.png`
+
+### Using Browser DevTools (Manual)
 
 1. Open the HTML file in Chrome
 2. Press `F12` to open DevTools
 3. Click the device toggle icon (or press `Ctrl+Shift+M`)
 4. Select device or set custom viewport:
    - **Mobile**: 375 x 812 (iPhone X)
-   - **Tablet**: 768 x 1024 (iPad)
    - **Desktop**: 1440 x 900
 5. Press `Ctrl+Shift+P` and type "screenshot"
 6. Select "Capture screenshot" or "Capture full size screenshot"
-
-### Using Puppeteer (Node.js)
-
-```javascript
-const puppeteer = require('puppeteer');
-
-async function captureScreenshots() {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-
-  const files = [
-    '00-style-guide.html',
-    '01-global-header.html',
-    '02-rail.html',
-    '03-alacarte-wizard.html',
-    '04-full-layout.html'
-  ];
-
-  const viewports = [
-    { name: 'mobile', width: 375, height: 812 },
-    { name: 'tablet', width: 768, height: 1024 },
-    { name: 'desktop', width: 1440, height: 900 }
-  ];
-
-  for (const file of files) {
-    for (const vp of viewports) {
-      await page.setViewport({ width: vp.width, height: vp.height });
-      await page.goto(`file://${__dirname}/${file}`);
-      await page.screenshot({
-        path: `${file.replace('.html', '')}-${vp.name}.png`,
-        fullPage: true
-      });
-    }
-  }
-
-  await browser.close();
-}
-
-captureScreenshots();
-```
 
 ---
 
