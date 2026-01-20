@@ -1,8 +1,9 @@
 @use '../styles/variables';
 
 .page-header {
-  background: var(--ee-surface);
-  padding: var(--ee-spacing-md) var(--ee-spacing-lg);
+  background: var(--ee-surface-card);
+  height: var(--ee-header-height);
+  padding: 0 var(--ee-spacing-md);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -10,24 +11,27 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
-  border-bottom: 1px solid var(--ee-divider);
+  z-index: 1000;
+  border-bottom: 1px solid var(--ee-surface-divider);
+  box-shadow: var(--ee-elevation-4);
 
   &__left {
     display: flex;
     align-items: center;
-    gap: var(--ee-spacing-md);
+    gap: var(--ee-spacing-sm);
+    flex-shrink: 0;
   }
 
   &__title {
-    font-size: var(--ee-font-size-lg);
+    font-size: var(--ee-font-size-base);
     font-weight: 500;
-    color: var(--ee-on-surface);
+    color: var(--ee-text-primary);
   }
 
   &__actions {
     display: flex;
     align-items: center;
     gap: var(--ee-spacing-sm);
+    flex-shrink: 0;
   }
 }

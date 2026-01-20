@@ -1,15 +1,15 @@
 @use '../styles/variables';
 
 .config-card {
-  background: var(--ee-surface);
-  border: 1px solid var(--ee-divider);
-  border-radius: var(--ee-radius-lg);
-  padding: 20px;
+  background: var(--ee-surface-card);
+  border: 1px solid var(--ee-surface-divider);
+  border-radius: var(--ee-radius-md);
+  padding: var(--ee-spacing-lg);
   cursor: pointer;
-  transition: all var(--ee-transition-base);
+  transition: all var(--ee-transition-fast);
 
   &:hover {
-    border-color: var(--ee-primary);
+    border-color: var(--ee-primary-500);
     transform: translateY(-2px);
   }
 
@@ -17,7 +17,7 @@
     width: 48px;
     height: 48px;
     background: var(--ee-surface-elevated);
-    border-radius: var(--ee-radius-lg);
+    border-radius: var(--ee-radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -25,7 +25,7 @@
 
     .material-icons {
       font-size: 28px;
-      color: var(--ee-primary);
+      color: var(--ee-primary-500);
     }
   }
 
@@ -45,7 +45,7 @@
     font-size: var(--ee-font-size-lg);
     font-weight: 500;
     margin-bottom: var(--ee-spacing-sm);
-    color: var(--ee-on-surface);
+    color: var(--ee-text-primary);
   }
 
   &__last-used {
@@ -55,8 +55,8 @@
     font-size: var(--ee-font-size-xs);
     padding: 3px var(--ee-spacing-sm);
     border-radius: var(--ee-radius-sm);
-    background: rgba(129, 199, 132, 0.2);
-    color: var(--ee-success);
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--ee-status-success);
 
     .material-icons {
       font-size: 12px;
@@ -66,19 +66,22 @@
   &__menu {
     background: none;
     border: none;
-    color: var(--ee-on-surface-medium);
+    color: var(--ee-text-secondary);
     cursor: pointer;
     padding: var(--ee-spacing-xs);
     margin: -4px -4px 0 0;
+    border-radius: var(--ee-radius-full);
+    transition: all var(--ee-transition-fast);
 
     &:hover {
-      color: var(--ee-on-surface);
+      color: var(--ee-text-primary);
+      background: var(--ee-surface-hover);
     }
   }
 
   &__description {
-    font-size: var(--ee-font-size-md);
-    color: var(--ee-on-surface-medium);
+    font-size: var(--ee-font-size-base);
+    color: var(--ee-text-secondary);
     margin-bottom: var(--ee-spacing-lg);
     line-height: 1.5;
     display: -webkit-box;
@@ -92,7 +95,7 @@
     flex-direction: column;
     gap: var(--ee-spacing-sm);
     padding-top: var(--ee-spacing-lg);
-    border-top: 1px solid var(--ee-divider);
+    border-top: 1px solid var(--ee-surface-divider);
   }
 
   &__meta-item {
@@ -100,7 +103,7 @@
     align-items: center;
     gap: var(--ee-spacing-sm);
     font-size: var(--ee-font-size-sm);
-    color: var(--ee-on-surface-medium);
+    color: var(--ee-text-secondary);
 
     .material-icons {
       font-size: 16px;

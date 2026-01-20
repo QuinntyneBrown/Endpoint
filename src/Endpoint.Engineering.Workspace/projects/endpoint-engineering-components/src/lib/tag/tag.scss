@@ -8,22 +8,34 @@
   padding: var(--ee-spacing-xs) var(--ee-spacing-sm);
   border-radius: var(--ee-radius-sm);
   background: var(--ee-surface-elevated);
-  color: var(--ee-on-surface-medium);
+  color: var(--ee-text-secondary);
 
   &--github {
-    background: rgba(35, 134, 54, 0.2);
-    color: #3fb950;
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--ee-status-success);
   }
 
   &--local {
-    background: rgba(244, 143, 177, 0.2);
-    color: var(--ee-accent);
+    background: rgba(255, 152, 0, 0.2);
+    color: var(--ee-accent-500);
+  }
+
+  &--cloud {
+    background: rgba(33, 150, 243, 0.2);
+    color: var(--ee-primary-500);
   }
 
   &--primary {
-    background: var(--ee-primary-darker);
+    background: var(--ee-primary-700);
     color: white;
-    border-radius: 16px;
+    border-radius: var(--ee-radius-chip);
+    padding: var(--ee-spacing-xs) var(--ee-spacing-md);
+  }
+
+  &--accent {
+    background: var(--ee-accent-700);
+    color: white;
+    border-radius: var(--ee-radius-chip);
     padding: var(--ee-spacing-xs) var(--ee-spacing-md);
   }
 

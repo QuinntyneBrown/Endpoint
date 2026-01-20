@@ -10,20 +10,20 @@
     align-items: center;
     gap: var(--ee-spacing-md);
     padding: var(--ee-spacing-md);
-    background: var(--ee-surface-high);
+    background: var(--ee-surface-elevated);
     border-radius: var(--ee-radius-sm);
     border: 1px solid transparent;
 
     &--active {
-      border-color: var(--ee-primary);
+      border-color: var(--ee-primary-500);
     }
 
     &--completed {
-      border-color: var(--ee-success);
+      border-color: var(--ee-status-success);
     }
 
     &--error {
-      border-color: var(--ee-warn);
+      border-color: var(--ee-status-error);
     }
   }
 
@@ -31,20 +31,20 @@
     font-size: 24px;
 
     &--pending {
-      color: var(--ee-on-surface-disabled);
+      color: var(--ee-text-disabled);
     }
 
     &--active {
-      color: var(--ee-primary);
+      color: var(--ee-primary-500);
       animation: spin 1s linear infinite;
     }
 
     &--completed {
-      color: var(--ee-success);
+      color: var(--ee-status-success);
     }
 
     &--error {
-      color: var(--ee-warn);
+      color: var(--ee-status-error);
     }
   }
 
@@ -56,12 +56,12 @@
   &__name {
     font-weight: 500;
     margin-bottom: var(--ee-spacing-xs);
-    color: var(--ee-on-surface);
+    color: var(--ee-text-primary);
   }
 
   &__status {
-    font-size: var(--ee-font-size-md);
-    color: var(--ee-on-surface-medium);
+    font-size: var(--ee-font-size-sm);
+    color: var(--ee-text-secondary);
   }
 }
 

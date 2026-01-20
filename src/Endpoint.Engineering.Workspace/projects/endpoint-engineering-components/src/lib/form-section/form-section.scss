@@ -1,17 +1,17 @@
 @use '../styles/variables';
 
 .form-section {
-  background: var(--ee-surface);
-  border: 1px solid var(--ee-divider);
-  border-radius: var(--ee-radius-lg);
-  padding: var(--ee-spacing-xl);
-  margin-bottom: var(--ee-spacing-xl);
+  background: var(--ee-surface-card);
+  border: 1px solid var(--ee-surface-divider);
+  border-radius: var(--ee-radius-md);
+  padding: var(--ee-spacing-lg);
+  margin-bottom: var(--ee-spacing-lg);
 
   &__title {
-    font-size: var(--ee-font-size-xl);
+    font-size: var(--ee-font-size-lg);
     font-weight: 500;
-    margin-bottom: var(--ee-spacing-lg);
-    color: var(--ee-on-surface);
+    margin-bottom: var(--ee-spacing-md);
+    color: var(--ee-text-primary);
   }
 
   &__content {

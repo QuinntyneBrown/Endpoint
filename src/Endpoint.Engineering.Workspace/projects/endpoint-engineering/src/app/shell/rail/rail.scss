@@ -1,11 +1,11 @@
 .rail {
   position: fixed;
-  top: var(--header-height, 48px);
+  top: var(--ee-header-height, 64px);
   left: 0;
   bottom: 0;
-  width: var(--rail-width, 48px);
-  background: var(--mat-surface, #161b22);
-  border-right: 1px solid var(--mat-divider, rgba(230, 237, 243, 0.12));
+  width: var(--ee-rail-width, 48px);
+  background: var(--ee-surface-card, #1e1e1e);
+  border-right: 1px solid var(--ee-surface-divider, rgba(255, 255, 255, 0.12));
   display: none;
   flex-direction: column;
   z-index: 100;
@@ -26,31 +26,31 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: var(--space-2, 8px) 0;
+  padding: var(--ee-spacing-sm, 8px) 0;
 }
 
 .rail__item {
   position: relative;
-  width: var(--rail-width, 48px);
-  height: var(--rail-width, 48px);
+  width: var(--ee-rail-width, 48px);
+  height: var(--ee-rail-width, 48px);
   display: flex;
   align-items: center;
   justify-content: center;
   background: none;
   border: none;
-  color: var(--mat-on-surface-disabled, rgba(230, 237, 243, 0.38));
+  color: var(--ee-text-disabled, rgba(255, 255, 255, 0.38));
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--ee-transition-fast, 150ms ease);
   text-decoration: none;
 
   &:hover {
-    color: var(--mat-on-surface, #e6edf3);
+    color: var(--ee-text-primary, rgba(255, 255, 255, 0.87));
   }
 
   &--active {
-    color: var(--mat-on-surface, #e6edf3);
+    color: var(--ee-text-primary, rgba(255, 255, 255, 0.87));
 
-    // Active indicator bar
+    // Active indicator bar - Blue per style guide
     &::before {
       content: '';
       position: absolute;
@@ -59,7 +59,7 @@
       transform: translateY(-50%);
       width: 2px;
       height: 24px;
-      background: var(--mat-primary, #9fa8da);
+      background: var(--ee-primary-500, #2196f3);
       border-radius: 0 2px 2px 0;
     }
   }
@@ -72,12 +72,13 @@
 }
 
 .rail__footer {
-  padding: var(--space-2, 8px) 0;
-  border-top: 1px solid var(--mat-divider, rgba(230, 237, 243, 0.12));
+  padding: var(--ee-spacing-sm, 8px) 0;
+  border-top: 1px solid var(--ee-surface-divider, rgba(255, 255, 255, 0.12));
 }
 
-// Badge positioning override
+// Badge positioning override - Orange accent color
 .rail__item ::ng-deep .mat-badge-content {
   top: 6px !important;
   right: 6px !important;
+  background: var(--ee-accent-500, #ff9800) !important;
 }

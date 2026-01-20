@@ -33,6 +33,7 @@ using Endpoint.Engineering.Microservices.TelemetryStreaming;
 using Endpoint.Engineering.Microservices.HistoricalTelemetry;
 using Endpoint.Engineering.Microservices.GitAnalysis;
 using Endpoint.Engineering.Microservices.RealtimeNotification;
+using Endpoint.Engineering.Microservices.Distribution;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Engineering.Microservices;
@@ -74,6 +75,7 @@ public class MicroserviceFactory : IMicroserviceFactory
     private readonly IHistoricalTelemetryArtifactFactory historicalTelemetryArtifactFactory;
     private readonly IGitAnalysisArtifactFactory gitAnalysisArtifactFactory;
     private readonly IRealtimeNotificationArtifactFactory realtimeNotificationArtifactFactory;
+    private readonly IDistributionArtifactFactory distributionArtifactFactory;
 
     private static readonly IReadOnlyList<string> AvailableMicroserviceNames = new[]
     {
@@ -105,6 +107,7 @@ public class MicroserviceFactory : IMicroserviceFactory
         "HistoricalTelemetry",
         "GitAnalysis",
         "RealtimeNotification",
+        "Distribution",
         // Friendly aliases
         "Real Time Notification Microservice",
         "Git Processing Microservice"
@@ -140,7 +143,8 @@ public class MicroserviceFactory : IMicroserviceFactory
         ITelemetryStreamingArtifactFactory telemetryStreamingArtifactFactory,
         IHistoricalTelemetryArtifactFactory historicalTelemetryArtifactFactory,
         IGitAnalysisArtifactFactory gitAnalysisArtifactFactory,
-        IRealtimeNotificationArtifactFactory realtimeNotificationArtifactFactory)
+        IRealtimeNotificationArtifactFactory realtimeNotificationArtifactFactory,
+        IDistributionArtifactFactory distributionArtifactFactory)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.projectFactory = projectFactory ?? throw new ArgumentNullException(nameof(projectFactory));
@@ -172,6 +176,7 @@ public class MicroserviceFactory : IMicroserviceFactory
         this.historicalTelemetryArtifactFactory = historicalTelemetryArtifactFactory ?? throw new ArgumentNullException(nameof(historicalTelemetryArtifactFactory));
         this.gitAnalysisArtifactFactory = gitAnalysisArtifactFactory ?? throw new ArgumentNullException(nameof(gitAnalysisArtifactFactory));
         this.realtimeNotificationArtifactFactory = realtimeNotificationArtifactFactory ?? throw new ArgumentNullException(nameof(realtimeNotificationArtifactFactory));
+        this.distributionArtifactFactory = distributionArtifactFactory ?? throw new ArgumentNullException(nameof(distributionArtifactFactory));
     }
 
     public IReadOnlyList<string> GetAvailableMicroservices() => AvailableMicroserviceNames;
@@ -212,6 +217,7 @@ public class MicroserviceFactory : IMicroserviceFactory
             // Alias: "Git Processing Microservice"
             "gitprocessing" => await CreateGitAnalysisMicroserviceAsync(directory, cancellationToken),
             "realtimenotification" => await CreateRealtimeNotificationMicroserviceAsync(directory, cancellationToken),
+            "distribution" => await CreateDistributionMicroserviceAsync(directory, cancellationToken),
             _ => throw new ArgumentException($"Unknown microservice: {name}. Available microservices: {string.Join(", ", AvailableMicroserviceNames)}", nameof(name))
         };
     }
@@ -1010,6 +1016,61 @@ public class MicroserviceFactory : IMicroserviceFactory
         solutionModel.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
 
         return solutionModel;
+    }
+
+    public async Task<SolutionModel> CreateDistributionMicroserviceAsync(string directory, CancellationToken cancellationToken = default)
+    {
+        logger.LogInformation("Creating Distribution microservice with full implementation");
+
+        var solutionModel = new SolutionModel("Distribution", directory);
+
+        var coreProject = await CreateCoreProjectAsync("Distribution", solutionModel.SrcDirectory, Array.Empty<PackageModel>());
+        var infrastructureProject = await CreateInfrastructureProjectAsync("Distribution", solutionModel.SrcDirectory);
+        var apiProject = await CreateApiProjectAsync("Distribution", solutionModel.SrcDirectory);
+        var testsProject = await CreateDistributionTestsProjectAsync(solutionModel.TestsDirectory);
+
+        // Add SignalR package
+        coreProject.Packages.Add(new PackageModel("Microsoft.AspNetCore.SignalR", "1.1.0"));
+
+        distributionArtifactFactory.AddCoreFiles(coreProject);
+        distributionArtifactFactory.AddInfrastructureFiles(infrastructureProject, "Distribution");
+        distributionArtifactFactory.AddApiFiles(apiProject, "Distribution");
+        distributionArtifactFactory.AddTestFiles(testsProject, "Distribution");
+
+        solutionModel.Projects.Add(coreProject);
+        solutionModel.Projects.Add(infrastructureProject);
+        solutionModel.Projects.Add(apiProject);
+        solutionModel.Projects.Add(testsProject);
+
+        solutionModel.DependOns.Add(new DependsOnModel(infrastructureProject, coreProject));
+        solutionModel.DependOns.Add(new DependsOnModel(apiProject, infrastructureProject));
+        solutionModel.DependOns.Add(new DependsOnModel(testsProject, apiProject));
+
+        return solutionModel;
+    }
+
+    private Task<ProjectModel> CreateDistributionTestsProjectAsync(string directory)
+    {
+        var project = new ProjectModel
+        {
+            Name = "Distribution.Tests",
+            Directory = Path.Combine(directory, "Distribution.Tests"),
+            DotNetProjectType = DotNetProjectType.XUnit
+        };
+
+        project.Packages.AddRange(new[]
+        {
+            new PackageModel("Microsoft.AspNetCore.Mvc.Testing", "8.0.0"),
+            new PackageModel("Microsoft.AspNetCore.SignalR.Client", "8.0.0"),
+            new PackageModel("xunit", "2.6.1"),
+            new PackageModel("xunit.runner.visualstudio", "2.5.3"),
+            new PackageModel("Microsoft.NET.Test.Sdk", "17.8.0"),
+            new PackageModel("coverlet.collector", "6.0.0")
+        });
+
+        project.References.Add(@"..\src\Distribution.Api\Distribution.Api.csproj");
+
+        return Task.FromResult(project);
     }
 
     private Task<ProjectModel> CreateIdentityCoreProjectAsync(string directory)

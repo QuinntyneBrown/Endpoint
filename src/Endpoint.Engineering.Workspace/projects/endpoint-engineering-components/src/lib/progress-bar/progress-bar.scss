@@ -9,17 +9,17 @@
   }
 
   &__label {
-    color: var(--ee-on-surface);
+    color: var(--ee-text-primary);
   }
 
   &__percentage {
-    color: var(--ee-on-surface-medium);
+    color: var(--ee-text-secondary);
   }
 
   &__track {
     width: 100%;
     height: 8px;
-    background: var(--ee-surface-high);
+    background: var(--ee-surface-elevated);
     border-radius: var(--ee-radius-sm);
     overflow: hidden;
   }
@@ -28,14 +28,26 @@
     height: 100%;
     background: linear-gradient(
       90deg,
-      var(--ee-primary),
-      var(--ee-primary-lighter)
+      var(--ee-primary-500),
+      var(--ee-primary-300)
     );
     transition: width var(--ee-transition-slow);
     border-radius: var(--ee-radius-sm);
 
     &--animated {
       animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    &--success {
+      background: var(--ee-status-success);
+    }
+
+    &--warning {
+      background: var(--ee-status-warning);
+    }
+
+    &--error {
+      background: var(--ee-status-error);
     }
   }
 }

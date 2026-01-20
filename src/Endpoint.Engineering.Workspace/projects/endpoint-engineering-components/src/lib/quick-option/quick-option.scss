@@ -4,23 +4,60 @@
   display: flex;
   align-items: center;
   gap: var(--ee-spacing-md);
-  padding: var(--ee-spacing-lg);
+  padding: var(--ee-spacing-md);
   background: var(--ee-surface-elevated);
-  border: 1px solid var(--ee-divider);
-  border-radius: var(--ee-radius-md);
+  border: 1px solid var(--ee-surface-divider);
+  border-radius: var(--ee-radius-sm);
   cursor: pointer;
-  transition: all var(--ee-transition-base);
+  transition: all var(--ee-transition-fast);
   text-align: left;
   width: 100%;
 
   &:hover {
-    border-color: var(--ee-primary);
-    background: var(--ee-surface-high);
+    border-color: var(--ee-primary-500);
+    background: var(--ee-surface-selected);
   }
 
   &:focus {
-    outline: 2px solid var(--ee-primary);
+    outline: 2px solid var(--ee-primary-500);
     outline-offset: 2px;
+  }
+
+  &--selected {
+    border-color: var(--ee-primary-500);
+    background: var(--ee-surface-selected);
+  }
+
+  &__radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--ee-surface-divider);
+    border-radius: var(--ee-radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--ee-transition-fast);
+
+    &::after {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background: var(--ee-primary-500);
+      border-radius: var(--ee-radius-full);
+      opacity: 0;
+      transform: scale(0);
+      transition: all var(--ee-transition-fast);
+    }
+
+    .quick-option--selected & {
+      border-color: var(--ee-primary-500);
+
+      &::after {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
   }
 
   &__icon {
@@ -29,13 +66,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--ee-surface-high);
-    border-radius: var(--ee-radius-md);
+    background: var(--ee-surface-card);
+    border-radius: var(--ee-radius-sm);
     flex-shrink: 0;
 
     .material-icons {
       font-size: 24px;
-      color: var(--ee-primary);
+      color: var(--ee-primary-500);
     }
   }
 
@@ -48,14 +85,12 @@
     font-size: var(--ee-font-size-base);
     font-weight: 500;
     margin-bottom: var(--ee-spacing-xs);
-    color: var(--ee-on-surface);
+    color: var(--ee-text-primary);
   }
 
   &__description {
     font-size: var(--ee-font-size-sm);
-    color: var(--ee-on-surface-medium);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    color: var(--ee-text-secondary);
+    line-height: 1.4;
   }
 }

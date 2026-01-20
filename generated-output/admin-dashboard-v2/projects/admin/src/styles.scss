@@ -1,0 +1,197 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+/* Material Design 3 Dark Theme - Blue/Orange Color Palette */
+/* Based on ADMIN-UI-IMPLEMENTATION-GUIDE.md */
+:root {
+  // ============================================
+  // PRIMARY COLORS (Blue)
+  // ============================================
+  --primary-50: #e3f2fd;
+  --primary-100: #bbdefb;
+  --primary-200: #90caf9;
+  --primary-300: #64b5f6;
+  --primary-400: #42a5f5;
+  --primary-500: #2196f3;   // Main brand color
+  --primary-600: #1e88e5;   // Hover state
+  --primary-700: #1976d2;   // Active/pressed state
+  --primary-800: #1565c0;
+  --primary-900: #0d47a1;
+
+  // ============================================
+  // ACCENT COLORS (Orange)
+  // ============================================
+  --accent-500: #ff9800;    // Secondary actions, FAB
+  --accent-600: #fb8c00;
+  --accent-700: #f57c00;
+
+  // ============================================
+  // WARN/ERROR COLORS (Red)
+  // ============================================
+  --warn-500: #f44336;      // Destructive actions
+  --warn-600: #e53935;
+  --warn-700: #d32f2f;
+
+  // ============================================
+  // STATUS COLORS
+  // ============================================
+  --status-success: #4caf50;    // Green - active, success
+  --status-warning: #ff9800;    // Orange - warning, locked
+  --status-error: #f44336;      // Red - error, inactive
+  --status-info: #2196f3;       // Blue - information
+
+  // ============================================
+  // SURFACE COLORS (Dark Theme)
+  // ============================================
+  --surface-background: #121212;           // Page background
+  --surface-card: #1e1e1e;                 // Cards, toolbar, sidenav
+  --surface-elevated: #2d2d2d;             // Elevated elements within cards
+  --surface-dialog: #2d2d2d;               // Modal backgrounds
+  --surface-divider: rgba(255, 255, 255, 0.12);
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --surface-selected: rgba(33, 150, 243, 0.16);
+
+  // ============================================
+  // TEXT COLORS
+  // ============================================
+  --text-primary: rgba(255, 255, 255, 0.87);
+  --text-secondary: rgba(255, 255, 255, 0.60);
+  --text-disabled: rgba(255, 255, 255, 0.38);
+  --text-hint: rgba(255, 255, 255, 0.38);
+
+  // ============================================
+  // SPACING (8px base unit)
+  // ============================================
+  --spacing-xs: 4px;     // 0.5x
+  --spacing-sm: 8px;     // 1x
+  --spacing-md: 16px;    // 2x
+  --spacing-lg: 24px;    // 3x
+  --spacing-xl: 32px;    // 4x
+  --spacing-xxl: 48px;   // 6x
+
+  // ============================================
+  // BORDER RADIUS
+  // ============================================
+  --radius-xs: 2px;
+  --radius-sm: 4px;      // Buttons, inputs
+  --radius-md: 8px;      // Cards, dialogs
+  --radius-lg: 12px;     // Large containers
+  --radius-chip: 16px;   // Chips, pills
+  --radius-full: 50%;    // Circular elements
+
+  // ============================================
+  // ELEVATION (Box Shadows)
+  // ============================================
+  --elevation-0: none;
+  --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+  --elevation-4: 0 10px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.10);
+  --elevation-8: 0 15px 25px rgba(0, 0, 0, 0.15), 0 5px 10px rgba(0, 0, 0, 0.05);
+  --elevation-16: 0 20px 40px rgba(0, 0, 0, 0.2);
+  --elevation-24: 0 25px 50px rgba(0, 0, 0, 0.25);
+
+  // ============================================
+  // TYPOGRAPHY
+  // ============================================
+  --font-family: 'Roboto', sans-serif;
+  --font-family-mono: 'Roboto Mono', monospace;
+
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-md: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-xxl: 20px;
+  --font-size-title: 24px;
+  --font-size-display: 28px;
+
+  // ============================================
+  // COMPONENT SIZES
+  // ============================================
+  --header-height: 64px;
+  --sidenav-width: 256px;
+
+  // ============================================
+  // TRANSITIONS
+  // ============================================
+  --transition-fast: 150ms ease;
+  --transition-standard: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
+/* Global Resets */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--surface-background);
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Material Component Overrides */
+.mat-mdc-button,
+.mat-mdc-outlined-button,
+.mat-mdc-raised-button,
+.mat-mdc-flat-button {
+  --mdc-filled-button-label-text-color: white;
+  --mdc-filled-button-container-color: var(--primary-500);
+}
+
+.mat-mdc-form-field {
+  --mdc-filled-text-field-container-color: var(--surface-elevated);
+  --mdc-filled-text-field-label-text-color: var(--text-secondary);
+  --mdc-filled-text-field-input-text-color: var(--text-primary);
+  --mdc-filled-text-field-focus-label-text-color: var(--primary-500);
+  --mdc-filled-text-field-focus-active-indicator-color: var(--primary-500);
+}
+
+.mat-mdc-menu-panel {
+  background: var(--surface-elevated) !important;
+
+  .mat-mdc-menu-item {
+    color: var(--text-primary);
+
+    &:hover {
+      background: var(--surface-hover);
+    }
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-elevated);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--text-disabled);
+  }
+}
+
+/* Selection */
+::selection {
+  background: var(--primary-500);
+  color: white;
+}

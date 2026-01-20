@@ -4,13 +4,14 @@
   position: relative;
   flex: 1;
   min-width: 250px;
+  max-width: 400px;
 
   &__icon {
     position: absolute;
     left: var(--ee-spacing-md);
     top: 50%;
     transform: translateY(-50%);
-    color: var(--ee-on-surface-disabled);
+    color: var(--ee-text-secondary);
     font-size: 20px;
     width: 20px;
     height: 20px;
@@ -20,22 +21,23 @@
 
   &__input {
     width: 100%;
-    background: var(--ee-surface);
-    border: 1px solid var(--ee-divider);
-    border-radius: var(--ee-radius-md);
-    padding: 10px var(--ee-spacing-md) 10px 40px;
-    color: var(--ee-on-surface);
+    height: 40px;
+    background: var(--ee-surface-elevated);
+    border: 1px solid var(--ee-surface-divider);
+    border-radius: var(--ee-radius-sm);
+    padding: 0 var(--ee-spacing-md) 0 48px;
+    color: var(--ee-text-primary);
     font-size: var(--ee-font-size-base);
     font-family: var(--ee-font-family);
-    transition: border-color var(--ee-transition-base);
+    transition: all var(--ee-transition-fast);
 
     &::placeholder {
-      color: var(--ee-on-surface-disabled);
+      color: var(--ee-text-hint);
     }
 
     &:focus {
       outline: none;
-      border-color: var(--ee-primary);
+      border-color: var(--ee-primary-500);
     }
   }
 
@@ -46,17 +48,18 @@
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: var(--ee-on-surface-medium);
+    color: var(--ee-text-secondary);
     cursor: pointer;
     padding: var(--ee-spacing-xs);
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: var(--ee-radius-full);
-    transition: background var(--ee-transition-fast);
+    transition: all var(--ee-transition-fast);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--ee-surface-hover);
+      color: var(--ee-text-primary);
     }
 
     .material-icons {

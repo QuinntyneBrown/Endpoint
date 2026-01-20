@@ -6,24 +6,36 @@
   border-radius: var(--ee-radius-sm);
   font-size: var(--ee-font-size-xs);
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 
   &--success {
-    background: rgba(129, 199, 132, 0.15);
-    color: var(--ee-success);
+    background: rgba(76, 175, 80, 0.15);
+    color: var(--ee-status-success);
   }
 
   &--processing {
-    background: rgba(159, 168, 218, 0.15);
-    color: var(--ee-primary);
+    background: rgba(33, 150, 243, 0.15);
+    color: var(--ee-primary-500);
+  }
+
+  &--info {
+    background: rgba(33, 150, 243, 0.15);
+    color: var(--ee-status-info);
   }
 
   &--pending {
-    background: rgba(230, 237, 243, 0.1);
-    color: var(--ee-on-surface-medium);
+    background: var(--ee-surface-elevated);
+    color: var(--ee-text-secondary);
+  }
+
+  &--warning {
+    background: rgba(255, 152, 0, 0.15);
+    color: var(--ee-status-warning);
   }
 
   &--error {
-    background: rgba(239, 83, 80, 0.15);
-    color: var(--ee-warn);
+    background: rgba(244, 67, 54, 0.15);
+    color: var(--ee-status-error);
   }
 }

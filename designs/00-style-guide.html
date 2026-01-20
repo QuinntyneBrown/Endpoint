@@ -3,622 +3,1463 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Endpoint Engineering - Style Guide v2</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Admin UI Style Guide - Material Design 3 Dark Theme</title>
+    <!-- Required Dependencies -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <style>
-        /* ============================================================
-           ANGULAR MATERIAL DARK THEME - INDIGO/PINK
-           Standard Angular Material theme - no custom colors
-           ============================================================ */
-
-        :root {
-            /* ----------------------------------------
-               COLOR PALETTE
-               Angular Material Dark Theme (Indigo/Pink)
-               ---------------------------------------- */
-
-            /* Primary Colors (Indigo) */
-            --mat-primary-50: #e8eaf6;
-            --mat-primary-100: #c5cae9;
-            --mat-primary-200: #9fa8da;
-            --mat-primary-300: #7986cb;
-            --mat-primary-400: #5c6bc0;
-            --mat-primary-500: #3f51b5;
-            --mat-primary-600: #3949ab;
-            --mat-primary-700: #303f9f;
-            --mat-primary-800: #283593;
-            --mat-primary-900: #1a237e;
-            --mat-primary: #9fa8da; /* Light variant for dark theme */
-            --mat-primary-lighter: #c5cae9;
-            --mat-primary-darker: #7986cb;
-
-            /* Accent Colors (Pink) */
-            --mat-accent-50: #fce4ec;
-            --mat-accent-100: #f8bbd0;
-            --mat-accent-200: #f48fb1;
-            --mat-accent-300: #f06292;
-            --mat-accent-400: #ec407a;
-            --mat-accent-500: #e91e63;
-            --mat-accent-600: #d81b60;
-            --mat-accent-700: #c2185b;
-            --mat-accent-800: #ad1457;
-            --mat-accent-900: #880e4f;
-            --mat-accent: #f48fb1; /* Light variant for dark theme */
-            --mat-accent-lighter: #f8bbd0;
-            --mat-accent-darker: #f06292;
-
-            /* Semantic Colors */
-            --mat-warn: #ef5350;
-            --mat-warn-lighter: #ef9a9a;
-            --mat-warn-darker: #e53935;
-            --mat-success: #81c784;
-            --mat-success-lighter: #a5d6a7;
-            --mat-success-darker: #66bb6a;
-            --mat-info: #64b5f6;
-            --mat-info-lighter: #90caf9;
-            --mat-info-darker: #42a5f5;
-
-            /* Background Colors (Dark Theme) */
-            --mat-background: #0d1117;
-            --mat-background-alt: #010409;
-            --mat-surface: #161b22;
-            --mat-surface-elevated: #21262d;
-            --mat-surface-high: #30363d;
-            --mat-surface-highest: #484f58;
-
-            /* Text Colors */
-            --mat-on-surface: #e6edf3;
-            --mat-on-surface-high: #ffffff;
-            --mat-on-surface-medium: rgba(230, 237, 243, 0.7);
-            --mat-on-surface-disabled: rgba(230, 237, 243, 0.38);
-            --mat-on-primary: #121212;
-            --mat-on-accent: #121212;
-
-            /* Border & Divider */
-            --mat-divider: rgba(230, 237, 243, 0.12);
-            --mat-divider-strong: rgba(230, 237, 243, 0.24);
-            --mat-border: #30363d;
-            --mat-border-hover: #8b949e;
-
-            /* State Colors */
-            --mat-hover: rgba(255, 255, 255, 0.08);
-            --mat-focus: rgba(159, 168, 218, 0.24);
-            --mat-selected: rgba(159, 168, 218, 0.16);
-            --mat-active: rgba(159, 168, 218, 0.24);
-            --mat-ripple: rgba(255, 255, 255, 0.12);
-
-            /* ----------------------------------------
-               SPACING SCALE (8px base unit)
-               ---------------------------------------- */
-            --space-0: 0;
-            --space-1: 4px;   /* Extra small */
-            --space-2: 8px;   /* Small */
-            --space-3: 12px;  /* Small-Medium */
-            --space-4: 16px;  /* Medium (base) */
-            --space-5: 20px;  /* Medium-Large */
-            --space-6: 24px;  /* Large */
-            --space-8: 32px;  /* Extra Large */
-            --space-10: 40px; /* 2x Large */
-            --space-12: 48px; /* 3x Large */
-            --space-16: 64px; /* 4x Large */
-            --space-20: 80px; /* 5x Large */
-            --space-24: 96px; /* 6x Large */
-
-            /* ----------------------------------------
-               TYPOGRAPHY
-               ---------------------------------------- */
-            --font-family-base: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            --font-family-mono: 'Roboto Mono', 'Consolas', 'Monaco', monospace;
-
-            /* Font Sizes */
-            --font-size-xs: 10px;
-            --font-size-sm: 12px;
-            --font-size-base: 14px;
-            --font-size-md: 16px;
-            --font-size-lg: 18px;
-            --font-size-xl: 20px;
-            --font-size-2xl: 24px;
-            --font-size-3xl: 32px;
-            --font-size-4xl: 40px;
-
-            /* Font Weights */
-            --font-weight-light: 300;
-            --font-weight-regular: 400;
-            --font-weight-medium: 500;
-            --font-weight-bold: 700;
-
-            /* Line Heights */
-            --line-height-tight: 1.2;
-            --line-height-base: 1.5;
-            --line-height-relaxed: 1.75;
-
-            /* ----------------------------------------
-               BORDER RADIUS
-               ---------------------------------------- */
-            --radius-none: 0;
-            --radius-sm: 4px;
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 16px;
-            --radius-2xl: 24px;
-            --radius-full: 9999px;
-
-            /* ----------------------------------------
-               SHADOWS (for elevation)
-               ---------------------------------------- */
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
-            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
-
-            /* ----------------------------------------
-               TRANSITIONS
-               ---------------------------------------- */
-            --transition-fast: 0.15s ease;
-            --transition-base: 0.2s ease;
-            --transition-slow: 0.3s ease;
-
-            /* ----------------------------------------
-               Z-INDEX SCALE
-               ---------------------------------------- */
-            --z-rail: 100;
-            --z-header: 200;
-            --z-dropdown: 300;
-            --z-modal-backdrop: 400;
-            --z-modal: 500;
-            --z-tooltip: 600;
-            --z-toast: 700;
-
-            /* ----------------------------------------
-               COMPONENT SIZES
-               ---------------------------------------- */
-            --header-height: 48px;
-            --rail-width: 48px;
-            --rail-width-expanded: 240px;
-            --status-bar-height: 22px;
-            --icon-size-sm: 18px;
-            --icon-size-md: 24px;
-            --icon-size-lg: 32px;
-            --button-height-sm: 32px;
-            --button-height-md: 40px;
-            --button-height-lg: 48px;
-
-            /* ----------------------------------------
-               BREAKPOINTS
-               ---------------------------------------- */
-            --breakpoint-xs: 0;
-            --breakpoint-sm: 576px;
-            --breakpoint-md: 768px;
-            --breakpoint-lg: 992px;
-            --breakpoint-xl: 1200px;
-            --breakpoint-xxl: 1400px;
-        }
-
-        /* ============================================================
-           RESET & BASE STYLES
-           ============================================================ */
-
-        * {
+        /* ============================================
+           BASE RESET
+           ============================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
-        html {
+        html, body {
+            height: 100%;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--surface-background);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ============================================
+           CSS VARIABLES & TOKENS
+           ============================================ */
+        :root {
+            /* ============================================
+               PRIMARY COLORS (Blue)
+               ============================================ */
+            --primary-50: #e3f2fd;
+            --primary-100: #bbdefb;
+            --primary-200: #90caf9;
+            --primary-300: #64b5f6;
+            --primary-400: #42a5f5;
+            --primary-500: #2196f3;   /* Main brand color */
+            --primary-600: #1e88e5;   /* Hover state */
+            --primary-700: #1976d2;   /* Active/pressed state */
+            --primary-800: #1565c0;
+            --primary-900: #0d47a1;
+
+            /* ============================================
+               ACCENT COLORS (Orange)
+               ============================================ */
+            --accent-500: #ff9800;    /* Secondary actions, FAB */
+            --accent-600: #fb8c00;
+            --accent-700: #f57c00;
+
+            /* ============================================
+               WARN/ERROR COLORS (Red)
+               ============================================ */
+            --warn-500: #f44336;      /* Destructive actions */
+            --warn-600: #e53935;
+            --warn-700: #d32f2f;
+
+            /* ============================================
+               SURFACE COLORS (Dark Theme)
+               ============================================ */
+            --surface-background: #121212;           /* Page background */
+            --surface-card: #1e1e1e;                 /* Cards, toolbar, sidenav */
+            --surface-elevated: #2d2d2d;             /* Elevated elements within cards */
+            --surface-dialog: #2d2d2d;               /* Modal backgrounds */
+            --surface-divider: rgba(255, 255, 255, 0.12);
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --surface-selected: rgba(33, 150, 243, 0.16);
+
+            /* ============================================
+               TEXT COLORS
+               ============================================ */
+            --text-primary: rgba(255, 255, 255, 0.87);
+            --text-secondary: rgba(255, 255, 255, 0.60);
+            --text-disabled: rgba(255, 255, 255, 0.38);
+            --text-hint: rgba(255, 255, 255, 0.38);
+
+            /* ============================================
+               STATUS COLORS
+               ============================================ */
+            --status-success: #4caf50;    /* Green - active, success */
+            --status-warning: #ff9800;    /* Orange - warning, locked */
+            --status-error: #f44336;      /* Red - error, inactive */
+            --status-info: #2196f3;       /* Blue - information */
+
+            /* ============================================
+               SPACING (8px base unit)
+               ============================================ */
+            --spacing-xs: 4px;     /* 0.5x */
+            --spacing-sm: 8px;     /* 1x */
+            --spacing-md: 16px;    /* 2x */
+            --spacing-lg: 24px;    /* 3x */
+            --spacing-xl: 32px;    /* 4x */
+            --spacing-xxl: 48px;   /* 6x */
+
+            /* ============================================
+               BORDER RADIUS
+               ============================================ */
+            --radius-xs: 2px;
+            --radius-sm: 4px;      /* Buttons, inputs */
+            --radius-md: 8px;      /* Cards, dialogs */
+            --radius-lg: 12px;     /* Large containers */
+            --radius-chip: 16px;   /* Chips, pills */
+            --radius-full: 50%;    /* Circular elements */
+
+            /* ============================================
+               ELEVATION (Box Shadows)
+               ============================================ */
+            --elevation-0: none;
+            --elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --elevation-2: 0 3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.12);
+            --elevation-4: 0 10px 20px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.10);
+            --elevation-8: 0 15px 25px rgba(0,0,0,0.15), 0 5px 10px rgba(0,0,0,0.05);
+            --elevation-16: 0 20px 40px rgba(0,0,0,0.2);
+            --elevation-24: 0 25px 50px rgba(0,0,0,0.25);
+
+            /* ============================================
+               TRANSITIONS
+               ============================================ */
+            --transition-fast: 150ms ease;
+            --transition-standard: 300ms ease;
+            --transition-slow: 500ms ease;
+        }
+
+        /* ============================================
+           TYPOGRAPHY SYSTEM
+           ============================================ */
+
+        /* Headlines */
+        .headline-1 { font-size: 96px; font-weight: 300; letter-spacing: -1.5px; }
+        .headline-2 { font-size: 60px; font-weight: 300; letter-spacing: -0.5px; }
+        .headline-3 { font-size: 48px; font-weight: 400; letter-spacing: 0; }
+        .headline-4 { font-size: 34px; font-weight: 400; letter-spacing: 0.25px; }
+        .headline-5 { font-size: 24px; font-weight: 400; letter-spacing: 0; }
+        .headline-6 { font-size: 20px; font-weight: 500; letter-spacing: 0.15px; }
+
+        /* Page Titles */
+        .page-title {
+            font-size: 28px;
+            font-weight: 400;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        /* Subtitles */
+        .subtitle-1 { font-size: 16px; font-weight: 400; letter-spacing: 0.15px; }
+        .subtitle-2 { font-size: 14px; font-weight: 500; letter-spacing: 0.1px; }
+
+        /* Page Subtitle */
+        .page-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Body Text */
+        .body-1 { font-size: 16px; font-weight: 400; letter-spacing: 0.5px; }
+        .body-2 { font-size: 14px; font-weight: 400; letter-spacing: 0.25px; }
+
+        /* Captions and Labels */
+        .caption {
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.4px;
+            color: var(--text-secondary);
+        }
+
+        /* Overline */
+        .overline {
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        /* Button Text */
+        .button-text {
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 1.25px;
+            text-transform: uppercase;
+        }
+
+        /* Monospace */
+        .monospace {
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        /* ============================================
+           BUTTONS
+           ============================================ */
+
+        /* Base Button */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 var(--spacing-md);
+            height: 36px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.25px;
+            cursor: pointer;
+            gap: var(--spacing-sm);
+            transition: all var(--transition-fast);
+            text-decoration: none;
+        }
+
+        /* Primary Button */
+        .btn--primary {
+            background-color: var(--primary-500);
+            color: white;
+            box-shadow: var(--elevation-2);
+        }
+
+        .btn--primary:hover {
+            background-color: var(--primary-700);
+            box-shadow: var(--elevation-4);
+        }
+
+        /* Outlined Button */
+        .btn--outlined {
+            background-color: transparent;
+            color: var(--primary-500);
+            border: 1px solid var(--primary-500);
+        }
+
+        .btn--outlined:hover {
+            background-color: rgba(33, 150, 243, 0.08);
+        }
+
+        /* Danger Button */
+        .btn--danger {
+            background-color: transparent;
+            color: var(--warn-500);
+            border: 1px solid var(--warn-500);
+        }
+
+        .btn--danger:hover {
+            background-color: rgba(244, 67, 54, 0.08);
+        }
+
+        /* Warn Button */
+        .btn--warn {
+            background-color: transparent;
+            color: var(--warn-500);
+            border: 1px solid var(--warn-500);
+        }
+
+        .btn--warn:hover {
+            background-color: rgba(244, 67, 54, 0.08);
+        }
+
+        /* Disabled State */
+        .btn:disabled {
+            opacity: 0.38;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Icon Button */
+        .icon-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: var(--radius-full);
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background-color var(--transition-fast);
+        }
+
+        .icon-button:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .icon-button:disabled {
+            color: var(--text-disabled);
+            cursor: not-allowed;
+        }
+
+        /* FAB (Floating Action Button) */
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-full);
+            background-color: var(--accent-500);
+            color: white;
+            border: none;
+            box-shadow: var(--elevation-4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .fab:hover {
+            box-shadow: var(--elevation-8);
+            background-color: var(--accent-700);
+        }
+
+        /* ============================================
+           CARDS
+           ============================================ */
+
+        /* Base Card */
+        .mat-card {
+            background-color: var(--surface-card);
+            border-radius: var(--radius-md);
+            box-shadow: var(--elevation-1);
+            overflow: hidden;
+        }
+
+        /* Card with padding */
+        .mat-card--padded {
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        /* Card Header */
+        .mat-card__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--surface-divider);
+        }
+
+        .mat-card__title {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .mat-card__subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* Card Content */
+        .mat-card__content {
+            padding: var(--spacing-md);
+        }
+
+        /* Card Actions */
+        .mat-card__actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--surface-divider);
+        }
+
+        /* ============================================
+           STATUS CHIPS/BADGES
+           ============================================ */
+
+        /* Base Chip */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: var(--radius-chip);
+            font-size: 12px;
+            font-weight: 500;
+            gap: var(--spacing-xs);
+        }
+
+        /* Status Variants */
+        .chip--success, .chip--active {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: var(--status-success);
+        }
+
+        .chip--error, .chip--inactive {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: var(--status-error);
+        }
+
+        .chip--warning, .chip--locked {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: var(--status-warning);
+        }
+
+        .chip--info {
+            background-color: rgba(33, 150, 243, 0.2);
+            color: var(--primary-500);
+        }
+
+        /* Small Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge--system {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: var(--accent-500);
+        }
+
+        .badge--custom {
+            background-color: rgba(33, 150, 243, 0.2);
+            color: var(--primary-500);
+        }
+
+        /* Role Chip */
+        .role-chip {
+            background-color: rgba(33, 150, 243, 0.2);
+            color: var(--primary-500);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* ============================================
+           AVATAR
+           ============================================ */
+
+        /* Base Avatar */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
             font-size: 16px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            color: white;
+            flex-shrink: 0;
         }
 
-        body {
-            font-family: var(--font-family-base);
-            font-size: var(--font-size-base);
-            line-height: var(--line-height-base);
-            background: var(--mat-background);
-            color: var(--mat-on-surface);
-            min-height: 100vh;
+        /* Large Avatar */
+        .avatar--large {
+            width: 80px;
+            height: 80px;
+            font-size: 32px;
         }
 
-        /* ============================================================
-           STYLE GUIDE DOCUMENTATION STYLES
-           ============================================================ */
+        /* Entity Icon */
+        .entity-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+
+        /* ============================================
+           NOTICE/ALERT BANNERS
+           ============================================ */
+
+        .notice {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .notice--info {
+            background-color: rgba(33, 150, 243, 0.1);
+            border-left: 3px solid var(--primary-500);
+        }
+
+        .notice--warning {
+            background-color: rgba(255, 152, 0, 0.1);
+            border-left: 3px solid var(--accent-500);
+        }
+
+        .notice--error {
+            background-color: rgba(244, 67, 54, 0.1);
+            border-left: 3px solid var(--warn-500);
+        }
+
+        .notice--success {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left: 3px solid var(--status-success);
+        }
+
+        .notice__icon {
+            color: inherit;
+        }
+
+        .notice--info .notice__icon { color: var(--primary-500); }
+        .notice--warning .notice__icon { color: var(--accent-500); }
+        .notice--error .notice__icon { color: var(--warn-500); }
+        .notice--success .notice__icon { color: var(--status-success); }
+
+        .notice__text {
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        /* ============================================
+           LAYOUT - APP SHELL
+           ============================================ */
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Toolbar */
+        .mat-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-md);
+            height: 64px;
+            background-color: var(--surface-card);
+            box-shadow: var(--elevation-4);
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+
+        .mat-toolbar__title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-left: var(--spacing-md);
+        }
+
+        .mat-toolbar__spacer {
+            flex: 1;
+        }
+
+        /* Layout Container */
+        .layout-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidenav */
+        .mat-sidenav {
+            width: 256px;
+            background-color: var(--surface-card);
+            border-right: 1px solid var(--surface-divider);
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--spacing-xl);
+        }
+
+        .main-content--centered {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ============================================
+           SIDENAV NAVIGATION
+           ============================================ */
+
+        .mat-nav-list {
+            list-style: none;
+            padding: var(--spacing-sm) 0;
+        }
+
+        .mat-list-item {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-md) var(--spacing-lg);
+            color: var(--text-primary);
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color var(--transition-fast);
+        }
+
+        .mat-list-item:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .mat-list-item--active {
+            background-color: var(--surface-selected);
+            color: var(--primary-500);
+        }
+
+        .mat-list-item__icon {
+            margin-right: var(--spacing-md);
+            color: var(--text-secondary);
+        }
+
+        .mat-list-item--active .mat-list-item__icon {
+            color: var(--primary-500);
+        }
+
+        .nav-divider {
+            margin: var(--spacing-md) 0;
+            height: 1px;
+            background-color: var(--surface-divider);
+        }
+
+        /* ============================================
+           PAGE HEADER PATTERNS
+           ============================================ */
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .page-header__info {
+            flex: 1;
+        }
+
+        .page-header--detail {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .page-title-section {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+        }
+
+        .page-title-content h1 {
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: var(--spacing-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .status-badges {
+            display: flex;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* ============================================
+           BREADCRUMB
+           ============================================ */
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: var(--primary-500);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb__separator {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* ============================================
+           STATS CARDS
+           ============================================ */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .stat-card {
+            background-color: var(--surface-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            box-shadow: var(--elevation-1);
+        }
+
+        .stat-card__value {
+            font-size: 32px;
+            font-weight: 300;
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-card__label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .stat-card__value--primary { color: var(--primary-500); }
+        .stat-card__value--success { color: var(--status-success); }
+        .stat-card__value--warning { color: var(--status-warning); }
+        .stat-card__value--error { color: var(--status-error); }
+
+        /* ============================================
+           FILTER BAR
+           ============================================ */
+
+        .filter-bar {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            padding: var(--spacing-md);
+            background-color: var(--surface-card);
+            border-radius: var(--radius-md);
+        }
+
+        .search-field {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--spacing-md) var(--spacing-md) var(--spacing-md) 48px;
+            background-color: var(--surface-elevated);
+            border: 1px solid var(--surface-divider);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--spacing-md);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .select-field {
+            min-width: 150px;
+        }
+
+        .select-input {
+            width: 100%;
+            padding: var(--spacing-md);
+            background-color: var(--surface-elevated);
+            border: 1px solid var(--surface-divider);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='rgba(255,255,255,0.6)'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 40px;
+        }
+
+        .select-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+        }
+
+        /* ============================================
+           DATA TABLE
+           ============================================ */
+
+        .mat-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--surface-card);
+        }
+
+        .mat-table th,
+        .mat-table td {
+            padding: var(--spacing-md);
+            text-align: left;
+            border-bottom: 1px solid var(--surface-divider);
+        }
+
+        .mat-table th {
+            font-weight: 500;
+            color: var(--text-secondary);
+            background-color: var(--surface-elevated);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mat-table tbody tr {
+            transition: background-color var(--transition-fast);
+        }
+
+        .mat-table tbody tr:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .mat-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .user-info__name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .user-info__email {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .role-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-xs);
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        /* ============================================
+           PAGINATION
+           ============================================ */
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--surface-divider);
+        }
+
+        .pagination__info {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .pagination__controls {
+            display: flex;
+            gap: var(--spacing-sm);
+        }
+
+        /* ============================================
+           FORM PATTERNS
+           ============================================ */
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-field--full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: var(--spacing-md);
+            background-color: var(--surface-elevated);
+            border: 1px solid var(--surface-divider);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            transition: border-color var(--transition-fast);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+        }
+
+        .form-input:disabled {
+            color: var(--text-disabled);
+            cursor: not-allowed;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-hint);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: var(--spacing-xs);
+        }
+
+        .form-input--error {
+            border-color: var(--warn-500);
+        }
+
+        .form-error {
+            font-size: 12px;
+            color: var(--warn-500);
+            margin-top: var(--spacing-xs);
+        }
+
+        /* ============================================
+           TOGGLE SWITCH
+           ============================================ */
+
+        .toggle-field {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            background-color: var(--surface-elevated);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .toggle-label {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toggle-label__title {
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .toggle-label__description {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color var(--transition-fast);
+            flex-shrink: 0;
+        }
+
+        .toggle-switch--checked {
+            background-color: rgba(33, 150, 243, 0.5);
+        }
+
+        .toggle-switch__thumb {
+            width: 20px;
+            height: 20px;
+            background-color: #fafafa;
+            border-radius: var(--radius-full);
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            box-shadow: var(--elevation-1);
+            transition: all var(--transition-fast);
+        }
+
+        .toggle-switch--checked .toggle-switch__thumb {
+            background-color: var(--primary-500);
+            left: 22px;
+        }
+
+        /* ============================================
+           INFO GRID
+           ============================================ */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--spacing-lg);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-item__label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .info-item__value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .info-item__value--success { color: var(--status-success); }
+        .info-item__value--warning { color: var(--status-warning); }
+        .info-item__value--error { color: var(--status-error); }
+
+        /* ============================================
+           PERMISSION GROUPS
+           ============================================ */
+
+        .permission-groups {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+        }
+
+        .permission-group {
+            background-color: var(--surface-elevated);
+            border-radius: var(--radius-sm);
+            padding: var(--spacing-md);
+        }
+
+        .permission-group__header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .permission-group__icon {
+            color: var(--primary-500);
+        }
+
+        .permission-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: var(--spacing-md);
+            padding-left: var(--spacing-xl);
+        }
+
+        .checkbox-field {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            cursor: pointer;
+        }
+
+        .checkbox-field input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary-500);
+        }
+
+        .checkbox-field label {
+            cursor: pointer;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        /* ============================================
+           ROLE ASSIGNMENT
+           ============================================ */
+
+        .role-assignment {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .role-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--spacing-md);
+            background-color: var(--surface-elevated);
+            border-radius: var(--radius-sm);
+            transition: background-color var(--transition-fast);
+        }
+
+        .role-item:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .role-item__info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .role-item__details {
+            flex: 1;
+        }
+
+        .role-item__name {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .role-item__description {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--text-secondary);
+            border-radius: 2px;
+            background-color: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all var(--transition-fast);
+        }
+
+        .checkbox--checked {
+            background-color: var(--primary-500);
+            border-color: var(--primary-500);
+        }
+
+        .checkbox--checked::after {
+            content: '\2713';
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* ============================================
+           ACTIVITY LIST
+           ============================================ */
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .activity-item {
+            display: flex;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background-color: var(--surface-elevated);
+            border-radius: var(--radius-sm);
+        }
+
+        .activity-item__icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            background-color: rgba(33, 150, 243, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-500);
+            flex-shrink: 0;
+        }
+
+        .activity-item__content {
+            flex: 1;
+        }
+
+        .activity-item__title {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .activity-item__description {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .activity-item__time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        /* ============================================
+           USER LIST
+           ============================================ */
+
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background-color: var(--surface-elevated);
+            border-radius: var(--radius-sm);
+            transition: background-color var(--transition-fast);
+        }
+
+        .user-item:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        /* ============================================
+           DIALOG
+           ============================================ */
+
+        .dialog {
+            background-color: var(--surface-dialog);
+            border-radius: var(--radius-md);
+            box-shadow: var(--elevation-24);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .dialog__header {
+            padding: var(--spacing-lg);
+            border-bottom: 1px solid var(--surface-divider);
+        }
+
+        .dialog__header h3 {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .dialog__content {
+            padding: var(--spacing-lg);
+        }
+
+        .dialog__actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-top: 1px solid var(--surface-divider);
+        }
+
+        /* ============================================
+           STYLE GUIDE DOCUMENTATION
+           ============================================ */
 
         .style-guide {
             max-width: 1200px;
             margin: 0 auto;
-            padding: var(--space-6);
+            padding: var(--spacing-xl);
         }
 
         .style-guide__header {
             text-align: center;
-            padding: var(--space-12) 0;
-            border-bottom: 1px solid var(--mat-divider);
-            margin-bottom: var(--space-12);
+            padding: var(--spacing-xxl) 0;
+            margin-bottom: var(--spacing-xxl);
+            border-bottom: 1px solid var(--surface-divider);
         }
 
         .style-guide__title {
-            font-size: var(--font-size-4xl);
-            font-weight: var(--font-weight-light);
-            color: var(--mat-primary);
-            margin-bottom: var(--space-4);
+            font-size: 48px;
+            font-weight: 300;
+            color: var(--primary-500);
+            margin-bottom: var(--spacing-md);
         }
 
         .style-guide__subtitle {
-            font-size: var(--font-size-md);
-            color: var(--mat-on-surface-medium);
+            font-size: 16px;
+            color: var(--text-secondary);
         }
 
         .style-guide__section {
-            margin-bottom: var(--space-16);
+            margin-bottom: var(--spacing-xxl);
         }
 
         .style-guide__section-title {
-            font-size: var(--font-size-2xl);
-            font-weight: var(--font-weight-medium);
-            margin-bottom: var(--space-6);
-            padding-bottom: var(--space-3);
-            border-bottom: 2px solid var(--mat-primary);
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 2px solid var(--primary-500);
             display: inline-block;
         }
 
         .style-guide__section-desc {
-            color: var(--mat-on-surface-medium);
-            margin-bottom: var(--space-6);
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-lg);
             max-width: 800px;
         }
 
         .style-guide__subsection {
-            margin-bottom: var(--space-8);
+            margin-bottom: var(--spacing-xl);
         }
 
         .style-guide__subsection-title {
-            font-size: var(--font-size-lg);
-            font-weight: var(--font-weight-medium);
-            margin-bottom: var(--space-4);
-            color: var(--mat-on-surface);
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
         }
 
-        /* ============================================================
-           COLOR SWATCHES
-           ============================================================ */
-
+        /* Color Grid */
         .color-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: var(--space-4);
+            gap: var(--spacing-md);
         }
 
         .color-swatch {
-            background: var(--mat-surface);
+            background: var(--surface-card);
             border-radius: var(--radius-md);
             overflow: hidden;
-            border: 1px solid var(--mat-divider);
+            border: 1px solid var(--surface-divider);
         }
 
         .color-swatch__preview {
             height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .color-swatch__info {
-            padding: var(--space-3);
-            background: var(--mat-surface-elevated);
+            padding: var(--spacing-md);
+            background: var(--surface-elevated);
         }
 
         .color-swatch__name {
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-medium);
-            margin-bottom: var(--space-1);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: var(--spacing-xs);
         }
 
         .color-swatch__value {
-            font-size: var(--font-size-xs);
-            font-family: var(--font-family-mono);
-            color: var(--mat-on-surface-medium);
+            font-size: 12px;
+            font-family: 'Roboto Mono', monospace;
+            color: var(--text-secondary);
         }
 
-        /* ============================================================
-           SPACING DEMO
-           ============================================================ */
-
+        /* Spacing Demo */
         .spacing-demo {
             display: flex;
             flex-direction: column;
-            gap: var(--space-4);
+            gap: var(--spacing-md);
         }
 
         .spacing-item {
             display: flex;
             align-items: center;
-            gap: var(--space-4);
+            gap: var(--spacing-md);
         }
 
         .spacing-item__label {
-            width: 100px;
-            font-family: var(--font-family-mono);
-            font-size: var(--font-size-sm);
-            color: var(--mat-on-surface-medium);
+            width: 120px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
         }
 
         .spacing-item__bar {
             height: 24px;
-            background: var(--mat-primary);
+            background: var(--primary-500);
             border-radius: var(--radius-sm);
-            opacity: 0.8;
         }
 
         .spacing-item__value {
-            font-size: var(--font-size-sm);
-            color: var(--mat-on-surface-medium);
+            font-size: 14px;
+            color: var(--text-secondary);
             min-width: 50px;
         }
 
-        /* ============================================================
-           TYPOGRAPHY DEMO
-           ============================================================ */
-
+        /* Typography Demo */
         .typography-demo {
             display: flex;
             flex-direction: column;
-            gap: var(--space-6);
+            gap: var(--spacing-lg);
         }
 
         .typography-item {
-            padding: var(--space-4);
-            background: var(--mat-surface);
+            padding: var(--spacing-md);
+            background: var(--surface-card);
             border-radius: var(--radius-md);
-            border: 1px solid var(--mat-divider);
+            border: 1px solid var(--surface-divider);
         }
 
         .typography-item__label {
-            font-size: var(--font-size-xs);
-            font-family: var(--font-family-mono);
-            color: var(--mat-on-surface-medium);
-            margin-bottom: var(--space-2);
+            font-size: 12px;
+            font-family: 'Roboto Mono', monospace;
+            color: var(--text-secondary);
+            margin-bottom: var(--spacing-sm);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* ============================================================
-           BREAKPOINT DEMO
-           ============================================================ */
-
-        .breakpoint-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--mat-surface);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            border: 1px solid var(--mat-divider);
-        }
-
-        .breakpoint-table th,
-        .breakpoint-table td {
-            padding: var(--space-3) var(--space-4);
-            text-align: left;
-            border-bottom: 1px solid var(--mat-divider);
-        }
-
-        .breakpoint-table th {
-            background: var(--mat-surface-elevated);
-            font-weight: var(--font-weight-medium);
-            font-size: var(--font-size-sm);
-            color: var(--mat-on-surface-medium);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .breakpoint-table td {
-            font-size: var(--font-size-base);
-        }
-
-        .breakpoint-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .breakpoint-table .mono {
-            font-family: var(--font-family-mono);
-            color: var(--mat-primary);
-        }
-
-        /* ============================================================
-           BUTTON DEMO
-           ============================================================ */
-
-        .button-demo {
+        /* Component Demo */
+        .component-demo {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--space-4);
+            gap: var(--spacing-md);
             align-items: center;
-        }
-
-        .mat-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--space-2);
-            padding: 0 var(--space-4);
-            height: var(--button-height-md);
-            border-radius: var(--radius-sm);
-            font-size: var(--font-size-base);
-            font-weight: var(--font-weight-medium);
-            font-family: var(--font-family-base);
-            cursor: pointer;
-            transition: all var(--transition-base);
-            border: none;
-            text-decoration: none;
-        }
-
-        .mat-btn--primary {
-            background: var(--mat-primary);
-            color: var(--mat-on-primary);
-        }
-
-        .mat-btn--primary:hover {
-            background: var(--mat-primary-lighter);
-        }
-
-        .mat-btn--accent {
-            background: var(--mat-accent);
-            color: var(--mat-on-accent);
-        }
-
-        .mat-btn--accent:hover {
-            background: var(--mat-accent-lighter);
-        }
-
-        .mat-btn--outlined {
-            background: transparent;
-            color: var(--mat-primary);
-            border: 1px solid var(--mat-primary);
-        }
-
-        .mat-btn--outlined:hover {
-            background: var(--mat-focus);
-        }
-
-        .mat-btn--text {
-            background: transparent;
-            color: var(--mat-primary);
-        }
-
-        .mat-btn--text:hover {
-            background: var(--mat-hover);
-        }
-
-        .mat-btn--icon {
-            width: var(--button-height-md);
-            padding: 0;
-            border-radius: var(--radius-full);
-            background: transparent;
-            color: var(--mat-on-surface-medium);
-        }
-
-        .mat-btn--icon:hover {
-            background: var(--mat-hover);
-            color: var(--mat-on-surface);
-        }
-
-        /* ============================================================
-           COMPONENT SIZE DEMO
-           ============================================================ */
-
-        .size-demo {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-4);
-        }
-
-        .size-item {
-            display: flex;
-            align-items: center;
-            gap: var(--space-4);
-            padding: var(--space-3);
-            background: var(--mat-surface);
+            padding: var(--spacing-lg);
+            background: var(--surface-card);
             border-radius: var(--radius-md);
-            border: 1px solid var(--mat-divider);
+            border: 1px solid var(--surface-divider);
         }
 
-        .size-item__visual {
-            background: var(--mat-primary);
-            opacity: 0.6;
-            border-radius: var(--radius-sm);
-        }
-
-        .size-item__label {
-            font-size: var(--font-size-sm);
-            font-family: var(--font-family-mono);
-        }
-
-        .size-item__value {
-            color: var(--mat-on-surface-medium);
-            font-size: var(--font-size-sm);
-        }
-
-        /* ============================================================
-           RESPONSIVE BEHAVIOR INDICATOR
-           ============================================================ */
-
-        .responsive-indicator {
-            position: fixed;
-            bottom: var(--space-4);
-            right: var(--space-4);
-            background: var(--mat-accent);
-            color: var(--mat-on-accent);
-            padding: var(--space-2) var(--space-4);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-medium);
-            z-index: var(--z-toast);
-        }
-
-        .responsive-indicator::before {
-            content: 'XS';
-        }
-
-        @media (min-width: 576px) {
-            .responsive-indicator::before {
-                content: 'SM (576px+)';
-            }
-        }
-
-        @media (min-width: 768px) {
-            .responsive-indicator::before {
-                content: 'MD (768px+)';
-            }
-        }
-
-        @media (min-width: 992px) {
-            .responsive-indicator::before {
-                content: 'LG (992px+)';
-            }
-        }
-
-        @media (min-width: 1200px) {
-            .responsive-indicator::before {
-                content: 'XL (1200px+)';
-            }
-        }
-
-        @media (min-width: 1400px) {
-            .responsive-indicator::before {
-                content: 'XXL (1400px+)';
-            }
-        }
-
-        /* ============================================================
-           SHADOW DEMO
-           ============================================================ */
-
-        .shadow-demo {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: var(--space-6);
-        }
-
-        .shadow-item {
-            height: 100px;
-            background: var(--mat-surface-elevated);
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: var(--font-size-sm);
-            color: var(--mat-on-surface-medium);
-        }
-
-        /* ============================================================
-           RADIUS DEMO
-           ============================================================ */
-
+        /* Radius Demo */
         .radius-demo {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--space-4);
+            gap: var(--spacing-lg);
             align-items: flex-end;
         }
 
@@ -629,78 +1470,67 @@
         .radius-item__preview {
             width: 64px;
             height: 64px;
-            background: var(--mat-primary);
-            opacity: 0.8;
-            margin-bottom: var(--space-2);
+            background: var(--primary-500);
+            margin-bottom: var(--spacing-sm);
         }
 
         .radius-item__label {
-            font-size: var(--font-size-xs);
-            font-family: var(--font-family-mono);
-            color: var(--mat-on-surface-medium);
+            font-size: 12px;
+            font-family: 'Roboto Mono', monospace;
+            color: var(--text-secondary);
         }
 
-        /* ============================================================
-           ICON DEMO
-           ============================================================ */
-
-        .icon-demo {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--space-4);
+        /* Shadow Demo */
+        .shadow-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: var(--spacing-xl);
         }
 
-        .icon-item {
+        .shadow-item {
+            height: 100px;
+            background: var(--surface-elevated);
+            border-radius: var(--radius-md);
             display: flex;
-            flex-direction: column;
             align-items: center;
-            padding: var(--space-4);
-            background: var(--mat-surface);
+            justify-content: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Table for reference */
+        .reference-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface-card);
             border-radius: var(--radius-md);
-            border: 1px solid var(--mat-divider);
-            min-width: 100px;
+            overflow: hidden;
+            border: 1px solid var(--surface-divider);
         }
 
-        .icon-item .material-icons {
-            margin-bottom: var(--space-2);
-            color: var(--mat-on-surface);
+        .reference-table th,
+        .reference-table td {
+            padding: var(--spacing-md);
+            text-align: left;
+            border-bottom: 1px solid var(--surface-divider);
         }
 
-        .icon-item__label {
-            font-size: var(--font-size-xs);
-            color: var(--mat-on-surface-medium);
-            text-align: center;
+        .reference-table th {
+            background: var(--surface-elevated);
+            font-weight: 500;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* ============================================================
-           CODE BLOCK
-           ============================================================ */
-
-        .code-block {
-            background: var(--mat-background-alt);
-            border: 1px solid var(--mat-divider);
-            border-radius: var(--radius-md);
-            padding: var(--space-4);
-            overflow-x: auto;
-            font-family: var(--font-family-mono);
-            font-size: var(--font-size-sm);
-            line-height: var(--line-height-relaxed);
+        .reference-table tr:last-child td {
+            border-bottom: none;
         }
 
-        .code-block code {
-            color: var(--mat-on-surface);
-        }
-
-        .code-block .comment {
-            color: var(--mat-on-surface-disabled);
-        }
-
-        .code-block .property {
-            color: var(--mat-primary);
-        }
-
-        .code-block .value {
-            color: var(--mat-accent);
+        .reference-table .mono {
+            font-family: 'Roboto Mono', monospace;
+            color: var(--primary-500);
         }
     </style>
 </head>
@@ -708,94 +1538,168 @@
     <div class="style-guide">
         <!-- Header -->
         <header class="style-guide__header">
-            <h1 class="style-guide__title">Endpoint Engineering</h1>
-            <p class="style-guide__subtitle">Style Guide v2 - VS Code Inspired Angular Material Dark Theme</p>
+            <h1 class="style-guide__title">Admin UI Style Guide</h1>
+            <p class="style-guide__subtitle">Material Design 3 Dark Theme - Comprehensive Design System</p>
         </header>
+
+        <!-- Design Foundation -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Design Foundation</h2>
+            <p class="style-guide__section-desc">
+                This style guide implements a Material Design 3 dark theme optimized for admin interfaces.
+                All components follow the 8px grid system with consistent spacing, typography, and color usage.
+            </p>
+
+            <table class="reference-table">
+                <thead>
+                    <tr>
+                        <th>Principle</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Dark Theme First</strong></td>
+                        <td>Optimized for extended use; reduces eye strain</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Material Design 3</strong></td>
+                        <td>Google's latest design language</td>
+                    </tr>
+                    <tr>
+                        <td><strong>8px Grid System</strong></td>
+                        <td>All spacing based on multiples of 8px</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Elevation via Shadow</strong></td>
+                        <td>Depth communicated through box-shadow</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Color for Meaning</strong></td>
+                        <td>Status colors convey information at a glance</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
         <!-- Color Palette -->
         <section class="style-guide__section">
             <h2 class="style-guide__section-title">Color Palette</h2>
             <p class="style-guide__section-desc">
-                Standard Angular Material Dark Theme using Indigo as primary and Pink as accent.
-                All colors are optimized for WCAG AA accessibility on dark backgrounds.
+                Blue primary (#2196f3) for main actions, Orange accent (#ff9800) for secondary actions and FABs,
+                Red warn (#f44336) for destructive actions. All colors optimized for dark backgrounds.
             </p>
 
             <div class="style-guide__subsection">
-                <h3 class="style-guide__subsection-title">Primary Colors (Indigo)</h3>
+                <h3 class="style-guide__subsection-title">Primary Colors (Blue)</h3>
                 <div class="color-grid">
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-primary);"></div>
+                        <div class="color-swatch__preview" style="background: var(--primary-500);"></div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">Primary</div>
-                            <div class="color-swatch__value">#9fa8da</div>
+                            <div class="color-swatch__name">Primary 500</div>
+                            <div class="color-swatch__value">#2196f3</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-primary-lighter);"></div>
+                        <div class="color-swatch__preview" style="background: var(--primary-600);"></div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">Primary Lighter</div>
-                            <div class="color-swatch__value">#c5cae9</div>
+                            <div class="color-swatch__name">Primary 600 (Hover)</div>
+                            <div class="color-swatch__value">#1e88e5</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-primary-darker);"></div>
+                        <div class="color-swatch__preview" style="background: var(--primary-700);"></div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">Primary Darker</div>
-                            <div class="color-swatch__value">#7986cb</div>
+                            <div class="color-swatch__name">Primary 700 (Active)</div>
+                            <div class="color-swatch__value">#1976d2</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="style-guide__subsection">
-                <h3 class="style-guide__subsection-title">Accent Colors (Pink)</h3>
+                <h3 class="style-guide__subsection-title">Accent Colors (Orange)</h3>
                 <div class="color-grid">
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-accent);"></div>
+                        <div class="color-swatch__preview" style="background: var(--accent-500);"></div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">Accent</div>
-                            <div class="color-swatch__value">#f48fb1</div>
+                            <div class="color-swatch__name">Accent 500</div>
+                            <div class="color-swatch__value">#ff9800</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-accent-lighter);"></div>
+                        <div class="color-swatch__preview" style="background: var(--accent-600);"></div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">Accent Lighter</div>
-                            <div class="color-swatch__value">#f8bbd0</div>
+                            <div class="color-swatch__name">Accent 600</div>
+                            <div class="color-swatch__value">#fb8c00</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-accent-darker);"></div>
+                        <div class="color-swatch__preview" style="background: var(--accent-700);"></div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">Accent Darker</div>
-                            <div class="color-swatch__value">#f06292</div>
+                            <div class="color-swatch__name">Accent 700</div>
+                            <div class="color-swatch__value">#f57c00</div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="style-guide__subsection">
-                <h3 class="style-guide__subsection-title">Semantic Colors</h3>
+                <h3 class="style-guide__subsection-title">Warn/Error Colors (Red)</h3>
                 <div class="color-grid">
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-success);"></div>
+                        <div class="color-swatch__preview" style="background: var(--warn-500);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Warn 500</div>
+                            <div class="color-swatch__value">#f44336</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--warn-600);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Warn 600</div>
+                            <div class="color-swatch__value">#e53935</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--warn-700);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Warn 700</div>
+                            <div class="color-swatch__value">#d32f2f</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Status Colors</h3>
+                <div class="color-grid">
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--status-success);"></div>
                         <div class="color-swatch__info">
                             <div class="color-swatch__name">Success</div>
-                            <div class="color-swatch__value">#81c784</div>
+                            <div class="color-swatch__value">#4caf50</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-warn);"></div>
+                        <div class="color-swatch__preview" style="background: var(--status-warning);"></div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">Warn / Error</div>
-                            <div class="color-swatch__value">#ef5350</div>
+                            <div class="color-swatch__name">Warning</div>
+                            <div class="color-swatch__value">#ff9800</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-info);"></div>
+                        <div class="color-swatch__preview" style="background: var(--status-error);"></div>
+                        <div class="color-swatch__info">
+                            <div class="color-swatch__name">Error</div>
+                            <div class="color-swatch__value">#f44336</div>
+                        </div>
+                    </div>
+                    <div class="color-swatch">
+                        <div class="color-swatch__preview" style="background: var(--status-info);"></div>
                         <div class="color-swatch__info">
                             <div class="color-swatch__name">Info</div>
-                            <div class="color-swatch__value">#64b5f6</div>
+                            <div class="color-swatch__value">#2196f3</div>
                         </div>
                     </div>
                 </div>
@@ -805,31 +1709,31 @@
                 <h3 class="style-guide__subsection-title">Surface Colors</h3>
                 <div class="color-grid">
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-background);"></div>
+                        <div class="color-swatch__preview" style="background: var(--surface-background);"></div>
                         <div class="color-swatch__info">
                             <div class="color-swatch__name">Background</div>
-                            <div class="color-swatch__value">#0d1117</div>
+                            <div class="color-swatch__value">#121212</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-surface);"></div>
+                        <div class="color-swatch__preview" style="background: var(--surface-card);"></div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">Surface</div>
-                            <div class="color-swatch__value">#161b22</div>
+                            <div class="color-swatch__name">Card</div>
+                            <div class="color-swatch__value">#1e1e1e</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-surface-elevated);"></div>
+                        <div class="color-swatch__preview" style="background: var(--surface-elevated);"></div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">Surface Elevated</div>
-                            <div class="color-swatch__value">#21262d</div>
+                            <div class="color-swatch__name">Elevated</div>
+                            <div class="color-swatch__value">#2d2d2d</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-surface-high);"></div>
+                        <div class="color-swatch__preview" style="background: var(--surface-dialog);"></div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">Surface High</div>
-                            <div class="color-swatch__value">#30363d</div>
+                            <div class="color-swatch__name">Dialog</div>
+                            <div class="color-swatch__value">#2d2d2d</div>
                         </div>
                     </div>
                 </div>
@@ -839,30 +1743,30 @@
                 <h3 class="style-guide__subsection-title">Text Colors</h3>
                 <div class="color-grid">
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-surface); display: flex; align-items: center; justify-content: center;">
-                            <span style="color: var(--mat-on-surface); font-size: 14px;">Text</span>
+                        <div class="color-swatch__preview" style="background: var(--surface-card); display: flex; align-items: center; justify-content: center;">
+                            <span style="color: var(--text-primary);">Primary Text</span>
                         </div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">On Surface</div>
-                            <div class="color-swatch__value">#e6edf3</div>
+                            <div class="color-swatch__name">Primary</div>
+                            <div class="color-swatch__value">rgba(255,255,255,0.87)</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-surface); display: flex; align-items: center; justify-content: center;">
-                            <span style="color: var(--mat-on-surface-medium); font-size: 14px;">Medium</span>
+                        <div class="color-swatch__preview" style="background: var(--surface-card); display: flex; align-items: center; justify-content: center;">
+                            <span style="color: var(--text-secondary);">Secondary Text</span>
                         </div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">On Surface Medium</div>
-                            <div class="color-swatch__value">rgba(230,237,243,0.7)</div>
+                            <div class="color-swatch__name">Secondary</div>
+                            <div class="color-swatch__value">rgba(255,255,255,0.60)</div>
                         </div>
                     </div>
                     <div class="color-swatch">
-                        <div class="color-swatch__preview" style="background: var(--mat-surface); display: flex; align-items: center; justify-content: center;">
-                            <span style="color: var(--mat-on-surface-disabled); font-size: 14px;">Disabled</span>
+                        <div class="color-swatch__preview" style="background: var(--surface-card); display: flex; align-items: center; justify-content: center;">
+                            <span style="color: var(--text-disabled);">Disabled Text</span>
                         </div>
                         <div class="color-swatch__info">
-                            <div class="color-swatch__name">On Surface Disabled</div>
-                            <div class="color-swatch__value">rgba(230,237,243,0.38)</div>
+                            <div class="color-swatch__name">Disabled</div>
+                            <div class="color-swatch__value">rgba(255,255,255,0.38)</div>
                         </div>
                     </div>
                 </div>
@@ -873,253 +1777,95 @@
         <section class="style-guide__section">
             <h2 class="style-guide__section-title">Spacing Scale</h2>
             <p class="style-guide__section-desc">
-                8px base unit system for consistent spacing throughout the application.
-                Use spacing tokens instead of arbitrary pixel values.
+                8px base unit system for consistent spacing. Use spacing tokens instead of arbitrary pixel values.
             </p>
 
             <div class="spacing-demo">
                 <div class="spacing-item">
-                    <span class="spacing-item__label">--space-1</span>
+                    <span class="spacing-item__label">--spacing-xs</span>
                     <div class="spacing-item__bar" style="width: 4px;"></div>
-                    <span class="spacing-item__value">4px</span>
+                    <span class="spacing-item__value">4px (0.5x)</span>
                 </div>
                 <div class="spacing-item">
-                    <span class="spacing-item__label">--space-2</span>
+                    <span class="spacing-item__label">--spacing-sm</span>
                     <div class="spacing-item__bar" style="width: 8px;"></div>
-                    <span class="spacing-item__value">8px</span>
+                    <span class="spacing-item__value">8px (1x)</span>
                 </div>
                 <div class="spacing-item">
-                    <span class="spacing-item__label">--space-3</span>
-                    <div class="spacing-item__bar" style="width: 12px;"></div>
-                    <span class="spacing-item__value">12px</span>
-                </div>
-                <div class="spacing-item">
-                    <span class="spacing-item__label">--space-4</span>
+                    <span class="spacing-item__label">--spacing-md</span>
                     <div class="spacing-item__bar" style="width: 16px;"></div>
-                    <span class="spacing-item__value">16px</span>
+                    <span class="spacing-item__value">16px (2x)</span>
                 </div>
                 <div class="spacing-item">
-                    <span class="spacing-item__label">--space-6</span>
+                    <span class="spacing-item__label">--spacing-lg</span>
                     <div class="spacing-item__bar" style="width: 24px;"></div>
-                    <span class="spacing-item__value">24px</span>
+                    <span class="spacing-item__value">24px (3x)</span>
                 </div>
                 <div class="spacing-item">
-                    <span class="spacing-item__label">--space-8</span>
+                    <span class="spacing-item__label">--spacing-xl</span>
                     <div class="spacing-item__bar" style="width: 32px;"></div>
-                    <span class="spacing-item__value">32px</span>
+                    <span class="spacing-item__value">32px (4x)</span>
                 </div>
                 <div class="spacing-item">
-                    <span class="spacing-item__label">--space-12</span>
+                    <span class="spacing-item__label">--spacing-xxl</span>
                     <div class="spacing-item__bar" style="width: 48px;"></div>
-                    <span class="spacing-item__value">48px</span>
-                </div>
-                <div class="spacing-item">
-                    <span class="spacing-item__label">--space-16</span>
-                    <div class="spacing-item__bar" style="width: 64px;"></div>
-                    <span class="spacing-item__value">64px</span>
+                    <span class="spacing-item__value">48px (6x)</span>
                 </div>
             </div>
         </section>
 
         <!-- Typography -->
         <section class="style-guide__section">
-            <h2 class="style-guide__section-title">Typography</h2>
+            <h2 class="style-guide__section-title">Typography System</h2>
             <p class="style-guide__section-desc">
-                Roboto font family for UI text, Roboto Mono for code.
-                Type scale follows Material Design guidelines.
+                Roboto font family for UI text, Roboto Mono for code and data. Type scale follows Material Design guidelines.
             </p>
 
             <div class="typography-demo">
                 <div class="typography-item">
-                    <div class="typography-item__label">Headline Large (32px)</div>
-                    <div style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-light);">The quick brown fox</div>
+                    <div class="typography-item__label">Page Title (28px, 400)</div>
+                    <div class="page-title">User Management Dashboard</div>
                 </div>
                 <div class="typography-item">
-                    <div class="typography-item__label">Headline Medium (24px)</div>
-                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-regular);">The quick brown fox</div>
+                    <div class="typography-item__label">Headline 5 (24px, 400)</div>
+                    <div class="headline-5">Section Headline</div>
                 </div>
                 <div class="typography-item">
-                    <div class="typography-item__label">Headline Small (20px)</div>
-                    <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-medium);">The quick brown fox</div>
+                    <div class="typography-item__label">Headline 6 (20px, 500)</div>
+                    <div class="headline-6">Card Title</div>
                 </div>
                 <div class="typography-item">
-                    <div class="typography-item__label">Title Large (18px)</div>
-                    <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-medium);">The quick brown fox jumps over the lazy dog</div>
+                    <div class="typography-item__label">Subtitle 1 (16px, 400)</div>
+                    <div class="subtitle-1">Subtitle text for descriptions</div>
                 </div>
                 <div class="typography-item">
-                    <div class="typography-item__label">Title Medium (16px)</div>
-                    <div style="font-size: var(--font-size-md); font-weight: var(--font-weight-medium);">The quick brown fox jumps over the lazy dog</div>
+                    <div class="typography-item__label">Subtitle 2 (14px, 500)</div>
+                    <div class="subtitle-2">Strong subtitle text</div>
                 </div>
                 <div class="typography-item">
-                    <div class="typography-item__label">Body Large (16px)</div>
-                    <div style="font-size: var(--font-size-md); font-weight: var(--font-weight-regular);">The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.</div>
+                    <div class="typography-item__label">Body 1 (16px, 400)</div>
+                    <div class="body-1">Body text for paragraphs and longer content blocks. The quick brown fox jumps over the lazy dog.</div>
                 </div>
                 <div class="typography-item">
-                    <div class="typography-item__label">Body Medium (14px) - Default</div>
-                    <div style="font-size: var(--font-size-base); font-weight: var(--font-weight-regular);">The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.</div>
+                    <div class="typography-item__label">Body 2 (14px, 400) - Default</div>
+                    <div class="body-2">Default body text for most UI elements. The quick brown fox jumps over the lazy dog.</div>
                 </div>
                 <div class="typography-item">
-                    <div class="typography-item__label">Body Small (12px)</div>
-                    <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-regular);">The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.</div>
+                    <div class="typography-item__label">Caption (12px, 400)</div>
+                    <div class="caption">Caption text for hints and secondary information</div>
                 </div>
                 <div class="typography-item">
-                    <div class="typography-item__label">Label / Caption (10px)</div>
-                    <div style="font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); text-transform: uppercase; letter-spacing: 0.5px;">Label text uppercase</div>
+                    <div class="typography-item__label">Overline (12px, 500, Uppercase)</div>
+                    <div class="overline">Field Label</div>
                 </div>
                 <div class="typography-item">
-                    <div class="typography-item__label">Monospace (14px)</div>
-                    <div style="font-family: var(--font-family-mono); font-size: var(--font-size-base);">const code = "example";</div>
+                    <div class="typography-item__label">Button Text (14px, 500, Uppercase)</div>
+                    <div class="button-text">Button Label</div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Responsive Breakpoints -->
-        <section class="style-guide__section">
-            <h2 class="style-guide__section-title">Responsive Breakpoints</h2>
-            <p class="style-guide__section-desc">
-                Mobile-first approach using Bootstrap-inspired breakpoints.
-                Start with mobile styles, then add responsive overrides.
-            </p>
-
-            <table class="breakpoint-table">
-                <thead>
-                    <tr>
-                        <th>Breakpoint</th>
-                        <th>Min Width</th>
-                        <th>CSS Variable</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>XS</strong></td>
-                        <td class="mono">0</td>
-                        <td class="mono">--breakpoint-xs</td>
-                        <td>Mobile phones (portrait)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>SM</strong></td>
-                        <td class="mono">576px</td>
-                        <td class="mono">--breakpoint-sm</td>
-                        <td>Mobile phones (landscape)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>MD</strong></td>
-                        <td class="mono">768px</td>
-                        <td class="mono">--breakpoint-md</td>
-                        <td>Tablets (portrait)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>LG</strong></td>
-                        <td class="mono">992px</td>
-                        <td class="mono">--breakpoint-lg</td>
-                        <td>Tablets (landscape) / Small laptops</td>
-                    </tr>
-                    <tr>
-                        <td><strong>XL</strong></td>
-                        <td class="mono">1200px</td>
-                        <td class="mono">--breakpoint-xl</td>
-                        <td>Desktops</td>
-                    </tr>
-                    <tr>
-                        <td><strong>XXL</strong></td>
-                        <td class="mono">1400px</td>
-                        <td class="mono">--breakpoint-xxl</td>
-                        <td>Large desktops</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="code-block" style="margin-top: var(--space-6);">
-                <code>
-<span class="comment">/* Mobile-first approach */</span>
-.component {
-  <span class="property">padding</span>: <span class="value">var(--space-4)</span>;      <span class="comment">/* Base mobile styles */</span>
-}
-
-<span class="comment">/* Tablet and up */</span>
-@media (min-width: 768px) {
-  .component {
-    <span class="property">padding</span>: <span class="value">var(--space-6)</span>;
-  }
-}
-
-<span class="comment">/* Desktop and up */</span>
-@media (min-width: 1200px) {
-  .component {
-    <span class="property">padding</span>: <span class="value">var(--space-8)</span>;
-  }
-}
-                </code>
-            </div>
-        </section>
-
-        <!-- Component Sizes -->
-        <section class="style-guide__section">
-            <h2 class="style-guide__section-title">Component Sizes</h2>
-            <p class="style-guide__section-desc">
-                Standard sizes for VS Code-inspired layout components.
-            </p>
-
-            <div class="size-demo">
-                <div class="size-item">
-                    <div class="size-item__visual" style="width: 100%; height: 48px;"></div>
-                    <div>
-                        <div class="size-item__label">--header-height</div>
-                        <div class="size-item__value">48px - Global header bar</div>
-                    </div>
+                <div class="typography-item">
+                    <div class="typography-item__label">Monospace (Roboto Mono)</div>
+                    <div class="monospace">const uuid = "a1b2c3d4-e5f6-7890";</div>
                 </div>
-                <div class="size-item">
-                    <div class="size-item__visual" style="width: 48px; height: 200px;"></div>
-                    <div>
-                        <div class="size-item__label">--rail-width</div>
-                        <div class="size-item__value">48px - Activity bar (collapsed)</div>
-                    </div>
-                </div>
-                <div class="size-item">
-                    <div class="size-item__visual" style="width: 240px; height: 100px;"></div>
-                    <div>
-                        <div class="size-item__label">--rail-width-expanded</div>
-                        <div class="size-item__value">240px - Sidebar (expanded)</div>
-                    </div>
-                </div>
-                <div class="size-item">
-                    <div class="size-item__visual" style="width: 100%; height: 22px;"></div>
-                    <div>
-                        <div class="size-item__label">--status-bar-height</div>
-                        <div class="size-item__value">22px - Status bar at bottom</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Buttons -->
-        <section class="style-guide__section">
-            <h2 class="style-guide__section-title">Buttons</h2>
-            <p class="style-guide__section-desc">
-                Angular Material button variants for consistent UI patterns.
-            </p>
-
-            <div class="button-demo">
-                <button class="mat-btn mat-btn--primary">
-                    <span class="material-icons" style="font-size: 18px;">add</span>
-                    Primary Button
-                </button>
-                <button class="mat-btn mat-btn--accent">
-                    <span class="material-icons" style="font-size: 18px;">star</span>
-                    Accent Button
-                </button>
-                <button class="mat-btn mat-btn--outlined">Outlined</button>
-                <button class="mat-btn mat-btn--text">Text Button</button>
-                <button class="mat-btn mat-btn--icon">
-                    <span class="material-icons">more_vert</span>
-                </button>
-                <button class="mat-btn mat-btn--icon">
-                    <span class="material-icons">settings</span>
-                </button>
-                <button class="mat-btn mat-btn--icon">
-                    <span class="material-icons">close</span>
-                </button>
             </div>
         </section>
 
@@ -1132,8 +1878,8 @@
 
             <div class="radius-demo">
                 <div class="radius-item">
-                    <div class="radius-item__preview" style="border-radius: var(--radius-none);"></div>
-                    <div class="radius-item__label">none (0)</div>
+                    <div class="radius-item__preview" style="border-radius: var(--radius-xs);"></div>
+                    <div class="radius-item__label">xs (2px)</div>
                 </div>
                 <div class="radius-item">
                     <div class="radius-item__preview" style="border-radius: var(--radius-sm);"></div>
@@ -1148,165 +1894,809 @@
                     <div class="radius-item__label">lg (12px)</div>
                 </div>
                 <div class="radius-item">
-                    <div class="radius-item__preview" style="border-radius: var(--radius-xl);"></div>
-                    <div class="radius-item__label">xl (16px)</div>
+                    <div class="radius-item__preview" style="border-radius: var(--radius-chip);"></div>
+                    <div class="radius-item__label">chip (16px)</div>
                 </div>
                 <div class="radius-item">
                     <div class="radius-item__preview" style="border-radius: var(--radius-full);"></div>
-                    <div class="radius-item__label">full</div>
+                    <div class="radius-item__label">full (50%)</div>
                 </div>
             </div>
         </section>
 
-        <!-- Shadows -->
+        <!-- Elevation -->
         <section class="style-guide__section">
             <h2 class="style-guide__section-title">Elevation & Shadows</h2>
             <p class="style-guide__section-desc">
-                Subtle shadows for elevation on dark backgrounds.
+                Box shadows for elevation on dark backgrounds.
             </p>
 
             <div class="shadow-demo">
-                <div class="shadow-item" style="box-shadow: var(--shadow-sm);">shadow-sm</div>
-                <div class="shadow-item" style="box-shadow: var(--shadow-md);">shadow-md</div>
-                <div class="shadow-item" style="box-shadow: var(--shadow-lg);">shadow-lg</div>
-                <div class="shadow-item" style="box-shadow: var(--shadow-xl);">shadow-xl</div>
+                <div class="shadow-item" style="box-shadow: var(--elevation-1);">elevation-1</div>
+                <div class="shadow-item" style="box-shadow: var(--elevation-2);">elevation-2</div>
+                <div class="shadow-item" style="box-shadow: var(--elevation-4);">elevation-4</div>
+                <div class="shadow-item" style="box-shadow: var(--elevation-8);">elevation-8</div>
+                <div class="shadow-item" style="box-shadow: var(--elevation-16);">elevation-16</div>
+                <div class="shadow-item" style="box-shadow: var(--elevation-24);">elevation-24</div>
             </div>
         </section>
 
-        <!-- Icons -->
+        <!-- Buttons -->
         <section class="style-guide__section">
-            <h2 class="style-guide__section-title">Icons (Material Icons)</h2>
+            <h2 class="style-guide__section-title">Buttons</h2>
             <p class="style-guide__section-desc">
-                Common icons used throughout the VS Code-inspired interface.
+                Button variants for different actions: Primary for main actions, Outlined for secondary, Danger for destructive.
             </p>
 
             <div class="style-guide__subsection">
-                <h3 class="style-guide__subsection-title">Rail / Activity Bar</h3>
-                <div class="icon-demo">
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">folder</span>
-                        <span class="icon-item__label">Explorer</span>
+                <h3 class="style-guide__subsection-title">Raised Buttons</h3>
+                <div class="component-demo">
+                    <button class="btn btn--primary">
+                        <span class="material-icons-outlined">save</span>
+                        Save Changes
+                    </button>
+                    <button class="btn btn--primary">
+                        <span class="material-icons-outlined">add</span>
+                        Add User
+                    </button>
+                    <button class="btn btn--primary" disabled>
+                        <span class="material-icons-outlined">save</span>
+                        Disabled
+                    </button>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Outlined Buttons</h3>
+                <div class="component-demo">
+                    <button class="btn btn--outlined">
+                        <span class="material-icons-outlined">cancel</span>
+                        Cancel
+                    </button>
+                    <button class="btn btn--outlined">
+                        <span class="material-icons-outlined">lock_reset</span>
+                        Reset Password
+                    </button>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Danger/Warn Buttons</h3>
+                <div class="component-demo">
+                    <button class="btn btn--danger">
+                        <span class="material-icons-outlined">delete</span>
+                        Delete
+                    </button>
+                    <button class="btn btn--warn">
+                        <span class="material-icons-outlined">block</span>
+                        Deactivate
+                    </button>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Icon Buttons</h3>
+                <div class="component-demo">
+                    <button class="icon-button" title="Edit">
+                        <span class="material-icons-outlined">edit</span>
+                    </button>
+                    <button class="icon-button" title="Delete">
+                        <span class="material-icons-outlined">delete</span>
+                    </button>
+                    <button class="icon-button" title="More">
+                        <span class="material-icons-outlined">more_vert</span>
+                    </button>
+                    <button class="icon-button" title="Settings">
+                        <span class="material-icons-outlined">settings</span>
+                    </button>
+                    <button class="icon-button" disabled title="Disabled">
+                        <span class="material-icons-outlined">block</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Floating Action Button (FAB)</h3>
+                <div class="component-demo">
+                    <button class="fab">
+                        <span class="material-icons-outlined">add</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Status Chips -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Status Chips & Badges</h2>
+            <p class="style-guide__section-desc">
+                Chips and badges for displaying status information.
+            </p>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Status Chips</h3>
+                <div class="component-demo">
+                    <span class="chip chip--active">
+                        <span class="material-icons-outlined" style="font-size: 16px;">check_circle</span>
+                        Active
+                    </span>
+                    <span class="chip chip--inactive">
+                        <span class="material-icons-outlined" style="font-size: 16px;">cancel</span>
+                        Inactive
+                    </span>
+                    <span class="chip chip--locked">
+                        <span class="material-icons-outlined" style="font-size: 16px;">lock</span>
+                        Locked
+                    </span>
+                    <span class="chip chip--info">
+                        <span class="material-icons-outlined" style="font-size: 16px;">verified_user</span>
+                        MFA Enabled
+                    </span>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Badges</h3>
+                <div class="component-demo">
+                    <span class="badge badge--system">System Role</span>
+                    <span class="badge badge--custom">Custom Role</span>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Role Chips</h3>
+                <div class="component-demo">
+                    <span class="role-chip">Admin</span>
+                    <span class="role-chip">User</span>
+                    <span class="role-chip">Read Only</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Avatars -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Avatars & Entity Icons</h2>
+            <p class="style-guide__section-desc">
+                Avatar components for user representation and entity icons.
+            </p>
+
+            <div class="component-demo">
+                <div class="avatar">JS</div>
+                <div class="avatar">SA</div>
+                <div class="avatar">MC</div>
+                <div class="avatar avatar--large">JS</div>
+                <div class="entity-icon">
+                    <span class="material-icons-outlined">admin_panel_settings</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notice Banners -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Notice Banners</h2>
+            <p class="style-guide__section-desc">
+                Alert banners for displaying important information to users.
+            </p>
+
+            <div class="notice notice--info">
+                <span class="material-icons-outlined notice__icon">info</span>
+                <span class="notice__text">This is an informational notice. Use for general information.</span>
+            </div>
+            <div class="notice notice--warning">
+                <span class="material-icons-outlined notice__icon">warning</span>
+                <span class="notice__text">System roles cannot be modified. Clone this role to create a custom version.</span>
+            </div>
+            <div class="notice notice--error">
+                <span class="material-icons-outlined notice__icon">error</span>
+                <span class="notice__text">An error occurred while saving. Please try again.</span>
+            </div>
+            <div class="notice notice--success">
+                <span class="material-icons-outlined notice__icon">check_circle</span>
+                <span class="notice__text">Changes saved successfully!</span>
+            </div>
+        </section>
+
+        <!-- Cards -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Cards</h2>
+            <p class="style-guide__section-desc">
+                Card components for grouping related content.
+            </p>
+
+            <div class="mat-card mat-card--padded" style="max-width: 600px;">
+                <div class="mat-card__header">
+                    <div>
+                        <h2 class="mat-card__title">Basic Information</h2>
+                        <p class="mat-card__subtitle">User identity and description</p>
                     </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">search</span>
-                        <span class="icon-item__label">Search</span>
+                    <button class="icon-button">
+                        <span class="material-icons-outlined">more_vert</span>
+                    </button>
+                </div>
+                <div class="form-row">
+                    <div class="form-field">
+                        <label class="form-label">Display Name</label>
+                        <input type="text" class="form-input" value="John Smith">
                     </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">account_tree</span>
-                        <span class="icon-item__label">Source Control</span>
+                    <div class="form-field">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" value="john@example.com">
                     </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">bug_report</span>
-                        <span class="icon-item__label">Debug</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Elements -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Form Elements</h2>
+            <p class="style-guide__section-desc">
+                Input fields, toggles, and other form components.
+            </p>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Text Inputs</h3>
+                <div class="mat-card mat-card--padded" style="max-width: 600px;">
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Standard Input</label>
+                            <input type="text" class="form-input" placeholder="Enter value...">
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">With Hint</label>
+                            <input type="text" class="form-input" value="john@example.com">
+                            <div class="form-hint">Email is used for login and notifications</div>
+                        </div>
                     </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">extension</span>
-                        <span class="icon-item__label">Extensions</span>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label class="form-label">Disabled Input</label>
+                            <input type="text" class="form-input" value="a1b2c3d4-e5f6-7890" disabled>
+                        </div>
+                        <div class="form-field">
+                            <label class="form-label">Error State</label>
+                            <input type="text" class="form-input form-input--error" value="">
+                            <div class="form-error">This field is required</div>
+                        </div>
                     </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">layers</span>
-                        <span class="icon-item__label">Composer</span>
-                    </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">settings</span>
-                        <span class="icon-item__label">Settings</span>
+                    <div class="form-row">
+                        <div class="form-field form-field--full">
+                            <label class="form-label">Textarea</label>
+                            <textarea class="form-input form-textarea" placeholder="Enter description..."></textarea>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="style-guide__subsection">
-                <h3 class="style-guide__subsection-title">Actions</h3>
-                <div class="icon-demo">
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">add</span>
-                        <span class="icon-item__label">Add</span>
+                <h3 class="style-guide__subsection-title">Toggle Switches</h3>
+                <div class="mat-card mat-card--padded" style="max-width: 600px;">
+                    <div class="toggle-field">
+                        <div class="toggle-label">
+                            <div class="toggle-label__title">Email Verified</div>
+                            <div class="toggle-label__description">User has verified their email address</div>
+                        </div>
+                        <div class="toggle-switch toggle-switch--checked">
+                            <div class="toggle-switch__thumb"></div>
+                        </div>
                     </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">edit</span>
-                        <span class="icon-item__label">Edit</span>
+                    <div class="toggle-field">
+                        <div class="toggle-label">
+                            <div class="toggle-label__title">Multi-Factor Authentication</div>
+                            <div class="toggle-label__description">Require additional verification at login</div>
+                        </div>
+                        <div class="toggle-switch">
+                            <div class="toggle-switch__thumb"></div>
+                        </div>
                     </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">delete</span>
-                        <span class="icon-item__label">Delete</span>
+                    <div class="toggle-field">
+                        <div class="toggle-label">
+                            <div class="toggle-label__title">Account Active</div>
+                            <div class="toggle-label__description">Allow user to access the system</div>
+                        </div>
+                        <div class="toggle-switch toggle-switch--checked">
+                            <div class="toggle-switch__thumb"></div>
+                        </div>
                     </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">save</span>
-                        <span class="icon-item__label">Save</span>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Checkboxes</h3>
+                <div class="mat-card mat-card--padded" style="max-width: 600px;">
+                    <div class="permission-group">
+                        <div class="permission-group__header">
+                            <span class="material-icons-outlined permission-group__icon">people</span>
+                            <span>Users</span>
+                        </div>
+                        <div class="permission-actions">
+                            <div class="checkbox-field">
+                                <input type="checkbox" id="users-create" checked>
+                                <label for="users-create">Create</label>
+                            </div>
+                            <div class="checkbox-field">
+                                <input type="checkbox" id="users-read" checked>
+                                <label for="users-read">Read</label>
+                            </div>
+                            <div class="checkbox-field">
+                                <input type="checkbox" id="users-update" checked>
+                                <label for="users-update">Update</label>
+                            </div>
+                            <div class="checkbox-field">
+                                <input type="checkbox" id="users-delete">
+                                <label for="users-delete">Delete</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">play_arrow</span>
-                        <span class="icon-item__label">Run</span>
-                    </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">close</span>
-                        <span class="icon-item__label">Close</span>
-                    </div>
-                    <div class="icon-item">
-                        <span class="material-icons" style="font-size: 24px;">more_vert</span>
-                        <span class="icon-item__label">More</span>
+                </div>
+            </div>
+
+            <div class="style-guide__subsection">
+                <h3 class="style-guide__subsection-title">Select / Dropdown</h3>
+                <div class="mat-card mat-card--padded" style="max-width: 400px;">
+                    <div class="form-field">
+                        <label class="form-label">Status Filter</label>
+                        <select class="select-input">
+                            <option>All Status</option>
+                            <option>Active</option>
+                            <option>Inactive</option>
+                            <option>Locked</option>
+                        </select>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Mobile-First Guidelines -->
+        <!-- Info Grid -->
         <section class="style-guide__section">
-            <h2 class="style-guide__section-title">Mobile-First Guidelines</h2>
+            <h2 class="style-guide__section-title">Info Grid (Read-Only Data)</h2>
             <p class="style-guide__section-desc">
-                Design principles for responsive VS Code-like interface.
+                Display read-only metadata in a grid layout.
             </p>
 
-            <div class="style-guide__subsection">
-                <h3 class="style-guide__subsection-title">Layout Behavior</h3>
-                <table class="breakpoint-table">
+            <div class="mat-card mat-card--padded" style="max-width: 600px;">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-item__label">Last Login</div>
+                        <div class="info-item__value">January 19, 2025 at 5:30 AM</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-item__label">Failed Login Attempts</div>
+                        <div class="info-item__value">0</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-item__label">Active Sessions</div>
+                        <div class="info-item__value">2</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-item__label">Lockout Status</div>
+                        <div class="info-item__value info-item__value--success">Not Locked</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Role Assignment -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Role Assignment List</h2>
+            <p class="style-guide__section-desc">
+                Selectable list for many-to-many relationships.
+            </p>
+
+            <div class="mat-card mat-card--padded" style="max-width: 600px;">
+                <div class="mat-card__header">
+                    <h2 class="mat-card__title">Role Assignment</h2>
+                </div>
+                <div class="role-assignment">
+                    <div class="role-item">
+                        <div class="role-item__info">
+                            <div class="checkbox checkbox--checked"></div>
+                            <div class="role-item__details">
+                                <div class="role-item__name">Admin</div>
+                                <div class="role-item__description">Full system access with administrative privileges</div>
+                            </div>
+                        </div>
+                        <span class="badge badge--system">SYSTEM</span>
+                    </div>
+                    <div class="role-item">
+                        <div class="role-item__info">
+                            <div class="checkbox checkbox--checked"></div>
+                            <div class="role-item__details">
+                                <div class="role-item__name">User</div>
+                                <div class="role-item__description">Standard user access</div>
+                            </div>
+                        </div>
+                        <span class="badge badge--system">SYSTEM</span>
+                    </div>
+                    <div class="role-item">
+                        <div class="role-item__info">
+                            <div class="checkbox"></div>
+                            <div class="role-item__details">
+                                <div class="role-item__name">Mission Analyst</div>
+                                <div class="role-item__description">Custom role for analysis tasks</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Activity List -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Activity Timeline</h2>
+            <p class="style-guide__section-desc">
+                Read-only timeline for displaying historical activity.
+            </p>
+
+            <div class="mat-card mat-card--padded" style="max-width: 600px;">
+                <div class="mat-card__header">
+                    <h2 class="mat-card__title">Recent Activity</h2>
+                </div>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-item__icon">
+                            <span class="material-icons-outlined">login</span>
+                        </div>
+                        <div class="activity-item__content">
+                            <div class="activity-item__title">Successful Login</div>
+                            <div class="activity-item__description">Logged in from 192.168.1.105</div>
+                        </div>
+                        <div class="activity-item__time">2 hours ago</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-item__icon">
+                            <span class="material-icons-outlined">edit</span>
+                        </div>
+                        <div class="activity-item__content">
+                            <div class="activity-item__title">Profile Updated</div>
+                            <div class="activity-item__description">Changed display name</div>
+                        </div>
+                        <div class="activity-item__time">1 day ago</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-item__icon">
+                            <span class="material-icons-outlined">security</span>
+                        </div>
+                        <div class="activity-item__content">
+                            <div class="activity-item__title">Password Changed</div>
+                            <div class="activity-item__description">Password was reset by admin</div>
+                        </div>
+                        <div class="activity-item__time">3 days ago</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- User List -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Assigned Users List</h2>
+            <p class="style-guide__section-desc">
+                Compact list for showing assigned entities.
+            </p>
+
+            <div class="mat-card mat-card--padded" style="max-width: 600px;">
+                <div class="mat-card__header">
+                    <div>
+                        <h2 class="mat-card__title">Assigned Users</h2>
+                        <p class="mat-card__subtitle">Users with this role</p>
+                    </div>
+                </div>
+                <div class="user-list">
+                    <div class="user-item">
+                        <div class="avatar">JD</div>
+                        <div class="user-info">
+                            <div class="user-info__name">John Doe</div>
+                            <div class="user-info__email">john.doe@example.com</div>
+                        </div>
+                    </div>
+                    <div class="user-item">
+                        <div class="avatar">AS</div>
+                        <div class="user-info">
+                            <div class="user-info__name">Alice Smith</div>
+                            <div class="user-info__email">alice.smith@example.com</div>
+                        </div>
+                    </div>
+                    <div class="user-item">
+                        <div class="avatar">MC</div>
+                        <div class="user-info">
+                            <div class="user-info__name">Michael Chen</div>
+                            <div class="user-info__email">michael.chen@example.com</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Table -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Data Table</h2>
+            <p class="style-guide__section-desc">
+                Table component for displaying lists of entities with pagination.
+            </p>
+
+            <div class="mat-card" style="max-width: 900px;">
+                <table class="mat-table">
                     <thead>
                         <tr>
-                            <th>Component</th>
-                            <th>Mobile (XS-SM)</th>
-                            <th>Tablet (MD)</th>
-                            <th>Desktop (LG+)</th>
+                            <th>User</th>
+                            <th>Roles</th>
+                            <th>Status</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Header</strong></td>
-                            <td>Full width, hamburger menu</td>
-                            <td>Full width, visible menu</td>
-                            <td>Full width, all elements visible</td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="avatar">JS</div>
+                                    <div>
+                                        <div class="user-info__name">John Smith</div>
+                                        <div class="user-info__email">john.smith@example.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="role-list">
+                                    <span class="role-chip">Admin</span>
+                                    <span class="role-chip">User</span>
+                                </div>
+                            </td>
+                            <td><span class="chip chip--active">Active</span></td>
+                            <td style="color: var(--text-secondary);">2 hours ago</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="icon-button" title="Edit">
+                                        <span class="material-icons-outlined">edit</span>
+                                    </button>
+                                    <button class="icon-button" title="More">
+                                        <span class="material-icons-outlined">more_vert</span>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                         <tr>
-                            <td><strong>Rail</strong></td>
-                            <td>Hidden, accessible via hamburger</td>
-                            <td>48px collapsed rail</td>
-                            <td>48px rail, optional 240px sidebar</td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="avatar">SA</div>
+                                    <div>
+                                        <div class="user-info__name">Sarah Anderson</div>
+                                        <div class="user-info__email">sarah.anderson@example.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="role-list">
+                                    <span class="role-chip">User</span>
+                                </div>
+                            </td>
+                            <td><span class="chip chip--active">Active</span></td>
+                            <td style="color: var(--text-secondary);">5 hours ago</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="icon-button" title="Edit">
+                                        <span class="material-icons-outlined">edit</span>
+                                    </button>
+                                    <button class="icon-button" title="More">
+                                        <span class="material-icons-outlined">more_vert</span>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                         <tr>
-                            <td><strong>Content</strong></td>
-                            <td>Full width, single column</td>
-                            <td>Minus rail width</td>
-                            <td>Minus rail/sidebar, multi-column</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Wizard</strong></td>
-                            <td>Full screen, stacked steps</td>
-                            <td>Card-based, scrollable</td>
-                            <td>Split view with preview</td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="avatar">MC</div>
+                                    <div>
+                                        <div class="user-info__name">Michael Chen</div>
+                                        <div class="user-info__email">michael.chen@example.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="role-list">
+                                    <span class="role-chip">User</span>
+                                </div>
+                            </td>
+                            <td><span class="chip chip--locked">Locked</span></td>
+                            <td style="color: var(--text-secondary);">3 days ago</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="icon-button" title="Edit">
+                                        <span class="material-icons-outlined">edit</span>
+                                    </button>
+                                    <button class="icon-button" title="More">
+                                        <span class="material-icons-outlined">more_vert</span>
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="style-guide__subsection">
-                <h3 class="style-guide__subsection-title">Touch Targets</h3>
-                <p style="color: var(--mat-on-surface-medium); margin-bottom: var(--space-4);">
-                    Minimum touch target size: <strong>48x48px</strong> for mobile devices.
-                    Icons in rail and buttons should meet this requirement.
-                </p>
+                <div class="pagination">
+                    <div class="pagination__info">1-3 of 247 users</div>
+                    <div class="pagination__controls">
+                        <button class="icon-button" disabled>
+                            <span class="material-icons-outlined">chevron_left</span>
+                        </button>
+                        <button class="icon-button">
+                            <span class="material-icons-outlined">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
-    </div>
 
-    <!-- Responsive Breakpoint Indicator -->
-    <div class="responsive-indicator"></div>
+        <!-- Stats Cards -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Statistics Cards</h2>
+            <p class="style-guide__section-desc">
+                Cards for displaying key metrics.
+            </p>
+
+            <div class="stats-grid" style="max-width: 900px;">
+                <div class="stat-card">
+                    <div class="stat-card__value">247</div>
+                    <div class="stat-card__label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__value stat-card__value--success">231</div>
+                    <div class="stat-card__label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__value stat-card__value--error">16</div>
+                    <div class="stat-card__label">Inactive Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__value stat-card__value--warning">3</div>
+                    <div class="stat-card__label">Locked Users</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter Bar -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Filter Bar</h2>
+            <p class="style-guide__section-desc">
+                Search and filter controls for list views.
+            </p>
+
+            <div class="filter-bar" style="max-width: 900px;">
+                <div class="search-field">
+                    <span class="material-icons-outlined search-icon">search</span>
+                    <input type="text" class="search-input" placeholder="Search users by name or email...">
+                </div>
+                <div class="select-field">
+                    <select class="select-input">
+                        <option>All Status</option>
+                        <option>Active</option>
+                        <option>Inactive</option>
+                        <option>Locked</option>
+                    </select>
+                </div>
+                <div class="select-field">
+                    <select class="select-input">
+                        <option>All Roles</option>
+                        <option>Admin</option>
+                        <option>User</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dialog -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Dialog / Modal</h2>
+            <p class="style-guide__section-desc">
+                Confirmation dialogs for destructive actions.
+            </p>
+
+            <div class="dialog">
+                <div class="dialog__header">
+                    <h3>Delete User?</h3>
+                </div>
+                <div class="dialog__content">
+                    <p>Are you sure you want to delete John Smith? This action cannot be undone.</p>
+                </div>
+                <div class="dialog__actions">
+                    <button class="btn btn--outlined">Cancel</button>
+                    <button class="btn btn--danger">Delete</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Breadcrumb -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Breadcrumb Navigation</h2>
+            <p class="style-guide__section-desc">
+                Navigation breadcrumbs for detail pages.
+            </p>
+
+            <nav class="breadcrumb">
+                <a href="#">Admin</a>
+                <span class="material-icons-outlined breadcrumb__separator">chevron_right</span>
+                <a href="#">User Management</a>
+                <span class="material-icons-outlined breadcrumb__separator">chevron_right</span>
+                <span>John Smith</span>
+            </nav>
+        </section>
+
+        <!-- Key Visual Principles -->
+        <section class="style-guide__section">
+            <h2 class="style-guide__section-title">Quick Reference</h2>
+            <p class="style-guide__section-desc">
+                Key values for implementing the design system.
+            </p>
+
+            <table class="reference-table">
+                <thead>
+                    <tr>
+                        <th>Element</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Page background</td>
+                        <td class="mono">#121212</td>
+                    </tr>
+                    <tr>
+                        <td>Card background</td>
+                        <td class="mono">#1e1e1e</td>
+                    </tr>
+                    <tr>
+                        <td>Elevated background</td>
+                        <td class="mono">#2d2d2d</td>
+                    </tr>
+                    <tr>
+                        <td>Primary color</td>
+                        <td class="mono">#2196f3</td>
+                    </tr>
+                    <tr>
+                        <td>Accent color</td>
+                        <td class="mono">#ff9800</td>
+                    </tr>
+                    <tr>
+                        <td>Success</td>
+                        <td class="mono">#4caf50</td>
+                    </tr>
+                    <tr>
+                        <td>Error</td>
+                        <td class="mono">#f44336</td>
+                    </tr>
+                    <tr>
+                        <td>Warning</td>
+                        <td class="mono">#ff9800</td>
+                    </tr>
+                    <tr>
+                        <td>Text primary</td>
+                        <td class="mono">rgba(255,255,255,0.87)</td>
+                    </tr>
+                    <tr>
+                        <td>Text secondary</td>
+                        <td class="mono">rgba(255,255,255,0.60)</td>
+                    </tr>
+                    <tr>
+                        <td>Border radius (cards)</td>
+                        <td class="mono">8px</td>
+                    </tr>
+                    <tr>
+                        <td>Border radius (buttons)</td>
+                        <td class="mono">4px</td>
+                    </tr>
+                    <tr>
+                        <td>Spacing base</td>
+                        <td class="mono">8px</td>
+                    </tr>
+                    <tr>
+                        <td>Toolbar height</td>
+                        <td class="mono">64px</td>
+                    </tr>
+                    <tr>
+                        <td>Sidenav width</td>
+                        <td class="mono">256px</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
 </body>
 </html>

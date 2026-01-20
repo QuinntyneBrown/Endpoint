@@ -1,0 +1,14 @@
+<div class="stat-tile">
+  <div class="stat-tile__icon">
+    <mat-icon>{{ icon }}</mat-icon>
+  </div>
+  <div class="stat-tile__content">
+    <span class="stat-tile__value">{{ value }}</span>
+    <span class="stat-tile__title">{{ title }}</span>
+  </div>
+  @if (trend !== 'neutral') {
+    <div class="stat-tile__trend" [class.stat-tile__trend--up]="trend === 'up'" [class.stat-tile__trend--down]="trend === 'down'">
+      <mat-icon>{{ trend === 'up' ? 'trending_up' : 'trending_down' }}</mat-icon>
+    </div>
+  }
+</div>

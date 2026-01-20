@@ -5,41 +5,64 @@
   align-items: center;
   justify-content: center;
   gap: var(--ee-spacing-sm);
-  padding: var(--ee-spacing-md) var(--ee-spacing-xl);
-  border-radius: var(--ee-radius-md);
+  padding: 0 var(--ee-spacing-md);
+  height: 36px;
+  border-radius: var(--ee-radius-sm);
   font-size: var(--ee-font-size-base);
   font-weight: 500;
   font-family: var(--ee-font-family);
+  text-transform: uppercase;
+  letter-spacing: 1.25px;
   cursor: pointer;
-  transition: all var(--ee-transition-base);
+  transition: all var(--ee-transition-fast);
   border: none;
   white-space: nowrap;
 
   &--primary {
-    background: var(--ee-primary);
-    color: #121212;
+    background: var(--ee-primary-500);
+    color: white;
+    box-shadow: var(--ee-elevation-2);
 
     &:hover:not(.button--disabled) {
-      background: var(--ee-primary-lighter);
+      background: var(--ee-primary-700);
+      box-shadow: var(--ee-elevation-4);
+    }
+  }
+
+  &--accent {
+    background: var(--ee-accent-500);
+    color: white;
+
+    &:hover:not(.button--disabled) {
+      background: var(--ee-accent-700);
     }
   }
 
   &--secondary {
-    background: var(--ee-surface-elevated);
-    border: 1px solid var(--ee-divider);
-    color: var(--ee-on-surface);
+    background: transparent;
+    border: 1px solid var(--ee-primary-500);
+    color: var(--ee-primary-500);
 
     &:hover:not(.button--disabled) {
-      background: var(--ee-surface-high);
+      background: rgba(33, 150, 243, 0.08);
+    }
+  }
+
+  &--text {
+    background: transparent;
+    color: var(--ee-primary-500);
+
+    &:hover:not(.button--disabled) {
+      background: var(--ee-surface-hover);
     }
   }
 
   &--danger {
-    background: var(--ee-warn);
-    color: #fff;
+    background: var(--ee-warn-500);
+    color: white;
 
     &:hover:not(.button--disabled) {
-      background: #e53935;
+      background: var(--ee-warn-700);
     }
   }
 
@@ -57,12 +80,12 @@
   }
 
   &:focus {
-    outline: 2px solid var(--ee-primary);
+    outline: 2px solid var(--ee-primary-500);
     outline-offset: 2px;
   }
 
   &__icon {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   &__content {

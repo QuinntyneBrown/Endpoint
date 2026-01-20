@@ -1,0 +1,19 @@
+.header {
+  background-color: var(--surface-card);
+  color: var(--text-primary);
+  height: var(--header-height);
+  box-shadow: var(--elevation-4);
+
+  &__menu-btn {
+    margin-right: var(--spacing-md);
+  }
+
+  &__title {
+    font-size: var(--font-size-xxl);
+    font-weight: 500;
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+}

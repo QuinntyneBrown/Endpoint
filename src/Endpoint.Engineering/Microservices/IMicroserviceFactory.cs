@@ -151,6 +151,11 @@ public interface IMicroserviceFactory
     Task<SolutionModel> CreateRealtimeNotificationMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Creates a Distribution microservice that provides subscription-based telemetry distribution via SignalR WebSockets.
+    /// </summary>
+    Task<SolutionModel> CreateDistributionMicroserviceAsync(string directory, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Creates a microservice by name.
     /// </summary>
     Task<SolutionModel> CreateByNameAsync(string name, string directory, CancellationToken cancellationToken = default);

@@ -1,0 +1,12 @@
+<nav class="sidenav">
+  <ul class="sidenav__list">
+    @for (item of navItems; track item.route) {
+      <li class="sidenav__item" routerLinkActive="sidenav__item--active">
+        <a [routerLink]="item.route" class="sidenav__link">
+          <mat-icon class="sidenav__icon">{{ item.icon }}</mat-icon>
+          <span class="sidenav__label">{{ item.label }}</span>
+        </a>
+      </li>
+    }
+  </ul>
+</nav>

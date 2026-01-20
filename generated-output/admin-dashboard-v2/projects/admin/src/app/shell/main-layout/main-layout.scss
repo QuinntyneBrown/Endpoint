@@ -1,0 +1,26 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  &__header {
+    flex-shrink: 0;
+    z-index: 1000;
+  }
+
+  &__container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  &__sidenav {
+    flex-shrink: 0;
+  }
+
+  &__content {
+    flex: 1;
+    overflow-y: auto;
+    background-color: var(--surface-background);
+  }
+}

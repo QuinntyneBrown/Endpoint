@@ -3,103 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Global Header Component - VS Code Style</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Global Header Component - Material Design 3 Dark Theme</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <style>
-        /* ============================================================
-           CSS VARIABLES - Angular Material Dark Theme
-           ============================================================ */
+        /* ============================================
+           CSS VARIABLES - Material Design 3 Dark Theme
+           ============================================ */
         :root {
-            /* Primary Colors (Indigo) */
-            --mat-primary: #9fa8da;
-            --mat-primary-lighter: #c5cae9;
-            --mat-primary-darker: #7986cb;
+            /* Primary Colors (Blue) */
+            --primary-500: #2196f3;
+            --primary-600: #1e88e5;
+            --primary-700: #1976d2;
 
-            /* Accent Colors (Pink) */
-            --mat-accent: #f48fb1;
-            --mat-accent-lighter: #f8bbd0;
-            --mat-accent-darker: #f06292;
+            /* Accent Colors (Orange) */
+            --accent-500: #ff9800;
+            --accent-600: #fb8c00;
+            --accent-700: #f57c00;
 
-            /* Semantic Colors */
-            --mat-warn: #ef5350;
-            --mat-success: #81c784;
+            /* Warn Colors (Red) */
+            --warn-500: #f44336;
+            --warn-600: #e53935;
 
-            /* Background Colors */
-            --mat-background: #0d1117;
-            --mat-surface: #161b22;
-            --mat-surface-elevated: #21262d;
-            --mat-surface-high: #30363d;
+            /* Status Colors */
+            --status-success: #4caf50;
+            --status-warning: #ff9800;
+            --status-error: #f44336;
+            --status-info: #2196f3;
+
+            /* Surface Colors (Dark Theme) */
+            --surface-background: #121212;
+            --surface-card: #1e1e1e;
+            --surface-elevated: #2d2d2d;
+            --surface-dialog: #2d2d2d;
+            --surface-divider: rgba(255, 255, 255, 0.12);
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --surface-selected: rgba(33, 150, 243, 0.16);
 
             /* Text Colors */
-            --mat-on-surface: #e6edf3;
-            --mat-on-surface-medium: rgba(230, 237, 243, 0.7);
-            --mat-on-surface-disabled: rgba(230, 237, 243, 0.38);
+            --text-primary: rgba(255, 255, 255, 0.87);
+            --text-secondary: rgba(255, 255, 255, 0.60);
+            --text-disabled: rgba(255, 255, 255, 0.38);
+            --text-hint: rgba(255, 255, 255, 0.38);
 
-            /* Border & State */
-            --mat-divider: rgba(230, 237, 243, 0.12);
-            --mat-border: #30363d;
-            --mat-hover: rgba(255, 255, 255, 0.08);
-            --mat-focus: rgba(159, 168, 218, 0.24);
-
-            /* Spacing */
-            --space-1: 4px;
-            --space-2: 8px;
-            --space-3: 12px;
-            --space-4: 16px;
-            --space-6: 24px;
+            /* Spacing (8px base) */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
 
             /* Component Sizes */
-            --header-height: 48px;
+            --header-height: 64px;
             --rail-width: 48px;
-
-            /* Typography */
-            --font-family-base: 'Roboto', sans-serif;
-            --font-size-sm: 12px;
-            --font-size-base: 14px;
-
-            /* Transitions */
-            --transition-fast: 0.15s ease;
-            --transition-base: 0.2s ease;
 
             /* Border Radius */
             --radius-sm: 4px;
-            --radius-full: 9999px;
+            --radius-md: 8px;
+            --radius-full: 50%;
+
+            /* Elevation */
+            --elevation-4: 0 10px 20px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.10);
+
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-standard: 300ms ease;
         }
 
-        /* ============================================================
+        /* ============================================
            RESET & BASE
-           ============================================================ */
-        * {
+           ============================================ */
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: var(--font-family-base);
-            background: var(--mat-background);
-            color: var(--mat-on-surface);
+            font-family: 'Roboto', sans-serif;
+            background: var(--surface-background);
+            color: var(--text-primary);
             min-height: 100vh;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
-        /* ============================================================
+        /* ============================================
            GLOBAL HEADER COMPONENT
-           VS Code-inspired title bar with Angular Material styling
-           ============================================================ */
-
+           Material Design 3 Dark Theme Header
+           ============================================ */
         .global-header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             height: var(--header-height);
-            background: var(--mat-surface);
-            border-bottom: 1px solid var(--mat-divider);
+            background: var(--surface-card);
+            border-bottom: 1px solid var(--surface-divider);
             display: flex;
             align-items: center;
-            z-index: 200;
-            padding: 0 var(--space-2);
+            z-index: 1000;
+            padding: 0 var(--spacing-md);
+            box-shadow: var(--elevation-4);
         }
 
         /* ----------------------------------------
@@ -108,42 +113,42 @@
         .global-header__left {
             display: flex;
             align-items: center;
-            gap: var(--space-1);
+            gap: var(--spacing-sm);
             flex-shrink: 0;
         }
 
         .global-header__logo {
             display: flex;
             align-items: center;
-            gap: var(--space-2);
-            padding: var(--space-2);
-            color: var(--mat-on-surface);
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            color: var(--text-primary);
             text-decoration: none;
             border-radius: var(--radius-sm);
             transition: background var(--transition-fast);
         }
 
         .global-header__logo:hover {
-            background: var(--mat-hover);
+            background: var(--surface-hover);
         }
 
         .global-header__logo-icon {
-            width: 24px;
-            height: 24px;
-            background: linear-gradient(135deg, var(--mat-primary), var(--mat-accent));
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
             border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .global-header__logo-icon .material-icons {
-            font-size: 16px;
-            color: #121212;
+        .global-header__logo-icon .material-icons-outlined {
+            font-size: 20px;
+            color: white;
         }
 
         .global-header__logo-text {
-            font-size: var(--font-size-sm);
+            font-size: 14px;
             font-weight: 500;
             display: none;
         }
@@ -158,7 +163,7 @@
         .global-header__menu {
             display: none;
             align-items: center;
-            gap: var(--space-1);
+            gap: var(--spacing-xs);
         }
 
         @media (min-width: 768px) {
@@ -168,9 +173,9 @@
         }
 
         .global-header__menu-item {
-            padding: var(--space-1) var(--space-3);
-            font-size: var(--font-size-sm);
-            color: var(--mat-on-surface-medium);
+            padding: var(--spacing-sm) var(--spacing-md);
+            font-size: 14px;
+            color: var(--text-secondary);
             background: none;
             border: none;
             border-radius: var(--radius-sm);
@@ -179,13 +184,27 @@
         }
 
         .global-header__menu-item:hover {
-            background: var(--mat-hover);
-            color: var(--mat-on-surface);
+            background: var(--surface-hover);
+            color: var(--text-primary);
         }
 
         /* Mobile Menu Button */
         .global-header__mobile-menu {
             display: flex;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            border-radius: var(--radius-full);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .global-header__mobile-menu:hover {
+            background: var(--surface-hover);
         }
 
         @media (min-width: 768px) {
@@ -201,7 +220,7 @@
             flex: 1;
             display: flex;
             justify-content: center;
-            padding: 0 var(--space-4);
+            padding: 0 var(--spacing-md);
             max-width: 600px;
             margin: 0 auto;
         }
@@ -214,40 +233,40 @@
 
         .global-header__search-input {
             width: 100%;
-            height: 32px;
-            padding: 0 var(--space-3) 0 36px;
-            background: var(--mat-surface-elevated);
-            border: 1px solid var(--mat-border);
+            height: 40px;
+            padding: 0 var(--spacing-md) 0 48px;
+            background: var(--surface-elevated);
+            border: 1px solid var(--surface-divider);
             border-radius: var(--radius-sm);
-            color: var(--mat-on-surface);
-            font-family: var(--font-family-base);
-            font-size: var(--font-size-sm);
+            color: var(--text-primary);
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
             transition: all var(--transition-fast);
         }
 
         .global-header__search-input::placeholder {
-            color: var(--mat-on-surface-disabled);
+            color: var(--text-hint);
         }
 
         .global-header__search-input:focus {
             outline: none;
-            border-color: var(--mat-primary);
-            background: var(--mat-surface-high);
+            border-color: var(--primary-500);
+            background: var(--surface-elevated);
         }
 
         .global-header__search-icon {
             position: absolute;
-            left: var(--space-2);
+            left: var(--spacing-md);
             top: 50%;
             transform: translateY(-50%);
-            color: var(--mat-on-surface-disabled);
-            font-size: 18px;
+            color: var(--text-secondary);
+            font-size: 20px;
             pointer-events: none;
         }
 
         .global-header__search-shortcut {
             position: absolute;
-            right: var(--space-2);
+            right: var(--spacing-sm);
             top: 50%;
             transform: translateY(-50%);
             display: none;
@@ -263,12 +282,12 @@
 
         .global-header__search-key {
             padding: 2px 6px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 500;
-            background: var(--mat-surface-high);
-            border: 1px solid var(--mat-border);
+            background: var(--surface-card);
+            border: 1px solid var(--surface-divider);
             border-radius: 3px;
-            color: var(--mat-on-surface-disabled);
+            color: var(--text-secondary);
         }
 
         /* ----------------------------------------
@@ -277,38 +296,38 @@
         .global-header__right {
             display: flex;
             align-items: center;
-            gap: var(--space-1);
+            gap: var(--spacing-sm);
             flex-shrink: 0;
         }
 
         .global-header__action {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: none;
             border: none;
-            border-radius: var(--radius-sm);
-            color: var(--mat-on-surface-medium);
+            border-radius: var(--radius-full);
+            color: var(--text-secondary);
             cursor: pointer;
             transition: all var(--transition-fast);
         }
 
         .global-header__action:hover {
-            background: var(--mat-hover);
-            color: var(--mat-on-surface);
+            background: var(--surface-hover);
+            color: var(--text-primary);
         }
 
-        .global-header__action .material-icons {
-            font-size: 20px;
+        .global-header__action .material-icons-outlined {
+            font-size: 24px;
         }
 
-        /* Window Controls (VS Code style) */
+        /* Window Controls */
         .global-header__window-controls {
             display: none;
             align-items: center;
-            margin-left: var(--space-2);
+            margin-left: var(--spacing-sm);
         }
 
         @media (min-width: 768px) {
@@ -325,67 +344,67 @@
             justify-content: center;
             background: none;
             border: none;
-            color: var(--mat-on-surface-medium);
+            color: var(--text-secondary);
             cursor: pointer;
             transition: background var(--transition-fast);
         }
 
         .global-header__window-btn:hover {
-            background: var(--mat-hover);
+            background: var(--surface-hover);
         }
 
         .global-header__window-btn--close:hover {
-            background: var(--mat-warn);
+            background: var(--warn-500);
             color: white;
         }
 
-        .global-header__window-btn .material-icons {
+        .global-header__window-btn .material-icons-outlined {
             font-size: 18px;
         }
 
-        /* ============================================================
+        /* ============================================
            DEMO CONTENT
-           ============================================================ */
+           ============================================ */
         .demo-content {
-            padding: calc(var(--header-height) + var(--space-6)) var(--space-4);
+            padding: calc(var(--header-height) + var(--spacing-xl)) var(--spacing-md);
         }
 
         .demo-section {
             max-width: 800px;
-            margin: 0 auto var(--space-8);
+            margin: 0 auto var(--spacing-xl);
         }
 
         .demo-title {
-            font-size: 20px;
-            font-weight: 500;
-            margin-bottom: var(--space-4);
-            color: var(--mat-primary);
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: var(--spacing-md);
+            color: var(--primary-500);
         }
 
         .demo-desc {
-            color: var(--mat-on-surface-medium);
+            color: var(--text-secondary);
             line-height: 1.6;
-            margin-bottom: var(--space-4);
+            margin-bottom: var(--spacing-md);
         }
 
         .demo-box {
-            background: var(--mat-surface);
-            border: 1px solid var(--mat-divider);
-            border-radius: 8px;
-            padding: var(--space-4);
-            margin-bottom: var(--space-4);
+            background: var(--surface-card);
+            border: 1px solid var(--surface-divider);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
         }
 
         .demo-box__title {
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
-            margin-bottom: var(--space-3);
-            color: var(--mat-on-surface);
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
         }
 
         .demo-box__content {
-            font-size: 12px;
-            color: var(--mat-on-surface-medium);
+            font-size: 14px;
+            color: var(--text-secondary);
         }
 
         /* Feature List */
@@ -396,28 +415,28 @@
         .feature-list li {
             display: flex;
             align-items: flex-start;
-            gap: var(--space-2);
-            padding: var(--space-2) 0;
-            color: var(--mat-on-surface-medium);
-            font-size: var(--font-size-sm);
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) 0;
+            color: var(--text-secondary);
+            font-size: 14px;
         }
 
-        .feature-list .material-icons {
-            font-size: 18px;
-            color: var(--mat-success);
+        .feature-list .material-icons-outlined {
+            font-size: 20px;
+            color: var(--status-success);
             flex-shrink: 0;
         }
 
         /* Responsive indicator */
         .responsive-indicator {
             position: fixed;
-            bottom: var(--space-4);
-            right: var(--space-4);
-            background: var(--mat-accent);
-            color: #121212;
-            padding: var(--space-2) var(--space-4);
-            border-radius: 8px;
-            font-size: var(--font-size-sm);
+            bottom: var(--spacing-md);
+            right: var(--spacing-md);
+            background: var(--accent-500);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: var(--radius-md);
+            font-size: 12px;
             font-weight: 500;
         }
 
@@ -458,14 +477,14 @@
         <!-- Left: Logo & Menu -->
         <div class="global-header__left">
             <!-- Mobile Menu Button -->
-            <button class="global-header__action global-header__mobile-menu">
-                <span class="material-icons">menu</span>
+            <button class="global-header__mobile-menu">
+                <span class="material-icons-outlined">menu</span>
             </button>
 
             <!-- Logo -->
             <a href="#" class="global-header__logo">
                 <div class="global-header__logo-icon">
-                    <span class="material-icons">layers</span>
+                    <span class="material-icons-outlined">layers</span>
                 </div>
                 <span class="global-header__logo-text">Endpoint Engineering</span>
             </a>
@@ -484,7 +503,7 @@
         <!-- Center: Search Bar -->
         <div class="global-header__center">
             <div class="global-header__search">
-                <span class="material-icons global-header__search-icon">search</span>
+                <span class="material-icons-outlined global-header__search-icon">search</span>
                 <input
                     type="text"
                     class="global-header__search-input"
@@ -500,22 +519,22 @@
         <!-- Right: Actions & Window Controls -->
         <div class="global-header__right">
             <button class="global-header__action" title="Notifications">
-                <span class="material-icons">notifications_none</span>
+                <span class="material-icons-outlined">notifications</span>
             </button>
             <button class="global-header__action" title="Account">
-                <span class="material-icons">account_circle</span>
+                <span class="material-icons-outlined">account_circle</span>
             </button>
 
-            <!-- Window Controls (VS Code style) -->
+            <!-- Window Controls -->
             <div class="global-header__window-controls">
                 <button class="global-header__window-btn" title="Minimize">
-                    <span class="material-icons">remove</span>
+                    <span class="material-icons-outlined">remove</span>
                 </button>
                 <button class="global-header__window-btn" title="Maximize">
-                    <span class="material-icons">crop_square</span>
+                    <span class="material-icons-outlined">crop_square</span>
                 </button>
                 <button class="global-header__window-btn global-header__window-btn--close" title="Close">
-                    <span class="material-icons">close</span>
+                    <span class="material-icons-outlined">close</span>
                 </button>
             </div>
         </div>
@@ -526,7 +545,7 @@
         <section class="demo-section">
             <h1 class="demo-title">Global Header Component</h1>
             <p class="demo-desc">
-                VS Code-inspired global header with Angular Material dark theme styling.
+                Material Design 3 dark theme header with Blue (#2196f3) primary and Orange (#ff9800) accent colors.
                 This component provides consistent navigation across the application.
             </p>
 
@@ -534,45 +553,50 @@
                 <h3 class="demo-box__title">Component Features</h3>
                 <ul class="feature-list">
                     <li>
-                        <span class="material-icons">check_circle</span>
-                        <span><strong>Logo & Branding</strong> - App icon with gradient, collapsible text</span>
+                        <span class="material-icons-outlined">check_circle</span>
+                        <span><strong>Logo & Branding</strong> - Blue/Orange gradient icon, collapsible text</span>
                     </li>
                     <li>
-                        <span class="material-icons">check_circle</span>
+                        <span class="material-icons-outlined">check_circle</span>
                         <span><strong>Menu Items</strong> - File, Edit, View, Go, Run, Help (hidden on mobile)</span>
                     </li>
                     <li>
-                        <span class="material-icons">check_circle</span>
+                        <span class="material-icons-outlined">check_circle</span>
                         <span><strong>Search Bar</strong> - Centered search with keyboard shortcut indicator</span>
                     </li>
                     <li>
-                        <span class="material-icons">check_circle</span>
+                        <span class="material-icons-outlined">check_circle</span>
                         <span><strong>Action Buttons</strong> - Notifications, Account icons</span>
                     </li>
                     <li>
-                        <span class="material-icons">check_circle</span>
+                        <span class="material-icons-outlined">check_circle</span>
                         <span><strong>Window Controls</strong> - Minimize, Maximize, Close (desktop only)</span>
                     </li>
                     <li>
-                        <span class="material-icons">check_circle</span>
+                        <span class="material-icons-outlined">check_circle</span>
                         <span><strong>Mobile Menu</strong> - Hamburger button replaces menu on small screens</span>
                     </li>
                 </ul>
             </div>
 
             <div class="demo-box">
-                <h3 class="demo-box__title">Responsive Behavior</h3>
+                <h3 class="demo-box__title">Design Tokens Used</h3>
                 <div class="demo-box__content">
-                    <p><strong>Mobile (XS-SM):</strong> Hamburger menu, compact logo, search centered</p>
-                    <p><strong>Tablet (MD):</strong> Full menu visible, logo text shown, window controls hidden</p>
-                    <p><strong>Desktop (LG+):</strong> All elements visible including window controls</p>
+                    <p><strong>Primary:</strong> #2196f3 (Blue)</p>
+                    <p><strong>Accent:</strong> #ff9800 (Orange)</p>
+                    <p><strong>Background:</strong> #121212</p>
+                    <p><strong>Surface:</strong> #1e1e1e (Cards/Toolbar)</p>
+                    <p><strong>Elevated:</strong> #2d2d2d (Inputs/Elevated)</p>
+                    <p><strong>Header Height:</strong> 64px</p>
                 </div>
             </div>
 
             <div class="demo-box">
-                <h3 class="demo-box__title">Angular Material Components Used</h3>
+                <h3 class="demo-box__title">Responsive Behavior</h3>
                 <div class="demo-box__content">
-                    <p>mat-icon-button, mat-icon, mat-form-field, mat-input, mat-menu, mat-toolbar</p>
+                    <p><strong>Mobile (XS-SM):</strong> Hamburger menu, compact logo, search centered</p>
+                    <p><strong>Tablet (MD):</strong> Full menu visible, logo text shown</p>
+                    <p><strong>Desktop (LG+):</strong> All elements visible including window controls</p>
                 </div>
             </div>
         </section>

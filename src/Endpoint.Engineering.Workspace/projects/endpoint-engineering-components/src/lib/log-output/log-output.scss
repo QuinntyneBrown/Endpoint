@@ -1,28 +1,31 @@
 @use '../styles/variables';
 
 .log-output {
-  background: var(--ee-surface-elevated);
+  background: var(--ee-surface-card);
+  border: 1px solid var(--ee-surface-divider);
   border-radius: var(--ee-radius-md);
   overflow: hidden;
 
   &__header {
-    font-size: var(--ee-font-size-xl);
+    font-size: var(--ee-font-size-lg);
     font-weight: 500;
-    padding: var(--ee-spacing-xl);
+    padding: var(--ee-spacing-md);
     display: flex;
     align-items: center;
     gap: var(--ee-spacing-sm);
-    color: var(--ee-on-surface);
-    border-bottom: 1px solid var(--ee-divider);
+    color: var(--ee-text-primary);
+    background: var(--ee-surface-elevated);
+    border-bottom: 1px solid var(--ee-surface-divider);
   }
 
   &__container {
-    background: #000;
-    padding: var(--ee-spacing-lg);
-    font-family: 'Courier New', monospace;
-    font-size: var(--ee-font-size-md);
+    background: var(--ee-surface-background);
+    padding: var(--ee-spacing-md);
+    font-family: var(--ee-font-family-mono);
+    font-size: var(--ee-font-size-sm);
+    line-height: 1.6;
     overflow-y: auto;
-    color: #00ff00;
+    color: var(--ee-text-primary);
   }
 
   &__line {
@@ -31,24 +34,24 @@
     word-break: break-word;
 
     &--info {
-      color: #0099ff;
+      color: var(--ee-status-info);
     }
 
     &--success {
-      color: #00ff00;
+      color: var(--ee-status-success);
     }
 
     &--warning {
-      color: #ffaa00;
+      color: var(--ee-status-warning);
     }
 
     &--error {
-      color: #ff3333;
+      color: var(--ee-status-error);
     }
   }
 
   &__empty {
-    color: var(--ee-on-surface-disabled);
+    color: var(--ee-text-disabled);
     font-style: italic;
   }
 }

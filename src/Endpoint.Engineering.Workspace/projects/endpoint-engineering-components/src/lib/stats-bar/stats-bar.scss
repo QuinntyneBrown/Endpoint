@@ -3,10 +3,10 @@
 .stats-bar {
   display: flex;
   gap: var(--ee-spacing-xl);
-  padding: 20px;
-  background: var(--ee-surface);
-  border: 1px solid var(--ee-divider);
-  border-radius: var(--ee-radius-lg);
+  padding: var(--ee-spacing-lg);
+  background: var(--ee-surface-card);
+  border: 1px solid var(--ee-surface-divider);
+  border-radius: var(--ee-radius-md);
 
   &__stat {
     flex: 1;
@@ -16,13 +16,25 @@
   &__value {
     font-size: var(--ee-font-size-display);
     font-weight: 500;
-    color: var(--ee-primary);
+    color: var(--ee-primary-500);
     margin-bottom: var(--ee-spacing-xs);
+
+    &--success {
+      color: var(--ee-status-success);
+    }
+
+    &--warning {
+      color: var(--ee-status-warning);
+    }
+
+    &--error {
+      color: var(--ee-status-error);
+    }
   }
 
   &__label {
     font-size: var(--ee-font-size-sm);
-    color: var(--ee-on-surface-medium);
+    color: var(--ee-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }

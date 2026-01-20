@@ -1,12 +1,12 @@
 .main-layout {
   min-height: 100vh;
-  background: var(--mat-background, #0d1117);
+  background: var(--ee-surface-background, #121212);
 }
 
 // Mobile overlay when menu is open
 .mobile-overlay {
   position: fixed;
-  top: var(--header-height, 48px);
+  top: var(--ee-header-height, 64px);
   left: 0;
   right: 0;
   bottom: 0;
@@ -20,19 +20,19 @@
 
 // Main content area
 .main-content {
-  margin-top: var(--header-height, 48px);
+  margin-top: var(--ee-header-height, 64px);
   margin-left: 0;
-  min-height: calc(100vh - var(--header-height, 48px));
-  padding: var(--space-4, 16px);
+  min-height: calc(100vh - var(--ee-header-height, 64px));
+  padding: var(--ee-spacing-md, 16px);
 
   // Add left margin for rail on tablet+
   @media (min-width: 768px) {
-    margin-left: var(--rail-width, 48px);
-    padding: var(--space-6, 24px);
+    margin-left: var(--ee-rail-width, 48px);
+    padding: var(--ee-spacing-lg, 24px);
   }
 
   // Larger padding on desktop
   @media (min-width: 992px) {
-    padding: var(--space-8, 32px);
+    padding: var(--ee-spacing-xl, 32px);
   }
 }

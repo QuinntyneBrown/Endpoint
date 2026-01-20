@@ -5,11 +5,12 @@
   align-items: center;
   margin-bottom: var(--ee-spacing-xxl);
   overflow-x: auto;
+  min-width: max-content;
 
   &__step {
     display: flex;
     align-items: center;
-    gap: var(--ee-spacing-md);
+    gap: var(--ee-spacing-sm);
   }
 
   &__indicator {
@@ -22,21 +23,18 @@
     font-size: var(--ee-font-size-base);
     font-weight: 500;
     background: var(--ee-surface-elevated);
-    color: var(--ee-on-surface-medium);
-    border: 2px solid var(--ee-divider);
+    color: var(--ee-text-disabled);
     flex-shrink: 0;
-    transition: all var(--ee-transition-base);
+    transition: all var(--ee-transition-fast);
 
     .wizard-steps__step--active & {
-      background: var(--ee-primary);
-      color: #121212;
-      border-color: var(--ee-primary);
+      background: var(--ee-primary-500);
+      color: white;
     }
 
     .wizard-steps__step--completed & {
-      background: var(--ee-success);
-      color: #121212;
-      border-color: var(--ee-success);
+      background: var(--ee-status-success);
+      color: white;
     }
   }
 
@@ -45,26 +43,34 @@
   }
 
   &__label {
-    font-size: var(--ee-font-size-md);
+    font-size: var(--ee-font-size-base);
     white-space: nowrap;
-    color: var(--ee-on-surface-medium);
+    color: var(--ee-text-disabled);
 
-    .wizard-steps__step--active &,
+    .wizard-steps__step--active & {
+      color: var(--ee-text-primary);
+      font-weight: 500;
+    }
+
     .wizard-steps__step--completed & {
-      color: var(--ee-on-surface);
+      color: var(--ee-status-success);
     }
   }
 
   &__connector {
     width: 40px;
     height: 2px;
-    background: var(--ee-divider);
+    background: var(--ee-surface-elevated);
     margin: 0 var(--ee-spacing-sm);
     flex-shrink: 0;
-    transition: background var(--ee-transition-base);
+    transition: background var(--ee-transition-fast);
+
+    @media (min-width: 768px) {
+      width: 60px;
+    }
 
     &--completed {
-      background: var(--ee-success);
+      background: var(--ee-status-success);
     }
   }
 }

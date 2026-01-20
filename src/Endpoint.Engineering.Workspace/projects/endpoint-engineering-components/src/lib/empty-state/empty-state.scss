@@ -2,7 +2,7 @@
 
 .empty-state {
   text-align: center;
-  padding: 48px var(--ee-spacing-xl);
+  padding: var(--ee-spacing-xxl) var(--ee-spacing-xl);
   max-width: 480px;
   margin: 0 auto;
 
@@ -11,17 +11,17 @@
     height: 120px;
     margin: 0 auto var(--ee-spacing-xl);
     background: var(--ee-surface-elevated);
-    border-radius: 60px;
+    border-radius: var(--ee-radius-full);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px dashed var(--ee-divider);
+    border: 2px dashed var(--ee-surface-divider);
 
     .material-icons {
       font-size: 64px;
       width: 64px;
       height: 64px;
-      color: var(--ee-on-surface-disabled);
+      color: var(--ee-text-disabled);
       line-height: 64px;
       text-align: center;
     }
@@ -31,12 +31,12 @@
     font-size: var(--ee-font-size-title);
     font-weight: 500;
     margin-bottom: var(--ee-spacing-md);
-    color: var(--ee-on-surface);
+    color: var(--ee-text-primary);
   }
 
   &__description {
     font-size: var(--ee-font-size-base);
-    color: var(--ee-on-surface-medium);
+    color: var(--ee-text-secondary);
     line-height: 1.6;
     margin-bottom: var(--ee-spacing-xxl);
   }
@@ -52,7 +52,7 @@
   }
 
   &__quick-start {
-    margin-top: 48px;
+    margin-top: var(--ee-spacing-xxl);
 
     &:empty {
       display: none;

@@ -2,26 +2,163 @@
 
 @include mat.core();
 
-/* Global Styles */
+/* Material Design 3 Dark Theme - Blue/Orange Color Palette */
+/* Based on ADMIN-UI-IMPLEMENTATION-GUIDE.md */
 :root {
-  --mat-primary: #9fa8da;
-  --mat-primary-lighter: #c5cae9;
-  --mat-primary-darker: #7986cb;
-  --mat-accent: #f48fb1;
-  --mat-accent-lighter: #f8bbd0;
-  --mat-accent-darker: #f06292;
-  --mat-warn: #ef5350;
-  --mat-success: #81c784;
-  --mat-background: #0d1117;
-  --mat-surface: #161b22;
-  --mat-surface-elevated: #21262d;
-  --mat-surface-high: #30363d;
-  --mat-on-surface: #e6edf3;
-  --mat-on-surface-medium: rgba(230, 237, 243, 0.7);
-  --mat-on-surface-disabled: rgba(230, 237, 243, 0.38);
-  --mat-divider: rgba(230, 237, 243, 0.12);
+  // ============================================
+  // PRIMARY COLORS (Blue)
+  // ============================================
+  --ee-primary-50: #e3f2fd;
+  --ee-primary-100: #bbdefb;
+  --ee-primary-200: #90caf9;
+  --ee-primary-300: #64b5f6;
+  --ee-primary-400: #42a5f5;
+  --ee-primary-500: #2196f3;   // Main brand color
+  --ee-primary-600: #1e88e5;   // Hover state
+  --ee-primary-700: #1976d2;   // Active/pressed state
+  --ee-primary-800: #1565c0;
+  --ee-primary-900: #0d47a1;
+
+  // Legacy aliases (for backwards compatibility)
+  --ee-primary: var(--ee-primary-500);
+  --ee-primary-lighter: var(--ee-primary-300);
+  --ee-primary-darker: var(--ee-primary-700);
+
+  // ============================================
+  // ACCENT COLORS (Orange)
+  // ============================================
+  --ee-accent-500: #ff9800;    // Secondary actions, FAB
+  --ee-accent-600: #fb8c00;
+  --ee-accent-700: #f57c00;
+
+  // Legacy aliases
+  --ee-accent: var(--ee-accent-500);
+  --ee-accent-lighter: #ffb74d;
+  --ee-accent-darker: var(--ee-accent-700);
+
+  // ============================================
+  // WARN/ERROR COLORS (Red)
+  // ============================================
+  --ee-warn-500: #f44336;      // Destructive actions
+  --ee-warn-600: #e53935;
+  --ee-warn-700: #d32f2f;
+
+  // Legacy alias
+  --ee-warn: var(--ee-warn-500);
+
+  // ============================================
+  // STATUS COLORS
+  // ============================================
+  --ee-status-success: #4caf50;    // Green - active, success
+  --ee-status-warning: #ff9800;    // Orange - warning, locked
+  --ee-status-error: #f44336;      // Red - error, inactive
+  --ee-status-info: #2196f3;       // Blue - information
+
+  // Legacy alias
+  --ee-success: var(--ee-status-success);
+
+  // ============================================
+  // SURFACE COLORS (Dark Theme)
+  // ============================================
+  --ee-surface-background: #121212;           // Page background
+  --ee-surface-card: #1e1e1e;                 // Cards, toolbar, sidenav
+  --ee-surface-elevated: #2d2d2d;             // Elevated elements within cards
+  --ee-surface-dialog: #2d2d2d;               // Modal backgrounds
+  --ee-surface-divider: rgba(255, 255, 255, 0.12);
+  --ee-surface-hover: rgba(255, 255, 255, 0.08);
+  --ee-surface-selected: rgba(33, 150, 243, 0.16);
+
+  // Legacy aliases
+  --ee-background: var(--ee-surface-background);
+  --ee-surface: var(--ee-surface-card);
+  --ee-surface-high: var(--ee-surface-elevated);
+  --ee-divider: var(--ee-surface-divider);
+
+  // ============================================
+  // TEXT COLORS
+  // ============================================
+  --ee-text-primary: rgba(255, 255, 255, 0.87);
+  --ee-text-secondary: rgba(255, 255, 255, 0.60);
+  --ee-text-disabled: rgba(255, 255, 255, 0.38);
+  --ee-text-hint: rgba(255, 255, 255, 0.38);
+
+  // Legacy aliases
+  --ee-on-surface: var(--ee-text-primary);
+  --ee-on-surface-medium: var(--ee-text-secondary);
+  --ee-on-surface-disabled: var(--ee-text-disabled);
+
+  // ============================================
+  // SPACING (8px base unit)
+  // ============================================
+  --ee-spacing-xs: 4px;     // 0.5x
+  --ee-spacing-sm: 8px;     // 1x
+  --ee-spacing-md: 16px;    // 2x
+  --ee-spacing-lg: 24px;    // 3x
+  --ee-spacing-xl: 32px;    // 4x
+  --ee-spacing-xxl: 48px;   // 6x
+
+  // ============================================
+  // BORDER RADIUS
+  // ============================================
+  --ee-radius-xs: 2px;
+  --ee-radius-sm: 4px;      // Buttons, inputs
+  --ee-radius-md: 8px;      // Cards, dialogs
+  --ee-radius-lg: 12px;     // Large containers
+  --ee-radius-chip: 16px;   // Chips, pills
+  --ee-radius-full: 50%;    // Circular elements
+
+  // ============================================
+  // ELEVATION (Box Shadows)
+  // ============================================
+  --ee-elevation-0: none;
+  --ee-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --ee-elevation-2: 0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12);
+  --ee-elevation-4: 0 10px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.10);
+  --ee-elevation-8: 0 15px 25px rgba(0, 0, 0, 0.15), 0 5px 10px rgba(0, 0, 0, 0.05);
+  --ee-elevation-16: 0 20px 40px rgba(0, 0, 0, 0.2);
+  --ee-elevation-24: 0 25px 50px rgba(0, 0, 0, 0.25);
+
+  // Legacy aliases
+  --ee-shadow-sm: var(--ee-elevation-1);
+  --ee-shadow-md: var(--ee-elevation-2);
+  --ee-shadow-lg: var(--ee-elevation-8);
+
+  // ============================================
+  // TYPOGRAPHY
+  // ============================================
+  --ee-font-family: 'Roboto', sans-serif;
+  --ee-font-family-mono: 'Roboto Mono', monospace;
+
+  --ee-font-size-xs: 11px;
+  --ee-font-size-sm: 12px;
+  --ee-font-size-md: 13px;
+  --ee-font-size-base: 14px;
+  --ee-font-size-lg: 16px;
+  --ee-font-size-xl: 18px;
+  --ee-font-size-xxl: 20px;
+  --ee-font-size-title: 24px;
+  --ee-font-size-display: 28px;
+
+  // ============================================
+  // COMPONENT SIZES
+  // ============================================
+  --ee-header-height: 64px;
+  --ee-rail-width: 48px;
+  --ee-sidebar-width: 256px;
+  --ee-status-bar-height: 24px;
+
+  // ============================================
+  // TRANSITIONS
+  // ============================================
+  --ee-transition-fast: 150ms ease;
+  --ee-transition-standard: 300ms ease;
+  --ee-transition-slow: 500ms ease;
+
+  // Legacy aliases
+  --ee-transition-base: var(--ee-transition-fast);
 }
 
+/* Global Resets */
 * {
   margin: 0;
   padding: 0;
@@ -33,8 +170,88 @@ html, body {
 }
 
 body {
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
-  background: var(--mat-background);
-  color: var(--mat-on-surface);
-  margin: 0;
+  font-family: var(--ee-font-family);
+  background: var(--ee-surface-background);
+  color: var(--ee-text-primary);
+  font-size: var(--ee-font-size-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Material Component Overrides */
+.mat-mdc-button,
+.mat-mdc-outlined-button,
+.mat-mdc-raised-button,
+.mat-mdc-flat-button {
+  --mdc-filled-button-label-text-color: white;
+  --mdc-filled-button-container-color: var(--ee-primary-500);
+}
+
+.mat-mdc-form-field {
+  --mdc-filled-text-field-container-color: var(--ee-surface-elevated);
+  --mdc-filled-text-field-label-text-color: var(--ee-text-secondary);
+  --mdc-filled-text-field-input-text-color: var(--ee-text-primary);
+  --mdc-filled-text-field-focus-label-text-color: var(--ee-primary-500);
+  --mdc-filled-text-field-focus-active-indicator-color: var(--ee-primary-500);
+}
+
+.mat-mdc-tab-group {
+  --mdc-tab-indicator-active-indicator-color: var(--ee-primary-500);
+  --mat-tab-header-active-label-text-color: var(--ee-primary-500);
+  --mat-tab-header-active-focus-label-text-color: var(--ee-primary-500);
+  --mat-tab-header-inactive-label-text-color: var(--ee-text-secondary);
+}
+
+.mat-mdc-menu-panel {
+  background: var(--ee-surface-elevated) !important;
+
+  .mat-mdc-menu-item {
+    color: var(--ee-text-primary);
+
+    &:hover {
+      background: var(--ee-surface-hover);
+    }
+  }
+}
+
+.mat-mdc-select-panel {
+  background: var(--ee-surface-elevated) !important;
+}
+
+.mat-mdc-option {
+  color: var(--ee-text-primary) !important;
+
+  &:hover {
+    background: var(--ee-surface-hover) !important;
+  }
+
+  &.mdc-list-item--selected {
+    background: var(--ee-surface-selected) !important;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ee-surface-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ee-surface-elevated);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--ee-text-disabled);
+  }
+}
+
+/* Selection */
+::selection {
+  background: var(--ee-primary-500);
+  color: white;
 }

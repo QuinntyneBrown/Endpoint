@@ -1,33 +1,48 @@
 @use '../styles/variables';
 
 .icon-button {
+  width: 40px;
+  height: 40px;
   background: none;
   border: none;
-  color: var(--ee-on-surface-medium);
+  color: var(--ee-text-secondary);
   cursor: pointer;
-  padding: var(--ee-spacing-sm);
+  padding: 0;
   border-radius: var(--ee-radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background var(--ee-transition-base);
+  transition: all var(--ee-transition-fast);
 
   &:hover:not(.icon-button--disabled) {
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--ee-on-surface);
+    background: var(--ee-surface-hover);
+    color: var(--ee-text-primary);
   }
 
   &:focus {
-    outline: 2px solid var(--ee-primary);
+    outline: 2px solid var(--ee-primary-500);
     outline-offset: 2px;
   }
 
   &--back {
-    color: var(--ee-on-surface);
+    color: var(--ee-text-secondary);
+
+    &:hover:not(.icon-button--disabled) {
+      color: var(--ee-text-primary);
+    }
+  }
+
+  &--small {
+    width: 36px;
+    height: 36px;
+
+    .material-icons {
+      font-size: 20px;
+    }
   }
 
   &--disabled {
-    color: var(--ee-on-surface-disabled);
+    color: var(--ee-text-disabled);
     cursor: not-allowed;
   }
 

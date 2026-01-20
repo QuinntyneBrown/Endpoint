@@ -3,108 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALaCarteRequest Wizard - Multi-Step Flow</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>ALaCarteRequest Wizard - Material Design 3 Dark Theme</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <style>
-        /* ============================================================
-           CSS VARIABLES - Angular Material Dark Theme
-           ============================================================ */
+        /* ============================================
+           CSS VARIABLES - Material Design 3 Dark Theme
+           ============================================ */
         :root {
-            /* Primary Colors (Indigo) */
-            --mat-primary: #9fa8da;
-            --mat-primary-lighter: #c5cae9;
-            --mat-primary-darker: #7986cb;
+            /* Primary Colors (Blue) */
+            --primary-500: #2196f3;
+            --primary-600: #1e88e5;
+            --primary-700: #1976d2;
 
-            /* Accent Colors (Pink) */
-            --mat-accent: #f48fb1;
-            --mat-accent-lighter: #f8bbd0;
-            --mat-accent-darker: #f06292;
+            /* Accent Colors (Orange) */
+            --accent-500: #ff9800;
+            --accent-600: #fb8c00;
+            --accent-700: #f57c00;
 
-            /* Semantic Colors */
-            --mat-warn: #ef5350;
-            --mat-warn-lighter: #ef9a9a;
-            --mat-success: #81c784;
-            --mat-success-lighter: #a5d6a7;
-            --mat-info: #64b5f6;
+            /* Warn Colors (Red) */
+            --warn-500: #f44336;
+            --warn-600: #e53935;
 
-            /* Background Colors */
-            --mat-background: #0d1117;
-            --mat-surface: #161b22;
-            --mat-surface-elevated: #21262d;
-            --mat-surface-high: #30363d;
-            --mat-surface-highest: #484f58;
+            /* Status Colors */
+            --status-success: #4caf50;
+            --status-warning: #ff9800;
+            --status-error: #f44336;
+            --status-info: #2196f3;
+
+            /* Surface Colors (Dark Theme) */
+            --surface-background: #121212;
+            --surface-card: #1e1e1e;
+            --surface-elevated: #2d2d2d;
+            --surface-dialog: #2d2d2d;
+            --surface-divider: rgba(255, 255, 255, 0.12);
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --surface-selected: rgba(33, 150, 243, 0.16);
 
             /* Text Colors */
-            --mat-on-surface: #e6edf3;
-            --mat-on-surface-medium: rgba(230, 237, 243, 0.7);
-            --mat-on-surface-disabled: rgba(230, 237, 243, 0.38);
+            --text-primary: rgba(255, 255, 255, 0.87);
+            --text-secondary: rgba(255, 255, 255, 0.60);
+            --text-disabled: rgba(255, 255, 255, 0.38);
+            --text-hint: rgba(255, 255, 255, 0.38);
 
-            /* Border & State */
-            --mat-divider: rgba(230, 237, 243, 0.12);
-            --mat-border: #30363d;
-            --mat-hover: rgba(255, 255, 255, 0.08);
-            --mat-focus: rgba(159, 168, 218, 0.24);
-            --mat-selected: rgba(159, 168, 218, 0.16);
-
-            /* Spacing */
-            --space-1: 4px;
-            --space-2: 8px;
-            --space-3: 12px;
-            --space-4: 16px;
-            --space-5: 20px;
-            --space-6: 24px;
-            --space-8: 32px;
-            --space-10: 40px;
-            --space-12: 48px;
+            /* Spacing (8px base) */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 48px;
 
             /* Component Sizes */
-            --header-height: 48px;
+            --header-height: 64px;
             --rail-width: 48px;
-            --status-bar-height: 22px;
-
-            /* Typography */
-            --font-family-base: 'Roboto', sans-serif;
-            --font-family-mono: 'Roboto Mono', monospace;
-            --font-size-xs: 10px;
-            --font-size-sm: 12px;
-            --font-size-base: 14px;
-            --font-size-md: 16px;
-            --font-size-lg: 18px;
-            --font-size-xl: 20px;
-            --font-size-2xl: 24px;
-
-            /* Transitions */
-            --transition-fast: 0.15s ease;
-            --transition-base: 0.2s ease;
 
             /* Border Radius */
             --radius-sm: 4px;
             --radius-md: 8px;
             --radius-lg: 12px;
-            --radius-full: 9999px;
+            --radius-chip: 16px;
+            --radius-full: 50%;
+
+            /* Elevation */
+            --elevation-2: 0 3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.12);
+            --elevation-4: 0 10px 20px rgba(0,0,0,0.15), 0 3px 6px rgba(0,0,0,0.10);
+
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-standard: 300ms ease;
         }
 
-        /* ============================================================
+        /* ============================================
            RESET & BASE
-           ============================================================ */
-        * {
+           ============================================ */
+        *, *::before, *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: var(--font-family-base);
-            background: var(--mat-background);
-            color: var(--mat-on-surface);
+            font-family: 'Roboto', sans-serif;
+            background: var(--surface-background);
+            color: var(--text-primary);
             min-height: 100vh;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
-        /* ============================================================
+        /* ============================================
            LAYOUT SHELL
-           ============================================================ */
+           ============================================ */
         .app-shell {
             display: flex;
             flex-direction: column;
@@ -118,35 +108,37 @@
             left: 0;
             right: 0;
             height: var(--header-height);
-            background: var(--mat-surface);
-            border-bottom: 1px solid var(--mat-divider);
+            background: var(--surface-card);
+            border-bottom: 1px solid var(--surface-divider);
             display: flex;
             align-items: center;
-            padding: 0 var(--space-4);
-            z-index: 200;
+            padding: 0 var(--spacing-md);
+            z-index: 1000;
+            box-shadow: var(--elevation-4);
         }
 
         .global-header__back {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: none;
             border: none;
-            border-radius: var(--radius-sm);
-            color: var(--mat-on-surface-medium);
+            border-radius: var(--radius-full);
+            color: var(--text-secondary);
             cursor: pointer;
-            margin-right: var(--space-3);
+            margin-right: var(--spacing-md);
+            transition: all var(--transition-fast);
         }
 
         .global-header__back:hover {
-            background: var(--mat-hover);
-            color: var(--mat-on-surface);
+            background: var(--surface-hover);
+            color: var(--text-primary);
         }
 
         .global-header__title {
-            font-size: var(--font-size-md);
+            font-size: 18px;
             font-weight: 500;
         }
 
@@ -162,12 +154,12 @@
                 left: 0;
                 bottom: 0;
                 width: var(--rail-width);
-                background: var(--mat-surface);
-                border-right: 1px solid var(--mat-divider);
+                background: var(--surface-card);
+                border-right: 1px solid var(--surface-divider);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                padding: var(--space-2) 0;
+                padding: var(--spacing-sm) 0;
             }
 
             .rail__item {
@@ -176,18 +168,25 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: var(--mat-on-surface-disabled);
+                color: var(--text-disabled);
                 cursor: pointer;
+                background: none;
+                border: none;
+                transition: color var(--transition-fast);
+            }
+
+            .rail__item:hover {
+                color: var(--text-primary);
             }
 
             .rail__item--active {
-                color: var(--mat-on-surface);
+                color: var(--text-primary);
             }
         }
 
-        /* ============================================================
+        /* ============================================
            WIZARD CONTAINER
-           ============================================================ */
+           ============================================ */
         .wizard-container {
             margin-top: var(--header-height);
             min-height: calc(100vh - var(--header-height));
@@ -201,13 +200,13 @@
             }
         }
 
-        /* ============================================================
+        /* ============================================
            WIZARD STEPPER
-           ============================================================ */
+           ============================================ */
         .wizard-stepper {
-            background: var(--mat-surface);
-            border-bottom: 1px solid var(--mat-divider);
-            padding: var(--space-4);
+            background: var(--surface-card);
+            border-bottom: 1px solid var(--surface-divider);
+            padding: var(--spacing-md);
             overflow-x: auto;
         }
 
@@ -220,7 +219,7 @@
         .wizard-stepper__step {
             display: flex;
             align-items: center;
-            gap: var(--space-2);
+            gap: var(--spacing-sm);
         }
 
         .wizard-stepper__circle {
@@ -230,28 +229,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: var(--font-size-sm);
+            font-size: 14px;
             font-weight: 500;
             flex-shrink: 0;
         }
 
         .wizard-stepper__step--completed .wizard-stepper__circle {
-            background: var(--mat-success);
-            color: #121212;
+            background: var(--status-success);
+            color: white;
         }
 
         .wizard-stepper__step--active .wizard-stepper__circle {
-            background: var(--mat-primary);
-            color: #121212;
+            background: var(--primary-500);
+            color: white;
         }
 
         .wizard-stepper__step--pending .wizard-stepper__circle {
-            background: var(--mat-surface-high);
-            color: var(--mat-on-surface-disabled);
+            background: var(--surface-elevated);
+            color: var(--text-disabled);
         }
 
         .wizard-stepper__label {
-            font-size: var(--font-size-sm);
+            font-size: 14px;
             display: none;
         }
 
@@ -262,23 +261,23 @@
         }
 
         .wizard-stepper__step--completed .wizard-stepper__label {
-            color: var(--mat-success);
+            color: var(--status-success);
         }
 
         .wizard-stepper__step--active .wizard-stepper__label {
-            color: var(--mat-on-surface);
+            color: var(--text-primary);
             font-weight: 500;
         }
 
         .wizard-stepper__step--pending .wizard-stepper__label {
-            color: var(--mat-on-surface-disabled);
+            color: var(--text-disabled);
         }
 
         .wizard-stepper__connector {
             width: 40px;
             height: 2px;
-            margin: 0 var(--space-2);
-            background: var(--mat-surface-high);
+            margin: 0 var(--spacing-sm);
+            background: var(--surface-elevated);
             flex-shrink: 0;
         }
 
@@ -289,27 +288,27 @@
         }
 
         .wizard-stepper__connector--completed {
-            background: var(--mat-success);
+            background: var(--status-success);
         }
 
-        /* ============================================================
+        /* ============================================
            WIZARD CONTENT
-           ============================================================ */
+           ============================================ */
         .wizard-content {
             flex: 1;
-            padding: var(--space-4);
+            padding: var(--spacing-lg);
             overflow-y: auto;
         }
 
         @media (min-width: 768px) {
             .wizard-content {
-                padding: var(--space-6);
+                padding: var(--spacing-xl);
             }
         }
 
         @media (min-width: 992px) {
             .wizard-content {
-                padding: var(--space-8);
+                padding: var(--spacing-xl);
                 max-width: 900px;
                 margin: 0 auto;
             }
@@ -324,146 +323,146 @@
         }
 
         .wizard-step__header {
-            margin-bottom: var(--space-6);
+            margin-bottom: var(--spacing-xl);
         }
 
         .wizard-step__title {
-            font-size: var(--font-size-xl);
-            font-weight: 500;
-            margin-bottom: var(--space-2);
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: var(--spacing-sm);
         }
 
         @media (min-width: 768px) {
             .wizard-step__title {
-                font-size: var(--font-size-2xl);
+                font-size: 28px;
             }
         }
 
         .wizard-step__description {
-            color: var(--mat-on-surface-medium);
+            color: var(--text-secondary);
             line-height: 1.6;
         }
 
-        /* ============================================================
+        /* ============================================
            FORM COMPONENTS
-           ============================================================ */
+           ============================================ */
 
         /* Form Group */
         .form-group {
-            margin-bottom: var(--space-6);
+            margin-bottom: var(--spacing-lg);
         }
 
         .form-label {
             display: block;
-            font-size: var(--font-size-sm);
+            font-size: 12px;
             font-weight: 500;
-            margin-bottom: var(--space-2);
-            color: var(--mat-on-surface);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-secondary);
         }
 
         .form-label--required::after {
             content: ' *';
-            color: var(--mat-warn);
+            color: var(--warn-500);
         }
 
         .form-hint {
-            font-size: var(--font-size-xs);
-            color: var(--mat-on-surface-medium);
-            margin-top: var(--space-1);
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: var(--spacing-xs);
         }
 
-        /* Text Input (mat-form-field style) */
+        /* Text Input */
         .mat-input {
             width: 100%;
             height: 48px;
-            padding: 0 var(--space-4);
-            background: var(--mat-surface-elevated);
-            border: 1px solid var(--mat-border);
+            padding: 0 var(--spacing-md);
+            background: var(--surface-elevated);
+            border: 1px solid var(--surface-divider);
             border-radius: var(--radius-sm);
-            color: var(--mat-on-surface);
-            font-family: var(--font-family-base);
-            font-size: var(--font-size-base);
+            color: var(--text-primary);
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
             transition: all var(--transition-fast);
         }
 
         .mat-input::placeholder {
-            color: var(--mat-on-surface-disabled);
+            color: var(--text-hint);
         }
 
         .mat-input:focus {
             outline: none;
-            border-color: var(--mat-primary);
-            background: var(--mat-surface-high);
+            border-color: var(--primary-500);
         }
 
         .mat-input--mono {
-            font-family: var(--font-family-mono);
+            font-family: 'Roboto Mono', monospace;
         }
 
-        /* Select (mat-select style) */
+        /* Select */
         .mat-select {
             width: 100%;
             height: 48px;
-            padding: 0 var(--space-4);
-            background: var(--mat-surface-elevated);
-            border: 1px solid var(--mat-border);
+            padding: 0 var(--spacing-md);
+            background: var(--surface-elevated);
+            border: 1px solid var(--surface-divider);
             border-radius: var(--radius-sm);
-            color: var(--mat-on-surface);
-            font-family: var(--font-family-base);
-            font-size: var(--font-size-base);
+            color: var(--text-primary);
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23e6edf3'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='rgba(255,255,255,0.6)'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 12px center;
         }
 
         .mat-select:focus {
             outline: none;
-            border-color: var(--mat-primary);
+            border-color: var(--primary-500);
         }
 
-        /* Radio Group (mat-radio-group style) */
+        /* Radio Group */
         .mat-radio-group {
             display: flex;
             flex-direction: column;
-            gap: var(--space-3);
+            gap: var(--spacing-md);
         }
 
         @media (min-width: 576px) {
             .mat-radio-group--horizontal {
                 flex-direction: row;
                 flex-wrap: wrap;
-                gap: var(--space-4);
+                gap: var(--spacing-md);
             }
         }
 
         .mat-radio {
             display: flex;
             align-items: center;
-            gap: var(--space-3);
-            padding: var(--space-3) var(--space-4);
-            background: var(--mat-surface-elevated);
-            border: 1px solid var(--mat-border);
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--surface-elevated);
+            border: 1px solid var(--surface-divider);
             border-radius: var(--radius-sm);
             cursor: pointer;
             transition: all var(--transition-fast);
         }
 
         .mat-radio:hover {
-            border-color: var(--mat-primary);
-            background: var(--mat-surface-high);
+            border-color: var(--primary-500);
         }
 
         .mat-radio--selected {
-            border-color: var(--mat-primary);
-            background: var(--mat-selected);
+            border-color: var(--primary-500);
+            background: var(--surface-selected);
         }
 
         .mat-radio__circle {
             width: 20px;
             height: 20px;
-            border: 2px solid var(--mat-border);
+            border: 2px solid var(--surface-divider);
             border-radius: var(--radius-full);
             display: flex;
             align-items: center;
@@ -472,14 +471,14 @@
         }
 
         .mat-radio--selected .mat-radio__circle {
-            border-color: var(--mat-primary);
+            border-color: var(--primary-500);
         }
 
         .mat-radio__circle::after {
             content: '';
             width: 10px;
             height: 10px;
-            background: var(--mat-primary);
+            background: var(--primary-500);
             border-radius: var(--radius-full);
             opacity: 0;
             transform: scale(0);
@@ -496,26 +495,26 @@
         }
 
         .mat-radio__label {
-            font-size: var(--font-size-base);
+            font-size: 14px;
             font-weight: 500;
         }
 
         .mat-radio__description {
-            font-size: var(--font-size-sm);
-            color: var(--mat-on-surface-medium);
-            margin-top: var(--space-1);
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: var(--spacing-xs);
         }
 
-        /* ============================================================
+        /* ============================================
            CARDS & LISTS
-           ============================================================ */
+           ============================================ */
 
         /* Repository Card */
         .repo-card {
-            background: var(--mat-surface);
-            border: 1px solid var(--mat-border);
+            background: var(--surface-card);
+            border: 1px solid var(--surface-divider);
             border-radius: var(--radius-md);
-            margin-bottom: var(--space-4);
+            margin-bottom: var(--spacing-md);
             overflow: hidden;
         }
 
@@ -523,29 +522,29 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: var(--space-4);
-            background: var(--mat-surface-elevated);
-            border-bottom: 1px solid var(--mat-divider);
+            padding: var(--spacing-md);
+            background: var(--surface-elevated);
+            border-bottom: 1px solid var(--surface-divider);
         }
 
         .repo-card__title {
             display: flex;
             align-items: center;
-            gap: var(--space-3);
+            gap: var(--spacing-md);
             font-weight: 500;
         }
 
-        .repo-card__title .material-icons {
-            color: var(--mat-primary);
+        .repo-card__title .material-icons-outlined {
+            color: var(--primary-500);
         }
 
         .repo-card__actions {
             display: flex;
-            gap: var(--space-2);
+            gap: var(--spacing-sm);
         }
 
         .repo-card__body {
-            padding: var(--space-4);
+            padding: var(--spacing-md);
         }
 
         /* Folder List */
@@ -556,20 +555,20 @@
         .folder-item {
             display: flex;
             align-items: center;
-            gap: var(--space-3);
-            padding: var(--space-3);
-            background: var(--mat-surface-elevated);
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: var(--surface-elevated);
             border-radius: var(--radius-sm);
-            margin-bottom: var(--space-2);
+            margin-bottom: var(--spacing-sm);
         }
 
         .folder-item__drag {
-            color: var(--mat-on-surface-disabled);
+            color: var(--text-disabled);
             cursor: grab;
         }
 
         .folder-item__icon {
-            color: var(--mat-accent);
+            color: var(--accent-500);
         }
 
         .folder-item__content {
@@ -578,23 +577,23 @@
         }
 
         .folder-item__from {
-            font-family: var(--font-family-mono);
-            font-size: var(--font-size-sm);
-            color: var(--mat-on-surface);
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+            color: var(--text-primary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .folder-item__arrow {
-            color: var(--mat-on-surface-disabled);
-            font-size: var(--font-size-sm);
+            color: var(--text-disabled);
+            font-size: 14px;
         }
 
         .folder-item__to {
-            font-family: var(--font-family-mono);
-            font-size: var(--font-size-sm);
-            color: var(--mat-on-surface-medium);
+            font-family: 'Roboto Mono', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -602,7 +601,7 @@
 
         .folder-item__actions {
             display: flex;
-            gap: var(--space-1);
+            gap: var(--spacing-xs);
         }
 
         /* Add Button */
@@ -610,38 +609,41 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: var(--space-2);
+            gap: var(--spacing-sm);
             width: 100%;
-            padding: var(--space-4);
+            padding: var(--spacing-md);
             background: none;
-            border: 2px dashed var(--mat-border);
+            border: 2px dashed var(--surface-divider);
             border-radius: var(--radius-md);
-            color: var(--mat-on-surface-medium);
-            font-size: var(--font-size-base);
+            color: var(--text-secondary);
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
             cursor: pointer;
             transition: all var(--transition-fast);
         }
 
         .add-button:hover {
-            border-color: var(--mat-primary);
-            color: var(--mat-primary);
-            background: var(--mat-focus);
+            border-color: var(--primary-500);
+            color: var(--primary-500);
+            background: var(--surface-selected);
         }
 
-        /* ============================================================
+        /* ============================================
            BUTTONS
-           ============================================================ */
+           ============================================ */
         .mat-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: var(--space-2);
-            padding: 0 var(--space-4);
-            height: 40px;
+            gap: var(--spacing-sm);
+            padding: 0 var(--spacing-md);
+            height: 36px;
             border-radius: var(--radius-sm);
-            font-size: var(--font-size-base);
+            font-size: 14px;
             font-weight: 500;
-            font-family: var(--font-family-base);
+            text-transform: uppercase;
+            letter-spacing: 1.25px;
+            font-family: 'Roboto', sans-serif;
             cursor: pointer;
             transition: all var(--transition-fast);
             border: none;
@@ -649,111 +651,112 @@
         }
 
         .mat-btn--primary {
-            background: var(--mat-primary);
-            color: #121212;
+            background: var(--primary-500);
+            color: white;
+            box-shadow: var(--elevation-2);
         }
 
         .mat-btn--primary:hover {
-            background: var(--mat-primary-lighter);
+            background: var(--primary-700);
+            box-shadow: var(--elevation-4);
         }
 
         .mat-btn--accent {
-            background: var(--mat-accent);
-            color: #121212;
+            background: var(--accent-500);
+            color: white;
         }
 
         .mat-btn--accent:hover {
-            background: var(--mat-accent-lighter);
+            background: var(--accent-700);
         }
 
         .mat-btn--outlined {
             background: transparent;
-            color: var(--mat-on-surface);
-            border: 1px solid var(--mat-border);
+            color: var(--primary-500);
+            border: 1px solid var(--primary-500);
         }
 
         .mat-btn--outlined:hover {
-            background: var(--mat-hover);
-            border-color: var(--mat-on-surface-medium);
+            background: rgba(33, 150, 243, 0.08);
         }
 
         .mat-btn--text {
             background: transparent;
-            color: var(--mat-primary);
+            color: var(--primary-500);
         }
 
         .mat-btn--text:hover {
-            background: var(--mat-hover);
+            background: var(--surface-hover);
         }
 
         .mat-btn--icon {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             padding: 0;
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-full);
             background: transparent;
-            color: var(--mat-on-surface-medium);
+            color: var(--text-secondary);
         }
 
         .mat-btn--icon:hover {
-            background: var(--mat-hover);
-            color: var(--mat-on-surface);
+            background: var(--surface-hover);
+            color: var(--text-primary);
         }
 
-        .mat-btn--icon .material-icons {
+        .mat-btn--icon .material-icons-outlined {
             font-size: 20px;
         }
 
-        /* ============================================================
+        /* ============================================
            WIZARD FOOTER
-           ============================================================ */
+           ============================================ */
         .wizard-footer {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: var(--space-4);
-            background: var(--mat-surface);
-            border-top: 1px solid var(--mat-divider);
+            padding: var(--spacing-md);
+            background: var(--surface-card);
+            border-top: 1px solid var(--surface-divider);
         }
 
         @media (min-width: 768px) {
             .wizard-footer {
-                padding: var(--space-4) var(--space-6);
+                padding: var(--spacing-md) var(--spacing-xl);
             }
         }
 
         .wizard-footer__left {
             display: flex;
             align-items: center;
-            gap: var(--space-3);
+            gap: var(--spacing-md);
         }
 
         .wizard-footer__right {
             display: flex;
             align-items: center;
-            gap: var(--space-3);
+            gap: var(--spacing-md);
         }
 
-        /* ============================================================
+        /* ============================================
            SUMMARY PREVIEW
-           ============================================================ */
+           ============================================ */
         .summary-card {
-            background: var(--mat-surface);
-            border: 1px solid var(--mat-border);
+            background: var(--surface-card);
+            border: 1px solid var(--surface-divider);
             border-radius: var(--radius-md);
-            margin-bottom: var(--space-4);
+            margin-bottom: var(--spacing-md);
         }
 
         .summary-card__header {
-            padding: var(--space-4);
-            border-bottom: 1px solid var(--mat-divider);
+            padding: var(--spacing-md);
+            border-bottom: 1px solid var(--surface-divider);
             display: flex;
             align-items: center;
-            gap: var(--space-3);
+            gap: var(--spacing-md);
         }
 
-        .summary-card__header .material-icons {
-            color: var(--mat-primary);
+        .summary-card__header .material-icons-outlined {
+            color: var(--primary-500);
         }
 
         .summary-card__title {
@@ -761,13 +764,13 @@
         }
 
         .summary-card__body {
-            padding: var(--space-4);
+            padding: var(--spacing-md);
         }
 
         .summary-row {
             display: flex;
-            padding: var(--space-2) 0;
-            border-bottom: 1px solid var(--mat-divider);
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid var(--surface-divider);
         }
 
         .summary-row:last-child {
@@ -777,53 +780,53 @@
         .summary-row__label {
             width: 140px;
             flex-shrink: 0;
-            font-size: var(--font-size-sm);
-            color: var(--mat-on-surface-medium);
+            font-size: 14px;
+            color: var(--text-secondary);
         }
 
         .summary-row__value {
             flex: 1;
-            font-size: var(--font-size-sm);
-            font-family: var(--font-family-mono);
+            font-size: 14px;
+            font-family: 'Roboto Mono', monospace;
         }
 
         /* JSON Preview */
         .json-preview {
-            background: var(--mat-background);
-            border: 1px solid var(--mat-border);
+            background: var(--surface-background);
+            border: 1px solid var(--surface-divider);
             border-radius: var(--radius-sm);
-            padding: var(--space-4);
-            font-family: var(--font-family-mono);
-            font-size: var(--font-size-sm);
+            padding: var(--spacing-md);
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
             line-height: 1.6;
             overflow-x: auto;
             max-height: 300px;
         }
 
         .json-preview .key {
-            color: var(--mat-primary);
+            color: var(--primary-500);
         }
 
         .json-preview .string {
-            color: var(--mat-success);
+            color: var(--status-success);
         }
 
         .json-preview .number {
-            color: var(--mat-accent);
+            color: var(--accent-500);
         }
 
-        /* ============================================================
+        /* ============================================
            RESPONSIVE INDICATOR
-           ============================================================ */
+           ============================================ */
         .responsive-indicator {
             position: fixed;
-            bottom: var(--space-4);
-            right: var(--space-4);
-            background: var(--mat-accent);
-            color: #121212;
-            padding: var(--space-2) var(--space-4);
+            bottom: var(--spacing-md);
+            right: var(--spacing-md);
+            background: var(--accent-500);
+            color: white;
+            padding: var(--spacing-sm) var(--spacing-md);
             border-radius: var(--radius-md);
-            font-size: var(--font-size-sm);
+            font-size: 12px;
             font-weight: 500;
             z-index: 300;
         }
@@ -858,7 +861,7 @@
              ============================================================ -->
         <header class="global-header">
             <button class="global-header__back">
-                <span class="material-icons">arrow_back</span>
+                <span class="material-icons-outlined">arrow_back</span>
             </button>
             <span class="global-header__title">New A La Carte Request</span>
         </header>
@@ -868,17 +871,17 @@
              ============================================================ -->
         <nav class="rail">
             <button class="rail__item">
-                <span class="material-icons">folder</span>
+                <span class="material-icons-outlined">folder</span>
             </button>
             <button class="rail__item rail__item--active">
-                <span class="material-icons">layers</span>
+                <span class="material-icons-outlined">layers</span>
             </button>
             <button class="rail__item">
-                <span class="material-icons">list_alt</span>
+                <span class="material-icons-outlined">list_alt</span>
             </button>
             <div style="flex: 1;"></div>
             <button class="rail__item">
-                <span class="material-icons">settings</span>
+                <span class="material-icons-outlined">settings</span>
             </button>
         </nav>
 
@@ -892,7 +895,7 @@
                     <!-- Step 1: Basic Info -->
                     <div class="wizard-stepper__step wizard-stepper__step--completed">
                         <div class="wizard-stepper__circle">
-                            <span class="material-icons" style="font-size: 18px;">check</span>
+                            <span class="material-icons-outlined" style="font-size: 18px;">check</span>
                         </div>
                         <span class="wizard-stepper__label">Basic Info</span>
                     </div>
@@ -989,20 +992,20 @@
                     <div class="repo-card">
                         <div class="repo-card__header">
                             <div class="repo-card__title">
-                                <span class="material-icons">cloud</span>
+                                <span class="material-icons-outlined">cloud</span>
                                 <span>github.com/user/my-repo</span>
                             </div>
                             <div class="repo-card__actions">
                                 <button class="mat-btn mat-btn--icon" title="Edit">
-                                    <span class="material-icons">edit</span>
+                                    <span class="material-icons-outlined">edit</span>
                                 </button>
                                 <button class="mat-btn mat-btn--icon" title="Delete">
-                                    <span class="material-icons">delete</span>
+                                    <span class="material-icons-outlined">delete</span>
                                 </button>
                             </div>
                         </div>
                         <div class="repo-card__body">
-                            <div class="form-group" style="margin-bottom: var(--space-4);">
+                            <div class="form-group" style="margin-bottom: var(--spacing-md);">
                                 <label class="form-label">Repository URL</label>
                                 <input type="text" class="mat-input mat-input--mono" value="https://github.com/user/my-repo.git">
                             </div>
@@ -1017,15 +1020,15 @@
                     <div class="repo-card">
                         <div class="repo-card__header">
                             <div class="repo-card__title">
-                                <span class="material-icons">folder</span>
+                                <span class="material-icons-outlined">folder</span>
                                 <span>/home/user/local-project</span>
                             </div>
                             <div class="repo-card__actions">
                                 <button class="mat-btn mat-btn--icon" title="Edit">
-                                    <span class="material-icons">edit</span>
+                                    <span class="material-icons-outlined">edit</span>
                                 </button>
                                 <button class="mat-btn mat-btn--icon" title="Delete">
-                                    <span class="material-icons">delete</span>
+                                    <span class="material-icons-outlined">delete</span>
                                 </button>
                             </div>
                         </div>
@@ -1039,7 +1042,7 @@
 
                     <!-- Add Repository Button -->
                     <button class="add-button">
-                        <span class="material-icons">add</span>
+                        <span class="material-icons-outlined">add</span>
                         <span>Add Repository</span>
                     </button>
                 </div>
@@ -1059,15 +1062,15 @@
                     <div class="repo-card">
                         <div class="repo-card__header">
                             <div class="repo-card__title">
-                                <span class="material-icons">cloud</span>
+                                <span class="material-icons-outlined">cloud</span>
                                 <span>github.com/user/my-repo</span>
                             </div>
                         </div>
                         <div class="repo-card__body">
                             <ul class="folder-list">
                                 <li class="folder-item">
-                                    <span class="material-icons folder-item__drag">drag_indicator</span>
-                                    <span class="material-icons folder-item__icon">folder</span>
+                                    <span class="material-icons-outlined folder-item__drag">drag_indicator</span>
+                                    <span class="material-icons-outlined folder-item__icon">folder</span>
                                     <div class="folder-item__content">
                                         <div class="folder-item__from">src/Core</div>
                                         <span class="folder-item__arrow">→</span>
@@ -1075,16 +1078,16 @@
                                     </div>
                                     <div class="folder-item__actions">
                                         <button class="mat-btn mat-btn--icon">
-                                            <span class="material-icons">edit</span>
+                                            <span class="material-icons-outlined">edit</span>
                                         </button>
                                         <button class="mat-btn mat-btn--icon">
-                                            <span class="material-icons">delete</span>
+                                            <span class="material-icons-outlined">delete</span>
                                         </button>
                                     </div>
                                 </li>
                                 <li class="folder-item">
-                                    <span class="material-icons folder-item__drag">drag_indicator</span>
-                                    <span class="material-icons folder-item__icon">folder</span>
+                                    <span class="material-icons-outlined folder-item__drag">drag_indicator</span>
+                                    <span class="material-icons-outlined folder-item__icon">folder</span>
                                     <div class="folder-item__content">
                                         <div class="folder-item__from">src/Api</div>
                                         <span class="folder-item__arrow">→</span>
@@ -1092,16 +1095,16 @@
                                     </div>
                                     <div class="folder-item__actions">
                                         <button class="mat-btn mat-btn--icon">
-                                            <span class="material-icons">edit</span>
+                                            <span class="material-icons-outlined">edit</span>
                                         </button>
                                         <button class="mat-btn mat-btn--icon">
-                                            <span class="material-icons">delete</span>
+                                            <span class="material-icons-outlined">delete</span>
                                         </button>
                                     </div>
                                 </li>
                             </ul>
-                            <button class="add-button" style="margin-top: var(--space-3);">
-                                <span class="material-icons">add</span>
+                            <button class="add-button" style="margin-top: var(--spacing-md);">
+                                <span class="material-icons-outlined">add</span>
                                 <span>Add Folder Mapping</span>
                             </button>
                         </div>
@@ -1122,7 +1125,7 @@
                     <!-- Summary Card -->
                     <div class="summary-card">
                         <div class="summary-card__header">
-                            <span class="material-icons">assignment</span>
+                            <span class="material-icons-outlined">assignment</span>
                             <span class="summary-card__title">Request Summary</span>
                         </div>
                         <div class="summary-card__body">
@@ -1175,7 +1178,7 @@
             <div class="wizard-footer">
                 <div class="wizard-footer__left">
                     <button class="mat-btn mat-btn--outlined">
-                        <span class="material-icons" style="font-size: 18px;">arrow_back</span>
+                        <span class="material-icons-outlined" style="font-size: 18px;">arrow_back</span>
                         Back
                     </button>
                 </div>
@@ -1183,7 +1186,7 @@
                     <button class="mat-btn mat-btn--text">Save Draft</button>
                     <button class="mat-btn mat-btn--primary">
                         Next
-                        <span class="material-icons" style="font-size: 18px;">arrow_forward</span>
+                        <span class="material-icons-outlined" style="font-size: 18px;">arrow_forward</span>
                     </button>
                 </div>
             </div>
