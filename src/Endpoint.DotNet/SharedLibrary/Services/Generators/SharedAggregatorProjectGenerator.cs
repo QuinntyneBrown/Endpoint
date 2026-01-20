@@ -70,6 +70,16 @@ public class SharedAggregatorProjectGenerator : ProjectGeneratorBase
             projectReferences.Add($"../{lib}.Messaging.Ccsds/{lib}.Messaging.Ccsds.csproj");
         }
 
+        if (context.Config.Protocols?.Jsc?.Enabled == true)
+        {
+            projectReferences.Add($"../{lib}.Messaging.Jsc/{lib}.Messaging.Jsc.csproj");
+        }
+
+        if (HasMessagingInfrastructure(context.Config))
+        {
+            projectReferences.Add($"../{lib}.Messaging.Infrastructure/{lib}.Messaging.Infrastructure.csproj");
+        }
+
         // Generate csproj
         await GenerateCsprojAsync(
             projectDirectory,
@@ -152,6 +162,29 @@ public class SharedAggregatorProjectGenerator : ProjectGeneratorBase
             sb.AppendLine($"global using {ns}.Messaging.Ccsds.Packets;");
         }
 
+        if (config.Protocols?.Jsc?.Enabled == true)
+        {
+            sb.AppendLine($"global using {ns}.Messaging.Jsc;");
+        }
+
+        if (HasMessagingInfrastructure(config))
+        {
+            sb.AppendLine($"global using {ns}.Messaging.Infrastructure;");
+        }
+
         return sb.ToString();
+    }
+
+    private bool HasMessagingInfrastructure(SharedLibraryConfig config)
+    {
+        return config.MessagingInfrastructure?.IncludeRetryPolicies == true
+            || config.MessagingInfrastructure?.IncludeCircuitBreaker == true
+            || config.MessagingInfrastructure?.IncludeDeadLetterQueue == true
+            || config.MessagingInfrastructure?.IncludeMessageValidation == true
+            || config.MessagingInfrastructure?.IncludeDistributedTracing == true
+            || config.MessagingInfrastructure?.IncludeMessageVersioning == true
+            || config.MessagingInfrastructure?.IncludeSerializationHelpers == true
+            || config.MessagingInfrastructure?.IncludeRepositoryInterfaces == true
+            || config.MessagingInfrastructure?.IncludeEntityBaseClasses == true;
     }
 }

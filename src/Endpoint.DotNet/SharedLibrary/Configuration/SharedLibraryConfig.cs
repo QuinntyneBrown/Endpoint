@@ -37,6 +37,108 @@ public class SharedLibraryConfig
     /// Gets or sets the CCSDS packets configuration.
     /// </summary>
     public List<CcsdsPacketConfig> CcsdsPackets { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the messaging infrastructure configuration.
+    /// </summary>
+    public MessagingInfrastructureConfig MessagingInfrastructure { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the documentation generation configuration.
+    /// </summary>
+    public DocumentationConfig Documentation { get; set; } = new();
+}
+
+/// <summary>
+/// Configuration for messaging infrastructure features.
+/// </summary>
+public class MessagingInfrastructureConfig
+{
+    /// <summary>
+    /// Gets or sets whether to generate retry policy infrastructure.
+    /// </summary>
+    public bool IncludeRetryPolicies { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to generate circuit breaker infrastructure.
+    /// </summary>
+    public bool IncludeCircuitBreaker { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to generate dead letter queue support.
+    /// </summary>
+    public bool IncludeDeadLetterQueue { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to generate message validation infrastructure.
+    /// </summary>
+    public bool IncludeMessageValidation { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to generate distributed tracing support.
+    /// </summary>
+    public bool IncludeDistributedTracing { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to generate message versioning support.
+    /// </summary>
+    public bool IncludeMessageVersioning { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to generate serialization helpers (BigEndian, CRC32, etc.).
+    /// </summary>
+    public bool IncludeSerializationHelpers { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to generate repository and service interfaces.
+    /// </summary>
+    public bool IncludeRepositoryInterfaces { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to generate entity base classes (Entity, AuditableEntity, etc.).
+    /// </summary>
+    public bool IncludeEntityBaseClasses { get; set; }
+}
+
+/// <summary>
+/// Configuration for documentation generation.
+/// </summary>
+public class DocumentationConfig
+{
+    /// <summary>
+    /// Gets or sets whether to generate documentation.
+    /// </summary>
+    public bool Enabled { get; set; }
+
+    /// <summary>
+    /// Gets or sets the documentation output folder name.
+    /// </summary>
+    public string OutputFolder { get; set; } = "docs";
+
+    /// <summary>
+    /// Gets or sets whether to generate a main README.md.
+    /// </summary>
+    public bool GenerateReadme { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether to generate architecture documentation.
+    /// </summary>
+    public bool GenerateArchitectureGuide { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether to generate protocol-specific documentation.
+    /// </summary>
+    public bool GenerateProtocolDocs { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether to generate extension guides.
+    /// </summary>
+    public bool GenerateExtensionGuides { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether to generate API reference documentation.
+    /// </summary>
+    public bool GenerateApiReference { get; set; } = true;
 }
 
 /// <summary>

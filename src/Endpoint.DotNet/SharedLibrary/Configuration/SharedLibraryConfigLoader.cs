@@ -156,6 +156,61 @@ public class SharedLibraryConfigLoader : ISharedLibraryConfigLoader
             ValidateProperties(vo.Properties, $"value object '{vo.Name}'", errors);
         }
 
+        // Validate JSC message types
+        if (config.Protocols?.Jsc?.Enabled == true)
+        {
+            var typeCodes = new HashSet<int>();
+            foreach (var msgType in config.Protocols.Jsc.MessageTypes)
+            {
+                if (string.IsNullOrWhiteSpace(msgType.Name))
+                {
+                    errors.Add("JSC message type name is required.");
+                    continue;
+                }
+
+                if (msgType.TypeCode < 0 || msgType.TypeCode > 255)
+                {
+                    errors.Add($"JSC message type '{msgType.Name}' has invalid type code: {msgType.TypeCode}. Must be 0-255.");
+                }
+
+                if (!typeCodes.Add(msgType.TypeCode))
+                {
+                    errors.Add($"Duplicate type code {msgType.TypeCode} found for JSC message type '{msgType.Name}'.");
+                }
+
+                // Validate secondary header type
+                var validHeaderTypes = new[] { "Common", "Command", "Telemetry", "FileTransfer", "Heartbeat" };
+                if (!string.IsNullOrEmpty(msgType.SecondaryHeaderType) &&
+                    !validHeaderTypes.Contains(msgType.SecondaryHeaderType, StringComparer.OrdinalIgnoreCase))
+                {
+                    errors.Add($"JSC message type '{msgType.Name}' has invalid secondary header type: '{msgType.SecondaryHeaderType}'. Valid types: {string.Join(", ", validHeaderTypes)}.");
+                }
+
+                // Validate user data fields
+                foreach (var field in msgType.UserDataFields)
+                {
+                    if (string.IsNullOrWhiteSpace(field.Name))
+                    {
+                        errors.Add($"Field name is required in JSC message type '{msgType.Name}'.");
+                    }
+
+                    var validFieldTypes = new[] { "byte", "ushort", "uint", "ulong", "string", "bytes" };
+                    if (!validFieldTypes.Contains(field.Type, StringComparer.OrdinalIgnoreCase))
+                    {
+                        errors.Add($"Field '{field.Name}' in JSC message type '{msgType.Name}' has invalid type: '{field.Type}'. Valid types: {string.Join(", ", validFieldTypes)}.");
+                    }
+
+                    // String and bytes types require length
+                    if ((field.Type.Equals("string", StringComparison.OrdinalIgnoreCase) ||
+                         field.Type.Equals("bytes", StringComparison.OrdinalIgnoreCase)) &&
+                        !field.Length.HasValue)
+                    {
+                        errors.Add($"Field '{field.Name}' in JSC message type '{msgType.Name}' requires a length for type '{field.Type}'.");
+                    }
+                }
+            }
+        }
+
         return errors;
     }
 

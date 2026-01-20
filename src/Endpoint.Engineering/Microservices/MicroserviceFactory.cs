@@ -1027,7 +1027,7 @@ public class MicroserviceFactory : IMicroserviceFactory
         var coreProject = await CreateCoreProjectAsync("Distribution", solutionModel.SrcDirectory, Array.Empty<PackageModel>());
         var infrastructureProject = await CreateInfrastructureProjectAsync("Distribution", solutionModel.SrcDirectory);
         var apiProject = await CreateApiProjectAsync("Distribution", solutionModel.SrcDirectory);
-        var testsProject = await CreateDistributionTestsProjectAsync(solutionModel.TestsDirectory);
+        var testsProject = await CreateDistributionTestsProjectAsync(solutionModel.TestDirectory);
 
         // Add SignalR package
         coreProject.Packages.Add(new PackageModel("Microsoft.AspNetCore.SignalR", "1.1.0"));

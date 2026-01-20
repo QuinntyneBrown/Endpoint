@@ -1,0 +1,131 @@
+solution:
+  name: MissionControlShared
+  namespace: MCC.Shared
+  outputPath: ./test-output-jsc
+  targetFramework: net9.0
+  libraryName: Shared
+
+protocols:
+  jsc:
+    enabled: true
+    sourceMccId: 1
+    defaultDestinationMccId: 2
+    protocolVersion: 1
+    includeCrc32: true
+    messageTypes:
+      - name: TelemetryData
+        typeCode: 0x10
+        description: Real-time telemetry from spacecraft
+        secondaryHeaderType: Telemetry
+        userDataFields:
+          - name: Temperature
+            type: ushort
+            description: Temperature reading
+          - name: Pressure
+            type: uint
+            description: Pressure reading
+          - name: StatusFlags
+            type: byte
+            description: Status flags
+      - name: CommandAck
+        typeCode: 0x20
+        description: Command acknowledgment
+        secondaryHeaderType: Command
+        userDataFields:
+          - name: CommandId
+            type: uint
+            description: ID of command being acknowledged
+          - name: Status
+            type: byte
+            description: Acknowledgment status
+      - name: SystemHeartbeat
+        typeCode: 0x01
+        description: System heartbeat message
+        secondaryHeaderType: Heartbeat
+
+  udpMulticast:
+    enabled: true
+    defaultMulticastGroup: 239.0.0.1
+    defaultPort: 5000
+    defaultTtl: 32
+
+serializers:
+  messagePack:
+    enabled: true
+    useLz4Compression: true
+
+services:
+  - name: Telemetry
+    description: Telemetry data service
+    events:
+      - name: TelemetryReceived
+        properties:
+          - name: SourceId
+            type: Guid
+            key: 0
+          - name: Timestamp
+            type: DateTime
+            key: 1
+          - name: Data
+            type: byte[]
+            key: 2
+
+  - name: Commands
+    description: Command execution service
+    events:
+      - name: CommandIssued
+        properties:
+          - name: CommandId
+            type: Guid
+            key: 0
+          - name: CommandType
+            type: string
+            key: 1
+    commands:
+      - name: ExecuteCommand
+        properties:
+          - name: CommandType
+            type: string
+            key: 0
+          - name: Parameters
+            type: Dictionary<string, string>
+            key: 1
+
+domain:
+  stronglyTypedIds:
+    - name: SpacecraftId
+      underlyingType: Guid
+    - name: MissionId
+      underlyingType: Guid
+    - name: CommandId
+      underlyingType: Guid
+
+  valueObjects:
+    - name: GeoLocation
+      properties:
+        - name: Latitude
+          type: double
+        - name: Longitude
+          type: double
+        - name: Altitude
+          type: double
+
+messagingInfrastructure:
+  includeRetryPolicies: true
+  includeCircuitBreaker: true
+  includeDeadLetterQueue: true
+  includeMessageValidation: true
+  includeDistributedTracing: true
+  includeMessageVersioning: true
+  includeSerializationHelpers: true
+  includeRepositoryInterfaces: true
+  includeEntityBaseClasses: true
+
+documentation:
+  enabled: true
+  outputFolder: docs
+  generateReadme: true
+  generateArchitectureGuide: true
+  generateProtocolDocs: true
+  generateExtensionGuides: true
+  generateApiReference: true

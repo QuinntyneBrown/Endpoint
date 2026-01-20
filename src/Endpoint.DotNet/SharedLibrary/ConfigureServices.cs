@@ -34,6 +34,9 @@ public static class ConfigureServices
         services.AddSingleton<IProjectGenerator, UdpMulticastProjectGenerator>();
         services.AddSingleton<IProjectGenerator, AzureServiceBusProjectGenerator>();
         services.AddSingleton<IProjectGenerator, CcsdsProjectGenerator>();
+        services.AddSingleton<IProjectGenerator, JscProjectGenerator>();
+        services.AddSingleton<IProjectGenerator, MessagingInfrastructureProjectGenerator>();
+        services.AddSingleton<IProjectGenerator, DocumentationGenerator>();
         services.AddSingleton<IProjectGenerator, SharedAggregatorProjectGenerator>();
 
         return services;
