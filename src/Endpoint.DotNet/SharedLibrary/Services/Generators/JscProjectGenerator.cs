@@ -1115,7 +1115,8 @@ public static class ServiceCollectionExtensions
             }
 
             var clrType = GetClrType(field.Type);
-            sb.AppendLine($"    public {clrType} {field.Name} {{ get; set; }}");
+            var initializer = GetDefaultInitializer(field.Type);
+            sb.AppendLine($"    public {clrType} {field.Name} {{ get; set; }}{initializer}");
             sb.AppendLine();
         }
 
@@ -1140,6 +1141,16 @@ public static class ServiceCollectionExtensions
             "string" => "string",
             "bytes" => "byte[]",
             _ => "byte[]"
+        };
+    }
+
+    private static string GetDefaultInitializer(string fieldType)
+    {
+        return fieldType.ToLowerInvariant() switch
+        {
+            "string" => " = string.Empty;",
+            "bytes" => " = Array.Empty<byte>();",
+            _ => ""
         };
     }
 }

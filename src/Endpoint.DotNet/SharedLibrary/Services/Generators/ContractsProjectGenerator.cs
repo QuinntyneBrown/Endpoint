@@ -135,6 +135,7 @@ public class ContractsProjectGenerator : ProjectGeneratorBase
 
         // Generate properties with MessagePack keys
         var keyIndex = 10; // Start after base class properties
+        var baseClassProperties = new[] { "EventId", "Timestamp", "EventType" };
         foreach (var prop in evt.Properties)
         {
             var key = prop.Key ?? keyIndex++;
@@ -145,8 +146,10 @@ public class ContractsProjectGenerator : ProjectGeneratorBase
                 sb.AppendLine($"    /// </summary>");
             }
 
+            // Add 'new' keyword if property hides a base class member
+            var newKeyword = baseClassProperties.Contains(prop.Name) ? "new " : "";
             sb.AppendLine($"    [Key({key})]");
-            sb.AppendLine($"    public {prop.Type} {prop.Name} {{ get; init; }}{GetDefaultValue(prop)}");
+            sb.AppendLine($"    public {newKeyword}{prop.Type} {prop.Name} {{ get; init; }}{GetDefaultValue(prop)}");
             sb.AppendLine();
         }
 

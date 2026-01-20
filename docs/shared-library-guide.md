@@ -248,6 +248,69 @@ ccsdsPackets:
 | `bool` | Boolean | 1 |
 | `bitfield` | Arbitrary bit field | Any |
 
+### JSC Protocol Configuration (JSC-35199)
+
+```yaml
+protocols:
+  jsc:
+    enabled: true
+    sourceMccId: 1                    # Source MCC identifier (2 bytes)
+    defaultDestinationMccId: 2        # Default destination MCC ID
+    protocolVersion: 1                # Protocol version
+    includeCrc32: true                # Include CRC-32 checksum
+    messageTypes:
+      - name: TelemetryData
+        typeCode: 0x10                # Message type code (0x01-0xFF)
+        description: Real-time telemetry from spacecraft
+        secondaryHeaderType: Telemetry  # Common, Command, Telemetry, FileTransfer, Heartbeat
+        userDataFields:
+          - name: Temperature
+            type: ushort              # byte, ushort, uint, ulong, string, bytes
+            description: Temperature reading
+          - name: Pressure
+            type: uint
+          - name: StatusMessage
+            type: string
+            length: 64                # Required for string/bytes types
+
+      - name: CommandAck
+        typeCode: 0x20
+        secondaryHeaderType: Command
+        userDataFields:
+          - name: CommandId
+            type: uint
+          - name: Status
+            type: byte
+```
+
+### Messaging Infrastructure Configuration
+
+```yaml
+messagingInfrastructure:
+  includeRetryPolicies: true          # Retry with exponential backoff
+  includeCircuitBreaker: true         # Circuit breaker pattern
+  includeDeadLetterQueue: true        # Failed message handling
+  includeMessageValidation: true      # Fluent validation framework
+  includeDistributedTracing: true     # Trace context propagation
+  includeMessageVersioning: true      # Schema versioning support
+  includeSerializationHelpers: true   # BigEndian, JSON helpers
+  includeRepositoryInterfaces: true   # IRepository, IUnitOfWork
+  includeEntityBaseClasses: true      # Entity, AuditableEntity
+```
+
+### Documentation Configuration
+
+```yaml
+documentation:
+  enabled: true                       # Generate documentation
+  outputFolder: docs                  # Output folder name
+  generateReadme: true                # Main README.md
+  generateArchitectureGuide: true     # Architecture documentation
+  generateProtocolDocs: true          # Protocol-specific docs
+  generateExtensionGuides: true       # How to extend the library
+  generateApiReference: true          # API interface docs
+```
+
 ## Generated Structure
 
 The library name prefix can be customized using `--library-name` or `solution.libraryName`. Default is "Shared".
@@ -293,16 +356,45 @@ The library name prefix can be customized using `--library-name` or `solution.li
         │   ├── AzureServiceBusEventBus.cs
         │   ├── MessagePackMessageSerializer.cs
         │   └── ServiceCollectionExtensions.cs
-        └── {LibraryName}.Messaging.Ccsds/      # If CCSDS enabled
-            ├── BitPacker.cs
-            ├── BitUnpacker.cs
-            ├── CcsdsPacket.cs
-            ├── CcsdsPrimaryHeader.cs
-            ├── CcsdsSerializer.cs
-            ├── PacketRegistry.cs
-            ├── ServiceCollectionExtensions.cs
-            └── Packets/
-                └── {PacketName}.cs
+        ├── {LibraryName}.Messaging.Ccsds/      # If CCSDS enabled
+        │   ├── BitPacker.cs
+        │   ├── BitUnpacker.cs
+        │   ├── CcsdsPacket.cs
+        │   ├── CcsdsPrimaryHeader.cs
+        │   ├── CcsdsSerializer.cs
+        │   ├── PacketRegistry.cs
+        │   ├── ServiceCollectionExtensions.cs
+        │   └── Packets/
+        │       └── {PacketName}.cs
+        ├── {LibraryName}.Messaging.Jsc/        # If JSC enabled
+        │   ├── BigEndianConverter.cs
+        │   ├── Crc32.cs
+        │   ├── JscMessageEnums.cs
+        │   ├── JscPrimaryHeader.cs
+        │   ├── JscSecondaryHeaders.cs
+        │   ├── JscMessage.cs
+        │   ├── JscMessageSerializer.cs
+        │   ├── ServiceCollectionExtensions.cs
+        │   └── Messages/
+        │       └── {MessageType}.cs
+        ├── {LibraryName}.Messaging.Infrastructure/  # If infrastructure enabled
+        │   ├── RetryPolicy.cs
+        │   ├── CircuitBreaker.cs
+        │   ├── DeadLetterQueue.cs
+        │   ├── MessageValidation.cs
+        │   ├── DistributedTracing.cs
+        │   ├── SerializationHelpers.cs
+        │   ├── MessageEnvelope.cs
+        │   └── Interfaces/
+        │       ├── IRepository.cs
+        │       ├── IService.cs
+        │       └── IUnitOfWork.cs
+        └── docs/                               # If documentation enabled
+            ├── README.md
+            ├── architecture/
+            ├── protocols/
+            ├── extending/
+            └── api/
 ```
 
 ## Protocol Support
@@ -399,6 +491,87 @@ var packet = new TelemetryPacket
 
 var serializer = serviceProvider.GetRequiredService<IMessageSerializer>();
 byte[] bytes = serializer.Serialize(packet);
+```
+
+### JSC Protocol (JSC-35199)
+
+Implements the JSC-35199 specification for inter-MCC (Mission Control Center) communication with big-endian serialization and CRC-32 checksums.
+
+**Usage:**
+
+```csharp
+services.AddJscMessaging(options =>
+{
+    options.SourceMccId = 1;
+    options.DefaultDestinationMccId = 2;
+    options.IncludeCrc32 = true;
+});
+```
+
+**Creating and sending messages:**
+
+```csharp
+var serializer = serviceProvider.GetRequiredService<JscMessageSerializer>();
+
+// Create a telemetry message
+var message = JscMessage.Create(
+    JscMessageType.Telemetry,
+    telemetryData,
+    new JscTelemetrySecondaryHeader
+    {
+        Timestamp = DateTime.UtcNow.Ticks,
+        SampleRate = 100,
+        QualityIndicator = 0xFFFF
+    });
+
+byte[] bytes = message.Serialize();
+```
+
+**Deserializing messages:**
+
+```csharp
+var message = JscMessage.Deserialize(receivedBytes);
+// Checksum is verified automatically during deserialization
+```
+
+## Messaging Infrastructure
+
+When enabled, the messaging infrastructure project provides enterprise patterns:
+
+### Retry Policies
+
+```csharp
+var policy = new RetryPolicy(maxRetries: 3, baseDelayMs: 100, useJitter: true);
+var executor = new RetryExecutor(policy, logger);
+await executor.ExecuteAsync(async () => await SendMessageAsync());
+```
+
+### Circuit Breaker
+
+```csharp
+var breaker = new CircuitBreaker(failureThreshold: 5, openDurationMs: 30000);
+await breaker.ExecuteAsync(async () => await CallExternalServiceAsync());
+```
+
+### Dead Letter Queue
+
+```csharp
+var dlq = serviceProvider.GetRequiredService<IDeadLetterQueue>();
+await dlq.EnqueueAsync(failedMessage, exception, metadata);
+```
+
+### Message Validation
+
+```csharp
+var validator = new MessageValidator<OrderCreated>()
+    .RuleFor(x => x.OrderId, id => id != Guid.Empty, "OrderId is required")
+    .RuleFor(x => x.Amount, amt => amt > 0, "Amount must be positive");
+
+var result = validator.Validate(message);
+if (!result.IsValid)
+{
+    // Handle validation errors
+}
 ```
 
 ## Examples
@@ -532,6 +705,57 @@ ccsdsPackets:
         unit: degrees
 ```
 
+### Mission Control with JSC Protocol
+
+```yaml
+solution:
+  name: MissionControlShared
+  namespace: MCC.Shared
+
+protocols:
+  jsc:
+    enabled: true
+    sourceMccId: 1
+    defaultDestinationMccId: 2
+    includeCrc32: true
+    messageTypes:
+      - name: TelemetryStream
+        typeCode: 0x10
+        secondaryHeaderType: Telemetry
+        userDataFields:
+          - name: SensorId
+            type: uint
+          - name: Value
+            type: ulong
+          - name: Quality
+            type: byte
+
+      - name: CommandResponse
+        typeCode: 0x20
+        secondaryHeaderType: Command
+        userDataFields:
+          - name: CommandSequence
+            type: uint
+          - name: ResultCode
+            type: ushort
+
+  udpMulticast:
+    enabled: true
+    defaultMulticastGroup: 239.1.1.1
+    defaultPort: 6000
+
+messagingInfrastructure:
+  includeRetryPolicies: true
+  includeCircuitBreaker: true
+  includeDistributedTracing: true
+  includeSerializationHelpers: true
+
+documentation:
+  enabled: true
+  generateArchitectureGuide: true
+  generateProtocolDocs: true
+```
+
 ## Troubleshooting
 
 ### Common Issues
@@ -549,6 +773,19 @@ ccsdsPackets:
 **Build errors in generated code**
 - Ensure all referenced types exist (e.g., custom types like `OrderItem`)
 - Check that MessagePack keys are unique within each event/command
+
+**"Duplicate type code found" (JSC)**
+- Each JSC message type must have a unique typeCode value (0x01-0xFF)
+
+**"Invalid secondary header type" (JSC)**
+- Valid secondary header types are: Common, Command, Telemetry, FileTransfer, Heartbeat
+
+**"Length required for string/bytes type" (JSC)**
+- JSC fields with `type: string` or `type: bytes` require a `length` property
+
+**"Checksum mismatch" at runtime (JSC)**
+- Ensure both sender and receiver have matching CRC-32 settings
+- Verify the message was not corrupted in transit
 
 ### Getting Help
 
