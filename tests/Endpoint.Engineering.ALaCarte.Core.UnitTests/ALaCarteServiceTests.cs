@@ -197,33 +197,45 @@ public class ALaCarteServiceTests : IDisposable
     [Fact]
     public async Task ProcessAsync_DetectsCsprojFiles()
     {
-        // Arrange
-        var sourceDir = Path.Combine(_testDirectory, "source");
+        // Arrange - use a separate directory for source outside the output directory
+        var sourceBaseDir = Path.Combine(Path.GetTempPath(), $"alacarte_source_{Guid.NewGuid():N}");
+        var sourceDir = Path.Combine(sourceBaseDir, "source");
         var projectDir = Path.Combine(sourceDir, "MyProject");
         Directory.CreateDirectory(projectDir);
         File.WriteAllText(Path.Combine(projectDir, "MyProject.csproj"), "<Project></Project>");
 
-        var request = new ALaCarteRequest
+        try
         {
-            Directory = _testDirectory,
-            Repositories = new List<RepositoryConfiguration>
+            var request = new ALaCarteRequest
             {
-                new RepositoryConfiguration
+                Directory = _testDirectory,
+                Repositories = new List<RepositoryConfiguration>
                 {
-                    LocalDirectory = sourceDir,
-                    Folders = new List<FolderConfiguration>
+                    new RepositoryConfiguration
                     {
-                        new FolderConfiguration { From = "MyProject", To = "MyProject" }
+                        LocalDirectory = sourceDir,
+                        Folders = new List<FolderConfiguration>
+                        {
+                            new FolderConfiguration { From = "MyProject", To = "MyProject" }
+                        }
                     }
                 }
+            };
+
+            // Act
+            var result = await _service.ProcessAsync(request);
+
+            // Assert
+            Assert.Single(result.CsprojFiles);
+        }
+        finally
+        {
+            // Clean up source directory
+            if (Directory.Exists(sourceBaseDir))
+            {
+                Directory.Delete(sourceBaseDir, true);
             }
-        };
-
-        // Act
-        var result = await _service.ProcessAsync(request);
-
-        // Assert
-        Assert.Single(result.CsprojFiles);
+        }
     }
 
     #endregion
