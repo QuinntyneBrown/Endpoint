@@ -114,7 +114,7 @@ public static class GitUrlParser
     private static (string RepositoryUrl, string Branch, string FolderPath)? ParseBitbucketServer(string url)
     {
         // Pattern for browse URLs with query string
-        var match = Regex.Match(url, @"^(https?://[^/]+/projects/[^/]+/repos/[^/]+)/browse(?:/(.*))?(?:\?|$)", RegexOptions.IgnoreCase);
+        var match = Regex.Match(url, @"^(https?://[^/]+/projects/[^/]+/repos/[^/]+)/browse(?:/([^?]*))?(?:\?|$)", RegexOptions.IgnoreCase);
         if (match.Success)
         {
             var repoUrl = match.Groups[1].Value;
@@ -275,7 +275,10 @@ public static class GitUrlParser
     private static bool IsKnownGitHost(string repoUrl)
     {
         var knownHosts = new[] { "github.com", "gitlab.com", "bitbucket.org", "dev.azure.com" };
-        return knownHosts.Any(host => repoUrl.Contains(host, StringComparison.OrdinalIgnoreCase));
+        // Check for exact host match (host followed by / or end of string)
+        return knownHosts.Any(host =>
+            repoUrl.Contains($"://{host}/", StringComparison.OrdinalIgnoreCase) ||
+            repoUrl.EndsWith($"://{host}", StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
