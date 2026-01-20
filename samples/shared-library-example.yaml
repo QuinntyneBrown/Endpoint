@@ -1,0 +1,281 @@
+# Sample Shared Library Configuration
+# Use with: endpoint shared-library-create --config ./shared-library-example.yaml
+
+solution:
+  name: FlightSim
+  namespace: FlightSim
+  outputPath: ./output
+  targetFramework: net9.0
+
+protocols:
+  redis:
+    enabled: true
+    channelPrefix: flightsim
+
+  udpMulticast:
+    enabled: true
+    defaultMulticastGroup: 239.0.0.1
+    defaultPort: 5000
+    defaultTtl: 32
+
+  ccsds:
+    enabled: true
+    includeSecondaryHeader: true
+    secondaryHeaderFormat: CUC
+    spacecraftId: 42
+
+serializers:
+  messagePack:
+    enabled: true
+    useLz4Compression: true
+
+  json:
+    enabled: false
+
+  ccsdsBinary:
+    enabled: true
+    bigEndian: true
+
+services:
+  - name: Telemetry
+    description: Telemetry data service
+    events:
+      - name: AircraftPositionUpdated
+        description: Fired when aircraft position changes
+        routingKey: telemetry.position
+        properties:
+          - name: AircraftId
+            type: Guid
+            key: 0
+            required: true
+          - name: Latitude
+            type: double
+            key: 1
+          - name: Longitude
+            type: double
+            key: 2
+          - name: Altitude
+            type: double
+            key: 3
+            description: Altitude in feet
+          - name: Heading
+            type: double
+            key: 4
+            description: Heading in degrees
+          - name: Speed
+            type: double
+            key: 5
+            description: Ground speed in knots
+
+      - name: EngineStatusChanged
+        description: Fired when engine status changes
+        properties:
+          - name: AircraftId
+            type: Guid
+            key: 0
+          - name: EngineNumber
+            type: int
+            key: 1
+          - name: Rpm
+            type: double
+            key: 2
+          - name: FuelFlow
+            type: double
+            key: 3
+          - name: OilPressure
+            type: double
+            key: 4
+          - name: OilTemperature
+            type: double
+            key: 5
+
+    commands:
+      - name: RequestTelemetryUpdate
+        description: Request immediate telemetry update
+        properties:
+          - name: AircraftId
+            type: Guid
+            key: 0
+          - name: Parameters
+            type: List<string>
+            key: 1
+
+  - name: Navigation
+    description: Navigation service
+    events:
+      - name: WaypointReached
+        description: Fired when aircraft reaches a waypoint
+        properties:
+          - name: AircraftId
+            type: Guid
+            key: 0
+          - name: WaypointId
+            type: string
+            key: 1
+          - name: NextWaypointId
+            type: string
+            key: 2
+          - name: DistanceToNext
+            type: double
+            key: 3
+            description: Distance in nautical miles
+
+domain:
+  stronglyTypedIds:
+    - name: AircraftId
+      underlyingType: Guid
+
+    - name: FlightPlanId
+      underlyingType: Guid
+
+    - name: WaypointId
+      underlyingType: Guid
+
+  valueObjects:
+    - name: Coordinates
+      properties:
+        - name: Latitude
+          type: double
+        - name: Longitude
+          type: double
+
+    - name: Velocity
+      properties:
+        - name: Speed
+          type: double
+        - name: Heading
+          type: double
+        - name: VerticalSpeed
+          type: double
+
+ccsdsPackets:
+  - name: AircraftTelemetryPacket
+    description: Primary telemetry packet for aircraft state
+    apid: 100
+    packetType: 0  # TM
+    hasSecondaryHeader: true
+    fields:
+      - name: AircraftId
+        description: Unique aircraft identifier
+        dataType: uint32
+        bitSize: 32
+
+      - name: Latitude
+        description: Latitude in micro-degrees
+        dataType: int32
+        bitSize: 32
+
+      - name: Longitude
+        description: Longitude in micro-degrees
+        dataType: int32
+        bitSize: 32
+
+      - name: Altitude
+        description: Altitude in feet
+        dataType: uint32
+        bitSize: 24
+
+      - name: Heading
+        description: Heading in 0.01 degrees
+        dataType: uint16
+        bitSize: 16
+
+      - name: Speed
+        description: Ground speed in 0.1 knots
+        dataType: uint16
+        bitSize: 16
+
+      - name: VerticalSpeed
+        description: Vertical speed in feet/min
+        dataType: int16
+        bitSize: 16
+
+      - name: StatusFlags
+        description: Aircraft status bit flags
+        dataType: bitfield
+        bitSize: 8
+
+      - name: Reserved
+        dataType: uint8
+        bitSize: 8
+        isSpare: true
+
+  - name: EngineStatusPacket
+    description: Engine telemetry packet
+    apid: 101
+    packetType: 0  # TM
+    hasSecondaryHeader: true
+    fields:
+      - name: AircraftId
+        dataType: uint32
+        bitSize: 32
+
+      - name: EngineNumber
+        dataType: uint8
+        bitSize: 8
+
+      - name: EngineRunning
+        dataType: bool
+        bitSize: 1
+
+      - name: Reserved1
+        dataType: uint8
+        bitSize: 7
+        isSpare: true
+
+      - name: Rpm
+        description: Engine RPM
+        dataType: uint16
+        bitSize: 16
+
+      - name: FuelFlow
+        description: Fuel flow in 0.1 GPH
+        dataType: uint16
+        bitSize: 16
+
+      - name: OilPressure
+        description: Oil pressure in PSI
+        dataType: uint8
+        bitSize: 8
+
+      - name: OilTemp
+        description: Oil temperature in deg C
+        dataType: uint8
+        bitSize: 8
+
+  - name: NavigationCommandPacket
+    description: Navigation command packet
+    apid: 200
+    packetType: 1  # TC
+    hasSecondaryHeader: false
+    fields:
+      - name: CommandId
+        description: Command identifier
+        dataType: uint16
+        bitSize: 16
+
+      - name: TargetAircraftId
+        dataType: uint32
+        bitSize: 32
+
+      - name: CommandType
+        description: Type of navigation command
+        dataType: uint8
+        bitSize: 8
+
+      - name: TargetLatitude
+        dataType: int32
+        bitSize: 32
+
+      - name: TargetLongitude
+        dataType: int32
+        bitSize: 32
+
+      - name: TargetAltitude
+        dataType: uint32
+        bitSize: 24
+
+      - name: Reserved
+        dataType: uint8
+        bitSize: 8
+        isSpare: true

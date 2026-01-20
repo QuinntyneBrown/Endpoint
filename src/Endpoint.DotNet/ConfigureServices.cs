@@ -17,6 +17,7 @@ using Endpoint.DotNet.Artifacts.SpecFlow;
 using Endpoint.DotNet.Artifacts.Units;
 using Endpoint.DotNet.Events;
 using Endpoint.DotNet.Services;
+using Endpoint.DotNet.SharedLibrary;
 using Endpoint.DotNet.Syntax.Classes.Factories;
 using Endpoint.DotNet.Syntax.Classes.Services;
 using Endpoint.DotNet.Syntax.Controllers;
@@ -104,5 +105,8 @@ public static class ConfigureServices
 
         services.AddSyntaxGenerator(typeof(Endpoint.DotNet.Constants).Assembly);
         services.AddArifactGenerator(typeof(Endpoint.DotNet.Constants).Assembly);
+
+        // Shared library services
+        services.AddSharedLibraryServices();
     }
 }

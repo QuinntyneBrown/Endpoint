@@ -1,0 +1,198 @@
+# Intermediate Shared Library Configuration
+# Demonstrates Redis pub/sub with multiple services and domain types
+
+solution:
+  name: IntermediateLibrary
+  namespace: ECommerce
+  outputPath: C:/projects/Endpoint/generated-output
+  targetFramework: net9.0
+
+protocols:
+  redis:
+    enabled: true
+    channelPrefix: ecommerce
+
+serializers:
+  messagePack:
+    enabled: true
+    useLz4Compression: true
+
+services:
+  - name: Orders
+    description: Order management service
+    events:
+      - name: OrderCreated
+        description: Fired when a new order is created
+        routingKey: orders.created
+        properties:
+          - name: OrderId
+            type: Guid
+            key: 0
+            required: true
+          - name: CustomerId
+            type: Guid
+            key: 1
+            required: true
+          - name: OrderDate
+            type: DateTimeOffset
+            key: 2
+          - name: TotalAmount
+            type: decimal
+            key: 3
+          - name: Currency
+            type: string
+            key: 4
+            defaultValue: '"USD"'
+
+      - name: OrderShipped
+        description: Fired when an order is shipped
+        routingKey: orders.shipped
+        properties:
+          - name: OrderId
+            type: Guid
+            key: 0
+          - name: ShippedAt
+            type: DateTimeOffset
+            key: 1
+          - name: TrackingNumber
+            type: string
+            key: 2
+          - name: Carrier
+            type: string
+            key: 3
+
+      - name: OrderCancelled
+        description: Fired when an order is cancelled
+        routingKey: orders.cancelled
+        properties:
+          - name: OrderId
+            type: Guid
+            key: 0
+          - name: CancelledAt
+            type: DateTimeOffset
+            key: 1
+          - name: Reason
+            type: string
+            key: 2
+
+    commands:
+      - name: CreateOrder
+        description: Command to create a new order
+        properties:
+          - name: CustomerId
+            type: Guid
+            key: 0
+          - name: Items
+            type: List<Guid>
+            key: 1
+          - name: ShippingAddress
+            type: string
+            key: 2
+
+  - name: Inventory
+    description: Inventory management service
+    events:
+      - name: StockLevelChanged
+        description: Fired when stock level changes
+        routingKey: inventory.stock
+        properties:
+          - name: ProductId
+            type: Guid
+            key: 0
+          - name: PreviousQuantity
+            type: int
+            key: 1
+          - name: NewQuantity
+            type: int
+            key: 2
+          - name: Reason
+            type: string
+            key: 3
+
+      - name: ProductOutOfStock
+        description: Fired when a product goes out of stock
+        routingKey: inventory.outofstock
+        properties:
+          - name: ProductId
+            type: Guid
+            key: 0
+          - name: LastAvailableAt
+            type: DateTimeOffset
+            key: 1
+
+    commands:
+      - name: AdjustStock
+        properties:
+          - name: ProductId
+            type: Guid
+            key: 0
+          - name: Adjustment
+            type: int
+            key: 1
+          - name: Reason
+            type: string
+            key: 2
+
+  - name: Customers
+    description: Customer management service
+    events:
+      - name: CustomerRegistered
+        description: Fired when a new customer registers
+        properties:
+          - name: CustomerId
+            type: Guid
+            key: 0
+          - name: Email
+            type: string
+            key: 1
+          - name: Name
+            type: string
+            key: 2
+          - name: RegisteredAt
+            type: DateTimeOffset
+            key: 3
+
+      - name: CustomerUpdated
+        description: Fired when customer info is updated
+        properties:
+          - name: CustomerId
+            type: Guid
+            key: 0
+          - name: UpdatedFields
+            type: List<string>
+            key: 1
+
+domain:
+  stronglyTypedIds:
+    - name: OrderId
+      underlyingType: Guid
+    - name: CustomerId
+      underlyingType: Guid
+    - name: ProductId
+      underlyingType: Guid
+
+  valueObjects:
+    - name: Money
+      properties:
+        - name: Amount
+          type: decimal
+        - name: Currency
+          type: string
+
+    - name: Address
+      properties:
+        - name: Street
+          type: string
+        - name: City
+          type: string
+        - name: State
+          type: string
+        - name: ZipCode
+          type: string
+        - name: Country
+          type: string
+
+    - name: EmailAddress
+      properties:
+        - name: Value
+          type: string

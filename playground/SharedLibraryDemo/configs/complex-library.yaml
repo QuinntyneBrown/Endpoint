@@ -1,0 +1,575 @@
+# Complex Shared Library Configuration
+# Demonstrates all protocols including CCSDS with bit-level fields
+# This is a flight simulation telemetry system example
+
+solution:
+  name: FlightSimLibrary
+  namespace: FlightSim
+  outputPath: C:/projects/Endpoint/generated-output
+  targetFramework: net9.0
+
+protocols:
+  redis:
+    enabled: true
+    channelPrefix: flightsim
+
+  udpMulticast:
+    enabled: true
+    defaultMulticastGroup: 239.0.0.1
+    defaultPort: 5000
+    defaultTtl: 32
+
+  azureServiceBus:
+    enabled: true
+    defaultTopic: flightsim-events
+    useSessions: false
+
+  ccsds:
+    enabled: true
+    includeSecondaryHeader: true
+    secondaryHeaderFormat: CUC
+    spacecraftId: 42
+
+serializers:
+  messagePack:
+    enabled: true
+    useLz4Compression: true
+
+  json:
+    enabled: true
+    useCamelCase: true
+
+  ccsdsBinary:
+    enabled: true
+    bigEndian: true
+
+services:
+  - name: Telemetry
+    description: Aircraft telemetry service
+    events:
+      - name: AircraftPositionUpdated
+        description: Fired when aircraft position changes
+        routingKey: telemetry.position
+        properties:
+          - name: AircraftId
+            type: Guid
+            key: 0
+            required: true
+          - name: Latitude
+            type: double
+            key: 1
+          - name: Longitude
+            type: double
+            key: 2
+          - name: Altitude
+            type: double
+            key: 3
+            description: Altitude in feet MSL
+          - name: Heading
+            type: double
+            key: 4
+            description: Heading in degrees (0-360)
+          - name: GroundSpeed
+            type: double
+            key: 5
+            description: Ground speed in knots
+          - name: VerticalSpeed
+            type: double
+            key: 6
+            description: Vertical speed in feet per minute
+          - name: Timestamp
+            type: DateTimeOffset
+            key: 7
+
+      - name: EngineParametersUpdated
+        description: Fired when engine parameters change
+        routingKey: telemetry.engine
+        properties:
+          - name: AircraftId
+            type: Guid
+            key: 0
+          - name: EngineNumber
+            type: int
+            key: 1
+          - name: Rpm
+            type: double
+            key: 2
+          - name: ManifoldPressure
+            type: double
+            key: 3
+          - name: FuelFlow
+            type: double
+            key: 4
+          - name: OilPressure
+            type: double
+            key: 5
+          - name: OilTemperature
+            type: double
+            key: 6
+          - name: CylinderHeadTemp
+            type: double
+            key: 7
+          - name: ExhaustGasTemp
+            type: double
+            key: 8
+
+      - name: FuelStatusUpdated
+        description: Fired when fuel status changes
+        properties:
+          - name: AircraftId
+            type: Guid
+            key: 0
+          - name: LeftTankQuantity
+            type: double
+            key: 1
+          - name: RightTankQuantity
+            type: double
+            key: 2
+          - name: TotalFuel
+            type: double
+            key: 3
+          - name: FuelFlowRate
+            type: double
+            key: 4
+          - name: EstimatedEndurance
+            type: TimeSpan
+            key: 5
+
+    commands:
+      - name: RequestTelemetrySnapshot
+        properties:
+          - name: AircraftId
+            type: Guid
+            key: 0
+          - name: Parameters
+            type: List<string>
+            key: 1
+
+  - name: FlightPlan
+    description: Flight planning service
+    events:
+      - name: FlightPlanFiled
+        description: Fired when a flight plan is filed
+        properties:
+          - name: FlightPlanId
+            type: Guid
+            key: 0
+          - name: AircraftId
+            type: Guid
+            key: 1
+          - name: DepartureAirport
+            type: string
+            key: 2
+          - name: ArrivalAirport
+            type: string
+            key: 3
+          - name: Route
+            type: List<string>
+            key: 4
+          - name: CruiseAltitude
+            type: int
+            key: 5
+          - name: EstimatedDepartureTime
+            type: DateTimeOffset
+            key: 6
+          - name: EstimatedEnrouteTime
+            type: TimeSpan
+            key: 7
+
+      - name: WaypointReached
+        description: Fired when aircraft reaches a waypoint
+        properties:
+          - name: FlightPlanId
+            type: Guid
+            key: 0
+          - name: AircraftId
+            type: Guid
+            key: 1
+          - name: WaypointName
+            type: string
+            key: 2
+          - name: WaypointIndex
+            type: int
+            key: 3
+          - name: ArrivalTime
+            type: DateTimeOffset
+            key: 4
+          - name: NextWaypointName
+            type: string
+            key: 5
+          - name: DistanceToNext
+            type: double
+            key: 6
+
+      - name: FlightPlanCompleted
+        description: Fired when flight plan is completed
+        properties:
+          - name: FlightPlanId
+            type: Guid
+            key: 0
+          - name: AircraftId
+            type: Guid
+            key: 1
+          - name: CompletedAt
+            type: DateTimeOffset
+            key: 2
+          - name: ActualEnrouteTime
+            type: TimeSpan
+            key: 3
+
+  - name: Weather
+    description: Weather information service
+    events:
+      - name: WeatherUpdated
+        description: Fired when weather data is updated
+        properties:
+          - name: StationId
+            type: string
+            key: 0
+          - name: Latitude
+            type: double
+            key: 1
+          - name: Longitude
+            type: double
+            key: 2
+          - name: Temperature
+            type: double
+            key: 3
+          - name: DewPoint
+            type: double
+            key: 4
+          - name: WindDirection
+            type: int
+            key: 5
+          - name: WindSpeed
+            type: int
+            key: 6
+          - name: Visibility
+            type: double
+            key: 7
+          - name: CloudCeiling
+            type: int
+            key: 8
+          - name: Altimeter
+            type: double
+            key: 9
+          - name: ObservationTime
+            type: DateTimeOffset
+            key: 10
+
+domain:
+  stronglyTypedIds:
+    - name: AircraftId
+      underlyingType: Guid
+    - name: FlightPlanId
+      underlyingType: Guid
+    - name: WaypointId
+      underlyingType: Guid
+    - name: PilotId
+      underlyingType: Guid
+
+  valueObjects:
+    - name: GeoCoordinate
+      properties:
+        - name: Latitude
+          type: double
+        - name: Longitude
+          type: double
+
+    - name: Velocity
+      properties:
+        - name: GroundSpeed
+          type: double
+        - name: TrueAirspeed
+          type: double
+        - name: IndicatedAirspeed
+          type: double
+        - name: VerticalSpeed
+          type: double
+
+    - name: Attitude
+      properties:
+        - name: Pitch
+          type: double
+        - name: Roll
+          type: double
+        - name: Heading
+          type: double
+
+    - name: EngineState
+      properties:
+        - name: IsRunning
+          type: bool
+        - name: Rpm
+          type: double
+        - name: Power
+          type: double
+
+# CCSDS Space Packet Definitions
+# Used for high-frequency telemetry over UDP multicast
+ccsdsPackets:
+  - name: AircraftStatePacket
+    description: Primary aircraft state telemetry packet (high frequency)
+    apid: 100
+    packetType: 0  # Telemetry
+    hasSecondaryHeader: true
+    fields:
+      - name: AircraftId
+        description: Unique aircraft identifier
+        dataType: uint32
+        bitSize: 32
+
+      - name: Latitude
+        description: Latitude in 10^-7 degrees
+        dataType: int32
+        bitSize: 32
+        scale: 0.0000001
+        unit: degrees
+
+      - name: Longitude
+        description: Longitude in 10^-7 degrees
+        dataType: int32
+        bitSize: 32
+        scale: 0.0000001
+        unit: degrees
+
+      - name: AltitudeMsl
+        description: Altitude MSL in feet
+        dataType: uint32
+        bitSize: 24
+        unit: feet
+
+      - name: AltitudeAgl
+        description: Altitude AGL in feet
+        dataType: uint16
+        bitSize: 16
+        unit: feet
+
+      - name: Heading
+        description: Heading in 0.01 degrees
+        dataType: uint16
+        bitSize: 16
+        scale: 0.01
+        unit: degrees
+
+      - name: Pitch
+        description: Pitch in 0.01 degrees
+        dataType: int16
+        bitSize: 16
+        scale: 0.01
+        unit: degrees
+
+      - name: Roll
+        description: Roll in 0.01 degrees
+        dataType: int16
+        bitSize: 16
+        scale: 0.01
+        unit: degrees
+
+      - name: GroundSpeed
+        description: Ground speed in 0.1 knots
+        dataType: uint16
+        bitSize: 16
+        scale: 0.1
+        unit: knots
+
+      - name: VerticalSpeed
+        description: Vertical speed in feet/min
+        dataType: int16
+        bitSize: 16
+        unit: fpm
+
+      - name: OnGround
+        description: Aircraft on ground flag
+        dataType: bool
+        bitSize: 1
+
+      - name: GearDown
+        description: Landing gear down flag
+        dataType: bool
+        bitSize: 1
+
+      - name: FlapsPosition
+        description: Flaps position (0-4)
+        dataType: bitfield
+        bitSize: 3
+
+      - name: Spare1
+        dataType: uint8
+        bitSize: 3
+        isSpare: true
+
+  - name: EngineStatusPacket
+    description: Engine telemetry packet
+    apid: 101
+    packetType: 0
+    hasSecondaryHeader: true
+    fields:
+      - name: AircraftId
+        dataType: uint32
+        bitSize: 32
+
+      - name: EngineNumber
+        description: Engine number (0-3)
+        dataType: uint8
+        bitSize: 8
+
+      - name: EngineRunning
+        dataType: bool
+        bitSize: 1
+
+      - name: StarterEngaged
+        dataType: bool
+        bitSize: 1
+
+      - name: Spare1
+        dataType: uint8
+        bitSize: 6
+        isSpare: true
+
+      - name: Rpm
+        description: Engine RPM
+        dataType: uint16
+        bitSize: 16
+        unit: rpm
+
+      - name: ManifoldPressure
+        description: Manifold pressure in 0.1 inHg
+        dataType: uint16
+        bitSize: 16
+        scale: 0.1
+        unit: inHg
+
+      - name: FuelFlow
+        description: Fuel flow in 0.1 GPH
+        dataType: uint16
+        bitSize: 16
+        scale: 0.1
+        unit: gph
+
+      - name: OilPressure
+        description: Oil pressure in PSI
+        dataType: uint8
+        bitSize: 8
+        unit: psi
+
+      - name: OilTemperature
+        description: Oil temperature in deg C
+        dataType: uint8
+        bitSize: 8
+        unit: degC
+
+      - name: CylinderHeadTemp
+        description: CHT in deg C
+        dataType: uint16
+        bitSize: 16
+        unit: degC
+
+      - name: ExhaustGasTemp
+        description: EGT in deg C
+        dataType: uint16
+        bitSize: 16
+        unit: degC
+
+  - name: NavigationPacket
+    description: Navigation system data
+    apid: 102
+    packetType: 0
+    hasSecondaryHeader: true
+    fields:
+      - name: AircraftId
+        dataType: uint32
+        bitSize: 32
+
+      - name: GpsValid
+        dataType: bool
+        bitSize: 1
+
+      - name: InsValid
+        dataType: bool
+        bitSize: 1
+
+      - name: NavMode
+        description: Navigation mode (0=manual, 1=GPS, 2=NAV, 3=APPROACH)
+        dataType: bitfield
+        bitSize: 3
+
+      - name: Spare1
+        dataType: uint8
+        bitSize: 3
+        isSpare: true
+
+      - name: CourseDeviation
+        description: Course deviation in 0.1 degrees
+        dataType: int16
+        bitSize: 16
+        scale: 0.1
+        unit: degrees
+
+      - name: GlideSlopeDeviation
+        description: Glide slope deviation in 0.01 degrees
+        dataType: int16
+        bitSize: 16
+        scale: 0.01
+        unit: degrees
+
+      - name: DistanceToWaypoint
+        description: Distance to next waypoint in 0.1 nm
+        dataType: uint16
+        bitSize: 16
+        scale: 0.1
+        unit: nm
+
+      - name: TimeToWaypoint
+        description: ETA to waypoint in seconds
+        dataType: uint16
+        bitSize: 16
+        unit: seconds
+
+      - name: CurrentWaypointIndex
+        dataType: uint8
+        bitSize: 8
+
+      - name: TotalWaypoints
+        dataType: uint8
+        bitSize: 8
+
+  - name: FlightControlCommandPacket
+    description: Flight control command (telecommand)
+    apid: 200
+    packetType: 1  # Telecommand
+    hasSecondaryHeader: false
+    fields:
+      - name: CommandId
+        description: Unique command identifier
+        dataType: uint16
+        bitSize: 16
+
+      - name: TargetAircraftId
+        dataType: uint32
+        bitSize: 32
+
+      - name: CommandType
+        description: Command type (0=heading, 1=altitude, 2=speed, 3=direct-to)
+        dataType: uint8
+        bitSize: 8
+
+      - name: TargetValue
+        description: Target value based on command type
+        dataType: int32
+        bitSize: 32
+
+      - name: TransitionRate
+        description: Rate of change (degrees/sec, fpm, or knots/sec)
+        dataType: uint16
+        bitSize: 16
+
+      - name: Immediate
+        description: Execute immediately flag
+        dataType: bool
+        bitSize: 1
+
+      - name: Spare1
+        dataType: uint8
+        bitSize: 7
+        isSpare: true

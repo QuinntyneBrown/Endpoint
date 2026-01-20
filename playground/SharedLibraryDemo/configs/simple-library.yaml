@@ -1,0 +1,62 @@
+# Simple Shared Library Configuration
+# Demonstrates the minimal configuration for a shared library
+# No protocols enabled - just abstractions, domain, and contracts
+
+solution:
+  name: SimpleLibrary
+  namespace: Simple
+  outputPath: C:/projects/Endpoint/generated-output
+  targetFramework: net9.0
+
+# No protocols enabled - minimal setup
+protocols: {}
+
+# Default serializers only
+serializers:
+  messagePack:
+    enabled: true
+
+services:
+  - name: Notifications
+    description: Simple notification service
+    events:
+      - name: NotificationSent
+        description: Fired when a notification is sent
+        properties:
+          - name: NotificationId
+            type: Guid
+            key: 0
+          - name: Message
+            type: string
+            key: 1
+          - name: Recipient
+            type: string
+            key: 2
+          - name: SentAt
+            type: DateTimeOffset
+            key: 3
+
+      - name: NotificationRead
+        description: Fired when a notification is read
+        properties:
+          - name: NotificationId
+            type: Guid
+            key: 0
+          - name: ReadAt
+            type: DateTimeOffset
+            key: 1
+
+domain:
+  stronglyTypedIds:
+    - name: NotificationId
+      underlyingType: Guid
+
+  valueObjects:
+    - name: NotificationContent
+      properties:
+        - name: Title
+          type: string
+        - name: Body
+          type: string
+        - name: Priority
+          type: int

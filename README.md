@@ -104,7 +104,12 @@ playground/
 ├── SolutionCreateFromSequence/       # Sequence diagram-based generation
 ├── SolutionFromPlantuml/             # PlantUML-based generation example
 ├── MessagingDemo/                    # Messaging patterns example
-└── FullStackSolution/                # Full-stack application example
+├── FullStackSolution/                # Full-stack application example
+└── SharedLibraryDemo/                # Shared library generation examples
+    ├── configs/                      # Example YAML configurations
+    ├── SimpleLibrary/                # Minimal shared library example
+    ├── IntermediateLibrary/          # Redis + contracts example
+    └── CompleteLibrary/              # All protocols + CCSDS example
 ```
 
 ## CLI Commands
@@ -249,6 +254,31 @@ endpoint udp-service-bus-project-add -n <Name>
 # Create UDP client factory interface
 endpoint udp-client-factory-interface-create -n <Name>
 ```
+
+### Shared Library Commands
+
+```bash
+# Create a complete shared library from YAML configuration
+endpoint shared-library-create -c <ConfigPath> [-o <OutputPath>] [--dry-run]
+
+# Preview what would be generated
+endpoint shared-library-create -c ./shared-library.yaml --dry-run
+
+# Generate with specific protocols only
+endpoint shared-library-create -c ./config.yaml --protocols redis,ccsds
+
+# Generate with specific serializers
+endpoint shared-library-create -c ./config.yaml --serializers messagepack,json
+```
+
+The shared-library-create command generates a complete shared library solution including:
+- **Messaging Abstractions**: IEvent, IEventBus, IMessageSerializer interfaces
+- **Domain Primitives**: Strongly-typed IDs, Value Objects, Result pattern
+- **Contracts**: Service events and commands with MessagePack serialization
+- **Protocol Implementations**: Redis, UDP Multicast, Azure Service Bus, CCSDS
+- **CCSDS Support**: Bit-level packing/unpacking for space packet protocols
+
+See the [Shared Library User Guide](docs/shared-library-guide.md) for detailed configuration options.
 
 ### Microservices Commands
 
