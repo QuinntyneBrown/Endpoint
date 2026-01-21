@@ -16,6 +16,7 @@ A powerful template-based design-time code generator for .NET applications. Endp
 - **Messaging Patterns**: Redis Pub/Sub, Service Bus, UDP messaging support
 - **OpenAPI Support**: Generate OpenAPI specifications from existing .NET solutions
 - **SignalR Support**: Generate SignalR hubs and clients for real-time applications
+- **Static Analysis**: Built-in SonarQube-based static analysis with git diff comparison for C# and TypeScript
 - **CLI-First Design**: Comprehensive command-line interface with 100+ commands
 
 ## Give a Star!
@@ -343,6 +344,45 @@ endpoint git-create
 # Create a .gitignore file
 endpoint gitignore-create
 ```
+
+### Static Analysis Commands
+
+```bash
+# Run static analysis on the current codebase
+endpoint static-analysis
+
+# Run static analysis comparing current branch against master (only analyze changed code)
+endpoint static-analysis --git-compare
+
+# Compare against a specific base branch
+endpoint static-analysis --git-compare --base-branch main
+
+# Generate a unique markdown report file
+endpoint static-analysis --git-compare --report
+
+# Specify output directory for the report
+endpoint static-analysis --git-compare --output ./reports
+
+# Use custom SonarQube rules file
+endpoint static-analysis --git-compare --sonar-rules ./custom-rules.md
+
+# Output results in JSON format
+endpoint static-analysis --git-compare --json
+
+# Show all issues including code smells (verbose mode)
+endpoint static-analysis --git-compare --verbose
+
+# Fail on warnings (useful for CI/CD)
+endpoint static-analysis --git-compare --fail-on-warning
+```
+
+The static-analysis command performs code quality checks based on SonarQube rules defined in `docs/sonar-qube-rules.md`. When used with `--git-compare`, it:
+- Compares the current branch against the base branch (master/main)
+- Only analyzes lines that were added or modified
+- Checks for vulnerabilities, bugs, security hotspots, and code smells
+- Generates a unique, human-readable report with timestamp and GUID
+
+Supported languages: C# (.cs) and TypeScript (.ts, .tsx)
 
 ### Utility Commands
 

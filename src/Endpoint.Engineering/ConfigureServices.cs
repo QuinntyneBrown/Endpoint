@@ -37,6 +37,7 @@ using Endpoint.Engineering.Microservices.GitAnalysis;
 using Endpoint.Engineering.Microservices.RealtimeNotification;
 using Endpoint.Engineering.Messaging.Artifacts;
 using Endpoint.Engineering.StaticAnalysis.Angular;
+using Endpoint.Engineering.StaticAnalysis.SonarQube;
 using Endpoint.Engineering.ALaCarte;
 using Endpoint.Engineering.CyclicRandomizr;
 using Endpoint.Engineering.SolutionPruning;
@@ -68,6 +69,8 @@ public static class ConfigureServices
         services.AddSingleton<IStaticAnalysisService, StaticAnalysisService>();
         // Register Code Review Service
         services.AddSingleton<ICodeReviewService, CodeReviewService>();
+        // Register SonarQube Git Analyzer Service
+        services.AddSingleton<ISonarQubeGitAnalyzer, SonarQubeGitAnalyzer>();
         // Register Cyclic Randomizr Service
         services.AddSingleton<ICyclicRandomizrService, CyclicRandomizrService>();
 
