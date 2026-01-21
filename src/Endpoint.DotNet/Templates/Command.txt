@@ -1,0 +1,27 @@
+using System.CommandLine;
+
+namespace {{ namespace }};
+
+public class {{ namePascalCase }}Command
+{
+    public Command Create()
+    {
+        var command = new Command("{{ nameSnakeCase }}", "{{ namePascalCase }} command description");
+
+        var nameOption = new Option<string>(
+            aliases: ["-n", "--name"],
+            description: "The name option",
+            getDefaultValue: () => "default");
+
+        command.AddOption(nameOption);
+
+        command.SetHandler(Execute, nameOption);
+
+        return command;
+    }
+
+    public void Execute(string name)
+    {
+        Console.WriteLine($"Executing {{ namePascalCase }} with name: {name}");
+    }
+}
