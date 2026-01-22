@@ -38,6 +38,7 @@ public class SolutionModel : ArtifactModel
         Name = name;
         Directory = directory;
         SolutionDirectory = solutionDirectory;
+        SolutionExtension = ".sln"; // Default to .sln
     }
 
     public string Name { get; init; }
