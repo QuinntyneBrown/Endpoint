@@ -18,6 +18,7 @@ public class SolutionModel : ArtifactModel
         Projects = [];
         Files = [];
         Folders = [];
+        SolutionExtension = ".sln"; // Default to .sln
     }
 
     public SolutionModel(string name, string directory)
@@ -29,6 +30,7 @@ public class SolutionModel : ArtifactModel
         DependOns = [];
         Files = [];
         Folders = [];
+        SolutionExtension = ".sln"; // Default to .sln for new solutions
     }
 
     public SolutionModel(string name, string directory, string solutionDirectory)
@@ -58,11 +60,13 @@ public class SolutionModel : ArtifactModel
 
     public string TestDirectory => $"{SolutionDirectory}{Path.DirectorySeparatorChar}{TestDirectoryName}";
 
-    public string SolutionPath => $"{SolutionDirectory}{Path.DirectorySeparatorChar}{Name}.sln";
+    public string SolutionExtension { get; set; } = ".sln";
+
+    public string SolutionPath => $"{SolutionDirectory}{Path.DirectorySeparatorChar}{Name}{SolutionExtension}";
 
     public string SolutionDirectory { get; set; }
 
-    public string SolultionFileName => $"{Name}.sln";
+    public string SolultionFileName => $"{Name}{SolutionExtension}";
 
     public ProjectModel DefaultProject => Folders.First().Projects.First();
 

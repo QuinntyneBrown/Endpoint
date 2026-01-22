@@ -306,7 +306,7 @@ public class ProjectService : IProjectService
             relativePath = normalizedProjectPath;
         }
         
-        // Convert to backslashes for .sln file (Visual Studio always uses backslashes)
+        // Convert to backslashes for .sln/.slnx file (Visual Studio always uses backslashes)
         return relativePath.Replace('/', '\\');
     }
 
