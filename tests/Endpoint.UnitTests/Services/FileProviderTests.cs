@@ -35,4 +35,56 @@ public class FileProviderTests
         // Assert
         Assert.NotNull(fileProvider);
     }
+
+    [Fact]
+    public void Get_ShouldReturnSlnFile_WhenSearchingForSln()
+    {
+        // Arrange
+        var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { "/solution/MySolution.sln", new MockFileData("") }
+        });
+        var fileProvider = new FileProvider(mockFileSystem);
+
+        // Act
+        var result = fileProvider.Get("*.sln", "/solution");
+
+        // Assert
+        Assert.Equal("/solution/MySolution.sln", result);
+    }
+
+    [Fact]
+    public void Get_ShouldReturnSlnxFile_WhenSearchingForSlnAndOnlySlnxExists()
+    {
+        // Arrange
+        var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { "/solution/MySolution.slnx", new MockFileData("") }
+        });
+        var fileProvider = new FileProvider(mockFileSystem);
+
+        // Act
+        var result = fileProvider.Get("*.sln", "/solution");
+
+        // Assert
+        Assert.Equal("/solution/MySolution.slnx", result);
+    }
+
+    [Fact]
+    public void Get_ShouldPreferSlnOverSlnx_WhenBothExist()
+    {
+        // Arrange
+        var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            { "/solution/MySolution.sln", new MockFileData("") },
+            { "/solution/MySolution.slnx", new MockFileData("") }
+        });
+        var fileProvider = new FileProvider(mockFileSystem);
+
+        // Act
+        var result = fileProvider.Get("*.sln", "/solution");
+
+        // Assert
+        Assert.Equal("/solution/MySolution.sln", result);
+    }
 }

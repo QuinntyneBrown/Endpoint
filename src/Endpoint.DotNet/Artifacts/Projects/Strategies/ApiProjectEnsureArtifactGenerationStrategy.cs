@@ -114,7 +114,8 @@ public class ApiProjectEnsureArtifactGenerationStrategy : IArtifactGenerationStr
 
         var solutionDirectory = projectDirectory;
 
-        while (!fileSystem.Directory.EnumerateFiles(solutionDirectory, "*.sln").Any(x => x.EndsWith($"sln")))
+        while (!fileSystem.Directory.EnumerateFiles(solutionDirectory, "*.sln").Any(x => x.EndsWith("sln")) &&
+               !fileSystem.Directory.EnumerateFiles(solutionDirectory, "*.slnx").Any(x => x.EndsWith("slnx")))
         {
             solutionDirectory = solutionDirectory.Substring(0, solutionDirectory.LastIndexOf(fileSystem.Path.DirectorySeparatorChar));
         }

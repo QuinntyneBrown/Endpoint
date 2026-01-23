@@ -23,9 +23,9 @@ namespace Endpoint.Engineering.Cli.Commands;
 public class ApiGatewayAddRequest : IRequest
 {
     /// <summary>
-    /// Gets or sets the name of the solution. If not provided, it will be determined from the .sln file.
+    /// Gets or sets the name of the solution. If not provided, it will be determined from the .sln or .slnx file.
     /// </summary>
-    [Option('n', "name", HelpText = "The name of the solution. If not provided, it will be determined from the .sln file.")]
+    [Option('n', "name", HelpText = "The name of the solution. If not provided, it will be determined from the .sln or .slnx file.")]
     public string? Name { get; set; }
 
     /// <summary>

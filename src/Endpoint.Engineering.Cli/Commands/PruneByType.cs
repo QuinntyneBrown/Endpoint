@@ -20,7 +20,7 @@ public class PruneByTypeRequest : IRequest
     public string TypeName { get; set; } = string.Empty;
 
     [Option('s', "solution", Required = true,
-        HelpText = "Path to the .NET solution file (.sln).")]
+        HelpText = "Path to the .NET solution file (.sln or .slnx).")]
     public string SolutionPath { get; set; } = string.Empty;
 
     [Option('o', "output", Required = false,
