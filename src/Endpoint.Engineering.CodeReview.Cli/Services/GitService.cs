@@ -22,6 +22,16 @@ public class GitService : IGitService
 
     public async Task<string> GetDiffAsync(string repositoryUrl, string branchName, CancellationToken cancellationToken = default)
     {
+        if (string.IsNullOrWhiteSpace(repositoryUrl))
+        {
+            throw new ArgumentException("Repository URL cannot be null or empty.", nameof(repositoryUrl));
+        }
+
+        if (string.IsNullOrWhiteSpace(branchName))
+        {
+            throw new ArgumentException("Branch name cannot be null or empty.", nameof(branchName));
+        }
+
         _logger.LogInformation("Getting diff for repository: {RepositoryUrl}, branch: {BranchName}", repositoryUrl, branchName);
 
         var tempDirectory = Path.Combine(Path.GetTempPath(), $"code-review-{Guid.NewGuid()}");
@@ -79,7 +89,7 @@ public class GitService : IGitService
 
             var diff = repo.Diff.Compare<Patch>(mergeBaseTree, targetTree);
 
-            return await Task.FromResult(diff.Content);
+            return diff.Content;
         }
         finally
         {

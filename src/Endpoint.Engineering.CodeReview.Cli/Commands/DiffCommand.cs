@@ -55,6 +55,21 @@ public class DiffCommand
 
     public async Task ExecuteAsync(string url, string branch, string output)
     {
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            throw new ArgumentException("URL cannot be null or empty.", nameof(url));
+        }
+
+        if (string.IsNullOrWhiteSpace(branch))
+        {
+            throw new ArgumentException("Branch cannot be null or empty.", nameof(branch));
+        }
+
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            throw new ArgumentException("Output file name cannot be null or empty.", nameof(output));
+        }
+
         try
         {
             _logger.LogInformation("Getting diff for repository: {Url}, branch: {Branch}", url, branch);

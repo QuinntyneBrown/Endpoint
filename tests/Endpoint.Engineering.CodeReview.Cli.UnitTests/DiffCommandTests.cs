@@ -89,4 +89,28 @@ public class DiffCommandTests
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new DiffCommand(loggerMock.Object, null!));
     }
+
+    [Theory]
+    [InlineData(null, "branch", "output.txt")]
+    [InlineData("", "branch", "output.txt")]
+    [InlineData("   ", "branch", "output.txt")]
+    [InlineData("https://github.com/test/repo", null, "output.txt")]
+    [InlineData("https://github.com/test/repo", "", "output.txt")]
+    [InlineData("https://github.com/test/repo", "   ", "output.txt")]
+    [InlineData("https://github.com/test/repo", "branch", null)]
+    [InlineData("https://github.com/test/repo", "branch", "")]
+    [InlineData("https://github.com/test/repo", "branch", "   ")]
+    public async Task ExecuteAsync_WithInvalidParameters_ThrowsArgumentException(string? url, string? branch, string? output)
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<DiffCommand>>();
+        var gitServiceMock = new Mock<IGitService>();
+        var command = new DiffCommand(loggerMock.Object, gitServiceMock.Object);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
+        {
+            await command.ExecuteAsync(url!, branch!, output!);
+        });
+    }
 }

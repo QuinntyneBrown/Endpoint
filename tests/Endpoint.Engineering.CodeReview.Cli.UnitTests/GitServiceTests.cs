@@ -2,7 +2,6 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
-using System.Threading.Tasks;
 using Endpoint.Engineering.CodeReview.Cli.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -19,21 +18,23 @@ public class GitServiceTests
         Assert.Throws<ArgumentNullException>(() => new GitService(null!));
     }
 
-    [Fact]
-    public async Task GetDiffAsync_WithInvalidBranch_ThrowsInvalidOperationException()
+    [Theory]
+    [InlineData(null, "branch")]
+    [InlineData("", "branch")]
+    [InlineData("   ", "branch")]
+    [InlineData("https://github.com/test/repo", null)]
+    [InlineData("https://github.com/test/repo", "")]
+    [InlineData("https://github.com/test/repo", "   ")]
+    public async Task GetDiffAsync_WithInvalidParameters_ThrowsArgumentException(string? url, string? branch)
     {
         // Arrange
         var loggerMock = new Mock<ILogger<GitService>>();
         var service = new GitService(loggerMock.Object);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
         {
-            await service.GetDiffAsync("https://github.com/QuinntyneBrown/Endpoint", "non-existent-branch-xyz-123");
+            await service.GetDiffAsync(url!, branch!);
         });
     }
-
-    // Note: Testing actual git operations requires a real repository or mocking LibGit2Sharp,
-    // which is complex. For integration tests, we would use a real repository.
-    // These unit tests focus on the basic validation and error handling.
 }
