@@ -5,10 +5,16 @@ A command-line tool for performing git diff analysis between branches.
 ## Features
 
 - Compare any branch with the repository's default branch
-- Support for GitHub, GitLab, and git repositories
+- Support for public GitHub, GitLab, and git repositories
 - Save diffs to text files
 - Leverage Microsoft Extensions for DI, Logging, and Configuration
 - Built with System.CommandLine
+
+## Limitations
+
+- Currently supports only public repositories or repositories with cached credentials
+- For private repositories, ensure git credentials are cached or use SSH keys
+- The tool clones repositories to a temporary directory, which may take time for large repositories
 
 ## Installation
 
