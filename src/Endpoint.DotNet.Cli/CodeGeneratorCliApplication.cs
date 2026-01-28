@@ -29,5 +29,3 @@ public static class CodeGeneratorApplicationCliExtensions
         await application.RunAsync(parsedArgs, cancellationToken);
     }
 }
-
-
