@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Authors>Quinntyne Brown</Authors>
+    <Company>Allagi Consulting</Company>
+    <PackageTags>clean-architecture;source-generator;application-code;scaffolding;cli</PackageTags>
+    <RepositoryUrl>https://github.com/QuinntyneBrown/Endpoint</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+    <Version>1.0.0</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageId>Quinntyne.Endpoint.Cli</PackageId>
+    <Title>Endpoint CLI Support</Title>
+    <Description>Command-line interface support for Endpoint code generation, including CommandLineParser integration.</Description>
+    <NoWarn>$(NoWarn);1998;4014;SA1101;SA1600;SA1200;SA1633</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="MediatR" Version="12.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Endpoint.DotNet\Endpoint.DotNet.csproj" />
+  </ItemGroup>
+
+</Project>

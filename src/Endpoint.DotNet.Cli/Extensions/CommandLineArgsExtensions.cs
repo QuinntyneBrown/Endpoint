@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using CommandLine;
-using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Cli.Services;
 
-namespace Endpoint.DotNet.Extensions;
+namespace Endpoint.DotNet.Cli.Extensions;
 
 public static class CommandLineArgsExtensions
 {

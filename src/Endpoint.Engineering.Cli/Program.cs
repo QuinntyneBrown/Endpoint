@@ -7,6 +7,7 @@ using System.Reflection;
 using CommandLine;
 using Endpoint.Angular;
 using Endpoint.DotNet;
+using Endpoint.DotNet.Cli;
 using Endpoint.DotNet.Services;
 using Endpoint.Engineering.ALaCarte.Core;
 using Endpoint.Engineering.ALaCarte.Infrastructure.Data;
@@ -80,6 +81,6 @@ var app = CodeGeneratorApplication.CreateBuilder()
     })
     .Build();
 
-await app.RunAsync();
+await app.RunCliAsync();
 
 return 0;

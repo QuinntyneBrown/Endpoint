@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using CommandLine;
 
-namespace Endpoint.DotNet.Services;
+namespace Endpoint.DotNet.Cli.Services;
 
 /// <summary>
 /// Service for displaying CLI help information.

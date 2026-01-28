@@ -2,9 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Threading;
-using CommandLine;
 using Endpoint.Internal;
-using Endpoint.DotNet.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -30,8 +28,8 @@ public class CodeGeneratorApplication
         return builder;
     }
 
-    public async Task RunAsync(CancellationToken token = default)
+    public async Task RunAsync(object request, CancellationToken token = default)
     {
-        await mediator.Send(Environment.GetCommandLineArgs().ParseArguments());
+        await mediator.Send(request, token);
     }
 }
