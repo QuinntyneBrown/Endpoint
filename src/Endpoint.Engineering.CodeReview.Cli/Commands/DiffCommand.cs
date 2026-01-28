@@ -70,6 +70,13 @@ public class DiffCommand
             throw new ArgumentException("Output file name cannot be null or empty.", nameof(output));
         }
 
+        // Validate output filename to prevent path traversal
+        var fileName = Path.GetFileName(output);
+        if (string.IsNullOrEmpty(fileName) || fileName != output)
+        {
+            throw new ArgumentException("Output must be a filename only, not a path.", nameof(output));
+        }
+
         try
         {
             _logger.LogInformation("Getting diff for repository: {Url}, branch: {Branch}", url, branch);

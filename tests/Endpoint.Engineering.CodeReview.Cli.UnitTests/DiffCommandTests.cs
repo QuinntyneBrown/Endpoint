@@ -44,12 +44,13 @@ public class DiffCommandTests
             .ReturnsAsync(expectedDiff);
 
         var command = new DiffCommand(loggerMock.Object, gitServiceMock.Object);
-        var testOutputFile = Path.Combine(Path.GetTempPath(), $"test-diff-{Guid.NewGuid()}.txt");
+        var testOutputFileName = $"test-diff-{Guid.NewGuid()}.txt";
+        var testOutputFile = Path.Combine(Directory.GetCurrentDirectory(), testOutputFileName);
 
         try
         {
             // Act
-            await command.ExecuteAsync("https://github.com/test/repo", "feature-branch", testOutputFile);
+            await command.ExecuteAsync("https://github.com/test/repo", "feature-branch", testOutputFileName);
 
             // Assert
             gitServiceMock.Verify(
@@ -100,6 +101,9 @@ public class DiffCommandTests
     [InlineData("https://github.com/test/repo", "branch", null)]
     [InlineData("https://github.com/test/repo", "branch", "")]
     [InlineData("https://github.com/test/repo", "branch", "   ")]
+    [InlineData("https://github.com/test/repo", "branch", "../output.txt")]
+    [InlineData("https://github.com/test/repo", "branch", "/etc/passwd")]
+    [InlineData("https://github.com/test/repo", "branch", "../../etc/passwd")]
     public async Task ExecuteAsync_WithInvalidParameters_ThrowsArgumentException(string? url, string? branch, string? output)
     {
         // Arrange
