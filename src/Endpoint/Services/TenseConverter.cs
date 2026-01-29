@@ -3,7 +3,7 @@
 
 using SimpleNLG;
 
-namespace Endpoint.DotNet.Services;
+namespace Endpoint.Services;
 
 public class TenseConverter : ITenseConverter
 {

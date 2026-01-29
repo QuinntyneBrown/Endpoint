@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Extensions;
-using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Microsoft.Extensions.Logging;
 using static Endpoint.DotNet.Constants;
 

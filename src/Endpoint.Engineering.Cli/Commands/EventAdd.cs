@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.Syntax;
 using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Endpoint.DotNet.Syntax;
 using Humanizer;
 using MediatR;

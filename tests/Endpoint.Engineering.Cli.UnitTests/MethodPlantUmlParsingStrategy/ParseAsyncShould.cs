@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Threading.Tasks;
-using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Classes;
 using Endpoint.DotNet.Syntax.Methods;

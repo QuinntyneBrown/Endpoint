@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Endpoint.DotNet.Syntax;
 using Endpoint.DotNet.Syntax.Entities;
 using Endpoint.DotNet.Syntax.Properties;

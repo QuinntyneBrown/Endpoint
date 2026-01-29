@@ -3,7 +3,7 @@
 
 using System.IO.Abstractions;
 using System.Text;
-using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Endpoint.DotNet.SharedLibrary.Configuration;
 using Endpoint.Internal;
 using Microsoft.Extensions.Logging;

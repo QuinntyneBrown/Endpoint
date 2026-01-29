@@ -18,6 +18,7 @@ using Endpoint.DotNet.Artifacts.Units;
 using Endpoint.DotNet.Events;
 using Endpoint.DotNet.Services;
 using Endpoint.DotNet.SharedLibrary;
+using Endpoint.Services;
 using Endpoint.DotNet.Syntax.Classes.Factories;
 using Endpoint.DotNet.Syntax.Classes.Services;
 using Endpoint.DotNet.Syntax.Controllers;

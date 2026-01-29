@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 
-namespace Endpoint.DotNet.Services;
+namespace Endpoint.Services;
 
 public class EmbeddedResourceTemplateLocatorBase<T> : ITemplateLocator
     where T : class

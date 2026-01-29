@@ -6,10 +6,11 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using DotLiquid;
+using Endpoint.Syntax;
 
-namespace Endpoint.DotNet.Services;
+namespace Endpoint.Services;
 
-public class RazorTeplateProcessor : ITemplateProcessor
+public class RazorTemplateProcessor : ITemplateProcessor
 {
     public string Process(string template, IDictionary<string, object> tokens, string[] ignoreTokens = null)
     {

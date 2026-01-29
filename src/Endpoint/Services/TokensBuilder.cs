@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Endpoint.DotNet.Syntax;
+using Endpoint.Syntax;
 
-namespace Endpoint.DotNet.Services;
+namespace Endpoint.Services;
 
 public class TokensBuilder
 {

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Endpoint.DotNet.Events;
+namespace Endpoint.Events;
 
 public static class DomainEvents
 {

@@ -7,7 +7,6 @@ using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts.Projects;
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Artifacts.Projects.Strategies;
-using Endpoint.DotNet.Services;
 using Endpoint.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;

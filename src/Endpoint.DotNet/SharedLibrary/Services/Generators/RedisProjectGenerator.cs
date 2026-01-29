@@ -2,7 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.IO.Abstractions;
-using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Endpoint.DotNet.SharedLibrary.Configuration;
 using Endpoint.Internal;
 using Microsoft.Extensions.Logging;

@@ -8,7 +8,7 @@ using CommandLine;
 using Endpoint.Angular;
 using Endpoint.DotNet;
 using Endpoint.DotNet.Cli;
-using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Endpoint.Engineering.ALaCarte.Core;
 using Endpoint.Engineering.ALaCarte.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -68,7 +68,7 @@ var app = CodeGeneratorApplication.CreateBuilder()
     {
         services.AddSingleton<IConfiguration>(config);
         services.AddLogging(x => x.AddSerilog(Log.Logger));
-        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<AssemblyMarker>>();
+        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
         services.AddModernWebAppPatternCoreServices();
         services.AddAngularServices();
         services.AddRedisPubSubServices();

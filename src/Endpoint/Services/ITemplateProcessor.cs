@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Endpoint.DotNet.Services;
+namespace Endpoint.Services;
 
 public interface ITemplateProcessor
 {

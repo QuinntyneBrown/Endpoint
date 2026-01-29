@@ -2,9 +2,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Endpoint.DotNet.Services;
+using Endpoint.Services;
 
-namespace Endpoint.DotNet.Syntax;
+namespace Endpoint.Syntax;
 
 public static class SyntaxExtensions
 {

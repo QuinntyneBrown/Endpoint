@@ -3,7 +3,7 @@
 
 using System.Text;
 using System.Threading;
-using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Endpoint.DotNet.Syntax.Classes;
 using Microsoft.Extensions.Logging;
 

@@ -4,7 +4,7 @@
 using System.IO;
 using System.Text;
 using Endpoint.Artifacts.Abstractions;
-using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Files.Strategies;

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 
-namespace Endpoint.DotNet.Services;
+namespace Endpoint.Services;
 
 public interface ITokenBuilder
 {

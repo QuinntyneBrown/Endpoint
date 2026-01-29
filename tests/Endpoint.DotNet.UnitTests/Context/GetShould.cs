@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Endpoint.DotNet.UnitTests.Context;
 
-using Context = Endpoint.DotNet.Services.Context;
+using Context = Endpoint.Services.Context;
 
 public class GetShould
 {

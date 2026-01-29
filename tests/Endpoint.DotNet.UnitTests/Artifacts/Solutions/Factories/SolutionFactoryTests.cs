@@ -3,7 +3,7 @@
 
 using Endpoint.DotNet.Artifacts.Projects.Enums;
 using Endpoint.DotNet.Artifacts.Solutions.Factories;
-using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

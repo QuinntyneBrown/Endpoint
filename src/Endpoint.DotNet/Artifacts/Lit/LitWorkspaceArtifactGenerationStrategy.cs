@@ -5,6 +5,7 @@ using System.IO;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.DotNet.Artifacts.Files;
 using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.DotNet.Artifacts.Lit;

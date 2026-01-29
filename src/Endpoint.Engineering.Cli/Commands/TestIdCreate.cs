@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using Endpoint.DotNet.Services;
+using Endpoint.Services;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

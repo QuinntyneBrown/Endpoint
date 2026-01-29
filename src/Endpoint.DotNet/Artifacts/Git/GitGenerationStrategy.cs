@@ -4,7 +4,6 @@
 using System.IO;
 using Endpoint.Artifacts.Abstractions;
 using Endpoint.Services;
-using Endpoint.DotNet.Services;
 using Microsoft.Extensions.Logging;
 using Octokit;
 
