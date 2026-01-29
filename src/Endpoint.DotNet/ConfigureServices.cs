@@ -101,7 +101,7 @@ public static class ConfigureServices
         services.AddSingleton<IPlantUmlValidationService, PlantUmlValidationService>();
         services.AddSingleton<ISequenceToSolutionPlantUmlService, SequenceToSolutionPlantUmlService>();
 
-        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<Context>>();
+        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<AssemblyMarker>>();
 
         services.AddSyntaxGenerator(typeof(Endpoint.DotNet.Constants).Assembly);
         services.AddArifactGenerator(typeof(Endpoint.DotNet.Constants).Assembly);

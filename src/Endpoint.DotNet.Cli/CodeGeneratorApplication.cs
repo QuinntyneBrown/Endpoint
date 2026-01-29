@@ -14,6 +14,7 @@ public class CodeGeneratorApplication
 {
     private readonly IMediator mediator;
     private readonly ILogger<CodeGeneratorApplication> logger;
+    private readonly Observable<INotification> notificationObservable;
 
     public CodeGeneratorApplication(IMediator mediator, ILogger<CodeGeneratorApplication> logger, Observable<INotification> notificationObservable)
     {
@@ -22,6 +23,7 @@ public class CodeGeneratorApplication
 
         this.mediator = mediator;
         this.logger = logger;
+        this.notificationObservable = notificationObservable;
     }
 
     public static CodeGeneratorApplicationBuilder CreateBuilder()
