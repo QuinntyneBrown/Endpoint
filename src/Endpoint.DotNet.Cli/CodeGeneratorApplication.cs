@@ -1,17 +1,20 @@
 // Copyright (c) Quinntyne Brown. All Rights Reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
+using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Endpoint.Internal;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Endpoint.DotNet;
+namespace Endpoint.DotNet.Cli;
 
 public class CodeGeneratorApplication
 {
     private readonly IMediator mediator;
     private readonly ILogger<CodeGeneratorApplication> logger;
+    private readonly Observable<INotification> notificationObservable;
 
     public CodeGeneratorApplication(IMediator mediator, ILogger<CodeGeneratorApplication> logger, Observable<INotification> notificationObservable)
     {
@@ -20,6 +23,7 @@ public class CodeGeneratorApplication
 
         this.mediator = mediator;
         this.logger = logger;
+        this.notificationObservable = notificationObservable;
     }
 
     public static CodeGeneratorApplicationBuilder CreateBuilder()

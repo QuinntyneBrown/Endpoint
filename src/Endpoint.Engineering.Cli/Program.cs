@@ -68,7 +68,7 @@ var app = CodeGeneratorApplication.CreateBuilder()
     {
         services.AddSingleton<IConfiguration>(config);
         services.AddLogging(x => x.AddSerilog(Log.Logger));
-        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<CodeGeneratorApplication>>();
+        services.AddSingleton<ITemplateLocator, EmbeddedResourceTemplateLocatorBase<AssemblyMarker>>();
         services.AddModernWebAppPatternCoreServices();
         services.AddAngularServices();
         services.AddRedisPubSubServices();
