@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using CommandLine;
-using Endpoint.DotNet.Services;
+using Endpoint.DotNet.Cli.Services;
 
-namespace Endpoint.DotNet.Extensions;
+namespace Endpoint.DotNet.Cli.Extensions;
 
 public static class CommandLineArgsExtensions
 {
@@ -31,13 +31,14 @@ public static class CommandLineArgsExtensions
         // Check for version flags
         if (args.Length == 1 && (args[0] == "--version" || args[0] == "-v"))
         {
-            var assembly = typeof(CommandLineArgsExtensions).Assembly;
-            var version = assembly.GetName().Version;
-            var informationalVersion = assembly
+            var assembly = Assembly.GetEntryAssembly();
+            var version = assembly?.GetName().Version;
+            var informationalVersion = assembly?
                 .GetCustomAttribute<System.Reflection.AssemblyInformationalVersionAttribute>()?
                 .InformationalVersion ?? version?.ToString() ?? "Unknown";
             
-            Console.WriteLine($"Endpoint.Engineering.Cli {informationalVersion}");
+            var assemblyName = assembly?.GetName().Name ?? "Endpoint CLI";
+            Console.WriteLine($"{assemblyName} {informationalVersion}");
             Console.WriteLine("Copyright (C) 2026 Quinntyne Brown");
             Environment.Exit(0);
         }
@@ -54,12 +55,6 @@ public static class CommandLineArgsExtensions
         {
             HelpService.DisplayCommandHelp(args[1]);
             Environment.Exit(0);
-        }
-
-        if (args.Length == 0)
-        {
-            args =
-                [Environment.GetEnvironmentVariable("ENDPOINT_DEFAULT", EnvironmentVariableTarget.Machine)!];
         }
 
         var parser = new Parser(with =>
@@ -99,7 +94,9 @@ public static class CommandLineArgsExtensions
 
         if (parsedResult.Errors.SingleOrDefault() is BadVerbSelectedError error)
         {
-            throw new Exception($"{error.Tag}:{error.Token}");
+            Console.WriteLine($"Error: Unknown or invalid command '{error.Token}'");
+            Console.WriteLine("Use 'endpoint --help' to see all available commands.");
+            Environment.Exit(1);
         }
 
         return parsedResult.Value;

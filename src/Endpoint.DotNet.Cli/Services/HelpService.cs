@@ -5,10 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using CommandLine;
 
-namespace Endpoint.DotNet.Services;
+namespace Endpoint.DotNet.Cli.Services;
 
 /// <summary>
 /// Service for displaying CLI help information.
@@ -77,7 +76,7 @@ public static class HelpService
 
         Console.WriteLine();
         Console.WriteLine($"Command: {command.VerbName}");
-        Console.WriteLine(new string('=', command.VerbName.Length + 9));
+        Console.WriteLine(new string('=', "Command: ".Length + command.VerbName.Length));
         Console.WriteLine();
 
         if (!string.IsNullOrEmpty(command.Description))
@@ -122,6 +121,10 @@ public static class HelpService
                 try
                 {
                     return s.GetTypes();
+                }
+                catch (ReflectionTypeLoadException ex)
+                {
+                    return ex.Types.Where(t => t != null).Cast<Type>();
                 }
                 catch
                 {
