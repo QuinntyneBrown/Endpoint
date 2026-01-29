@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Authors>Quinntyne Brown</Authors>
-    <Company>Allagi Consulting</Company>
+    <Company>Quinntyne Brown</Company>
     <PackageTags>clean-architecture;source-generator;application-code;scaffolding</PackageTags>
     <RepositoryUrl>https://github.com/QuinntyneBrown/Endpoint</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -20,11 +20,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Templates\**\*.txt" />
     <None Include="README.md" Pack="true" PackagePath="\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="Syntax\TypeScript\**" />
-    <EmbeddedResource Remove="Syntax\TypeScript\**" />
-    <None Remove="Syntax\TypeScript\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.0" />
