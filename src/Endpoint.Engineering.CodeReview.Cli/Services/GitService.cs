@@ -2,11 +2,12 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using LibGit2Sharp;
 using Microsoft.Extensions.Logging;
 
 namespace Endpoint.Engineering.CodeReview.Cli.Services;
@@ -41,54 +42,32 @@ public class GitService : IGitService
 
             _logger.LogInformation("Cloning repository to: {TempDirectory}", tempDirectory);
 
-            // Clone the repository
-            var cloneOptions = new CloneOptions
-            {
-                BranchName = null, // Clone all branches
-                Checkout = false
-            };
+            // Clone the repository (fetch all branches)
+            await RunGitCommandAsync(tempDirectory, $"clone --no-checkout {repositoryUrl} .", cancellationToken);
 
-            Repository.Clone(repositoryUrl, tempDirectory, cloneOptions);
+            // Fetch all remote branches
+            await RunGitCommandAsync(tempDirectory, "fetch --all", cancellationToken);
 
-            using var repo = new Repository(tempDirectory);
+            // Get the default branch name from remote HEAD
+            var defaultBranch = await GetDefaultBranchAsync(tempDirectory, cancellationToken);
+            _logger.LogInformation("Repository cloned. Default branch: {DefaultBranch}", defaultBranch);
 
-            _logger.LogInformation("Repository cloned. Default branch: {DefaultBranch}", repo.Head.FriendlyName);
-
-            // Find the default branch
-            var defaultBranch = repo.Head;
-
-            // Find the specified branch
-            var targetBranch = repo.Branches.FirstOrDefault(b => 
-                b.FriendlyName == branchName || 
-                b.FriendlyName == $"origin/{branchName}");
-
-            if (targetBranch == null)
+            // Verify the target branch exists
+            var branchExists = await BranchExistsAsync(tempDirectory, branchName, cancellationToken);
+            if (!branchExists)
             {
                 throw new InvalidOperationException($"Branch '{branchName}' not found in repository.");
             }
 
-            _logger.LogInformation("Comparing {TargetBranch} with {DefaultBranch}", targetBranch.FriendlyName, defaultBranch.FriendlyName);
+            _logger.LogInformation("Comparing {TargetBranch} with {DefaultBranch}", branchName, defaultBranch);
 
-            // Get the diff between the two branches
-            var defaultCommit = defaultBranch.Tip;
-            var targetCommit = targetBranch.Tip;
+            // Get the diff between the merge base and the target branch
+            var diff = await RunGitCommandAsync(
+                tempDirectory,
+                $"diff origin/{defaultBranch}...origin/{branchName}",
+                cancellationToken);
 
-            // Find the merge base
-            var mergeBase = repo.ObjectDatabase.FindMergeBase(defaultCommit, targetCommit);
-
-            if (mergeBase == null)
-            {
-                _logger.LogWarning("No merge base found. Using direct comparison.");
-                mergeBase = defaultCommit;
-            }
-
-            // Create the diff
-            var mergeBaseTree = mergeBase.Tree;
-            var targetTree = targetCommit.Tree;
-
-            var diff = repo.Diff.Compare<Patch>(mergeBaseTree, targetTree);
-
-            return diff.Content;
+            return diff;
         }
         finally
         {
@@ -97,6 +76,8 @@ public class GitService : IGitService
             {
                 try
                 {
+                    // On Windows, git files can be read-only, so we need to clear attributes first
+                    ClearReadOnlyAttributes(tempDirectory);
                     Directory.Delete(tempDirectory, recursive: true);
                     _logger.LogInformation("Cleaned up temporary directory: {TempDirectory}", tempDirectory);
                 }
@@ -104,6 +85,111 @@ public class GitService : IGitService
                 {
                     _logger.LogWarning(ex, "Failed to clean up temporary directory: {TempDirectory}", tempDirectory);
                 }
+            }
+        }
+    }
+
+    private async Task<string> GetDefaultBranchAsync(string workingDirectory, CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Try to get the default branch from remote HEAD
+            var result = await RunGitCommandAsync(workingDirectory, "symbolic-ref refs/remotes/origin/HEAD", cancellationToken);
+            var defaultBranch = result.Trim().Replace("refs/remotes/origin/", "");
+            if (!string.IsNullOrWhiteSpace(defaultBranch))
+            {
+                return defaultBranch;
+            }
+        }
+        catch
+        {
+            // If symbolic-ref fails, fall back to common default branch names
+        }
+
+        // Check for common default branch names
+        if (await BranchExistsAsync(workingDirectory, "main", cancellationToken))
+        {
+            return "main";
+        }
+
+        if (await BranchExistsAsync(workingDirectory, "master", cancellationToken))
+        {
+            return "master";
+        }
+
+        return "main";
+    }
+
+    private async Task<bool> BranchExistsAsync(string workingDirectory, string branchName, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await RunGitCommandAsync(workingDirectory, $"rev-parse --verify origin/{branchName}", cancellationToken);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private async Task<string> RunGitCommandAsync(string workingDirectory, string arguments, CancellationToken cancellationToken)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "git",
+            Arguments = arguments,
+            WorkingDirectory = workingDirectory,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var process = new Process { StartInfo = startInfo };
+        var output = new StringBuilder();
+        var error = new StringBuilder();
+
+        process.OutputDataReceived += (sender, e) =>
+        {
+            if (e.Data != null)
+            {
+                output.AppendLine(e.Data);
+            }
+        };
+
+        process.ErrorDataReceived += (sender, e) =>
+        {
+            if (e.Data != null)
+            {
+                error.AppendLine(e.Data);
+            }
+        };
+
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
+        await process.WaitForExitAsync(cancellationToken);
+
+        if (process.ExitCode != 0)
+        {
+            var errorMessage = error.ToString().Trim();
+            _logger.LogWarning("Git command failed: git {Arguments}. Error: {Error}", arguments, errorMessage);
+            throw new InvalidOperationException($"Git command failed: git {arguments}. Error: {errorMessage}");
+        }
+
+        return output.ToString();
+    }
+
+    private static void ClearReadOnlyAttributes(string directory)
+    {
+        foreach (var file in Directory.GetFiles(directory, "*", SearchOption.AllDirectories))
+        {
+            var attributes = File.GetAttributes(file);
+            if ((attributes & FileAttributes.ReadOnly) == FileAttributes.ReadOnly)
+            {
+                File.SetAttributes(file, attributes & ~FileAttributes.ReadOnly);
             }
         }
     }

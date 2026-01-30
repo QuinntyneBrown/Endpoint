@@ -30,7 +30,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0" />
     <PackageReference Include="Serilog.Extensions.Hosting" Version="5.0.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.1-dev-00896" />
-    <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
   </ItemGroup>
 
   <ItemGroup>
