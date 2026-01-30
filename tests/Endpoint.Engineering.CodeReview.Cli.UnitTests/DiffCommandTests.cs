@@ -38,9 +38,9 @@ public class DiffCommandTests
         var loggerMock = new Mock<ILogger<DiffCommand>>();
         var gitServiceMock = new Mock<IGitService>();
         var expectedDiff = "diff --git a/file.txt b/file.txt\nindex 123..456 789\n--- a/file.txt\n+++ b/file.txt\n@@ -1,1 +1,1 @@\n-old\n+new";
-        
+
         gitServiceMock
-            .Setup(x => x.GetDiffAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetDiffAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedDiff);
 
         var command = new DiffCommand(loggerMock.Object, gitServiceMock.Object);
@@ -50,11 +50,11 @@ public class DiffCommandTests
         try
         {
             // Act
-            await command.ExecuteAsync("https://github.com/test/repo", "feature-branch", testOutputFileName);
+            await command.ExecuteAsync("https://github.com/test/repo/tree/feature-branch", testOutputFileName);
 
             // Assert
             gitServiceMock.Verify(
-                x => x.GetDiffAsync("https://github.com/test/repo", "feature-branch", It.IsAny<CancellationToken>()),
+                x => x.GetDiffAsync("https://github.com/test/repo/tree/feature-branch", It.IsAny<CancellationToken>()),
                 Times.Once);
 
             Assert.True(File.Exists(testOutputFile));
@@ -92,19 +92,16 @@ public class DiffCommandTests
     }
 
     [Theory]
-    [InlineData(null, "branch", "output.txt")]
-    [InlineData("", "branch", "output.txt")]
-    [InlineData("   ", "branch", "output.txt")]
-    [InlineData("https://github.com/test/repo", null, "output.txt")]
-    [InlineData("https://github.com/test/repo", "", "output.txt")]
-    [InlineData("https://github.com/test/repo", "   ", "output.txt")]
-    [InlineData("https://github.com/test/repo", "branch", null)]
-    [InlineData("https://github.com/test/repo", "branch", "")]
-    [InlineData("https://github.com/test/repo", "branch", "   ")]
-    [InlineData("https://github.com/test/repo", "branch", "../output.txt")]
-    [InlineData("https://github.com/test/repo", "branch", "/etc/passwd")]
-    [InlineData("https://github.com/test/repo", "branch", "../../etc/passwd")]
-    public async Task ExecuteAsync_WithInvalidParameters_ThrowsArgumentException(string? url, string? branch, string? output)
+    [InlineData(null, "output.txt")]
+    [InlineData("", "output.txt")]
+    [InlineData("   ", "output.txt")]
+    [InlineData("https://github.com/test/repo", null)]
+    [InlineData("https://github.com/test/repo", "")]
+    [InlineData("https://github.com/test/repo", "   ")]
+    [InlineData("https://github.com/test/repo", "../output.txt")]
+    [InlineData("https://github.com/test/repo", "/etc/passwd")]
+    [InlineData("https://github.com/test/repo", "../../etc/passwd")]
+    public async Task ExecuteAsync_WithInvalidParameters_ThrowsArgumentException(string? url, string? output)
     {
         // Arrange
         var loggerMock = new Mock<ILogger<DiffCommand>>();
@@ -114,7 +111,7 @@ public class DiffCommandTests
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
         {
-            await command.ExecuteAsync(url!, branch!, output!);
+            await command.ExecuteAsync(url!, output!);
         });
     }
 }

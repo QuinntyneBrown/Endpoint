@@ -27,14 +27,7 @@ public class DiffCommand
 
         var urlOption = new Option<string>(
             aliases: ["-u", "--url"],
-            description: "The URL of the git repository (GitHub, GitLab, or git)")
-        {
-            IsRequired = true
-        };
-
-        var branchOption = new Option<string>(
-            aliases: ["-b", "--branch"],
-            description: "The name of the branch to compare")
+            description: "The URL to a git repository or branch (GitHub, GitLab, or self-hosted). If the URL points to a specific branch, that branch will be compared. If no branch is specified in the URL, defaults to 'main'.")
         {
             IsRequired = true
         };
@@ -45,24 +38,18 @@ public class DiffCommand
             getDefaultValue: () => "diff.txt");
 
         command.AddOption(urlOption);
-        command.AddOption(branchOption);
         command.AddOption(outputOption);
 
-        command.SetHandler(ExecuteAsync, urlOption, branchOption, outputOption);
+        command.SetHandler(ExecuteAsync, urlOption, outputOption);
 
         return command;
     }
 
-    public async Task ExecuteAsync(string url, string branch, string output)
+    public async Task ExecuteAsync(string url, string output)
     {
         if (string.IsNullOrWhiteSpace(url))
         {
             throw new ArgumentException("URL cannot be null or empty.", nameof(url));
-        }
-
-        if (string.IsNullOrWhiteSpace(branch))
-        {
-            throw new ArgumentException("Branch cannot be null or empty.", nameof(branch));
         }
 
         if (string.IsNullOrWhiteSpace(output))
@@ -79,9 +66,9 @@ public class DiffCommand
 
         try
         {
-            _logger.LogInformation("Getting diff for repository: {Url}, branch: {Branch}", url, branch);
+            _logger.LogInformation("Getting diff for URL: {Url}", url);
 
-            var diff = await _gitService.GetDiffAsync(url, branch);
+            var diff = await _gitService.GetDiffAsync(url);
 
             var outputPath = Path.Combine(Directory.GetCurrentDirectory(), output);
             await File.WriteAllTextAsync(outputPath, diff);

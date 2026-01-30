@@ -13,6 +13,8 @@ namespace Endpoint.Engineering.CodeReview.Cli.Services;
 
 public class GitService : IGitService
 {
+    private static readonly string[] BranchPrefixes = { "feature", "bugfix", "hotfix", "release", "copilot", "dependabot" };
+
     private readonly ILogger<GitService> _logger;
 
     public GitService(ILogger<GitService> logger)
@@ -20,17 +22,14 @@ public class GitService : IGitService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<string> GetDiffAsync(string repositoryUrl, string branchName, CancellationToken cancellationToken = default)
+    public async Task<string> GetDiffAsync(string url, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(repositoryUrl))
+        if (string.IsNullOrWhiteSpace(url))
         {
-            throw new ArgumentException("Repository URL cannot be null or empty.", nameof(repositoryUrl));
+            throw new ArgumentException("URL cannot be null or empty.", nameof(url));
         }
 
-        if (string.IsNullOrWhiteSpace(branchName))
-        {
-            throw new ArgumentException("Branch name cannot be null or empty.", nameof(branchName));
-        }
+        var (repositoryUrl, branchName) = ParseGitUrl(url);
 
         _logger.LogInformation("Getting diff for repository: {RepositoryUrl}, branch: {BranchName}", repositoryUrl, branchName);
 
@@ -107,5 +106,58 @@ public class GitService : IGitService
                 }
             }
         }
+    }
+
+    private static (string RepositoryUrl, string BranchName) ParseGitUrl(string url)
+    {
+        var uri = new Uri(url);
+        var path = uri.AbsolutePath.TrimEnd('/');
+
+        // GitLab/Self-hosted pattern: /-/tree/{branch}[/{path}]
+        var gitlabIndex = path.IndexOf("/-/tree/", StringComparison.Ordinal);
+        if (gitlabIndex >= 0)
+        {
+            var repoPath = path[..gitlabIndex];
+            var afterTree = path[(gitlabIndex + 8)..]; // 8 = "/-/tree/".Length
+
+            // For GitLab, branch is first segment (GitLab URL-encodes slashes in branch names)
+            var slashIndex = afterTree.IndexOf('/');
+            var branchName = slashIndex >= 0 ? afterTree[..slashIndex] : afterTree;
+
+            return ($"{uri.Scheme}://{uri.Host}{repoPath}", branchName);
+        }
+
+        // GitHub pattern: /{owner}/{repo}/tree/{branch}[/{path}]
+        var treeIndex = path.IndexOf("/tree/", StringComparison.Ordinal);
+        if (treeIndex >= 0)
+        {
+            var repoPath = path[..treeIndex];
+            var afterTree = path[(treeIndex + 6)..]; // 6 = "/tree/".Length
+
+            // For GitHub, we need to handle branches with slashes
+            // Heuristic: check for common branch prefixes that indicate multi-segment branch names
+            var segments = afterTree.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+            string branchName;
+            if (segments.Length == 1)
+            {
+                branchName = segments[0];
+            }
+            else if (BranchPrefixes.Contains(segments[0], StringComparer.OrdinalIgnoreCase))
+            {
+                // First segment is a branch prefix, take first two segments as branch name
+                branchName = $"{segments[0]}/{segments[1]}";
+            }
+            else
+            {
+                // Assume single-segment branch with path
+                branchName = segments[0];
+            }
+
+            return ($"{uri.Scheme}://{uri.Host}{repoPath}", branchName);
+        }
+
+        // No tree pattern - assume just repository URL, default branch
+        return (url.TrimEnd('/'), "main");
     }
 }

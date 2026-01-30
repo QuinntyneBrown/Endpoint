@@ -20,13 +20,10 @@ public class GitServiceTests
     }
 
     [Theory]
-    [InlineData(null, "branch")]
-    [InlineData("", "branch")]
-    [InlineData("   ", "branch")]
-    [InlineData("https://github.com/test/repo", null)]
-    [InlineData("https://github.com/test/repo", "")]
-    [InlineData("https://github.com/test/repo", "   ")]
-    public async Task GetDiffAsync_WithInvalidParameters_ThrowsArgumentException(string? url, string? branch)
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task GetDiffAsync_WithInvalidUrl_ThrowsArgumentException(string? url)
     {
         // Arrange
         var loggerMock = new Mock<ILogger<GitService>>();
@@ -35,7 +32,7 @@ public class GitServiceTests
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(async () =>
         {
-            await service.GetDiffAsync(url!, branch!);
+            await service.GetDiffAsync(url!);
         });
     }
 }
